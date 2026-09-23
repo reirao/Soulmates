@@ -1,0 +1,8 @@
+author = AETHER LUX
+displayName = Soulmates
+homepage = https://github.com/reirao/Soulmates
+hideCode = false
+hideResources = false
+includeSource = true
+buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*, .git\*
+version = 0.1.0

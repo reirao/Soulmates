@@ -1,0 +1,23 @@
+Mods: {
+  Soulmates: {
+    Items: {
+      Soulcore: {
+        DisplayName: Soulcore
+        Tooltip: "A reusable tool for shaping new companions\nUse to open the Soul Creator"
+      }
+      BlankSigil: {
+        DisplayName: Blank Sigil
+        Tooltip: "An empty vessel waiting for a soul"
+      }
+      SoulboundSigil: {
+        DisplayName: Soulbound Sigil
+        Tooltip: "A unique companion rests within"
+      }
+    }
+    NPCs: {
+      SoulboundCompanion: {
+        DisplayName: Soulbound Companion
+      }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+Create a companion with a soul.
+
+Use the reusable Soulcore to shape unique companions, bind each one to a Soulbound Sigil, and bring them along on your Terraria adventures.
+
+This early prototype includes companion creation, persistent identities, summoning, recalling, and follow/stay commands.
