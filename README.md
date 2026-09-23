@@ -20,7 +20,7 @@ This first playable slice is intended for single-player testing. Full server-aut
 2. Copy or clone this folder into `Documents/My Games/Terraria/tModLoader/ModSources/Soulmates`.
 3. Open tModLoader and choose **Workshop > Develop Mods > Build + Reload**.
 
-The project targets the current tModLoader 1.4.5 source layout. The `.csproj` expects `tModLoader.targets` one directory above the mod, which is how the ModSources folder is arranged.
+The project targets the current tModLoader 1.4.4 stable release. In the normal ModSources folder the project automatically uses `tModLoader.targets`. For development elsewhere, set `TML_PATH` to a tModLoader installation containing `tMLMod.targets`.
 
 ## Prototype recipes
 

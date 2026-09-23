@@ -1,7 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\tModLoader.targets" />
+  <Import Project="..\tModLoader.targets" Condition="Exists('..\tModLoader.targets')" />
+  <Import Project="$(TML_PATH)\tMLMod.targets" Condition="!Exists('..\tModLoader.targets') and '$(TML_PATH)' != ''" />
   <PropertyGroup>
     <AssemblyName>Soulmates</AssemblyName>
     <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ExtraBuildModFlags Condition="'$(TML_SAVE_PATH)' != ''">$(ExtraBuildModFlags) -tmlsavedirectory &quot;$(TML_SAVE_PATH)&quot;</ExtraBuildModFlags>
   </PropertyGroup>
+  <Target Name="RequireTModLoader" BeforeTargets="PrepareForBuild" Condition="!Exists('..\tModLoader.targets') and '$(TML_PATH)' == ''">
+    <Error Text="Place Soulmates in tModLoader/ModSources or set TML_PATH to the tModLoader installation directory." />
+  </Target>
 </Project>

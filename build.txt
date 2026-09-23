@@ -4,5 +4,5 @@ homepage = https://github.com/reirao/Soulmates
 hideCode = false
 hideResources = false
 includeSource = true
-buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*, .git\*
+buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*, .git\*, work\*, outputs\*
 version = 0.1.0
