@@ -32,6 +32,20 @@ public enum CompanionEssence : byte
 	Amethyst
 }
 
+public enum CompanionForm : byte
+{
+	Balanced,
+	Round,
+	Wisp
+}
+
+public enum CompanionAura : byte
+{
+	SoftGlow,
+	OrbitingStars,
+	SoulSparks
+}
+
 public sealed class CompanionProfile
 {
 	public Guid Id { get; set; } = Guid.NewGuid();
@@ -39,6 +53,8 @@ public sealed class CompanionProfile
 	public CompanionPersonality Personality { get; set; }
 	public CompanionTalent Talent { get; set; }
 	public CompanionEssence Essence { get; set; }
+	public CompanionForm Form { get; set; }
+	public CompanionAura Aura { get; set; }
 	public int Bond { get; set; }
 	public int Mood { get; set; } = 100;
 	public int Energy { get; set; } = 100;
@@ -57,6 +73,8 @@ public sealed class CompanionProfile
 		Personality = Personality,
 		Talent = Talent,
 		Essence = Essence,
+		Form = Form,
+		Aura = Aura,
 		Bond = Bond,
 		Mood = Mood,
 		Energy = Energy
@@ -68,6 +86,8 @@ public sealed class CompanionProfile
 		["personality"] = (byte)Personality,
 		["talent"] = (byte)Talent,
 		["essence"] = (byte)Essence,
+		["form"] = (byte)Form,
+		["aura"] = (byte)Aura,
 		["bond"] = Bond,
 		["mood"] = Mood,
 		["energy"] = Energy
@@ -79,6 +99,8 @@ public sealed class CompanionProfile
 		Personality = (CompanionPersonality)tag.GetByte("personality"),
 		Talent = (CompanionTalent)tag.GetByte("talent"),
 		Essence = (CompanionEssence)tag.GetByte("essence"),
+		Form = tag.ContainsKey("form") ? (CompanionForm)tag.GetByte("form") : CompanionForm.Balanced,
+		Aura = tag.ContainsKey("aura") ? (CompanionAura)tag.GetByte("aura") : CompanionAura.SoftGlow,
 		Bond = tag.GetInt("bond"),
 		Mood = tag.ContainsKey("mood") ? tag.GetInt("mood") : 100,
 		Energy = tag.ContainsKey("energy") ? tag.GetInt("energy") : 100
@@ -91,6 +113,8 @@ public sealed class CompanionProfile
 		writer.Write((byte)Personality);
 		writer.Write((byte)Talent);
 		writer.Write((byte)Essence);
+		writer.Write((byte)Form);
+		writer.Write((byte)Aura);
 		writer.Write(Bond);
 		writer.Write(Mood);
 		writer.Write(Energy);
@@ -102,6 +126,8 @@ public sealed class CompanionProfile
 		Personality = (CompanionPersonality)reader.ReadByte(),
 		Talent = (CompanionTalent)reader.ReadByte(),
 		Essence = (CompanionEssence)reader.ReadByte(),
+		Form = (CompanionForm)reader.ReadByte(),
+		Aura = (CompanionAura)reader.ReadByte(),
 		Bond = reader.ReadInt32(),
 		Mood = reader.ReadInt32(),
 		Energy = reader.ReadInt32()

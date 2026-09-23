@@ -7,11 +7,13 @@ Soulmates is a tModLoader mod about creating companions that feel personal. The 
 - Craft a reusable Soulcore and Blank Sigils.
 - Receive one Soulcore and three Blank Sigils once per character as a prototype starter kit.
 - Create multiple unique companions from English-language presets.
-- Choose a name, essence color, personality, and starting talent.
+- Shape a companion through an animated live preview.
+- Choose a name, form, essence color, aura, personality, and starting talent.
 - Summon one active companion at a time.
 - Right-click its Sigil to switch between Follow and Stay.
 - Hold Up and right-click the Sigil to recall it.
 - Companion identity and progression data are saved on the Sigil.
+- Personality-driven idle, wander, inspect, follow, and catch-up behavior.
 
 This first playable slice is intended for single-player testing. Full server-authoritative multiplayer commands are on the roadmap.
 
