@@ -46,6 +46,15 @@ public enum CompanionAura : byte
 	SoulSparks
 }
 
+public enum CompanionMuse : byte
+{
+	Soulkin,
+	Bunny,
+	BlueSlime,
+	Bird,
+	Squirrel
+}
+
 public sealed class CompanionProfile
 {
 	public Guid Id { get; set; } = Guid.NewGuid();
@@ -55,6 +64,7 @@ public sealed class CompanionProfile
 	public CompanionEssence Essence { get; set; }
 	public CompanionForm Form { get; set; }
 	public CompanionAura Aura { get; set; }
+	public CompanionMuse Muse { get; set; }
 	public int Bond { get; set; }
 	public int Mood { get; set; } = 100;
 	public int Energy { get; set; } = 100;
@@ -75,6 +85,7 @@ public sealed class CompanionProfile
 		Essence = Essence,
 		Form = Form,
 		Aura = Aura,
+		Muse = Muse,
 		Bond = Bond,
 		Mood = Mood,
 		Energy = Energy
@@ -88,6 +99,7 @@ public sealed class CompanionProfile
 		["essence"] = (byte)Essence,
 		["form"] = (byte)Form,
 		["aura"] = (byte)Aura,
+		["muse"] = (byte)Muse,
 		["bond"] = Bond,
 		["mood"] = Mood,
 		["energy"] = Energy
@@ -101,6 +113,7 @@ public sealed class CompanionProfile
 		Essence = (CompanionEssence)tag.GetByte("essence"),
 		Form = tag.ContainsKey("form") ? (CompanionForm)tag.GetByte("form") : CompanionForm.Balanced,
 		Aura = tag.ContainsKey("aura") ? (CompanionAura)tag.GetByte("aura") : CompanionAura.SoftGlow,
+		Muse = tag.ContainsKey("muse") ? (CompanionMuse)tag.GetByte("muse") : CompanionMuse.Soulkin,
 		Bond = tag.GetInt("bond"),
 		Mood = tag.ContainsKey("mood") ? tag.GetInt("mood") : 100,
 		Energy = tag.ContainsKey("energy") ? tag.GetInt("energy") : 100
@@ -115,6 +128,7 @@ public sealed class CompanionProfile
 		writer.Write((byte)Essence);
 		writer.Write((byte)Form);
 		writer.Write((byte)Aura);
+		writer.Write((byte)Muse);
 		writer.Write(Bond);
 		writer.Write(Mood);
 		writer.Write(Energy);
@@ -128,6 +142,7 @@ public sealed class CompanionProfile
 		Essence = (CompanionEssence)reader.ReadByte(),
 		Form = (CompanionForm)reader.ReadByte(),
 		Aura = (CompanionAura)reader.ReadByte(),
+		Muse = (CompanionMuse)reader.ReadByte(),
 		Bond = reader.ReadInt32(),
 		Mood = reader.ReadInt32(),
 		Energy = reader.ReadInt32()

@@ -9,6 +9,7 @@ Soulmates is a tModLoader mod about creating companions that feel personal. The 
 - Create multiple unique companions from English-language presets.
 - Shape a companion through an animated live preview.
 - Choose a name, form, essence color, aura, personality, and starting talent.
+- Choose a visual Bestiary Muse: Soulkin, Bunny, Blue Slime, Bird, or Squirrel.
 - Summon one active companion at a time.
 - Right-click its Sigil to switch between Follow and Stay.
 - Hold Up and right-click the Sigil to recall it.

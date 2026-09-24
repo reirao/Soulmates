@@ -9,6 +9,7 @@ public sealed class SoulCreatorSystem : ModSystem
 {
 	private UserInterface? creatorInterface;
 	internal SoulCreatorState? CreatorState { get; private set; }
+	public bool IsOpen => creatorInterface?.CurrentState is SoulCreatorState;
 
 	public override void Load()
 	{
@@ -24,6 +25,8 @@ public sealed class SoulCreatorSystem : ModSystem
 	{
 		if (CreatorState is null || creatorInterface is null)
 			return;
+		if (IsOpen)
+			return;
 		CreatorState.ResetDraft();
 		creatorInterface.SetState(CreatorState);
 		Main.playerInventory = true;
@@ -33,6 +36,8 @@ public sealed class SoulCreatorSystem : ModSystem
 
 	public override void UpdateUI(GameTime gameTime)
 	{
+		if (IsOpen)
+			Main.LocalPlayer.mouseInterface = true;
 		creatorInterface?.Update(gameTime);
 	}
 

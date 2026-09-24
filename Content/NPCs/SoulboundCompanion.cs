@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ReLogic.Content;
 using Soulmates.Common;
 using Terraria;
 using Terraria.GameContent;
@@ -192,24 +191,25 @@ public sealed class SoulboundCompanion : ModNPC
 
 	public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
 	{
-		Texture2D texture = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
+		Texture2D texture = CompanionVisuals.GetTexture(Profile.Muse);
+		Rectangle source = CompanionVisuals.GetFrame(Profile.Muse, texture);
 		Vector2 center = NPC.Center - screenPos + new Vector2(0f, IdleBob() * 0.18f);
-		Vector2 origin = texture.Size() * 0.5f;
+		Vector2 origin = source.Size() * 0.5f;
 		float breath = 1f + MathF.Sin(Main.GlobalTimeWrappedHourly * 2f + bobSeed) * 0.025f;
 		Vector2 formScale = Profile.Form switch {
 			CompanionForm.Round => new Vector2(1.12f, 0.92f),
 			CompanionForm.Wisp => new Vector2(0.88f, 1.14f),
 			_ => Vector2.One
 		};
-		Vector2 scale = formScale * (76f / texture.Width) * breath;
+		Vector2 scale = formScale * (64f / Math.Max(source.Width, source.Height)) * breath;
 		SpriteEffects effects = facing < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 		Color tint = Color.Lerp(Color.White, Profile.EssenceColor, 0.34f);
 
 		for (int i = 0; i < 4; i++) {
 			Vector2 glowOffset = new Vector2(2f, 0f).RotatedBy(MathHelper.PiOver2 * i);
-			spriteBatch.Draw(texture, center + glowOffset, null, Profile.EssenceColor * 0.18f, NPC.rotation, origin, scale, effects, 0f);
+			spriteBatch.Draw(texture, center + glowOffset, source, Profile.EssenceColor * 0.18f, NPC.rotation, origin, scale, effects, 0f);
 		}
-		spriteBatch.Draw(texture, center, null, tint, NPC.rotation, origin, scale, effects, 0f);
+		spriteBatch.Draw(texture, center, source, tint, NPC.rotation, origin, scale, effects, 0f);
 		return false;
 	}
 

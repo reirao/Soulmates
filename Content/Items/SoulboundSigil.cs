@@ -80,7 +80,7 @@ public sealed class SoulboundSigil : ModItem
 	public override void ModifyTooltips(List<TooltipLine> tooltips)
 	{
 		tooltips.Add(new TooltipLine(Mod, "BoundTo", $"Bound to {Profile.Name}") { OverrideColor = Profile.EssenceColor });
-		tooltips.Add(new TooltipLine(Mod, "Appearance", $"{Profile.Form} form  |  {SplitName(Profile.Aura.ToString())}"));
+		tooltips.Add(new TooltipLine(Mod, "Appearance", $"{SplitName(Profile.Muse.ToString())} muse  |  {Profile.Form} form  |  {SplitName(Profile.Aura.ToString())}"));
 		tooltips.Add(new TooltipLine(Mod, "Identity", $"{Profile.Personality}  |  {SplitName(Profile.Talent.ToString())}"));
 		tooltips.Add(new TooltipLine(Mod, "Bond", $"Bond {Profile.Bond}  |  Mood {Profile.Mood}  |  Energy {Profile.Energy}"));
 		tooltips.Add(new TooltipLine(Mod, "Controls", "Use: summon  |  Right-click: Follow/Stay  |  Up + Right-click: recall"));

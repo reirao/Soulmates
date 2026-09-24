@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ReLogic.Content;
 using Soulmates.Content.Items;
 using Terraria;
 using Terraria.Audio;
@@ -73,14 +72,15 @@ public sealed class SoulCreatorState : UIState
 			nameIndex = (nameIndex + 1) % Names.Length;
 			draft.Name = Names[nameIndex];
 		});
-		AddCycleButton(panel, "Form", 108f, left, width, () => draft.Form.ToString(), () => draft.Form = Next(draft.Form));
-		AddCycleButton(panel, "Essence", 154f, left, width, () => draft.Essence.ToString(), () => draft.Essence = Next(draft.Essence));
-		AddCycleButton(panel, "Aura", 200f, left, width, () => SplitName(draft.Aura.ToString()), () => draft.Aura = Next(draft.Aura));
-		AddCycleButton(panel, "Personality", 246f, left, width, () => draft.Personality.ToString(), () => draft.Personality = Next(draft.Personality));
-		AddCycleButton(panel, "Starting Talent", 292f, left, width, () => SplitName(draft.Talent.ToString()), () => draft.Talent = Next(draft.Talent));
+		AddCycleButton(panel, "Bestiary Muse", 104f, left, width, () => SplitName(draft.Muse.ToString()), () => draft.Muse = Next(draft.Muse));
+		AddCycleButton(panel, "Form", 146f, left, width, () => draft.Form.ToString(), () => draft.Form = Next(draft.Form));
+		AddCycleButton(panel, "Essence", 188f, left, width, () => draft.Essence.ToString(), () => draft.Essence = Next(draft.Essence));
+		AddCycleButton(panel, "Aura", 230f, left, width, () => SplitName(draft.Aura.ToString()), () => draft.Aura = Next(draft.Aura));
+		AddCycleButton(panel, "Personality", 272f, left, width, () => draft.Personality.ToString(), () => draft.Personality = Next(draft.Personality));
+		AddCycleButton(panel, "Starting Talent", 314f, left, width, () => SplitName(draft.Talent.ToString()), () => draft.Talent = Next(draft.Talent));
 
-		var randomize = Button("RANDOMIZE", 346f, left, width, new Color(82, 74, 116));
-		randomize.OnLeftClick += (_, _) => ResetDraft();
+		var randomize = Button("RANDOMIZE", 362f, left, width, new Color(82, 74, 116));
+		randomize.OnLeftClick += (_, _) => RandomizeDraft();
 		panel.Append(randomize);
 
 		status = new UIText("Requires 1 Blank Sigil", 0.8f) {
@@ -107,6 +107,7 @@ public sealed class SoulCreatorState : UIState
 		nameIndex = Main.rand.Next(Names.Length);
 		draft.Id = Guid.NewGuid();
 		draft.Name = Names[nameIndex];
+		draft.Muse = CompanionMuse.Soulkin;
 		draft.Form = (CompanionForm)Main.rand.Next(Enum.GetValues<CompanionForm>().Length);
 		draft.Essence = (CompanionEssence)Main.rand.Next(Enum.GetValues<CompanionEssence>().Length);
 		draft.Aura = (CompanionAura)Main.rand.Next(Enum.GetValues<CompanionAura>().Length);
@@ -116,6 +117,13 @@ public sealed class SoulCreatorState : UIState
 		draft.Mood = 100;
 		draft.Energy = 100;
 		SoundEngine.PlaySound(SoundID.MenuTick);
+		Refresh();
+	}
+
+	private void RandomizeDraft()
+	{
+		ResetDraft();
+		draft.Muse = (CompanionMuse)Main.rand.Next(Enum.GetValues<CompanionMuse>().Length);
 		Refresh();
 	}
 
@@ -179,7 +187,7 @@ public sealed class SoulCreatorState : UIState
 			return;
 		foreach (Action refreshButton in refreshButtons)
 			refreshButton();
-		details.SetText($"{draft.Name}\n{draft.Form} form | {draft.Essence} essence\n{SplitName(draft.Aura.ToString())}\n{draft.Personality} | {SplitName(draft.Talent.ToString())}");
+		details.SetText($"{draft.Name}\n{SplitName(draft.Muse.ToString())} muse | {draft.Form} form\n{draft.Essence} | {SplitName(draft.Aura.ToString())}\n{draft.Personality} | {SplitName(draft.Talent.ToString())}");
 		details.TextColor = draft.EssenceColor;
 		SetStatus("Requires 1 Blank Sigil", Color.LightGray);
 	}
@@ -203,8 +211,6 @@ public sealed class SoulCreatorState : UIState
 
 internal sealed class SoulPreviewElement(Func<CompanionProfile> getProfile) : UIElement
 {
-	private readonly Asset<Texture2D> texture = ModContent.Request<Texture2D>("Soulmates/Content/NPCs/SoulboundCompanion");
-
 	protected override void DrawSelf(SpriteBatch spriteBatch)
 	{
 		base.DrawSelf(spriteBatch);
@@ -215,22 +221,23 @@ internal sealed class SoulPreviewElement(Func<CompanionProfile> getProfile) : UI
 		center.Y += MathF.Sin(time * 2.1f) * 6f;
 		DrawAura(spriteBatch, profile, center, time);
 
-		Texture2D pet = texture.Value;
+		Texture2D pet = CompanionVisuals.GetTexture(profile.Muse);
+		Rectangle source = CompanionVisuals.GetFrame(profile.Muse, pet);
 		Vector2 formScale = profile.Form switch {
 			CompanionForm.Round => new Vector2(1.12f, 0.92f),
 			CompanionForm.Wisp => new Vector2(0.88f, 1.14f),
 			_ => Vector2.One
 		};
-		float baseScale = 190f / pet.Width;
+		float baseScale = 190f / Math.Max(source.Width, source.Height);
 		Color tint = Color.Lerp(Color.White, profile.EssenceColor, 0.36f);
-		Vector2 origin = pet.Size() * 0.5f;
+		Vector2 origin = source.Size() * 0.5f;
 		float rotation = MathF.Sin(time * 1.4f) * 0.025f;
 
 		for (int i = 0; i < 4; i++) {
 			Vector2 glowOffset = new Vector2(3f, 0f).RotatedBy(MathHelper.PiOver2 * i);
-			spriteBatch.Draw(pet, center + glowOffset, null, profile.EssenceColor * 0.16f, rotation, origin, formScale * baseScale, SpriteEffects.None, 0f);
+			spriteBatch.Draw(pet, center + glowOffset, source, profile.EssenceColor * 0.16f, rotation, origin, formScale * baseScale, SpriteEffects.None, 0f);
 		}
-		spriteBatch.Draw(pet, center, null, tint, rotation, origin, formScale * baseScale, SpriteEffects.None, 0f);
+		spriteBatch.Draw(pet, center, source, tint, rotation, origin, formScale * baseScale, SpriteEffects.None, 0f);
 	}
 
 	private static void DrawAura(SpriteBatch spriteBatch, CompanionProfile profile, Vector2 center, float time)

@@ -30,6 +30,8 @@ public sealed class Soulcore : ModItem
 		return true;
 	}
 
+	public override bool CanUseItem(Player player) => !ModContent.GetInstance<SoulCreatorSystem>().IsOpen;
+
 	public override void AddRecipes()
 	{
 		CreateRecipe()
