@@ -27,8 +27,8 @@ public sealed class SoulCreatorState : UIState
 		var panel = new UIPanel {
 			HAlign = 0.5f,
 			VAlign = 0.5f,
-			Width = new StyleDimension(760f, 0f),
-			Height = new StyleDimension(540f, 0f),
+			Width = new StyleDimension(680f, 0f),
+			Height = new StyleDimension(480f, 0f),
 			BackgroundColor = new Color(20, 29, 48) * 0.98f,
 			BorderColor = new Color(118, 154, 206)
 		};
@@ -36,14 +36,14 @@ public sealed class SoulCreatorState : UIState
 
 		panel.Append(new UIText("SOUL CREATOR", 1.15f, true) {
 			HAlign = 0.5f,
-			Top = new StyleDimension(12f, 0f)
+			Top = new StyleDimension(8f, 0f)
 		});
 
 		var previewPanel = new UIPanel {
-			Left = new StyleDimension(18f, 0f),
-			Top = new StyleDimension(55f, 0f),
-			Width = new StyleDimension(300f, 0f),
-			Height = new StyleDimension(390f, 0f),
+			Left = new StyleDimension(14f, 0f),
+			Top = new StyleDimension(46f, 0f),
+			Width = new StyleDimension(250f, 0f),
+			Height = new StyleDimension(344f, 0f),
 			BackgroundColor = new Color(10, 17, 31),
 			BorderColor = new Color(67, 93, 133)
 		};
@@ -53,12 +53,12 @@ public sealed class SoulCreatorState : UIState
 			Left = new StyleDimension(10f, 0f),
 			Top = new StyleDimension(8f, 0f),
 			Width = new StyleDimension(-20f, 1f),
-			Height = new StyleDimension(260f, 0f)
+			Height = new StyleDimension(220f, 0f)
 		});
 
 		details = new UIText("", 0.86f) {
 			Left = new StyleDimension(10f, 0f),
-			Top = new StyleDimension(278f, 0f),
+			Top = new StyleDimension(232f, 0f),
 			Width = new StyleDimension(-20f, 1f),
 			TextOriginX = 0.5f,
 			HAlign = 0.5f,
@@ -66,37 +66,37 @@ public sealed class SoulCreatorState : UIState
 		};
 		previewPanel.Append(details);
 
-		float left = 338f;
-		float width = 382f;
-		AddCycleButton(panel, "Name", 62f, left, width, () => draft.Name, () => {
+		float left = 280f;
+		float width = 376f;
+		AddCycleButton(panel, "Name", 48f, left, width, () => draft.Name, () => {
 			nameIndex = (nameIndex + 1) % Names.Length;
 			draft.Name = Names[nameIndex];
 		});
-		AddCycleButton(panel, "Bestiary Muse", 104f, left, width, () => SplitName(draft.Muse.ToString()), () => draft.Muse = Next(draft.Muse));
-		AddCycleButton(panel, "Form", 146f, left, width, () => draft.Form.ToString(), () => draft.Form = Next(draft.Form));
-		AddCycleButton(panel, "Essence", 188f, left, width, () => draft.Essence.ToString(), () => draft.Essence = Next(draft.Essence));
-		AddCycleButton(panel, "Aura", 230f, left, width, () => SplitName(draft.Aura.ToString()), () => draft.Aura = Next(draft.Aura));
-		AddCycleButton(panel, "Personality", 272f, left, width, () => draft.Personality.ToString(), () => draft.Personality = Next(draft.Personality));
-		AddCycleButton(panel, "Starting Talent", 314f, left, width, () => SplitName(draft.Talent.ToString()), () => draft.Talent = Next(draft.Talent));
+		AddCycleButton(panel, "Bestiary Muse", 87f, left, width, () => SplitName(draft.Muse.ToString()), () => draft.Muse = Next(draft.Muse));
+		AddCycleButton(panel, "Form", 126f, left, width, () => draft.Form.ToString(), () => draft.Form = Next(draft.Form));
+		AddCycleButton(panel, "Essence", 165f, left, width, () => draft.Essence.ToString(), () => draft.Essence = Next(draft.Essence));
+		AddCycleButton(panel, "Aura", 204f, left, width, () => SplitName(draft.Aura.ToString()), () => draft.Aura = Next(draft.Aura));
+		AddCycleButton(panel, "Personality", 243f, left, width, () => draft.Personality.ToString(), () => draft.Personality = Next(draft.Personality));
+		AddCycleButton(panel, "Starting Talent", 282f, left, width, () => SplitName(draft.Talent.ToString()), () => draft.Talent = Next(draft.Talent));
 
-		var randomize = Button("RANDOMIZE", 362f, left, width, new Color(82, 74, 116));
+		var randomize = Button("RANDOMIZE", 324f, left, width, new Color(82, 74, 116));
 		randomize.OnLeftClick += (_, _) => RandomizeDraft();
 		panel.Append(randomize);
 
 		status = new UIText("Requires 1 Blank Sigil", 0.8f) {
 			Left = new StyleDimension(left, 0f),
-			Top = new StyleDimension(397f, 0f),
+			Top = new StyleDimension(362f, 0f),
 			Width = new StyleDimension(width, 0f),
 			TextOriginX = 0.5f,
 			TextColor = Color.LightGray
 		};
 		panel.Append(status);
 
-		var create = Button("CREATE SOULMATE", 462f, 18f, 470f, new Color(55, 129, 112));
+		var create = Button("CREATE SOULMATE", 410f, 14f, 450f, new Color(55, 129, 112));
 		create.OnLeftClick += (_, _) => CreateCompanion();
 		panel.Append(create);
 
-		var close = Button("CLOSE", 462f, 506f, 214f, new Color(120, 63, 72));
+		var close = Button("CLOSE", 410f, 480f, 176f, new Color(120, 63, 72));
 		close.OnLeftClick += (_, _) => ModContent.GetInstance<SoulCreatorSystem>().Close();
 		panel.Append(close);
 		Refresh();
@@ -145,7 +145,7 @@ public sealed class SoulCreatorState : UIState
 			Top = new StyleDimension(top, 0f),
 			Left = new StyleDimension(left, 0f),
 			Width = new StyleDimension(width, 0f),
-			Height = new StyleDimension(36f, 0f),
+			Height = new StyleDimension(33f, 0f),
 			BackgroundColor = color,
 			BorderColor = color * 1.35f
 		};

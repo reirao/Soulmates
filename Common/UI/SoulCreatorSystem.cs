@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.UI;
@@ -27,6 +28,7 @@ public sealed class SoulCreatorSystem : ModSystem
 			return;
 		if (IsOpen)
 			return;
+		ModContent.GetInstance<TalkModeSystem>().Close();
 		CreatorState.ResetDraft();
 		creatorInterface.SetState(CreatorState);
 		Main.playerInventory = false;
@@ -37,6 +39,10 @@ public sealed class SoulCreatorSystem : ModSystem
 	public override void UpdateUI(GameTime gameTime)
 	{
 		if (IsOpen) {
+			if (Main.gameMenu || Main.keyState.IsKeyDown(Keys.Escape) && Main.oldKeyState.IsKeyUp(Keys.Escape)) {
+				Close();
+				return;
+			}
 			Main.LocalPlayer.mouseInterface = true;
 			Main.playerInventory = false;
 		}

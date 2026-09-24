@@ -1,0 +1,42 @@
+[h1]Create a companion with a soul.[/h1]
+
+Soulmates turns the reusable Soulcore into a companion creator inside Terraria. Shape a distinct little spirit, bind it to its own Soulbound Sigil, summon it into the world, and build a relationship through care, conversation, and commands.
+
+[h2]Create Your Soulmate[/h2]
+[list]
+[*]Choose a name, Bestiary muse, body form, essence, aura, personality, and starting talent.
+[*]Watch the animated preview change as you shape the companion.
+[*]Create multiple companions; every Soulbound Sigil keeps its own identity and stats.
+[/list]
+
+[h2]A Companion With Character[/h2]
+[list]
+[*]Personality-driven idle, wandering, inspecting, following, and catch-up behavior.
+[*]Persistent bond, mood, energy, and voice style.
+[*]Talk Mode conversations across Care, Commands, Work, Bond, and Voice categories.
+[*]Companions can accept a request, react in their own voice, or occasionally refuse when tired or unhappy.
+[*]Follow, stay, explore, rest, summon, and recall interactions.
+[/list]
+
+[h2]Getting Started[/h2]
+New characters receive one Soulcore and three Blank Sigils as a prototype starter kit. Both items can also be crafted at a Work Bench.
+
+[b]Soulcore:[/b] 8 Fallen Stars, 5 Amethyst, 10 Stone Blocks
+[b]Blank Sigil:[/b] 3 Fallen Stars, 1 Amethyst, 5 Silk
+
+[h2]Current Release[/h2]
+Soulmates is an early playable release focused on companion creation, identity, behavior, and conversation. It is currently intended for single-player play. Equipment, companion inventory, treasure sensing, gathering, real mining jobs, deeper memories, and multiplayer synchronization are planned expansions.
+
+[h2]Controls[/h2]
+[list]
+[*]Use Soulcore: open the Soul Creator.
+[*]Use Soulbound Sigil: summon the bound companion.
+[*]Right-click active Sigil: open Talk Mode.
+[*]Hold Up + right-click active Sigil: recall the companion.
+[/list]
+
+[h2]Feedback and Source[/h2]
+Bug reports and development updates:
+[url=https://github.com/reirao/Soulmates]Soulmates on GitHub[/url]
+
+Thank you for helping these little souls grow.

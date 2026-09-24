@@ -1,0 +1,10 @@
+Soulmates 0.3.2 - Workshop Release Candidate
+
+- Added the compact Talk Mode conversation interface.
+- Added Care, Commands, Work, Bond, and Voice dialogue categories.
+- Added mood-, energy-, bond-, personality-, and voice-aware responses.
+- Added Follow, Stay, Explore, Rest, and voice configuration actions.
+- Added the Bestiary Muse appearance selector.
+- Added animated companion previews and personality-driven idle behavior.
+- Compacted both companion interfaces and prevented inventory overlap.
+- Added Escape and world-transition handling for companion interfaces.

@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using Soulmates.Content.Items;
 using Soulmates.Content.NPCs;
 using Terraria;
@@ -26,6 +27,7 @@ public sealed class TalkModeSystem : ModSystem
 	{
 		if (talkState is null || talkInterface is null || IsOpen)
 			return;
+		ModContent.GetInstance<SoulCreatorSystem>().Close();
 		talkState.Bind(sigil, companion);
 		talkInterface.SetState(talkState);
 		Main.playerInventory = false;
@@ -36,6 +38,10 @@ public sealed class TalkModeSystem : ModSystem
 	public override void UpdateUI(GameTime gameTime)
 	{
 		if (IsOpen) {
+			if (Main.gameMenu || Main.keyState.IsKeyDown(Keys.Escape) && Main.oldKeyState.IsKeyUp(Keys.Escape)) {
+				Close();
+				return;
+			}
 			Main.LocalPlayer.mouseInterface = true;
 			Main.playerInventory = false;
 		}
