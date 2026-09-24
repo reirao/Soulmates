@@ -29,15 +29,17 @@ public sealed class SoulCreatorSystem : ModSystem
 			return;
 		CreatorState.ResetDraft();
 		creatorInterface.SetState(CreatorState);
-		Main.playerInventory = true;
+		Main.playerInventory = false;
 	}
 
 	public void Close() => creatorInterface?.SetState(null);
 
 	public override void UpdateUI(GameTime gameTime)
 	{
-		if (IsOpen)
+		if (IsOpen) {
 			Main.LocalPlayer.mouseInterface = true;
+			Main.playerInventory = false;
+		}
 		creatorInterface?.Update(gameTime);
 	}
 

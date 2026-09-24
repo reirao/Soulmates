@@ -27,8 +27,8 @@ public sealed class TalkModeState : UIState
 		var panel = new UIPanel {
 			HAlign = 0.5f,
 			VAlign = 0.5f,
-			Width = new StyleDimension(740f, 0f),
-			Height = new StyleDimension(500f, 0f),
+			Width = new StyleDimension(660f, 0f),
+			Height = new StyleDimension(440f, 0f),
 			BackgroundColor = new Color(20, 29, 48) * 0.98f,
 			BorderColor = new Color(118, 154, 206)
 		};
@@ -40,10 +40,10 @@ public sealed class TalkModeState : UIState
 		});
 
 		var portrait = new UIPanel {
-			Left = new StyleDimension(18f, 0f),
-			Top = new StyleDimension(52f, 0f),
-			Width = new StyleDimension(260f, 0f),
-			Height = new StyleDimension(368f, 0f),
+			Left = new StyleDimension(14f, 0f),
+			Top = new StyleDimension(46f, 0f),
+			Width = new StyleDimension(218f, 0f),
+			Height = new StyleDimension(326f, 0f),
 			BackgroundColor = new Color(10, 17, 31),
 			BorderColor = new Color(67, 93, 133)
 		};
@@ -52,14 +52,14 @@ public sealed class TalkModeState : UIState
 			Left = new StyleDimension(8f, 0f),
 			Top = new StyleDimension(5f, 0f),
 			Width = new StyleDimension(-16f, 1f),
-			Height = new StyleDimension(215f, 0f)
+			Height = new StyleDimension(178f, 0f)
 		});
 
 		response = new UIText("...", 0.86f) {
 			Left = new StyleDimension(12f, 0f),
-			Top = new StyleDimension(225f, 0f),
+			Top = new StyleDimension(184f, 0f),
 			Width = new StyleDimension(-24f, 1f),
-			Height = new StyleDimension(85f, 0f),
+			Height = new StyleDimension(78f, 0f),
 			TextOriginX = 0.5f,
 			HAlign = 0.5f,
 			IsWrapped = true
@@ -68,7 +68,7 @@ public sealed class TalkModeState : UIState
 
 		stats = new UIText("", 0.75f) {
 			Left = new StyleDimension(8f, 0f),
-			Top = new StyleDimension(325f, 0f),
+			Top = new StyleDimension(278f, 0f),
 			Width = new StyleDimension(-16f, 1f),
 			TextOriginX = 0.5f,
 			HAlign = 0.5f,
@@ -79,20 +79,20 @@ public sealed class TalkModeState : UIState
 		string[] categories = Enum.GetNames<TalkCategory>();
 		for (int i = 0; i < categories.Length; i++) {
 			TalkCategory chosen = (TalkCategory)i;
-			var button = Button(categories[i].ToUpperInvariant(), 55f, 296f + i * 84f, 78f, new Color(54, 71, 105), 0.68f);
+			var button = Button(categories[i].ToUpperInvariant(), 48f, 248f + i * 78f, 72f, new Color(54, 71, 105), 0.63f, 40f);
 			button.OnLeftClick += (_, _) => SelectCategory(chosen);
 			panel.Append(button);
 		}
 
 		for (int i = 0; i < 3; i++) {
 			int option = i;
-			var button = Button("", 118f + i * 76f, 296f, 408f, new Color(43, 64, 98), 0.82f);
+			var button = Button("", 104f + i * 68f, 248f, 388f, new Color(43, 64, 98), 0.76f, 52f);
 			button.OnLeftClick += (_, _) => Speak(option);
 			optionButtons.Add(button);
 			panel.Append(button);
 		}
 
-		var close = Button("CLOSE", 435f, 296f, 408f, new Color(120, 63, 72), 0.8f);
+		var close = Button("CLOSE", 366f, 248f, 388f, new Color(120, 63, 72), 0.76f, 42f);
 		close.OnLeftClick += (_, _) => ModContent.GetInstance<TalkModeSystem>().Close();
 		panel.Append(close);
 	}
@@ -184,13 +184,13 @@ public sealed class TalkModeState : UIState
 		stats.SetText($"Bond {profile.Bond}  |  Mood {profile.Mood}\nEnergy {profile.Energy}  |  Voice {profile.Voice}");
 	}
 
-	private static UITextPanel<string> Button(string text, float top, float left, float width, Color color, float scale)
+	private static UITextPanel<string> Button(string text, float top, float left, float width, Color color, float scale, float height)
 	{
 		var button = new UITextPanel<string>(text, scale) {
 			Top = new StyleDimension(top, 0f),
 			Left = new StyleDimension(left, 0f),
 			Width = new StyleDimension(width, 0f),
-			Height = new StyleDimension(52f, 0f),
+			Height = new StyleDimension(height, 0f),
 			BackgroundColor = color,
 			BorderColor = color * 1.35f
 		};

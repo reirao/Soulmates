@@ -28,15 +28,17 @@ public sealed class TalkModeSystem : ModSystem
 			return;
 		talkState.Bind(sigil, companion);
 		talkInterface.SetState(talkState);
-		Main.playerInventory = true;
+		Main.playerInventory = false;
 	}
 
 	public void Close() => talkInterface?.SetState(null);
 
 	public override void UpdateUI(GameTime gameTime)
 	{
-		if (IsOpen)
+		if (IsOpen) {
 			Main.LocalPlayer.mouseInterface = true;
+			Main.playerInventory = false;
+		}
 		talkInterface?.Update(gameTime);
 	}
 
