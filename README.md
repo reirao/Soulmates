@@ -11,10 +11,12 @@ Soulmates is a tModLoader mod about creating companions that feel personal. The 
 - Choose a name, form, essence color, aura, personality, and starting talent.
 - Choose a visual Bestiary Muse: Soulkin, Bunny, Blue Slime, Bird, or Squirrel.
 - Summon one active companion at a time.
-- Right-click its Sigil to switch between Follow and Stay.
+- Right-click an active companion's Sigil to enter Talk Mode.
 - Hold Up and right-click the Sigil to recall it.
 - Companion identity and progression data are saved on the Sigil.
 - Personality-driven idle, wander, inspect, follow, and catch-up behavior.
+- Talk Mode with Care, Commands, Work, Bond, and Voice conversations.
+- Mood-, energy-, bond-, and personality-aware replies, including occasional refusals.
 
 This first playable slice is intended for single-player testing. Full server-authoritative multiplayer commands are on the roadmap.
 

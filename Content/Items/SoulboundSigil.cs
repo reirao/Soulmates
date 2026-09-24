@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Soulmates.Common;
+using Soulmates.Common.UI;
 using Soulmates.Content.NPCs;
 using Terraria;
 using Terraria.DataStructures;
@@ -41,7 +42,7 @@ public sealed class SoulboundSigil : ModItem
 	public override bool CanUseItem(Player player)
 	{
 		Item.UseSound = player.altFunctionUse == 2 ? SoundID.MenuTick : SoundID.Item8;
-		return true;
+		return !ModContent.GetInstance<TalkModeSystem>().IsOpen;
 	}
 
 	public override bool? UseItem(Player player)
@@ -56,8 +57,7 @@ public sealed class SoulboundSigil : ModItem
 				Main.NewText($"{Profile.Name} returned to the Soulbound Sigil.", Profile.EssenceColor);
 			}
 			else {
-				companion.ToggleCommand();
-				Main.NewText($"{Profile.Name}: {companion.CommandName}", Profile.EssenceColor);
+				ModContent.GetInstance<TalkModeSystem>().Open(this, companion);
 			}
 			return true;
 		}
@@ -83,7 +83,8 @@ public sealed class SoulboundSigil : ModItem
 		tooltips.Add(new TooltipLine(Mod, "Appearance", $"{SplitName(Profile.Muse.ToString())} muse  |  {Profile.Form} form  |  {SplitName(Profile.Aura.ToString())}"));
 		tooltips.Add(new TooltipLine(Mod, "Identity", $"{Profile.Personality}  |  {SplitName(Profile.Talent.ToString())}"));
 		tooltips.Add(new TooltipLine(Mod, "Bond", $"Bond {Profile.Bond}  |  Mood {Profile.Mood}  |  Energy {Profile.Energy}"));
-		tooltips.Add(new TooltipLine(Mod, "Controls", "Use: summon  |  Right-click: Follow/Stay  |  Up + Right-click: recall"));
+		tooltips.Add(new TooltipLine(Mod, "Voice", $"Voice: {Profile.Voice}"));
+		tooltips.Add(new TooltipLine(Mod, "Controls", "Use: summon  |  Right-click: Talk Mode  |  Up + Right-click: recall"));
 	}
 
 	private static string SplitName(string value) => System.Text.RegularExpressions.Regex.Replace(value, "([a-z])([A-Z])", "$1 $2");

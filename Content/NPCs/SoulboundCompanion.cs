@@ -227,6 +227,25 @@ public sealed class SoulboundCompanion : ModNPC
 		NPC.netUpdate = true;
 	}
 
+	public void SetCommand(bool stay)
+	{
+		Command = stay ? StayCommand : FollowCommand;
+		brainState = stay ? BrainState.Stay : BrainState.Follow;
+		stateTimer = 1;
+		if (stay)
+			idleTarget = NPC.Center;
+		NPC.netUpdate = true;
+	}
+
+	public void AskToExplore()
+	{
+		Command = FollowCommand;
+		brainState = BrainState.Inspect;
+		stateTimer = Main.rand.Next(180, 320);
+		idleTarget = Owner.Center + Main.rand.NextVector2Circular(120f, 60f);
+		NPC.netUpdate = true;
+	}
+
 	public void Recall()
 	{
 		if (Owner.active)
