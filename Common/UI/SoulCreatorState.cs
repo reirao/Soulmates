@@ -34,10 +34,12 @@ public sealed class SoulCreatorState : UIState
 		};
 		Append(panel);
 
-		panel.Append(new UIText(SoulmatesText.Get("UI.Creator.Title"), 1.15f, true) {
+		var creatorTitle = new UIText("", 1.15f, true) {
 			HAlign = 0.5f,
 			Top = new StyleDimension(8f, 0f)
-		});
+		};
+		panel.Append(creatorTitle);
+		refreshButtons.Add(() => creatorTitle.SetText(SoulmatesText.Get("UI.Creator.Title")));
 
 		var previewPanel = new UIPanel {
 			Left = new StyleDimension(14f, 0f),
@@ -79,7 +81,8 @@ public sealed class SoulCreatorState : UIState
 		AddCycleButton(panel, "UI.Creator.Fields.Personality", 243f, left, width, () => SoulmatesText.EnumName(draft.Personality), () => draft.Personality = Next(draft.Personality));
 		AddCycleButton(panel, "UI.Creator.Fields.Talent", 282f, left, width, () => SoulmatesText.EnumName(draft.Talent), () => draft.Talent = Next(draft.Talent));
 
-		var randomize = Button(SoulmatesText.Get("UI.Creator.Randomize"), 324f, left, width, new Color(82, 74, 116));
+		var randomize = Button("", 324f, left, width, new Color(82, 74, 116));
+		refreshButtons.Add(() => randomize.SetText(SoulmatesText.Get("UI.Creator.Randomize")));
 		randomize.OnLeftClick += (_, _) => RandomizeDraft();
 		panel.Append(randomize);
 
@@ -92,11 +95,13 @@ public sealed class SoulCreatorState : UIState
 		};
 		panel.Append(status);
 
-		var create = Button(SoulmatesText.Get("UI.Creator.Create"), 410f, 14f, 450f, new Color(55, 129, 112));
+		var create = Button("", 410f, 14f, 450f, new Color(55, 129, 112));
+		refreshButtons.Add(() => create.SetText(SoulmatesText.Get("UI.Creator.Create")));
 		create.OnLeftClick += (_, _) => CreateCompanion();
 		panel.Append(create);
 
-		var close = Button(SoulmatesText.Get("UI.Common.Close"), 410f, 480f, 176f, new Color(120, 63, 72));
+		var close = Button("", 410f, 480f, 176f, new Color(120, 63, 72));
+		refreshButtons.Add(() => close.SetText(SoulmatesText.Get("UI.Common.Close")));
 		close.OnLeftClick += (_, _) => ModContent.GetInstance<SoulCreatorSystem>().Close();
 		panel.Append(close);
 		Refresh();

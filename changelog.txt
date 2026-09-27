@@ -7,4 +7,5 @@ Soulmates 0.6.0 - Living Souls
 - Added a persistent eight-entry memory chronicle for creation, jobs, protection, healing, trinkets, and bond milestones.
 - Repeated memory conversations now cycle through recent shared experiences.
 - Companion pack slots now show full item tooltips and support left-click stack withdrawal or right-click single-item withdrawal.
+- Fixed early UI localization and arranged talk categories in a clearer two-row layout.
 - Preserved compatibility with existing Soulbound Sigils and localized all new content in English and German.

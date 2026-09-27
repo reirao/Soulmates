@@ -26,6 +26,9 @@ public sealed class TalkModeState : UIState
 	private UIText? title;
 	private UIText? response;
 	private UIText? stats;
+	private UIText? chooseWordsLabel;
+	private UIText? packLabel;
+	private UITextPanel<string>? closeButton;
 	private int memoryCursor;
 	public bool HasActiveBinding => sigil is not null && companion?.NPC.active == true;
 
@@ -88,21 +91,25 @@ public sealed class TalkModeState : UIState
 		TalkCategory[] categories = Enum.GetValues<TalkCategory>();
 		for (int i = 0; i < categories.Length; i++) {
 			TalkCategory chosen = categories[i];
-			var button = Button(SoulmatesText.EnumName(chosen).ToUpperInvariant(), 48f, 248f + i * 65f, 60f, new Color(54, 71, 105), 0.54f, 40f);
+			int column = i % 3;
+			int row = i / 3;
+			var button = Button(chosen.ToString().ToUpperInvariant(), 46f + row * 35f, 248f + column * 134f, 120f,
+				new Color(54, 71, 105), 0.58f, 30f);
 			button.OnLeftClick += (_, _) => SelectCategory(chosen);
 			categoryButtons.Add((chosen, button));
 			panel.Append(button);
 		}
 
-		panel.Append(new UIText(SoulmatesText.Get("UI.Talk.ChooseWords"), 0.58f) {
+		chooseWordsLabel = new UIText("", 0.58f) {
 			Left = new StyleDimension(248f, 0f),
-			Top = new StyleDimension(87f, 0f),
+			Top = new StyleDimension(116f, 0f),
 			TextColor = new Color(155, 174, 203)
-		});
+		};
+		panel.Append(chooseWordsLabel);
 
 		for (int i = 0; i < 3; i++) {
 			int option = i;
-			var button = Button("", 104f + i * 68f, 248f, 388f, new Color(43, 64, 98), 0.76f, 52f);
+			var button = Button("", 130f + i * 54f, 248f, 388f, new Color(43, 64, 98), 0.76f, 46f);
 			button.OnLeftClick += (_, _) => Speak(option);
 			optionButtons.Add(button);
 			panel.Append(button);
@@ -110,19 +117,20 @@ public sealed class TalkModeState : UIState
 
 		panel.Append(new CompanionPackElement(() => sigil?.Profile, () => companion, reply => SetResponse(reply, accepted: true)) {
 			Left = new StyleDimension(248f, 0f),
-			Top = new StyleDimension(299f, 0f),
+			Top = new StyleDimension(309f, 0f),
 			Width = new StyleDimension(388f, 0f),
-			Height = new StyleDimension(60f, 0f)
+			Height = new StyleDimension(54f, 0f)
 		});
-		panel.Append(new UIText(SoulmatesText.Get("UI.Talk.Pack"), 0.58f) {
+		packLabel = new UIText("", 0.58f) {
 			Left = new StyleDimension(248f, 0f),
-			Top = new StyleDimension(282f, 0f),
+			Top = new StyleDimension(292f, 0f),
 			TextColor = new Color(155, 174, 203)
-		});
+		};
+		panel.Append(packLabel);
 
-		var close = Button(SoulmatesText.Get("UI.Common.Close"), 366f, 248f, 388f, new Color(120, 63, 72), 0.76f, 42f);
-		close.OnLeftClick += (_, _) => ModContent.GetInstance<TalkModeSystem>().Close();
-		panel.Append(close);
+		closeButton = Button("", 372f, 248f, 388f, new Color(120, 63, 72), 0.76f, 40f);
+		closeButton.OnLeftClick += (_, _) => ModContent.GetInstance<TalkModeSystem>().Close();
+		panel.Append(closeButton);
 	}
 
 	public void Bind(SoulboundSigil boundSigil, SoulboundCompanion boundCompanion)
@@ -131,6 +139,7 @@ public sealed class TalkModeState : UIState
 		companion = boundCompanion;
 		category = TalkCategory.Care;
 		memoryCursor = 0;
+		RefreshLocalizedLabels();
 		if (title is not null)
 			title.SetText(SoulmatesText.Get("UI.Talk.Title", sigil.Profile.Name.ToUpperInvariant()));
 		if (rootPanel is not null)
@@ -142,6 +151,15 @@ public sealed class TalkModeState : UIState
 		RefreshOptions();
 		RefreshStats();
 		RefreshCategoryStyles();
+	}
+
+	private void RefreshLocalizedLabels()
+	{
+		foreach ((TalkCategory buttonCategory, UITextPanel<string> button) in categoryButtons)
+			button.SetText(SoulmatesText.EnumName(buttonCategory).ToUpperInvariant());
+		chooseWordsLabel?.SetText(SoulmatesText.Get("UI.Talk.ChooseWords"));
+		packLabel?.SetText(SoulmatesText.Get("UI.Talk.Pack"));
+		closeButton?.SetText(SoulmatesText.Get("UI.Common.Close"));
 	}
 
 	public void Unbind()
