@@ -30,6 +30,8 @@ public sealed class SoulboundCompanion : ModNPC
 
 	private const float FollowCommand = 0f;
 	private const float StayCommand = 1f;
+	private const float StandardDefenseRange = 520f;
+	private const float GuardianDefenseRange = 720f;
 	private BrainState brainState;
 	private int stateTimer;
 	private int facing = 1;
@@ -64,9 +66,11 @@ public sealed class SoulboundCompanion : ModNPC
 		}
 		: guardianTarget >= 0
 			? SoulmatesText.Get("Status.Guarding")
+			: Profile.Energy < DefenseEnergyCost
+			? SoulmatesText.Get("Status.DefenseResting", DefenseEnergyCost)
 			: Profile.Routine != CompanionJob.None
 			? SoulmatesText.Get("Status.Assignment", SoulmatesText.EnumName(Profile.Routine))
-			: SoulmatesText.Get("Status.Ready");
+			: SoulmatesText.Get("Status.Watching", (int)(DefenseRange / 16f));
 	public int CurrentJobRadius => (activeJob != CompanionJob.None ? activeJob : Profile.Routine) switch {
 		CompanionJob.Mine => MiningRadiusTiles,
 		CompanionJob.Gather => GatheringRadiusTiles,
@@ -76,6 +80,9 @@ public sealed class SoulboundCompanion : ModNPC
 	private int MiningRadiusTiles => (Profile.Trinket == CompanionTrinket.DelverCharm ? 34 : 26) + Profile.RankIndex * 2;
 	private int GatheringRadiusTiles => (Profile.Trinket == CompanionTrinket.HearthRibbon ? 42 : 30) + Profile.RankIndex * 2;
 	private int TreasureRadiusTiles => (Profile.Trinket == CompanionTrinket.StarfinderBell ? 90 : 55) + Profile.RankIndex * 3;
+	private int DefenseEnergyCost => Profile.Talent == CompanionTalent.Guardian ? 1 : 3;
+	private float DefenseRange => (Profile.Talent == CompanionTalent.Guardian ? GuardianDefenseRange : StandardDefenseRange)
+		+ Profile.RankIndex * (Profile.Talent == CompanionTalent.Guardian ? 40f : 24f);
 
 	public override void SetStaticDefaults()
 	{
@@ -201,15 +208,13 @@ public sealed class SoulboundCompanion : ModNPC
 			TryHealOwner();
 
 		bool guardian = Profile.Talent == CompanionTalent.Guardian;
-		int minimumEnergy = guardian ? 1 : 3;
-		if (Profile.Energy < minimumEnergy) {
+		if (Profile.Energy < DefenseEnergyCost) {
 			guardianTarget = -1;
 			return false;
 		}
 
 		Vector2 anchor = Command == StayCommand ? idleTarget : Owner.Center;
-		float range = guardian ? 360f + Profile.RankIndex * 32f : 220f + Profile.RankIndex * 18f;
-		NPC? target = FindNearestThreat(anchor, range);
+		NPC? target = FindNearestThreat(anchor, DefenseRange);
 		if (target is null) {
 			guardianTarget = -1;
 			return false;
@@ -222,15 +227,17 @@ public sealed class SoulboundCompanion : ModNPC
 			+ new Vector2(0f, -34f + IdleBob() * 0.35f);
 		MoveTo(guardPosition, guardian ? 11f : 8f, guardian ? 0.12f : 0.09f);
 
-		if (talentCooldown <= 0 && Vector2.DistanceSquared(NPC.Center, target.Center) < 440f * 440f
-			&& Collision.CanHitLine(NPC.position, NPC.width, NPC.height, target.position, target.width, target.height)) {
+		float attackRange = guardian ? 640f : 520f;
+		if (talentCooldown <= 0 && Vector2.DistanceSquared(NPC.Center, target.Center) < attackRange * attackRange) {
 			if (Main.netMode != NetmodeID.MultiplayerClient) {
 				Vector2 velocity = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX) * (guardian ? 10f : 8f);
 				int damage = guardian
 					? 10 + Profile.RankIndex * 3 + Math.Min(6, Profile.JobsCompleted / 5)
 					: 4 + Profile.RankIndex + Math.Min(3, Profile.JobsCompleted / 8);
-				Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, velocity, ModContent.ProjectileType<SoulBolt>(),
+				int projectileIndex = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, velocity, ModContent.ProjectileType<SoulBolt>(),
 					damage, 1.5f, Owner.whoAmI, target.whoAmI, NPC.whoAmI);
+				if (projectileIndex >= 0 && projectileIndex < Main.maxProjectiles)
+					Main.projectile[projectileIndex].netUpdate = true;
 				Profile.Energy = Math.Max(0, Profile.Energy - 1);
 				SyncProfileToBoundSigil();
 				NPC.netUpdate = true;
@@ -289,19 +296,33 @@ public sealed class SoulboundCompanion : ModNPC
 	private NPC? FindNearestThreat(Vector2 anchor, float range)
 	{
 		NPC? result = null;
-		float bestDistance = range * range;
+		float rangeSquared = range * range;
+		float bestScore = float.MaxValue;
 		for (int i = 0; i < Main.maxNPCs; i++) {
 			NPC candidate = Main.npc[i];
-			if (!candidate.active || !candidate.CanBeChasedBy(NPC))
+			if (!IsThreat(candidate))
 				continue;
-			float distance = Vector2.DistanceSquared(anchor, candidate.Center);
-			if (distance >= bestDistance)
+			float anchorDistance = Vector2.DistanceSquared(anchor, candidate.Center);
+			float companionDistance = Vector2.DistanceSquared(NPC.Center, candidate.Center);
+			if (anchorDistance > rangeSquared && companionDistance > rangeSquared)
 				continue;
-			bestDistance = distance;
+			float score = Math.Min(anchorDistance, companionDistance);
+			if (candidate.target == Owner.whoAmI)
+				score *= 0.55f;
+			if (score >= bestScore)
+				continue;
+			bestScore = score;
 			result = candidate;
 		}
 		return result;
 	}
+
+	private static bool IsThreat(NPC candidate) => candidate.active
+		&& !candidate.friendly
+		&& !candidate.dontTakeDamage
+		&& !candidate.immortal
+		&& candidate.lifeMax > 5
+		&& candidate.CanBeChasedBy();
 
 	private void ChooseNextState(float distance, Vector2 followTarget)
 	{
@@ -402,6 +423,8 @@ public sealed class SoulboundCompanion : ModNPC
 
 	private void ResumeAssignment()
 	{
+		if (Main.netMode == NetmodeID.MultiplayerClient)
+			return;
 		if (activeJob != CompanionJob.None || Profile.Routine == CompanionJob.None)
 			return;
 		if (Profile.Energy < 12 || Profile.Mood < 20) {
@@ -687,18 +710,19 @@ public sealed class SoulboundCompanion : ModNPC
 
 	private void DrawJobOrbit(SpriteBatch spriteBatch, Vector2 center)
 	{
-		if (activeJob == CompanionJob.None)
+		bool defending = guardianTarget >= 0;
+		if (activeJob == CompanionJob.None && !defending)
 			return;
 		Texture2D pixel = TextureAssets.MagicPixel.Value;
-		Color color = JobColor(activeJob);
-		float time = Main.GlobalTimeWrappedHourly * 2.5f;
+		Color color = defending ? Color.Lerp(Profile.EssenceColor, Color.White, 0.28f) : JobColor(activeJob);
+		float time = Main.GlobalTimeWrappedHourly * (defending ? 4.2f : 2.5f);
 		for (int i = 0; i < 3; i++) {
 			float angle = time + MathHelper.TwoPi * i / 3f;
-			Vector2 point = center + new Vector2(MathF.Cos(angle) * 35f, MathF.Sin(angle) * 13f - 4f);
+			Vector2 point = center + new Vector2(MathF.Cos(angle) * (defending ? 39f : 35f), MathF.Sin(angle) * 13f - 4f);
 			int size = i == jobTimer / 10 % 3 ? 5 : 3;
 			spriteBatch.Draw(pixel, new Rectangle((int)point.X - size / 2, (int)point.Y - size / 2, size, size), color * 0.88f);
 		}
-		float pulse = 0.35f + (MathF.Sin(time * 1.6f) + 1f) * 0.12f;
+		float pulse = 0.35f + (MathF.Sin(time * 1.6f) + 1f) * (defending ? 0.2f : 0.12f);
 		spriteBatch.Draw(pixel, new Rectangle((int)center.X - 16, (int)center.Y - 43, 32, 2), color * pulse);
 	}
 
@@ -715,6 +739,7 @@ public sealed class SoulboundCompanion : ModNPC
 		Profile.Write(writer);
 		writer.Write((byte)activeJob);
 		writer.Write(jobCount);
+		writer.Write((short)guardianTarget);
 	}
 
 	public override void ReceiveExtraAI(BinaryReader reader)
@@ -722,6 +747,7 @@ public sealed class SoulboundCompanion : ModNPC
 		Profile = CompanionProfile.Read(reader);
 		activeJob = (CompanionJob)reader.ReadByte();
 		jobCount = reader.ReadInt32();
+		guardianTarget = reader.ReadInt16();
 		if (Main.netMode != NetmodeID.MultiplayerClient || !TryGetOwner(out Player owner) || owner.whoAmI != Main.myPlayer)
 			return;
 		foreach (Item item in owner.inventory) {
@@ -788,7 +814,6 @@ public sealed class SoulboundCompanion : ModNPC
 		if (result.Action is SpeechAction.StoreHeldItem or SpeechAction.UnloadPack)
 			SyncOwnerInventory();
 		SyncProfileToBoundSigil();
-		NPC.netUpdate = true;
 		NPC.netUpdate = true;
 		return new CompanionConversationResult(reply, result.Accepted);
 	}
@@ -874,7 +899,7 @@ public sealed class SoulboundCompanion : ModNPC
 
 	public void RecordGuardianVictory(NPC defeated)
 	{
-		if (Profile.Talent != CompanionTalent.Guardian)
+		if (Main.netMode == NetmodeID.MultiplayerClient || Profile.Talent != CompanionTalent.Guardian)
 			return;
 		Profile.Remember(CompanionMemoryKind.GuardianVictory, detail: defeated.TypeName);
 		Profile.Mood = Math.Min(100, Profile.Mood + 1);
@@ -935,6 +960,7 @@ public sealed class SoulboundCompanion : ModNPC
 		if (stored.stack <= 0)
 			Profile.Pack.RemoveAt(index);
 		SyncProfileToBoundSigil();
+		SyncOwnerInventory();
 		NPC.netUpdate = true;
 		return SoulmatesText.Get(moved == 1 ? "Pack.WithdrewOne" : "Pack.WithdrewMany", moved, Profile.PackLoad, Profile.PackCapacity);
 	}

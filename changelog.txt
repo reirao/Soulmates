@@ -1,3 +1,12 @@
+Soulmates 0.6.2 - Faithful Guardian
+
+- Fixed companions detecting nearby enemies but never attacking when terrain blocked Terraria's line-of-sight check.
+- Expanded defense awareness and made enemies attacking the owner a priority.
+- Added visible watching, guarding, and low-energy defense states to Talk Mode.
+- Hardened soul bolt and Guardian memory synchronization for multiplayer.
+- Pack slot withdrawals are now server-authoritative and synchronize the returned inventory item.
+- Prevented clients from independently restarting persistent work assignments.
+
 Soulmates 0.6.1 - Bound Together
 
 - Fixed companions disappearing immediately in multiplayer sessions.

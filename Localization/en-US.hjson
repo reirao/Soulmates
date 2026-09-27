@@ -154,6 +154,8 @@ Mods: {
       Gathering: "Gathering area ({0} items)"
       SensingTreasure: Sensing treasure
       Guarding: Guarding against a nearby threat
+	  DefenseResting: "Defense paused (needs {0} energy)"
+	  Watching: "Watching for threats ({0} tiles)"
       Assignment: "{0} assignment"
       Ready: Ready
     }

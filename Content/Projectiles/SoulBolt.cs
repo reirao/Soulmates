@@ -22,6 +22,7 @@ public sealed class SoulBolt : ModProjectile
 		Projectile.timeLeft = 120;
 		Projectile.tileCollide = false;
 		Projectile.ignoreWater = true;
+		Projectile.netImportant = true;
 		Projectile.usesLocalNPCImmunity = true;
 		Projectile.localNPCHitCooldown = 20;
 	}
@@ -50,7 +51,7 @@ public sealed class SoulBolt : ModProjectile
 
 	public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
 	{
-		if (target.life > 0)
+		if (Main.netMode == NetmodeID.MultiplayerClient || target.life > 0)
 			return;
 		int companionIndex = (int)Projectile.ai[1];
 		if (companionIndex < 0 || companionIndex >= Main.maxNPCs)

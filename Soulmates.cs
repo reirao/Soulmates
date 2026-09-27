@@ -20,6 +20,7 @@ public sealed class Soulmates : Mod
 		RecallRequest,
 		SummonRequest,
 		TrinketRequest,
+		PackWithdrawRequest,
 		ProfileUpdate
 	}
 
@@ -77,6 +78,17 @@ public sealed class Soulmates : Mod
 		packet.Send();
 	}
 
+	internal static void SendPackWithdrawRequest(int slot, bool singleItem)
+	{
+		if (Main.netMode != NetmodeID.MultiplayerClient)
+			return;
+		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
+		packet.Write((byte)MessageType.PackWithdrawRequest);
+		packet.Write((byte)slot);
+		packet.Write(singleItem);
+		packet.Send();
+	}
+
 	internal static void SendProfileUpdate(Player player, SoulboundCompanion companion, string message = "")
 	{
 		if (Main.netMode != NetmodeID.Server)
@@ -106,6 +118,9 @@ public sealed class Soulmates : Mod
 				break;
 			case MessageType.TrinketRequest:
 				HandleTrinketRequest(reader, whoAmI);
+				break;
+			case MessageType.PackWithdrawRequest:
+				HandlePackWithdrawRequest(reader, whoAmI);
 				break;
 			case MessageType.ProfileUpdate:
 				HandleProfileUpdate(reader);
@@ -182,6 +197,25 @@ public sealed class Soulmates : Mod
 			? SoulmatesText.Get("Messages.TrinketRemoved", companion.Profile.Name)
 			: SoulmatesText.Get("Messages.TrinketEquipped", companion.Profile.Name, SoulmatesText.EnumName(trinket));
 		SendProfileUpdate(player, companion, message);
+	}
+
+	private void HandlePackWithdrawRequest(BinaryReader reader, int whoAmI)
+	{
+		int slot = reader.ReadByte();
+		bool singleItem = reader.ReadBoolean();
+		if (Main.netMode != NetmodeID.Server || slot >= CompanionProfile.MaximumPackSlots
+			|| whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active)
+			return;
+		Player player = Main.player[whoAmI];
+		if (SoulboundCompanion.FindFor(player) is not { } companion)
+			return;
+		string reply = companion.WithdrawPackSlot(slot, singleItem);
+		ModPacket packet = GetPacket();
+		packet.Write((byte)MessageType.TalkResponse);
+		packet.Write(reply);
+		packet.Write(true);
+		companion.Profile.Write(packet);
+		packet.Send(whoAmI);
 	}
 
 	private static void HandleProfileUpdate(BinaryReader reader)

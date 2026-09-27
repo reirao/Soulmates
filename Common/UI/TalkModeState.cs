@@ -116,7 +116,7 @@ public sealed class TalkModeState : UIState
 			panel.Append(button);
 		}
 
-		panel.Append(new CompanionPackElement(() => sigil?.Profile, () => companion, reply => SetResponse(reply, accepted: true)) {
+		panel.Append(new CompanionPackElement(() => sigil?.Profile, WithdrawPackSlot) {
 			Left = new StyleDimension(248f, 0f),
 			Top = new StyleDimension(309f, 0f),
 			Width = new StyleDimension(388f, 0f),
@@ -223,6 +223,23 @@ public sealed class TalkModeState : UIState
 		RefreshStats();
 	}
 
+	private void WithdrawPackSlot(int index, bool singleItem)
+	{
+		if (awaitingResponse || companion?.NPC.active != true)
+			return;
+		if (Main.netMode == NetmodeID.MultiplayerClient) {
+			awaitingResponse = true;
+			Soulmates.SendPackWithdrawRequest(index, singleItem);
+		}
+		else {
+			string reply = companion.WithdrawPackSlot(index, singleItem);
+			sigil!.Profile = companion.Profile.Clone();
+			SetResponse(reply, accepted: true);
+			RefreshStats();
+		}
+		SoundEngine.PlaySound(SoundID.Grab);
+	}
+
 	private void SetResponse(string text, bool accepted)
 	{
 		if (response is null || sigil is null)
@@ -300,8 +317,7 @@ public sealed class TalkModeState : UIState
 
 internal sealed class CompanionPackElement(
 	Func<CompanionProfile?> getProfile,
-	Func<SoulboundCompanion?> getCompanion,
-	Action<string> report) : UIElement
+	Action<int, bool> withdraw) : UIElement
 {
 	public override void OnInitialize()
 	{
@@ -349,15 +365,10 @@ internal sealed class CompanionPackElement(
 
 	private void Withdraw(bool singleItem)
 	{
-		SoulboundCompanion? companion = getCompanion();
-		if (companion is null)
-			return;
 		int index = SlotAt(Main.MouseScreen);
 		if (index < 0)
 			return;
-		string responseText = companion.WithdrawPackSlot(index, singleItem);
-		report(responseText);
-		SoundEngine.PlaySound(SoundID.Grab);
+		withdraw(index, singleItem);
 	}
 
 	private int SlotAt(Vector2 mousePosition)

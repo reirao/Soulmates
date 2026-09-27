@@ -154,6 +154,8 @@ Mods: {
       Gathering: "Gebiet sammeln ({0} Gegenstände)"
       SensingTreasure: Schatz aufspüren
       Guarding: Verteidigt gegen eine Bedrohung
+	  DefenseResting: "Verteidigung pausiert (benötigt {0} Energie)"
+	  Watching: "Hält nach Bedrohungen Ausschau ({0} Blöcke)"
       Assignment: "Auftrag: {0}"
       Ready: Bereit
     }
