@@ -4,6 +4,9 @@ Soulmates turns the reusable Soulcore into a companion creator inside Terraria. 
 
 [b]Languages:[/b] English and German. Soulmates follows Terraria's selected language automatically.
 
+[h2]AI-Assisted Development Disclosure[/h2]
+Soulmates is an experimental project created with extensive AI assistance across programming, writing, interface work, and visual development. The Workshop icon, mod icon, and custom Soulkin sprite were AI-generated and then integrated into the mod. The current Bunny, Blue Slime, Bird, Squirrel, item, and inventory visuals reuse Terraria assets as placeholders. Features are reviewed and tested in-game by the creator before release.
+
 [h2]Create Your Soulmate[/h2]
 [list]
 [*]Choose a name, Bestiary muse, body form, essence, aura, personality, and starting talent.
