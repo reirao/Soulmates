@@ -1,3 +1,12 @@
+Soulmates 0.6.4 - True Guard
+
+- Fixed Host & Play combat authority: the server now owns target selection and clients render only the synchronized target.
+- Soul bolts now use server-owned friendly NPC projectile semantics instead of conflicting player ownership.
+- Expanded hostile target validation and added explicit Target Dummy support for reliable combat testing.
+- Preserved player interaction credit when a companion damages an enemy.
+- Rebalanced soul-bolt damage and cadence so companions protect without replacing early-game combat.
+- Companions now recover energy naturally at a useful pace while following and faster while waiting; manual rest is optional.
+
 Soulmates 0.6.3 - Steadfast
 
 - Basic defense no longer consumes work energy, so companions keep protecting their owner at zero energy.

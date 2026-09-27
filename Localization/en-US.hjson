@@ -158,6 +158,7 @@ Mods: {
       Gathering: "Gathering area ({0} items)"
       SensingTreasure: Sensing treasure
       Guarding: IN COMBAT
+      Recovering: RECOVERING ENERGY
 	  Watching: "WATCH: {0} tiles"
       Assignment: "{0} assignment"
       Ready: Ready
@@ -346,7 +347,7 @@ Mods: {
           }
         }
         Refusal: {
-          EnergyStatus: "Energy {0}/{1} required. Choose Care > Rest or let me wait."
+          EnergyStatus: "Energy {0}/{1} required. I will recover it naturally while we wait."
           MoodStatus: "Mood {0}/{1} required. A little care will help."
           Energy: {
             Soft: Not yet. I need to rest first.

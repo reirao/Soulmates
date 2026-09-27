@@ -20,6 +20,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 [*]Persistent bond, mood, energy, and voice style.
 [*]Five bond ranks that improve role strength, work radius, and late-rank pack capacity.
 [*]Every companion continuously defends against nearby threats without spending work energy, even across cave terrain; Guardians react faster, reach farther, and hit harder, while Healers react to meaningful injuries.
+[*]Energy regenerates naturally outside work and combat, and faster while waiting; asking for a rest is an optional boost.
 [*]Talk Mode conversations across Care, Commands, Work, Bond, Voice, and Pack categories.
 [*]Companions can accept a request, react in their own voice, or clearly refuse when tired or unhappy.
 [*]Follow, stay, explore, rest, summon, and recall interactions.
@@ -51,7 +52,7 @@ New characters receive one Soulcore and three Blank Sigils as a prototype starte
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Current Release[/h2]
-Soulmates 0.6.3 makes defense continuous and independent of work energy, improves target pursuit, adds unmistakable soul-bolt trails and impacts, and replaces Talk Mode's overflowing text meters with compact visual bars. It retains server-authoritative multiplayer companions, autonomous Guardian and Healer roles, five bond ranks, a persistent memory chronicle, interactive pack slots, autonomous area assignments, conversation, equipment, useful world interaction, and complete English/German localization. Expanded equipment, evolving traits, and advanced jobs remain planned expansions.
+Soulmates 0.6.4 makes Host & Play combat fully server-authoritative, keeps defense independent of work energy, improves target pursuit, adds unmistakable soul-bolt trails and impacts, and replaces Talk Mode's overflowing text meters with compact visual bars. It retains autonomous Guardian and Healer roles, five bond ranks, a persistent memory chronicle, interactive pack slots, autonomous area assignments, conversation, equipment, useful world interaction, and complete English/German localization. Expanded equipment, evolving traits, and advanced jobs remain planned expansions.
 
 [h2]Controls[/h2]
 [list]

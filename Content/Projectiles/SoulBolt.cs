@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Soulmates.Content.NPCs;
 using Terraria;
 using Terraria.Audio;
+using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -37,12 +38,18 @@ public sealed class SoulBolt : ModProjectile
 		Projectile.localNPCHitCooldown = 20;
 	}
 
+	public override void OnSpawn(IEntitySource source)
+	{
+		if (!Main.dedServ)
+			SoundEngine.PlaySound(SoundID.Item8 with { Volume = 0.5f, Pitch = 0.35f }, Projectile.Center);
+	}
+
 	public override void AI()
 	{
 		int targetIndex = (int)Projectile.ai[0];
 		if (targetIndex >= 0 && targetIndex < Main.maxNPCs) {
 			NPC target = Main.npc[targetIndex];
-			if (target.active && target.CanBeChasedBy(Projectile)) {
+			if (target.active && (target.type == NPCID.TargetDummy || target.CanBeChasedBy(Projectile, ignoreDontTakeDamage: true))) {
 				Vector2 desired = (target.Center - Projectile.Center).SafeNormalize(Projectile.velocity) * 9f;
 				Projectile.velocity = Vector2.Lerp(Projectile.velocity, desired, 0.13f);
 			}
@@ -96,14 +103,19 @@ public sealed class SoulBolt : ModProjectile
 				dust.noGravity = true;
 			}
 		}
-		if (Main.netMode == NetmodeID.MultiplayerClient || target.life > 0)
+		if (Main.netMode == NetmodeID.MultiplayerClient)
 			return;
 		int companionIndex = (int)Projectile.ai[1];
 		if (companionIndex < 0 || companionIndex >= Main.maxNPCs)
 			return;
 		NPC companionNpc = Main.npc[companionIndex];
-		if (companionNpc.active && companionNpc.ModNPC is SoulboundCompanion companion)
-			companion.RecordGuardianVictory(target);
+		if (companionNpc.active && companionNpc.ModNPC is SoulboundCompanion companion) {
+			int ownerIndex = (int)companionNpc.ai[0];
+			if (ownerIndex >= 0 && ownerIndex < Main.maxPlayers)
+				target.playerInteraction[ownerIndex] = true;
+			if (target.life <= 0)
+				companion.RecordGuardianVictory(target);
+		}
 	}
 
 	private Color GetCompanionColor()

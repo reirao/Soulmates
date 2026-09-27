@@ -66,6 +66,8 @@ public sealed class SoulboundCompanion : ModNPC
 		}
 		: guardianTarget >= 0
 			? SoulmatesText.Get("Status.Guarding")
+			: Profile.Energy < 12
+			? SoulmatesText.Get("Status.Recovering")
 			: Profile.Routine != CompanionJob.None
 			? SoulmatesText.Get("Status.Assignment", SoulmatesText.EnumName(Profile.Routine))
 			: SoulmatesText.Get("Status.Watching", (int)(DefenseRange / 16f));
@@ -151,11 +153,11 @@ public sealed class SoulboundCompanion : ModNPC
 				idleTarget = NPC.Center;
 			}
 			MoveTo(idleTarget + new Vector2(0f, IdleBob()), 2.2f, 0.04f);
-			RecoverEnergy(180, Profile.Trinket == CompanionTrinket.HearthRibbon ? 6 : 4, recoverMood: true);
+			RecoverEnergy(120, Profile.Trinket == CompanionTrinket.HearthRibbon ? 5 : 3, recoverMood: true);
 			UpdateFacing();
 			return;
 		}
-		RecoverEnergy(600, 1, recoverMood: false);
+		RecoverEnergy(180, Profile.Trinket == CompanionTrinket.HearthRibbon ? 2 : 1, recoverMood: false);
 
 		Vector2 followTarget = Owner.Center + new Vector2(-Owner.direction * 66f, -58f);
 		float distance = Vector2.Distance(NPC.Center, followTarget);
@@ -206,13 +208,17 @@ public sealed class SoulboundCompanion : ModNPC
 
 		bool guardian = Profile.Talent == CompanionTalent.Guardian;
 		Vector2 anchor = Command == StayCommand ? idleTarget : Owner.Center;
-		NPC? target = FindDefenseTarget(anchor);
+		NPC? target = Main.netMode == NetmodeID.MultiplayerClient
+			? GetSynchronizedDefenseTarget(anchor)
+			: FindDefenseTarget(anchor);
 		if (target is null) {
-			SetGuardianTarget(-1);
+			if (Main.netMode != NetmodeID.MultiplayerClient)
+				SetGuardianTarget(-1);
 			return false;
 		}
 
-		SetGuardianTarget(target.whoAmI);
+		if (Main.netMode != NetmodeID.MultiplayerClient)
+			SetGuardianTarget(target.whoAmI);
 		brainState = BrainState.Guard;
 		Vector2 awayFromTarget = (anchor - target.Center).SafeNormalize(new Vector2(-Owner.direction, 0f));
 		Vector2 strafe = new Vector2(-awayFromTarget.Y, awayFromTarget.X)
@@ -222,21 +228,36 @@ public sealed class SoulboundCompanion : ModNPC
 		MoveTo(guardPosition, guardian ? 12f : 9f, guardian ? 0.14f : 0.11f);
 
 		float attackRange = guardian ? 640f : 520f;
-		if (talentCooldown <= 0 && Vector2.DistanceSquared(NPC.Center, target.Center) < attackRange * attackRange) {
-			if (Main.netMode != NetmodeID.MultiplayerClient) {
-				Vector2 velocity = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX) * (guardian ? 9f : 7.5f);
-				int damage = guardian
-					? 14 + Profile.RankIndex * 4 + Math.Min(8, Profile.JobsCompleted / 5)
-					: 6 + Profile.RankIndex * 2 + Math.Min(4, Profile.JobsCompleted / 8);
-				int projectileIndex = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, velocity, ModContent.ProjectileType<SoulBolt>(),
-					damage, 1.5f, Owner.whoAmI, target.whoAmI, NPC.whoAmI);
-				if (projectileIndex >= 0 && projectileIndex < Main.maxProjectiles)
-					Main.projectile[projectileIndex].netUpdate = true;
-				NPC.netUpdate = true;
+		if (Main.netMode != NetmodeID.MultiplayerClient && talentCooldown <= 0
+			&& Vector2.DistanceSquared(NPC.Center, target.Center) < attackRange * attackRange) {
+			Vector2 velocity = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX) * (guardian ? 9f : 7.5f);
+			int damage = guardian
+				? 8 + Profile.RankIndex * 2 + Math.Min(4, Profile.JobsCompleted / 8)
+				: 4 + Profile.RankIndex + Math.Min(2, Profile.JobsCompleted / 12);
+			int projectileOwner = Main.netMode == NetmodeID.Server ? 255 : Owner.whoAmI;
+			int projectileIndex = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, velocity, ModContent.ProjectileType<SoulBolt>(),
+				damage, 1.5f, projectileOwner, target.whoAmI, NPC.whoAmI);
+			if (projectileIndex >= 0 && projectileIndex < Main.maxProjectiles) {
+				Main.projectile[projectileIndex].npcProj = true;
+				Main.projectile[projectileIndex].netUpdate = true;
 			}
-			talentCooldown = guardian ? Math.Max(34, 56 - Profile.RankIndex * 5) : Math.Max(64, 92 - Profile.RankIndex * 5);
+			NPC.netUpdate = true;
+			talentCooldown = guardian ? Math.Max(55, 82 - Profile.RankIndex * 6) : Math.Max(90, 130 - Profile.RankIndex * 8);
 		}
 		return true;
+	}
+
+	private NPC? GetSynchronizedDefenseTarget(Vector2 anchor)
+	{
+		if (guardianTarget < 0 || guardianTarget >= Main.maxNPCs)
+			return null;
+		NPC target = Main.npc[guardianTarget];
+		float leash = DefenseRange * 1.6f;
+		return IsThreat(target)
+			&& (Vector2.DistanceSquared(anchor, target.Center) <= leash * leash
+				|| Vector2.DistanceSquared(NPC.Center, target.Center) <= leash * leash)
+			? target
+			: null;
 	}
 
 	private NPC? FindDefenseTarget(Vector2 anchor)
@@ -269,10 +290,11 @@ public sealed class SoulboundCompanion : ModNPC
 			return;
 		recoveryTimer = 0;
 		int previousEnergy = Profile.Energy;
+		int previousMood = Profile.Mood;
 		Profile.Energy = Math.Clamp(Profile.Energy + amount, 0, 100);
 		if (recoverMood)
 			Profile.Mood = Math.Clamp(Profile.Mood + 1, 0, 100);
-		if (Profile.Energy == previousEnergy && !recoverMood)
+		if (Profile.Energy == previousEnergy && Profile.Mood == previousMood)
 			return;
 		SyncProfileToBoundSigil();
 		NPC.netUpdate = true;
@@ -333,12 +355,14 @@ public sealed class SoulboundCompanion : ModNPC
 		return result;
 	}
 
-	private static bool IsThreat(NPC candidate) => candidate.active
-		&& !candidate.friendly
-		&& !candidate.dontTakeDamage
-		&& !candidate.immortal
-		&& candidate.lifeMax > 5
-		&& candidate.CanBeChasedBy();
+	private static bool IsThreat(NPC candidate)
+	{
+		if (!candidate.active || candidate.friendly || candidate.lifeMax <= 5)
+			return false;
+		if (candidate.type == NPCID.TargetDummy)
+			return true;
+		return candidate.chaseable && !candidate.immortal;
+	}
 
 	private void ChooseNextState(float distance, Vector2 followTarget)
 	{

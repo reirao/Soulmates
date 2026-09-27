@@ -158,6 +158,7 @@ Mods: {
       Gathering: "Gebiet sammeln ({0} Gegenstände)"
       SensingTreasure: Schatz aufspüren
       Guarding: IM KAMPF
+      Recovering: ENERGIE ERHOLEN
 	  Watching: "WACHE: {0} Blöcke"
       Assignment: "Auftrag: {0}"
       Ready: Bereit
@@ -346,7 +347,7 @@ Mods: {
           }
         }
         Refusal: {
-          EnergyStatus: "Energie {0}/{1} benötigt. Wähle Fürsorge > Ausruhen oder lass mich warten."
+          EnergyStatus: "Energie {0}/{1} benötigt. Beim Warten erhole ich mich von selbst."
           MoodStatus: "Laune {0}/{1} benötigt. Ein wenig Fürsorge hilft."
           Energy: {
             Soft: Noch nicht. Ich muss mich zuerst ausruhen.
