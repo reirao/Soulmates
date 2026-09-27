@@ -30,15 +30,24 @@ public abstract class CompanionTrinketItem : ModItem
 
 	public override bool? UseItem(Player player)
 	{
-		if (player.whoAmI != Main.myPlayer || SoulboundCompanion.FindFor(player) is not { } companion)
+		if (SoulboundCompanion.FindFor(player) is not { } companion)
 			return false;
 
 		CompanionTrinket equipped = player.altFunctionUse == 2 ? CompanionTrinket.None : Trinket;
+		if (Main.netMode == NetmodeID.MultiplayerClient) {
+			if (player.whoAmI == Main.myPlayer && player.altFunctionUse == 2)
+				Soulmates.SendTrinketRequest(equipped);
+			return true;
+		}
+
 		companion.EquipTrinket(equipped);
 		string message = equipped == CompanionTrinket.None
 			? SoulmatesText.Get("Messages.TrinketRemoved", companion.Profile.Name)
 			: SoulmatesText.Get("Messages.TrinketEquipped", companion.Profile.Name, Item.Name);
-		Main.NewText(message, companion.Profile.EssenceColor);
+		if (Main.netMode == NetmodeID.Server)
+			Soulmates.SendProfileUpdate(player, companion, message);
+		else
+			Main.NewText(message, companion.Profile.EssenceColor);
 		return true;
 	}
 }

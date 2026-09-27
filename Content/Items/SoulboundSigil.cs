@@ -47,23 +47,47 @@ public sealed class SoulboundSigil : ModItem
 
 	public override bool? UseItem(Player player)
 	{
-		if (player.whoAmI != Main.myPlayer)
-			return true;
-
 		SoulboundCompanion? companion = SoulboundCompanion.FindFor(player);
-		if (player.altFunctionUse == 2 && companion is not null) {
-			if (player.controlUp) {
-				companion.Recall();
-				Main.NewText(SoulmatesText.Get("Messages.Recalled", Profile.Name), Profile.EssenceColor);
+		if (player.altFunctionUse == 2) {
+			if (player.whoAmI != Main.myPlayer)
+				return true;
+			if (companion is not null) {
+				if (player.controlUp) {
+					if (Main.netMode == NetmodeID.MultiplayerClient)
+						Soulmates.SendRecallRequest();
+					else
+						companion.Recall();
+					Main.NewText(SoulmatesText.Get("Messages.Recalled", Profile.Name), Profile.EssenceColor);
+				}
+				else {
+					ModContent.GetInstance<TalkModeSystem>().Open(this, companion);
+				}
 			}
 			else {
-				ModContent.GetInstance<TalkModeSystem>().Open(this, companion);
+				if (Main.netMode == NetmodeID.MultiplayerClient)
+					Soulmates.SendSummonRequest(Profile.Id);
+				else
+					SummonCompanion(player);
+				Main.NewText(SoulmatesText.Get("Messages.Summoned", Profile.Name), Profile.EssenceColor);
 			}
 			return true;
 		}
 
-		if (companion is not null)
-			companion.Recall();
+		if (Main.netMode == NetmodeID.MultiplayerClient) {
+			if (player.whoAmI == Main.myPlayer)
+				Main.NewText(SoulmatesText.Get("Messages.Summoned", Profile.Name), Profile.EssenceColor);
+			return true;
+		}
+
+		SummonCompanion(player);
+		if (Main.netMode != NetmodeID.Server)
+			Main.NewText(SoulmatesText.Get("Messages.Summoned", Profile.Name), Profile.EssenceColor);
+		return true;
+	}
+
+	internal void SummonCompanion(Player player)
+	{
+		SoulboundCompanion.FindFor(player)?.Recall();
 
 		int index = NPC.NewNPC(new EntitySource_ItemUse(player, Item), (int)player.Center.X, (int)player.Center.Y - 48,
 			ModContent.NPCType<SoulboundCompanion>(), ai0: player.whoAmI);
@@ -72,9 +96,8 @@ public sealed class SoulboundSigil : ModItem
 			created.NPC.netUpdate = true;
 			player.GetModPlayer<SoulmatesPlayer>().ActiveCompanionWhoAmI = index;
 		}
-
-		Main.NewText(SoulmatesText.Get("Messages.Summoned", Profile.Name), Profile.EssenceColor);
-		return true;
+		if (Main.netMode == NetmodeID.Server)
+			NetMessage.SendData(MessageID.SyncNPC, -1, -1, null, index);
 	}
 
 	public override void ModifyTooltips(List<TooltipLine> tooltips)

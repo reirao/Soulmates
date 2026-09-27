@@ -4,6 +4,7 @@ using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Soulmates.Common;
+using Soulmates.Common.Dialogue;
 using Soulmates.Common.UI;
 using Soulmates.Content.Items;
 using Soulmates.Content.Projectiles;
@@ -224,19 +225,24 @@ public sealed class SoulboundCompanion : ModNPC
 
 		if (talentCooldown <= 0 && Vector2.DistanceSquared(NPC.Center, target.Center) < 440f * 440f
 			&& Collision.CanHitLine(NPC.position, NPC.width, NPC.height, target.position, target.width, target.height)) {
-			Vector2 velocity = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX) * 9f;
-			int damage = 8 + Profile.RankIndex * 2 + Math.Min(5, Profile.JobsCompleted / 5);
-			Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, velocity, ModContent.ProjectileType<SoulBolt>(),
-				damage, 1.5f, Owner.whoAmI, target.whoAmI, NPC.whoAmI);
-			Profile.Energy = Math.Max(0, Profile.Energy - 1);
+			if (Main.netMode != NetmodeID.MultiplayerClient) {
+				Vector2 velocity = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX) * 9f;
+				int damage = 8 + Profile.RankIndex * 2 + Math.Min(5, Profile.JobsCompleted / 5);
+				Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, velocity, ModContent.ProjectileType<SoulBolt>(),
+					damage, 1.5f, Owner.whoAmI, target.whoAmI, NPC.whoAmI);
+				Profile.Energy = Math.Max(0, Profile.Energy - 1);
+				SyncProfileToBoundSigil();
+				NPC.netUpdate = true;
+			}
 			talentCooldown = Math.Max(42, 76 - Profile.RankIndex * 7);
-			SyncProfileToBoundSigil();
 		}
 		return true;
 	}
 
 	private void TryHealOwner()
 	{
+		if (Main.netMode == NetmodeID.MultiplayerClient)
+			return;
 		if (talentCooldown > 0 || Profile.Energy < 5 || Owner.statLife >= Owner.statLifeMax2)
 			return;
 
@@ -257,7 +263,11 @@ public sealed class SoulboundCompanion : ModNPC
 				Main.rand.NextVector2Circular(0.7f, 0.7f), 80, Profile.EssenceColor, 0.9f);
 			dust.noGravity = true;
 		}
-		Main.NewText(SoulmatesText.Get("Messages.Healed", Profile.Name, amount), Profile.EssenceColor);
+		string message = SoulmatesText.Get("Messages.Healed", Profile.Name, amount);
+		if (Main.netMode == NetmodeID.Server)
+			global::Soulmates.Soulmates.SendProfileUpdate(Owner, this, message);
+		else
+			Main.NewText(message, Profile.EssenceColor);
 	}
 
 	private NPC? FindNearestThreat(Vector2 anchor, float range)
@@ -349,6 +359,8 @@ public sealed class SoulboundCompanion : ModNPC
 	{
 		jobTimer++;
 		UpdateJobEffects();
+		if (Main.netMode == NetmodeID.MultiplayerClient)
+			return;
 		switch (activeJob) {
 			case CompanionJob.FindTreasure:
 				UpdateTreasureJob();
@@ -475,6 +487,8 @@ public sealed class SoulboundCompanion : ModNPC
 		Item item = Main.item[itemIndex];
 		MoveTo(item.Center, 9f, 0.1f);
 		if (Vector2.DistanceSquared(NPC.Center, item.Center) < 42f * 42f) {
+			if (Main.netMode == NetmodeID.MultiplayerClient)
+				return;
 			if (!CanCarry(item)) {
 				gatherPause = 45;
 				return;
@@ -612,7 +626,11 @@ public sealed class SoulboundCompanion : ModNPC
 		}
 		Profile.Routine = CompanionJob.None;
 		SyncProfileToBoundSigil();
-		Main.NewText($"{Profile.Name}: {memory}", success ? Profile.EssenceColor : Color.LightGray);
+		string message = $"{Profile.Name}: {memory}";
+		if (Main.netMode == NetmodeID.Server)
+			global::Soulmates.Soulmates.SendProfileUpdate(Owner, this, message);
+		else
+			Main.NewText(message, success ? Profile.EssenceColor : Color.LightGray);
 		activeJob = CompanionJob.None;
 		jobTimer = 0;
 		jobCount = 0;
@@ -676,8 +694,27 @@ public sealed class SoulboundCompanion : ModNPC
 	};
 
 	public override Color? GetAlpha(Color drawColor) => Color.Lerp(drawColor, Profile.EssenceColor, 0.42f);
-	public override void SendExtraAI(BinaryWriter writer) => Profile.Write(writer);
-	public override void ReceiveExtraAI(BinaryReader reader) => Profile = CompanionProfile.Read(reader);
+	public override void SendExtraAI(BinaryWriter writer)
+	{
+		Profile.Write(writer);
+		writer.Write((byte)activeJob);
+		writer.Write(jobCount);
+	}
+
+	public override void ReceiveExtraAI(BinaryReader reader)
+	{
+		Profile = CompanionProfile.Read(reader);
+		activeJob = (CompanionJob)reader.ReadByte();
+		jobCount = reader.ReadInt32();
+		if (Main.netMode != NetmodeID.MultiplayerClient || !TryGetOwner(out Player owner) || owner.whoAmI != Main.myPlayer)
+			return;
+		foreach (Item item in owner.inventory) {
+			if (item.ModItem is SoulboundSigil sigil && sigil.Profile.Id == Profile.Id) {
+				sigil.Profile = Profile.Clone();
+				break;
+			}
+		}
+	}
 
 	public void ToggleCommand()
 	{
@@ -717,15 +754,78 @@ public sealed class SoulboundCompanion : ModNPC
 		BeginJob(job);
 	}
 
+	public CompanionConversationResult Converse(TalkCategory category, int option, int memoryCursor)
+	{
+		DialogueResult result = CompanionDialogueEngine.Speak(Profile, category, option);
+		Profile.ChangeBond(result.BondDelta);
+		Profile.Mood = Math.Clamp(Profile.Mood + result.MoodDelta, 0, 100);
+		Profile.Energy = Math.Clamp(Profile.Energy + result.EnergyDelta, 0, 100);
+		ApplyConversationAction(result.Action);
+
+		string reply = result.Action switch {
+			SpeechAction.ShowPack => Profile.DescribePack(),
+			SpeechAction.StoreHeldItem => StoreSelectedItem(),
+			SpeechAction.UnloadPack => UnloadPack(),
+			SpeechAction.RecallMemory => Profile.RecallMemory(memoryCursor),
+			_ => result.Reply
+		};
+		if (result.Action is SpeechAction.StoreHeldItem or SpeechAction.UnloadPack)
+			SyncOwnerInventory();
+		SyncProfileToBoundSigil();
+		NPC.netUpdate = true;
+		return new CompanionConversationResult(reply, result.Accepted);
+	}
+
+	private void ApplyConversationAction(SpeechAction action)
+	{
+		switch (action) {
+			case SpeechAction.Follow:
+				Profile.Routine = CompanionJob.None;
+				SetCommand(stay: false);
+				break;
+			case SpeechAction.Stay:
+			case SpeechAction.Rest:
+				Profile.Routine = CompanionJob.None;
+				SetCommand(stay: true);
+				break;
+			case SpeechAction.Explore:
+				Profile.Routine = CompanionJob.None;
+				AskToExplore();
+				break;
+			case SpeechAction.FindTreasure:
+				StartJob(CompanionJob.FindTreasure);
+				break;
+			case SpeechAction.Mine:
+				StartJob(CompanionJob.Mine);
+				break;
+			case SpeechAction.Gather:
+				StartJob(CompanionJob.Gather);
+				break;
+			case SpeechAction.VoiceSoft:
+				Profile.Voice = CompanionVoice.Soft;
+				break;
+			case SpeechAction.VoiceDirect:
+				Profile.Voice = CompanionVoice.Direct;
+				break;
+			case SpeechAction.VoicePlayful:
+				Profile.Voice = CompanionVoice.Playful;
+				break;
+		}
+	}
+
 	private void BeginJob(CompanionJob job)
 	{
+		if (!TryGetOwner(out Player owner)) {
+			CancelAssignment();
+			return;
+		}
 		activeJob = job;
 		jobTimer = 0;
 		jobCount = 0;
 		gatherPause = 0;
 		areaEmptyTimer = 0;
 		hasJobTarget = false;
-		jobOrigin = Owner.Center;
+		jobOrigin = owner.Center;
 		failedMiningTargets.Clear();
 		Command = FollowCommand;
 		NPC.netUpdate = true;
@@ -850,6 +950,16 @@ public sealed class SoulboundCompanion : ModNPC
 			Owner.GetModPlayer<SoulmatesPlayer>().ActiveCompanionWhoAmI = -1;
 		NPC.active = false;
 		NPC.netUpdate = true;
+		if (Main.netMode == NetmodeID.Server)
+			NetMessage.SendData(MessageID.SyncNPC, -1, -1, null, NPC.whoAmI);
+	}
+
+	private void SyncOwnerInventory()
+	{
+		if (Main.netMode != NetmodeID.Server)
+			return;
+		for (int slot = 0; slot < Owner.inventory.Length; slot++)
+			NetMessage.SendData(MessageID.SyncEquipment, Owner.whoAmI, -1, null, Owner.whoAmI, slot);
 	}
 
 	public static SoulboundCompanion? FindFor(Player player)

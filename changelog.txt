@@ -1,3 +1,11 @@
+Soulmates 0.6.1 - Bound Together
+
+- Fixed companions disappearing immediately in multiplayer sessions.
+- Summoning, recalling, conversations, jobs, pack actions, and trinkets are now server-authoritative.
+- Companion profiles and conversation replies now synchronize back to the owning player.
+- Prevented duplicate client-side healing, projectiles, gathering, and world interaction.
+- Added owner validation so invalid network state cancels safely instead of crashing Talk Mode.
+
 Soulmates 0.6.0 - Living Souls
 
 - Guardian companions now intercept nearby threats and fire bond-scaled soul bolts.

@@ -37,7 +37,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Right-click the summoned companion to open Talk Mode directly.
 - Play in English or German; Soulmates follows Terraria's selected language automatically.
 
-The current release is designed and tested for single-player. Full server-authoritative multiplayer commands remain on the roadmap.
+The current release supports single-player and server-authoritative multiplayer companions. Summoning, recalling, conversations, jobs, pack actions, and trinkets are validated by the server and synchronized back to the owning player.
 
 ## Languages
 
@@ -68,7 +68,6 @@ The project targets the current tModLoader 1.4.4 stable release. In the normal M
 - More trinkets and meaningful equipment tradeoffs.
 - Advanced jobs for later ores and specialized materials.
 - Evolving traits, contextual dialogue, gifts, preferences, and personal quests.
-- Multiplayer synchronization and server-authoritative jobs.
 
 ## License
 

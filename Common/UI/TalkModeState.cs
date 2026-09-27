@@ -30,6 +30,7 @@ public sealed class TalkModeState : UIState
 	private UIText? packLabel;
 	private UITextPanel<string>? closeButton;
 	private int memoryCursor;
+	private bool awaitingResponse;
 	public bool HasActiveBinding => sigil is not null && companion?.NPC.active == true;
 
 	public override void OnInitialize()
@@ -166,6 +167,7 @@ public sealed class TalkModeState : UIState
 	{
 		sigil = null;
 		companion = null;
+		awaitingResponse = false;
 	}
 
 	private void SelectCategory(TalkCategory selected)
@@ -187,28 +189,37 @@ public sealed class TalkModeState : UIState
 
 	private void Speak(int option)
 	{
+		if (awaitingResponse)
+			return;
 		if (sigil is null || companion is null || !companion.NPC.active) {
 			ModContent.GetInstance<TalkModeSystem>().Close();
 			return;
 		}
-		CompanionProfile profile = sigil.Profile;
-		DialogueResult result = CompanionDialogueEngine.Speak(profile, category, option);
-		profile.ChangeBond(result.BondDelta);
-		profile.Mood = Math.Clamp(profile.Mood + result.MoodDelta, 0, 100);
-		profile.Energy = Math.Clamp(profile.Energy + result.EnergyDelta, 0, 100);
-		ApplyAction(profile, result.Action);
-		companion.Profile = profile.Clone();
-		companion.NPC.netUpdate = true;
 
-		string reply = result.Action switch {
-			SpeechAction.ShowPack => profile.DescribePack(),
-			SpeechAction.StoreHeldItem => companion.StoreSelectedItem(),
-			SpeechAction.UnloadPack => companion.UnloadPack(),
-			SpeechAction.RecallMemory => profile.RecallMemory(memoryCursor++),
-			_ => result.Reply
-		};
-		SetResponse(reply, result.Accepted);
+		if (Main.netMode == NetmodeID.MultiplayerClient) {
+			awaitingResponse = true;
+			Soulmates.SendTalkRequest(category, option, memoryCursor++);
+			SoundEngine.PlaySound(SoundID.MenuTick);
+			return;
+		}
+
+		CompanionConversationResult result = companion.Converse(category, option, memoryCursor++);
+		sigil.Profile = companion.Profile.Clone();
+		SetResponse(result.Reply, result.Accepted);
 		SoundEngine.PlaySound(result.Accepted ? SoundID.Chat : SoundID.MenuClose);
+		RefreshStats();
+	}
+
+	internal void ReceiveNetworkResponse(CompanionProfile profile, string reply, bool accepted)
+	{
+		awaitingResponse = false;
+		if (sigil is null || sigil.Profile.Id != profile.Id)
+			return;
+		sigil.Profile = profile.Clone();
+		if (companion?.NPC.active == true)
+			companion.Profile = profile.Clone();
+		SetResponse(reply, accepted);
+		SoundEngine.PlaySound(accepted ? SoundID.Chat : SoundID.MenuClose);
 		RefreshStats();
 	}
 
@@ -218,49 +229,6 @@ public sealed class TalkModeState : UIState
 			return;
 		response.SetText($"\"{text}\"");
 		response.TextColor = accepted ? sigil.Profile.EssenceColor : Color.IndianRed;
-	}
-
-	private void ApplyAction(CompanionProfile profile, SpeechAction action)
-	{
-		if (companion is null)
-			return;
-
-		switch (action) {
-			case SpeechAction.Follow:
-				profile.Routine = CompanionJob.None;
-				companion.SetCommand(stay: false);
-				break;
-			case SpeechAction.Stay:
-			case SpeechAction.Rest:
-				profile.Routine = CompanionJob.None;
-				companion.SetCommand(stay: true);
-				break;
-			case SpeechAction.Explore:
-				profile.Routine = CompanionJob.None;
-				companion.AskToExplore();
-				break;
-			case SpeechAction.FindTreasure:
-				profile.Routine = CompanionJob.FindTreasure;
-				companion.StartJob(CompanionJob.FindTreasure);
-				break;
-			case SpeechAction.Mine:
-				profile.Routine = CompanionJob.Mine;
-				companion.StartJob(CompanionJob.Mine);
-				break;
-			case SpeechAction.Gather:
-				profile.Routine = CompanionJob.Gather;
-				companion.StartJob(CompanionJob.Gather);
-				break;
-			case SpeechAction.VoiceSoft:
-				profile.Voice = CompanionVoice.Soft;
-				break;
-			case SpeechAction.VoiceDirect:
-				profile.Voice = CompanionVoice.Direct;
-				break;
-			case SpeechAction.VoicePlayful:
-				profile.Voice = CompanionVoice.Playful;
-				break;
-		}
 	}
 
 	private void RefreshOptions()

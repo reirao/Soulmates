@@ -39,6 +39,9 @@ public sealed class TalkModeSystem : ModSystem
 		talkState?.Unbind();
 	}
 
+	internal void ReceiveNetworkResponse(CompanionProfile profile, string reply, bool accepted)
+		=> talkState?.ReceiveNetworkResponse(profile, reply, accepted);
+
 	public override void UpdateUI(GameTime gameTime)
 	{
 		if (IsOpen) {

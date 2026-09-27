@@ -32,6 +32,7 @@ public enum SpeechAction
 }
 
 public readonly record struct DialogueResult(string Reply, bool Accepted, SpeechAction Action, int BondDelta, int MoodDelta, int EnergyDelta);
+public readonly record struct CompanionConversationResult(string Reply, bool Accepted);
 
 public static class CompanionDialogueEngine
 {
