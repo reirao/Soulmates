@@ -19,7 +19,7 @@ Mods: {
       }
       DelverCharm: {
         DisplayName: Delver Charm
-        Tooltip: "Lets a summoned companion mine two extra blocks per job\nUse to equip  |  Right-click to unequip"
+        Tooltip: "Expands a summoned companion's mining radius and speed\nUse to equip  |  Right-click to unequip"
       }
       HearthRibbon: {
         DisplayName: Hearth Ribbon
@@ -29,6 +29,336 @@ Mods: {
     NPCs: {
       SoulboundCompanion: {
         DisplayName: Soulbound Companion
+      }
+    }
+    Keybinds: {
+      TalkToCompanion: {
+        DisplayName: Talk to Companion
+      }
+    }
+    Enums: {
+      CompanionPersonality: {
+        Curious: Curious
+        Loyal: Loyal
+        Brave: Brave
+        Gentle: Gentle
+        Mischievous: Mischievous
+      }
+      CompanionTalent: {
+        TreasureSeeker: Treasure Seeker
+        Miner: Miner
+        Guardian: Guardian
+        Gatherer: Gatherer
+        Healer: Healer
+      }
+      CompanionEssence: {
+        Starlight: Starlight
+        Ember: Ember
+        Verdant: Verdant
+        Tide: Tide
+        Amethyst: Amethyst
+      }
+      CompanionForm: {
+        Balanced: Balanced
+        Round: Round
+        Wisp: Wisp
+      }
+      CompanionAura: {
+        SoftGlow: Soft Glow
+        OrbitingStars: Orbiting Stars
+        SoulSparks: Soul Sparks
+      }
+      CompanionMuse: {
+        Soulkin: Soulkin
+        Bunny: Bunny
+        BlueSlime: Blue Slime
+        Bird: Bird
+        Squirrel: Squirrel
+      }
+      CompanionVoice: {
+        Soft: Soft
+        Direct: Direct
+        Playful: Playful
+      }
+      CompanionTrinket: {
+        None: None
+        StarfinderBell: Starfinder Bell
+        DelverCharm: Delver Charm
+        HearthRibbon: Hearth Ribbon
+      }
+      CompanionJob: {
+        None: None
+        FindTreasure: Find Treasure
+        Mine: Mine
+        Gather: Gather
+      }
+      TalkCategory: {
+        Care: Care
+        Commands: Commands
+        Work: Work
+        Bond: Bond
+        Voice: Voice
+        Pack: Pack
+      }
+    }
+    UI: {
+      Common: {
+        Close: CLOSE
+      }
+      Creator: {
+        Title: SOUL CREATOR
+        Randomize: RANDOMIZE
+        RequiresSigil: Requires 1 Blank Sigil
+        Create: CREATE SOULMATE
+        Field: "{0}: {1}"
+        NeedSigil: You need a Blank Sigil.
+        ConsumeFailed: The Blank Sigil could not be consumed.
+        Details: "{0}\n{1} muse | {2} form\n{3} | {4}\n{5} | {6}"
+        Fields: {
+          Name: Name
+          Muse: Bestiary Muse
+          Form: Form
+          Essence: Essence
+          Aura: Aura
+          Personality: Personality
+          Talent: Starting Talent
+        }
+      }
+      Talk: {
+        Title: "{0} // TALK"
+        Greeting: "{0} looks at you expectantly."
+        ChooseWords: CHOOSE YOUR WORDS
+        Pack: COMPANION PACK
+        Radius: " | Radius {0}"
+        Stats: "BOND {0}  MOOD {1}  ENERGY {2}\nPACK {3}/{4}\n{5}{6}"
+      }
+    }
+    Status: {
+      Stay: Stay
+      Follow: Follow
+      Mining: "Mining area ({0} cleared)"
+      Gathering: "Gathering area ({0} items)"
+      SensingTreasure: Sensing treasure
+      Assignment: "{0} assignment"
+      Ready: Ready
+    }
+    Messages: {
+      StarterKit: A Soulcore stirs in your hands...
+      SoulCreated: "A new soul is bound: {0}"
+      Recalled: "{0} returned to the Soulbound Sigil."
+      Summoned: "{0} answers your call."
+      TrinketRemoved: "{0} removed their trinket."
+      TrinketEquipped: "{0} equipped {1}."
+    }
+    Tooltips: {
+      Sigil: {
+        BoundTo: "Bound to {0}"
+        Appearance: "{0} muse  |  {1} form  |  {2}"
+        Identity: "{0}  |  {1}"
+        Stats: "Bond {0}  |  Mood {1}  |  Energy {2}"
+        Voice: "Voice: {0}"
+        Trinket: "Trinket: {0}  |  Pack: {1}/{2}  |  Jobs: {3}"
+        Assignment: "Active assignment: {0}"
+        Controls: "Use: summon  |  Talk keybind: Talk Mode  |  Up + Right-click: recall"
+      }
+    }
+    Directions: {
+      Above: above
+      Below: below
+      West: to the west
+      East: to the east
+      Nearby: nearby
+      Combined: "{0} and {1}"
+    }
+    Jobs: {
+      PackFull: My pack is full. Unload it, then send me out again.
+      Treasure: {
+        Empty: "I searched the whole {0}-tile area, but sensed no treasure. Send me out again somewhere new."
+        Found: "I found a treasure signal {0}, about {1} tiles away."
+      }
+      Mining: {
+        Protected: "I cleared {0} ore blocks, but {1} protected blocks resisted me. Send me again somewhere new."
+        Cleared: "The area is clear. I mined all {0} workable ore blocks within {1} tiles. Send me out again in a new place."
+        Empty: "There is no workable ore within {0} tiles. Send me out again somewhere new."
+        Timeout: "I reached my time limit after clearing {0} ore blocks. Send me again to continue."
+      }
+      Gathering: {
+        Cleared: "The area is clear. I gathered all {0} items within {1} tiles. Send me out again when there is more."
+        Empty: "There are no loose items within {0} tiles. Send me out again when there is something to collect."
+        Timeout: "I reached my time limit after gathering {0} items. Send me again to continue."
+      }
+    }
+    Memories: {
+      New: We have only just met.
+      TrinketRemoved: You let me travel light again.
+      TrinketEquipped: "You entrusted me with the {0}."
+    }
+    Pack: {
+      Empty: My pack is empty.
+      AndMoreStacks: ", and {0} more stacks"
+      Description: "I carry {0}. ({1}/{2})"
+      SelectedEmpty: Your selected hotbar slot is empty.
+      CannotCarry: That item anchors our bond. I should not carry it inside my pack.
+      Full: "My pack is full. ({0}/{1})"
+      StoredOne: "I stored {0} item. ({1}/{2})"
+      StoredMany: "I stored {0} items. ({1}/{2})"
+      ReturnedOne: "I returned {0} item. ({1}/{2})"
+      ReturnedMany: "I returned {0} items. ({1}/{2})"
+      AlreadyEmpty: My pack is already empty.
+      InventoryFull: Your inventory has no room for my cargo.
+    }
+    Dialogue: {
+      Options: {
+        Care: {
+          Option0: How are you feeling?
+          Option1: You did well today.
+          Option2: Do you need a rest?
+        }
+        Commands: {
+          Option0: Please follow me.
+          Option1: Wait here for me.
+          Option2: Come explore with me.
+        }
+        Work: {
+          Option0: Search this area for treasure.
+          Option1: Clear every nearby ore vein.
+          Option2: Gather every loose item nearby.
+        }
+        Bond: {
+          Option0: Do you trust me?
+          Option1: Tell me something about you.
+          Option2: I am glad you are here.
+        }
+        Voice: {
+          Option0: Speak softly with me.
+          Option1: Be direct with me.
+          Option2: Be more playful.
+        }
+        Pack: {
+          Option0: What are you carrying?
+          Option1: Take my selected hotbar item.
+          Option2: Give me everything you carry.
+        }
+      }
+      Replies: {
+        Fallback: ...
+        Care: {
+          Feeling: {
+            Soft: I feel safe near you.
+            Direct: Mood stable. Energy noted.
+            Playful: Still sparkling. Mostly.
+          }
+          Praise: {
+            Soft: Thank you. I will remember that.
+            Direct: Acknowledged. I did well.
+            Playful: Obviously. But say it again.
+          }
+          Rest: {
+            Soft: A quiet moment sounds lovely.
+            Direct: Yes. Rest would help.
+            Playful: Only if naps count as important work.
+          }
+        }
+        Commands: {
+          Follow: {
+            Soft: I will stay close.
+            Direct: Following.
+            Playful: Lead on, hero.
+          }
+          Stay: {
+            Soft: I will wait for your return.
+            Direct: Holding position.
+            Playful: I shall guard this extremely important patch of air.
+          }
+          Explore: {
+            Soft: Let us see what the world is hiding.
+            Direct: Exploration accepted.
+            Playful: Adventure first. Sensible decisions later.
+          }
+        }
+        Work: {
+          Treasure: {
+            Soft: I will search this whole area, then report back.
+            Direct: Area treasure scan started.
+            Playful: If it shines, I am claiming first look.
+          }
+          Mine: {
+            Soft: I will clear every workable ore vein nearby, then return.
+            Direct: Area mining assignment started.
+            Playful: Time for comprehensive negotiations with the rocks.
+          }
+          Gather: {
+            Soft: I will collect everything loose in this area, then report back.
+            Direct: Area gathering assignment started.
+            Playful: Interesting remains a wonderfully dangerous category.
+          }
+        }
+        Bond: {
+          TrustHigh: {
+            Soft: More each day.
+            Direct: Trust confirmed.
+            Playful: Enough to follow you underground. That is serious.
+          }
+          TrustLow: {
+            Soft: I think trust grows when we keep choosing each other.
+            Direct: Trust is forming.
+            Playful: Ask me again after fewer lava incidents.
+          }
+          Glad: {
+            Soft: And I am glad you called me into being.
+            Direct: The bond is mutual.
+            Playful: Good. You are keeping me.
+          }
+        }
+        Refusal: {
+          Energy: {
+            Soft: Not yet. I need to rest first.
+            Direct: No. Energy too low.
+            Playful: My soul says yes. The rest of me says nap.
+          }
+          Mood: {
+            Soft: I do not feel like doing that right now.
+            Direct: Mood too low. Request declined.
+            Playful: Nope. A little kindness first.
+          }
+        }
+        Voice: {
+          Option0: I will choose gentler words.
+          Option1: Understood. I will be clear.
+          Option2: Oh, this is going to be fun.
+        }
+        Pack: {
+          Show: Let me check.
+          Store: I will keep it safe.
+          Unload: Here. Everything is accounted for.
+        }
+        Secrets: {
+          Curious: {
+            Soft: Sometimes I wonder whether stars dream about us.
+            Direct: I study everything when you are not looking.
+            Playful: I have questions about every chest. Especially locked ones.
+          }
+          Loyal: {
+            Soft: I always know which footsteps are yours.
+            Direct: I track your position constantly.
+            Playful: I would recognize your chaos anywhere.
+          }
+          Brave: {
+            Soft: I get frightened too. I simply move with you anyway.
+            Direct: Fear does not alter the objective.
+            Playful: I am fearless, except around suspiciously quiet caves.
+          }
+          Gentle: {
+            Soft: I like the quiet after the rain.
+            Direct: Peace improves focus.
+            Playful: My secret is that I name the slimes.
+          }
+          Mischievous: {
+            Soft: I sometimes move your things when you are not looking.
+            Direct: I have relocated several objects.
+            Playful: That missing torch? No idea.
+          }
+        }
       }
     }
   }

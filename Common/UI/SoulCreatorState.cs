@@ -34,7 +34,7 @@ public sealed class SoulCreatorState : UIState
 		};
 		Append(panel);
 
-		panel.Append(new UIText("SOUL CREATOR", 1.15f, true) {
+		panel.Append(new UIText(SoulmatesText.Get("UI.Creator.Title"), 1.15f, true) {
 			HAlign = 0.5f,
 			Top = new StyleDimension(8f, 0f)
 		});
@@ -68,22 +68,22 @@ public sealed class SoulCreatorState : UIState
 
 		float left = 280f;
 		float width = 376f;
-		AddCycleButton(panel, "Name", 48f, left, width, () => draft.Name, () => {
+		AddCycleButton(panel, "UI.Creator.Fields.Name", 48f, left, width, () => draft.Name, () => {
 			nameIndex = (nameIndex + 1) % Names.Length;
 			draft.Name = Names[nameIndex];
 		});
-		AddCycleButton(panel, "Bestiary Muse", 87f, left, width, () => SplitName(draft.Muse.ToString()), () => draft.Muse = Next(draft.Muse));
-		AddCycleButton(panel, "Form", 126f, left, width, () => draft.Form.ToString(), () => draft.Form = Next(draft.Form));
-		AddCycleButton(panel, "Essence", 165f, left, width, () => draft.Essence.ToString(), () => draft.Essence = Next(draft.Essence));
-		AddCycleButton(panel, "Aura", 204f, left, width, () => SplitName(draft.Aura.ToString()), () => draft.Aura = Next(draft.Aura));
-		AddCycleButton(panel, "Personality", 243f, left, width, () => draft.Personality.ToString(), () => draft.Personality = Next(draft.Personality));
-		AddCycleButton(panel, "Starting Talent", 282f, left, width, () => SplitName(draft.Talent.ToString()), () => draft.Talent = Next(draft.Talent));
+		AddCycleButton(panel, "UI.Creator.Fields.Muse", 87f, left, width, () => SoulmatesText.EnumName(draft.Muse), () => draft.Muse = Next(draft.Muse));
+		AddCycleButton(panel, "UI.Creator.Fields.Form", 126f, left, width, () => SoulmatesText.EnumName(draft.Form), () => draft.Form = Next(draft.Form));
+		AddCycleButton(panel, "UI.Creator.Fields.Essence", 165f, left, width, () => SoulmatesText.EnumName(draft.Essence), () => draft.Essence = Next(draft.Essence));
+		AddCycleButton(panel, "UI.Creator.Fields.Aura", 204f, left, width, () => SoulmatesText.EnumName(draft.Aura), () => draft.Aura = Next(draft.Aura));
+		AddCycleButton(panel, "UI.Creator.Fields.Personality", 243f, left, width, () => SoulmatesText.EnumName(draft.Personality), () => draft.Personality = Next(draft.Personality));
+		AddCycleButton(panel, "UI.Creator.Fields.Talent", 282f, left, width, () => SoulmatesText.EnumName(draft.Talent), () => draft.Talent = Next(draft.Talent));
 
-		var randomize = Button("RANDOMIZE", 324f, left, width, new Color(82, 74, 116));
+		var randomize = Button(SoulmatesText.Get("UI.Creator.Randomize"), 324f, left, width, new Color(82, 74, 116));
 		randomize.OnLeftClick += (_, _) => RandomizeDraft();
 		panel.Append(randomize);
 
-		status = new UIText("Requires 1 Blank Sigil", 0.8f) {
+		status = new UIText(SoulmatesText.Get("UI.Creator.RequiresSigil"), 0.8f) {
 			Left = new StyleDimension(left, 0f),
 			Top = new StyleDimension(362f, 0f),
 			Width = new StyleDimension(width, 0f),
@@ -92,11 +92,11 @@ public sealed class SoulCreatorState : UIState
 		};
 		panel.Append(status);
 
-		var create = Button("CREATE SOULMATE", 410f, 14f, 450f, new Color(55, 129, 112));
+		var create = Button(SoulmatesText.Get("UI.Creator.Create"), 410f, 14f, 450f, new Color(55, 129, 112));
 		create.OnLeftClick += (_, _) => CreateCompanion();
 		panel.Append(create);
 
-		var close = Button("CLOSE", 410f, 480f, 176f, new Color(120, 63, 72));
+		var close = Button(SoulmatesText.Get("UI.Common.Close"), 410f, 480f, 176f, new Color(120, 63, 72));
 		close.OnLeftClick += (_, _) => ModContent.GetInstance<SoulCreatorSystem>().Close();
 		panel.Append(close);
 		Refresh();
@@ -116,6 +116,10 @@ public sealed class SoulCreatorState : UIState
 		draft.Bond = 0;
 		draft.Mood = 100;
 		draft.Energy = 100;
+		draft.Routine = CompanionJob.None;
+		draft.JobsCompleted = 0;
+		draft.LastMemory = SoulmatesText.Get("Memories.New");
+		draft.Pack.Clear();
 		SoundEngine.PlaySound(SoundID.MenuTick);
 		Refresh();
 	}
@@ -127,10 +131,10 @@ public sealed class SoulCreatorState : UIState
 		Refresh();
 	}
 
-	private void AddCycleButton(UIPanel panel, string label, float top, float left, float width, Func<string> value, Action cycle)
+	private void AddCycleButton(UIPanel panel, string labelKey, float top, float left, float width, Func<string> value, Action cycle)
 	{
-		var button = Button($"{label}: {value()}", top, left, width, new Color(43, 64, 98));
-		refreshButtons.Add(() => button.SetText($"{label}: {value()}"));
+		var button = Button(SoulmatesText.Get("UI.Creator.Field", SoulmatesText.Get(labelKey), value()), top, left, width, new Color(43, 64, 98));
+		refreshButtons.Add(() => button.SetText(SoulmatesText.Get("UI.Creator.Field", SoulmatesText.Get(labelKey), value())));
 		button.OnLeftClick += (_, _) => {
 			cycle();
 			SoundEngine.PlaySound(SoundID.MenuTick);
@@ -159,13 +163,13 @@ public sealed class SoulCreatorState : UIState
 		Player player = Main.LocalPlayer;
 		int blankType = ModContent.ItemType<BlankSigil>();
 		if (!player.HasItem(blankType)) {
-			SetStatus("You need a Blank Sigil.", Color.IndianRed);
+			SetStatus(SoulmatesText.Get("UI.Creator.NeedSigil"), Color.IndianRed);
 			SoundEngine.PlaySound(SoundID.MenuClose);
 			return;
 		}
 
 		if (!player.ConsumeItem(blankType)) {
-			SetStatus("The Blank Sigil could not be consumed.", Color.IndianRed);
+			SetStatus(SoulmatesText.Get("UI.Creator.ConsumeFailed"), Color.IndianRed);
 			return;
 		}
 
@@ -177,7 +181,7 @@ public sealed class SoulCreatorState : UIState
 			Item.NewItem(player.GetSource_Misc("SoulCreator"), player.Hitbox, leftover);
 
 		SoundEngine.PlaySound(SoundID.Item4);
-		Main.NewText($"A new soul is bound: {draft.Name}", draft.EssenceColor);
+		Main.NewText(SoulmatesText.Get("Messages.SoulCreated", draft.Name), draft.EssenceColor);
 		ModContent.GetInstance<SoulCreatorSystem>().Close();
 	}
 
@@ -187,9 +191,10 @@ public sealed class SoulCreatorState : UIState
 			return;
 		foreach (Action refreshButton in refreshButtons)
 			refreshButton();
-		details.SetText($"{draft.Name}\n{SplitName(draft.Muse.ToString())} muse | {draft.Form} form\n{draft.Essence} | {SplitName(draft.Aura.ToString())}\n{draft.Personality} | {SplitName(draft.Talent.ToString())}");
+		details.SetText(SoulmatesText.Get("UI.Creator.Details", draft.Name, SoulmatesText.EnumName(draft.Muse), SoulmatesText.EnumName(draft.Form),
+			SoulmatesText.EnumName(draft.Essence), SoulmatesText.EnumName(draft.Aura), SoulmatesText.EnumName(draft.Personality), SoulmatesText.EnumName(draft.Talent)));
 		details.TextColor = draft.EssenceColor;
-		SetStatus("Requires 1 Blank Sigil", Color.LightGray);
+		SetStatus(SoulmatesText.Get("UI.Creator.RequiresSigil"), Color.LightGray);
 	}
 
 	private void SetStatus(string text, Color color)
@@ -206,7 +211,6 @@ public sealed class SoulCreatorState : UIState
 		return values[(Array.IndexOf(values, value) + 1) % values.Length];
 	}
 
-	private static string SplitName(string value) => System.Text.RegularExpressions.Regex.Replace(value, "([a-z])([A-Z])", "$1 $2");
 }
 
 internal sealed class SoulPreviewElement(Func<CompanionProfile> getProfile) : UIElement

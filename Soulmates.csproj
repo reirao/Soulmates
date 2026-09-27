@@ -5,6 +5,7 @@
     <AssemblyName>Soulmates</AssemblyName>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
+	<DefaultItemExcludes>$(DefaultItemExcludes);work\**;outputs\**;.dotnet-cli\**</DefaultItemExcludes>
     <ExtraBuildModFlags Condition="'$(TML_SAVE_PATH)' != ''">$(ExtraBuildModFlags) -tmlsavedirectory &quot;$(TML_SAVE_PATH)&quot;</ExtraBuildModFlags>
   </PropertyGroup>
   <Target Name="RequireTModLoader" BeforeTargets="PrepareForBuild" Condition="!Exists('..\tModLoader.targets') and '$(TML_PATH)' == ''">

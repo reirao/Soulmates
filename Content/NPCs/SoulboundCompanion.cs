@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Soulmates.Common;
+using Soulmates.Common.UI;
 using Soulmates.Content.Items;
 using Terraria;
 using Terraria.GameContent;
@@ -38,14 +40,35 @@ public sealed class SoulboundCompanion : ModNPC
 	private bool hasJobTarget;
 	private int recoveryTimer;
 	private int gatherPause;
+	private int areaEmptyTimer;
 	private int revealTimer;
+	private Vector2 jobOrigin;
+	private readonly HashSet<Point> failedMiningTargets = [];
 
 	public CompanionProfile Profile { get; set; } = new();
 	private Player Owner => Main.player[(int)NPC.ai[0]];
 	private ref float Command => ref NPC.ai[1];
-	public string CommandName => Command == StayCommand ? "Stay" : "Follow";
+	public string CommandName => SoulmatesText.Get(Command == StayCommand ? "Status.Stay" : "Status.Follow");
 	public CompanionJob CurrentJob => activeJob;
-	public string CurrentJobName => activeJob == CompanionJob.None ? "None" : SplitName(activeJob.ToString());
+	public string CurrentJobName => activeJob != CompanionJob.None
+		? activeJob switch {
+			CompanionJob.Mine => SoulmatesText.Get("Status.Mining", jobCount),
+			CompanionJob.Gather => SoulmatesText.Get("Status.Gathering", jobCount),
+			CompanionJob.FindTreasure => SoulmatesText.Get("Status.SensingTreasure"),
+			_ => SoulmatesText.EnumName(activeJob)
+		}
+		: Profile.Routine != CompanionJob.None
+			? SoulmatesText.Get("Status.Assignment", SoulmatesText.EnumName(Profile.Routine))
+			: SoulmatesText.Get("Status.Ready");
+	public int CurrentJobRadius => (activeJob != CompanionJob.None ? activeJob : Profile.Routine) switch {
+		CompanionJob.Mine => MiningRadiusTiles,
+		CompanionJob.Gather => GatheringRadiusTiles,
+		CompanionJob.FindTreasure => TreasureRadiusTiles,
+		_ => 0
+	};
+	private int MiningRadiusTiles => Profile.Trinket == CompanionTrinket.DelverCharm ? 34 : 26;
+	private int GatheringRadiusTiles => Profile.Trinket == CompanionTrinket.HearthRibbon ? 42 : 30;
+	private int TreasureRadiusTiles => Profile.Trinket == CompanionTrinket.StarfinderBell ? 90 : 55;
 
 	public override void SetStaticDefaults()
 	{
@@ -67,11 +90,25 @@ public sealed class SoulboundCompanion : ModNPC
 		bobSeed = Main.rand.NextFloat(MathHelper.TwoPi);
 	}
 
-	public override bool CheckActive() => !Owner.active || Owner.dead;
+	public override bool CheckActive() => !TryGetOwner(out Player owner) || owner.dead;
+
+	public override bool CanChat() => TryGetOwner(out Player owner) && owner.whoAmI == Main.myPlayer;
+
+	public override bool PreHoverInteract(bool mouseIntersects)
+	{
+		if (!mouseIntersects || !Main.mouseRight || !Main.mouseRightRelease)
+			return true;
+		if (TryGetOwner(out Player owner) && owner.whoAmI == Main.myPlayer && FindBoundSigil() is { } sigil) {
+			ModContent.GetInstance<TalkModeSystem>().Open(sigil, this);
+			Main.LocalPlayer.mouseInterface = true;
+			Main.mouseRightRelease = false;
+		}
+		return false;
+	}
 
 	public override void AI()
 	{
-		if (!Owner.active || Owner.dead) {
+		if (!TryGetOwner(out Player owner) || owner.dead) {
 			NPC.active = false;
 			return;
 		}
@@ -79,6 +116,7 @@ public sealed class SoulboundCompanion : ModNPC
 		NPC.GivenName = Profile.Name;
 		Lighting.AddLight(NPC.Center, Profile.EssenceColor.ToVector3() * 1.15f);
 		RevealSurroundings();
+		ResumeAssignment();
 		UpdateAuraDust();
 		if (activeJob != CompanionJob.None) {
 			UpdateJob();
@@ -217,6 +255,7 @@ public sealed class SoulboundCompanion : ModNPC
 	private void UpdateJob()
 	{
 		jobTimer++;
+		UpdateJobEffects();
 		switch (activeJob) {
 			case CompanionJob.FindTreasure:
 				UpdateTreasureJob();
@@ -230,10 +269,36 @@ public sealed class SoulboundCompanion : ModNPC
 		}
 	}
 
+	private void UpdateJobEffects()
+	{
+		if (jobTimer % 8 != 0)
+			return;
+		Color color = JobColor(activeJob);
+		Vector2 position = NPC.Center + Main.rand.NextVector2Circular(30f, 22f);
+		Dust dust = Dust.NewDustPerfect(position, DustID.Enchanted_Gold, -NPC.velocity * 0.05f, 110, color, 0.72f);
+		dust.noGravity = true;
+	}
+
+	private void ResumeAssignment()
+	{
+		if (activeJob != CompanionJob.None || Profile.Routine == CompanionJob.None)
+			return;
+		if (Profile.Energy < 12 || Profile.Mood < 20) {
+			Command = StayCommand;
+			return;
+		}
+		if (Profile.Routine == CompanionJob.Gather && Profile.PackLoad >= Profile.PackCapacity) {
+			CompleteJob(SoulmatesText.Get("Jobs.PackFull"), success: false);
+			return;
+		}
+		BeginJob(Profile.Routine);
+		SyncProfileToBoundSigil();
+	}
+
 	private void UpdateTreasureJob()
 	{
 		if (!hasJobTarget && !FindNearestChest(out jobTarget)) {
-			CompleteJob("I searched carefully, but sensed no unopened places nearby.", success: false);
+			CompleteJob(SoulmatesText.Get("Jobs.Treasure.Empty", TreasureRadiusTiles), success: false);
 			return;
 		}
 		hasJobTarget = true;
@@ -248,15 +313,19 @@ public sealed class SoulboundCompanion : ModNPC
 		if (Vector2.DistanceSquared(NPC.Center, target) < 90f * 90f || jobTimer > 600) {
 			string direction = DescribeDirection(target - Owner.Center);
 			int tiles = (int)(Vector2.Distance(target, Owner.Center) / 16f);
-			CompleteJob($"I found a treasure signal {direction}, about {tiles} tiles away.", success: true);
+			CompleteJob(SoulmatesText.Get("Jobs.Treasure.Found", direction, tiles), success: true);
 		}
 	}
 
 	private void UpdateMiningJob()
 	{
-		int goal = Profile.Trinket == CompanionTrinket.DelverCharm ? 5 : 3;
 		if (!hasJobTarget && !FindMiningTarget(out jobTarget)) {
-			CompleteJob(jobCount > 0 ? $"I finished after mining {jobCount} blocks." : "I could not find safe stone or ore nearby.", jobCount > 0);
+			string report = failedMiningTargets.Count > 0
+				? SoulmatesText.Get("Jobs.Mining.Protected", jobCount, failedMiningTargets.Count)
+				: jobCount > 0
+					? SoulmatesText.Get("Jobs.Mining.Cleared", jobCount, MiningRadiusTiles)
+					: SoulmatesText.Get("Jobs.Mining.Empty", MiningRadiusTiles);
+			CompleteJob(report, jobCount > 0);
 			return;
 		}
 		hasJobTarget = true;
@@ -265,34 +334,48 @@ public sealed class SoulboundCompanion : ModNPC
 		if (Vector2.DistanceSquared(NPC.Center, target) > 58f * 58f)
 			return;
 
-		if (jobTimer % 35 != 0)
+		int miningDelay = Profile.Trinket == CompanionTrinket.DelverCharm ? 18 : 28;
+		if (jobTimer % miningDelay != 0)
 			return;
+		if (Main.netMode == NetmodeID.MultiplayerClient)
+			return;
+		if (!WorldGen.InWorld(jobTarget.X, jobTarget.Y, 10)
+			|| !Main.tile[jobTarget.X, jobTarget.Y].HasTile
+			|| !IsMineableWorkTile(Main.tile[jobTarget.X, jobTarget.Y].TileType)) {
+			hasJobTarget = false;
+			return;
+		}
 		WorldGen.KillTile(jobTarget.X, jobTarget.Y);
 		if (!Main.tile[jobTarget.X, jobTarget.Y].HasTile) {
 			jobCount++;
 			if (Main.netMode == NetmodeID.Server)
 				NetMessage.SendData(MessageID.TileManipulation, -1, -1, null, 0, jobTarget.X, jobTarget.Y);
 		}
+		else
+			failedMiningTargets.Add(jobTarget);
 		hasJobTarget = false;
-		if (jobCount >= goal || jobTimer > 900)
-			CompleteJob($"I mined {jobCount} blocks for us.", jobCount > 0);
+		if (jobTimer > 7200)
+			CompleteJob(SoulmatesText.Get("Jobs.Mining.Timeout", jobCount), success: false);
 	}
 
 	private void UpdateGatherJob()
 	{
 		if (gatherPause > 0) {
 			gatherPause--;
-			MoveTo(Owner.Center + new Vector2(-Owner.direction * 54f, -52f), 7f, 0.08f);
+			MoveTo(jobOrigin + new Vector2(0f, -52f + IdleBob()), 7f, 0.08f);
 			return;
 		}
 		int itemIndex = FindNearestLooseItem();
 		if (itemIndex < 0) {
-			if (jobCount > 0 || jobTimer > 180)
-				CompleteJob(jobCount > 0 ? $"I gathered {jobCount} loose items." : "Nothing nearby needs gathering.", jobCount > 0);
-			else
-				MoveTo(Owner.Center + new Vector2(-Owner.direction * 80f, -60f), 5f, 0.06f);
+			areaEmptyTimer++;
+			MoveTo(jobOrigin + new Vector2(0f, -54f + IdleBob()), 5f, 0.06f);
+			if (areaEmptyTimer >= 90)
+				CompleteJob(jobCount > 0
+					? SoulmatesText.Get("Jobs.Gathering.Cleared", jobCount, GatheringRadiusTiles)
+					: SoulmatesText.Get("Jobs.Gathering.Empty", GatheringRadiusTiles), jobCount > 0);
 			return;
 		}
+		areaEmptyTimer = 0;
 
 		Item item = Main.item[itemIndex];
 		MoveTo(item.Center, 9f, 0.1f);
@@ -303,29 +386,31 @@ public sealed class SoulboundCompanion : ModNPC
 			}
 			int moved = Profile.Store(item);
 			if (moved <= 0) {
-				CompleteJob("My pack is full. We should unload it before I gather more.", jobCount > 0);
+				CompleteJob(SoulmatesText.Get("Jobs.PackFull"), success: false);
 				return;
 			}
 			jobCount += moved;
 			if (item.IsAir)
 				item.active = false;
+			if (Main.netMode == NetmodeID.Server)
+				NetMessage.SendData(MessageID.SyncItem, -1, -1, null, itemIndex);
 			SyncProfileToBoundSigil();
 			gatherPause = 30;
 		}
-		if (jobCount >= (Profile.Trinket == CompanionTrinket.HearthRibbon ? 8 : 5) || jobTimer > 720)
-			CompleteJob($"I gathered {jobCount} loose items.", jobCount > 0);
+		if (jobTimer > 7200)
+			CompleteJob(SoulmatesText.Get("Jobs.Gathering.Timeout", jobCount), success: false);
 	}
 
 	private bool FindNearestChest(out Point result)
 	{
 		result = Point.Zero;
-		float radius = (Profile.Trinket == CompanionTrinket.StarfinderBell ? 90f : 55f) * 16f;
+		float radius = TreasureRadiusTiles * 16f;
 		float bestDistance = radius * radius;
 		foreach (Chest? chest in Main.chest) {
 			if (chest is null)
 				continue;
 			Vector2 position = new Vector2(chest.x * 16f, chest.y * 16f);
-			float distance = Vector2.DistanceSquared(Owner.Center, position);
+			float distance = Vector2.DistanceSquared(jobOrigin, position);
 			if (distance >= bestDistance)
 				continue;
 			bestDistance = distance;
@@ -336,24 +421,27 @@ public sealed class SoulboundCompanion : ModNPC
 
 	private bool FindMiningTarget(out Point result)
 	{
-		Point center = Owner.Center.ToTileCoordinates();
+		Point center = jobOrigin.ToTileCoordinates();
 		result = Point.Zero;
 		float bestScore = float.MaxValue;
-		for (int x = center.X - 22; x <= center.X + 22; x++) {
-			for (int y = center.Y - 18; y <= center.Y + 22; y++) {
+		int radius = MiningRadiusTiles;
+		for (int x = center.X - radius; x <= center.X + radius; x++) {
+			for (int y = center.Y - radius; y <= center.Y + radius; y++) {
 				if (!WorldGen.InWorld(x, y, 10))
 					continue;
 				Tile tile = Main.tile[x, y];
-				if (!tile.HasTile || !IsMineableWorkTile(tile.TileType))
+				if (!tile.HasTile || !IsEarlyOre(tile.TileType))
 					continue;
-				bool ore = IsEarlyOre(tile.TileType);
-				if (!ore && (y < center.Y + 3 || Math.Abs(x - center.X) < 5))
+				var candidate = new Point(x, y);
+				if (failedMiningTargets.Contains(candidate))
 					continue;
-				float score = Vector2.DistanceSquared(new Vector2(x, y), center.ToVector2()) + (ore ? -500f : 0f);
+				if (Vector2.DistanceSquared(candidate.ToVector2(), center.ToVector2()) > radius * radius)
+					continue;
+				float score = Vector2.DistanceSquared(candidate.ToWorldCoordinates(), NPC.Center);
 				if (score >= bestScore)
 					continue;
 				bestScore = score;
-				result = new Point(x, y);
+				result = candidate;
 			}
 		}
 		return result != Point.Zero;
@@ -362,11 +450,13 @@ public sealed class SoulboundCompanion : ModNPC
 	private int FindNearestLooseItem()
 	{
 		int result = -1;
-		float radius = (Profile.Trinket == CompanionTrinket.HearthRibbon ? 42f : 28f) * 16f;
-		float bestDistance = radius * radius;
+		float radius = GatheringRadiusTiles * 16f;
+		float bestDistance = float.MaxValue;
 		for (int i = 0; i < Main.maxItems; i++) {
 			Item item = Main.item[i];
 			if (!item.active || item.IsAir || !CanCarry(item))
+				continue;
+			if (Vector2.DistanceSquared(jobOrigin, item.Center) >= radius * radius)
 				continue;
 			float distance = Vector2.DistanceSquared(NPC.Center, item.Center);
 			if (distance >= bestDistance)
@@ -397,16 +487,22 @@ public sealed class SoulboundCompanion : ModNPC
 		}
 	}
 
-	private static bool IsMineableWorkTile(ushort type) => IsEarlyOre(type) || type == TileID.Stone;
+	private static bool IsMineableWorkTile(ushort type) => IsEarlyOre(type);
 
 	private static bool IsEarlyOre(ushort type) => type is TileID.Copper or TileID.Tin or TileID.Iron or TileID.Lead
 		or TileID.Silver or TileID.Tungsten or TileID.Gold or TileID.Platinum;
 
 	private static string DescribeDirection(Vector2 offset)
 	{
-		string vertical = MathF.Abs(offset.Y) > 96f ? (offset.Y < 0f ? "above" : "below") : "";
-		string horizontal = MathF.Abs(offset.X) > 96f ? (offset.X < 0f ? "to the west" : "to the east") : "nearby";
-		return vertical.Length > 0 && horizontal != "nearby" ? $"{vertical} and {horizontal}" : vertical.Length > 0 ? vertical : horizontal;
+		bool hasVertical = MathF.Abs(offset.Y) > 96f;
+		bool hasHorizontal = MathF.Abs(offset.X) > 96f;
+		string vertical = SoulmatesText.Get(offset.Y < 0f ? "Directions.Above" : "Directions.Below");
+		string horizontal = SoulmatesText.Get(offset.X < 0f ? "Directions.West" : "Directions.East");
+		if (hasVertical && hasHorizontal)
+			return SoulmatesText.Get("Directions.Combined", vertical, horizontal);
+		if (hasVertical)
+			return vertical;
+		return hasHorizontal ? horizontal : SoulmatesText.Get("Directions.Nearby");
 	}
 
 	private void CompleteJob(string memory, bool success)
@@ -417,13 +513,17 @@ public sealed class SoulboundCompanion : ModNPC
 			Profile.Bond = Math.Clamp(Profile.Bond + 2, 0, 100);
 			Profile.Mood = Math.Clamp(Profile.Mood + 1, 0, 100);
 		}
+		Profile.Routine = CompanionJob.None;
 		SyncProfileToBoundSigil();
 		Main.NewText($"{Profile.Name}: {memory}", success ? Profile.EssenceColor : Color.LightGray);
 		activeJob = CompanionJob.None;
 		jobTimer = 0;
 		jobCount = 0;
 		gatherPause = 0;
+		areaEmptyTimer = 0;
 		hasJobTarget = false;
+		jobOrigin = Vector2.Zero;
+		failedMiningTargets.Clear();
 		brainState = BrainState.Follow;
 		stateTimer = 1;
 		NPC.netUpdate = true;
@@ -444,6 +544,7 @@ public sealed class SoulboundCompanion : ModNPC
 		Vector2 scale = formScale * (64f / Math.Max(source.Width, source.Height)) * breath;
 		SpriteEffects effects = facing < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 		Color tint = Color.Lerp(Color.White, Profile.EssenceColor, 0.34f);
+		DrawJobOrbit(spriteBatch, center);
 
 		for (int i = 0; i < 4; i++) {
 			Vector2 glowOffset = new Vector2(2f, 0f).RotatedBy(MathHelper.PiOver2 * i);
@@ -453,12 +554,37 @@ public sealed class SoulboundCompanion : ModNPC
 		return false;
 	}
 
+	private void DrawJobOrbit(SpriteBatch spriteBatch, Vector2 center)
+	{
+		if (activeJob == CompanionJob.None)
+			return;
+		Texture2D pixel = TextureAssets.MagicPixel.Value;
+		Color color = JobColor(activeJob);
+		float time = Main.GlobalTimeWrappedHourly * 2.5f;
+		for (int i = 0; i < 3; i++) {
+			float angle = time + MathHelper.TwoPi * i / 3f;
+			Vector2 point = center + new Vector2(MathF.Cos(angle) * 35f, MathF.Sin(angle) * 13f - 4f);
+			int size = i == jobTimer / 10 % 3 ? 5 : 3;
+			spriteBatch.Draw(pixel, new Rectangle((int)point.X - size / 2, (int)point.Y - size / 2, size, size), color * 0.88f);
+		}
+		float pulse = 0.35f + (MathF.Sin(time * 1.6f) + 1f) * 0.12f;
+		spriteBatch.Draw(pixel, new Rectangle((int)center.X - 16, (int)center.Y - 43, 32, 2), color * pulse);
+	}
+
+	private Color JobColor(CompanionJob job) => job switch {
+		CompanionJob.Mine => new Color(100, 188, 255),
+		CompanionJob.Gather => new Color(121, 230, 151),
+		CompanionJob.FindTreasure => new Color(255, 221, 104),
+		_ => Profile.EssenceColor
+	};
+
 	public override Color? GetAlpha(Color drawColor) => Color.Lerp(drawColor, Profile.EssenceColor, 0.42f);
 	public override void SendExtraAI(BinaryWriter writer) => Profile.Write(writer);
 	public override void ReceiveExtraAI(BinaryReader reader) => Profile = CompanionProfile.Read(reader);
 
 	public void ToggleCommand()
 	{
+		CancelAssignment();
 		Command = Command == StayCommand ? FollowCommand : StayCommand;
 		brainState = Command == StayCommand ? BrainState.Stay : BrainState.Follow;
 		stateTimer = 1;
@@ -469,6 +595,7 @@ public sealed class SoulboundCompanion : ModNPC
 
 	public void SetCommand(bool stay)
 	{
+		CancelAssignment();
 		Command = stay ? StayCommand : FollowCommand;
 		brainState = stay ? BrainState.Stay : BrainState.Follow;
 		stateTimer = 1;
@@ -479,6 +606,7 @@ public sealed class SoulboundCompanion : ModNPC
 
 	public void AskToExplore()
 	{
+		CancelAssignment();
 		Command = FollowCommand;
 		brainState = BrainState.Inspect;
 		stateTimer = Main.rand.Next(180, 320);
@@ -488,21 +616,43 @@ public sealed class SoulboundCompanion : ModNPC
 
 	public void StartJob(CompanionJob job)
 	{
+		Profile.Routine = job;
+		BeginJob(job);
+	}
+
+	private void BeginJob(CompanionJob job)
+	{
 		activeJob = job;
 		jobTimer = 0;
 		jobCount = 0;
 		gatherPause = 0;
+		areaEmptyTimer = 0;
 		hasJobTarget = false;
+		jobOrigin = Owner.Center;
+		failedMiningTargets.Clear();
 		Command = FollowCommand;
 		NPC.netUpdate = true;
+	}
+
+	private void CancelAssignment()
+	{
+		activeJob = CompanionJob.None;
+		Profile.Routine = CompanionJob.None;
+		jobTimer = 0;
+		jobCount = 0;
+		gatherPause = 0;
+		areaEmptyTimer = 0;
+		hasJobTarget = false;
+		jobOrigin = Vector2.Zero;
+		failedMiningTargets.Clear();
 	}
 
 	public void EquipTrinket(CompanionTrinket trinket)
 	{
 		Profile.Trinket = trinket;
 		Profile.LastMemory = trinket == CompanionTrinket.None
-			? "You let me travel light again."
-			: $"You entrusted me with the {SplitName(trinket.ToString())}.";
+			? SoulmatesText.Get("Memories.TrinketRemoved")
+			: SoulmatesText.Get("Memories.TrinketEquipped", SoulmatesText.EnumName(trinket));
 		SyncProfileToBoundSigil();
 		NPC.netUpdate = true;
 	}
@@ -511,15 +661,15 @@ public sealed class SoulboundCompanion : ModNPC
 	{
 		Item selected = Owner.inventory[Owner.selectedItem];
 		if (selected.IsAir)
-			return "Your selected hotbar slot is empty.";
+			return SoulmatesText.Get("Pack.SelectedEmpty");
 		if (!CanCarry(selected))
-			return "That item anchors our bond. I should not carry it inside my pack.";
+			return SoulmatesText.Get("Pack.CannotCarry");
 		int moved = Profile.Store(selected);
 		if (moved <= 0)
-			return $"My pack is full. ({Profile.PackLoad}/{Profile.PackCapacity})";
+			return SoulmatesText.Get("Pack.Full", Profile.PackLoad, Profile.PackCapacity);
 		SyncProfileToBoundSigil();
 		NPC.netUpdate = true;
-		return $"I stored {moved} item{(moved == 1 ? "" : "s")}. ({Profile.PackLoad}/{Profile.PackCapacity})";
+		return SoulmatesText.Get(moved == 1 ? "Pack.StoredOne" : "Pack.StoredMany", moved, Profile.PackLoad, Profile.PackCapacity);
 	}
 
 	public string UnloadPack()
@@ -528,7 +678,7 @@ public sealed class SoulboundCompanion : ModNPC
 		for (int i = Profile.Pack.Count - 1; i >= 0; i--) {
 			Item stored = Profile.Pack[i];
 			int originalStack = stored.stack;
-			Item leftover = Owner.GetItem(Owner.whoAmI, stored, GetItemSettings.InventoryEntityToPlayerInventorySettings);
+			Item leftover = Owner.GetItem(Owner.whoAmI, stored.Clone(), GetItemSettings.InventoryEntityToPlayerInventorySettings);
 			moved += originalStack - (leftover.IsAir ? 0 : leftover.stack);
 			if (leftover.IsAir)
 				Profile.Pack.RemoveAt(i);
@@ -538,8 +688,8 @@ public sealed class SoulboundCompanion : ModNPC
 		SyncProfileToBoundSigil();
 		NPC.netUpdate = true;
 		return moved > 0
-			? $"I returned {moved} item{(moved == 1 ? "" : "s")}. ({Profile.PackLoad}/{Profile.PackCapacity})"
-			: Profile.PackLoad == 0 ? "My pack is already empty." : "Your inventory has no room for my cargo.";
+			? SoulmatesText.Get(moved == 1 ? "Pack.ReturnedOne" : "Pack.ReturnedMany", moved, Profile.PackLoad, Profile.PackCapacity)
+			: Profile.PackLoad == 0 ? SoulmatesText.Get("Pack.AlreadyEmpty") : SoulmatesText.Get("Pack.InventoryFull");
 	}
 
 	private static bool CanCarry(Item item) => item.ModItem is not Soulcore and not SoulboundSigil and not CompanionTrinketItem;
@@ -552,6 +702,15 @@ public sealed class SoulboundCompanion : ModNPC
 				return;
 			}
 		}
+	}
+
+	public SoulboundSigil? FindBoundSigil()
+	{
+		foreach (Item item in Owner.inventory) {
+			if (item.ModItem is SoulboundSigil sigil && sigil.Profile.Id == Profile.Id)
+				return sigil;
+		}
+		return null;
 	}
 
 	public void Recall()
@@ -573,5 +732,15 @@ public sealed class SoulboundCompanion : ModNPC
 		return null;
 	}
 
-	private static string SplitName(string value) => System.Text.RegularExpressions.Regex.Replace(value, "([a-z])([A-Z])", "$1 $2");
+	private bool TryGetOwner(out Player owner)
+	{
+		int index = (int)NPC.ai[0];
+		if (index < 0 || index >= Main.maxPlayers) {
+			owner = null!;
+			return false;
+		}
+		owner = Main.player[index];
+		return owner.active;
+	}
+
 }

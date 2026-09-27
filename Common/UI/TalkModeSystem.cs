@@ -33,12 +33,17 @@ public sealed class TalkModeSystem : ModSystem
 		Main.playerInventory = false;
 	}
 
-	public void Close() => talkInterface?.SetState(null);
+	public void Close()
+	{
+		talkInterface?.SetState(null);
+		talkState?.Unbind();
+	}
 
 	public override void UpdateUI(GameTime gameTime)
 	{
 		if (IsOpen) {
-			if (Main.gameMenu || Main.keyState.IsKeyDown(Keys.Escape) && Main.oldKeyState.IsKeyUp(Keys.Escape)) {
+			if (Main.gameMenu || Main.LocalPlayer.dead || talkState?.HasActiveBinding != true
+				|| Main.keyState.IsKeyDown(Keys.Escape) && Main.oldKeyState.IsKeyUp(Keys.Escape)) {
 				Close();
 				return;
 			}

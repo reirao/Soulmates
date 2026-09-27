@@ -6,7 +6,7 @@ Soulmates is a tModLoader mod about creating companions that feel personal. The 
 
 - Craft a reusable Soulcore and Blank Sigils.
 - Receive one Soulcore and three Blank Sigils once per character as a prototype starter kit.
-- Create multiple unique companions from English-language presets.
+- Create multiple unique companions from fully localized presets.
 - Shape a companion through an animated live preview.
 - Choose a name, form, essence color, aura, personality, and starting talent.
 - Choose a visual Bestiary Muse: Soulkin, Bunny, Blue Slime, Bird, or Squirrel.
@@ -15,9 +15,9 @@ Soulmates is a tModLoader mod about creating companions that feel personal. The 
 - Hold Up and right-click the Sigil to recall it.
 - Companion identity and progression data are saved on the Sigil.
 - Personality-driven idle, wander, inspect, follow, and catch-up behavior.
-- Talk Mode with Care, Commands, Work, Bond, and Voice conversations.
-- Mood-, energy-, bond-, and personality-aware replies, including occasional refusals.
-- Real companion jobs: locate nearby chests, mine a small batch of stone or early ore, and retrieve loose items.
+- Talk Mode with Care, Commands, Work, Bond, Voice, and Pack conversations.
+- Mood-, energy-, bond-, and personality-aware replies, including clearly explained refusals.
+- Area assignments: locate nearby chests, clear every early-ore vein in range, and retrieve every loose item in range.
 - Persistent job memories and completed-job history on each Soulbound Sigil.
 - Craftable Starfinder Bell, Delver Charm, and Hearth Ribbon companion trinkets.
 - Resting companions recover mood and energy over time.
@@ -25,8 +25,19 @@ Soulmates is a tModLoader mod about creating companions that feel personal. The 
 - The Pack conversation can inspect cargo, store the selected hotbar item, or unload everything.
 - Companions illuminate dark spaces and reveal the nearby world map as they explore.
 - Work refusals are deterministic and explain whether mood or energy is too low.
+- Active assignments survive recalls and summons, end when the area is clear, and report when the companion needs a new assignment.
+- Press the configurable **Talk to Companion** hotkey (`V` by default) to open Talk Mode without selecting the Sigil.
+- Right-click the summoned companion to open Talk Mode directly.
+- Play in English or German; Soulmates follows Terraria's selected language automatically.
 
 The current release is designed and tested for single-player. Full server-authoritative multiplayer commands remain on the roadmap.
+
+## Languages
+
+- English
+- German / Deutsch
+
+English is used as the fallback when Terraria is set to another language.
 
 ## Install for development
 
@@ -41,13 +52,13 @@ The project targets the current tModLoader 1.4.4 stable release. In the normal M
 - **Soulcore:** 8 Fallen Stars, 5 Amethyst, and 10 Stone Blocks at a Work Bench.
 - **Blank Sigil:** 3 Fallen Stars, 1 Amethyst, and 5 Silk at a Work Bench.
 - **Starfinder Bell:** 5 Fallen Stars, 3 Iron or Lead Bars, and 1 Lens at an Anvil.
-- **Delver Charm:** 5 Iron or Lead Bars, 2 Amethyst, and 20 Stone Blocks at an Anvil.
+- **Delver Charm:** 5 Iron or Lead Bars, 2 Amethyst, and 20 Stone Blocks at an Anvil. Expands mining radius and speed.
 - **Hearth Ribbon:** 5 Silk, 2 Daybloom, and 2 Fallen Stars at a Work Bench.
 
 ## Roadmap
 
 - Custom pixel art and layered companion bodies.
-- Expanded equipment and companion inventory.
+- More trinkets and meaningful equipment tradeoffs.
 - Advanced jobs for later ores and specialized materials.
 - Bond progression, needs, memories, dialogue, and evolving traits.
 - Multiplayer synchronization and server-authoritative jobs.

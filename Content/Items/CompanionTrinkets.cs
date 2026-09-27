@@ -36,8 +36,8 @@ public abstract class CompanionTrinketItem : ModItem
 		CompanionTrinket equipped = player.altFunctionUse == 2 ? CompanionTrinket.None : Trinket;
 		companion.EquipTrinket(equipped);
 		string message = equipped == CompanionTrinket.None
-			? $"{companion.Profile.Name} removed their trinket."
-			: $"{companion.Profile.Name} equipped {Item.Name}.";
+			? SoulmatesText.Get("Messages.TrinketRemoved", companion.Profile.Name)
+			: SoulmatesText.Get("Messages.TrinketEquipped", companion.Profile.Name, Item.Name);
 		Main.NewText(message, companion.Profile.EssenceColor);
 		return true;
 	}

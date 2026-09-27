@@ -1,10 +1,7 @@
-Soulmates 0.4.1 - Pack and Pathfinder Update
+Soulmates 0.5.1 - English and German Language Update
 
-- Added a persistent companion pack with 8 stack slots, expanded to 12 by the Hearth Ribbon.
-- Added a visual pack display and Pack conversation category.
-- Companions can store the selected hotbar item and unload cargo back to the player.
-- Gathering jobs now carry loose items in the companion pack.
-- Normal and modded items retain their stack, prefix, and mod data across saves and summons.
-- Work can be started repeatedly after each assignment completes.
-- Removed random work refusals; mood and energy now determine willingness predictably.
-- Added stronger companion light and local world-map discovery while exploring darkness.
+- Added complete English and German localization for items, companions, interfaces, dialogue, jobs, memories, and status messages.
+- Soulmates now follows the language selected in Terraria automatically.
+- Localized creator options, Talk Mode categories, companion personalities, talents, forms, essences, and auras.
+- Localized the Talk to Companion keybind name and all dynamic Soulbound Sigil tooltips.
+- Preserved English as the fallback language for unsupported languages.

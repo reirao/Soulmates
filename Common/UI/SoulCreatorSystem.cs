@@ -39,7 +39,8 @@ public sealed class SoulCreatorSystem : ModSystem
 	public override void UpdateUI(GameTime gameTime)
 	{
 		if (IsOpen) {
-			if (Main.gameMenu || Main.keyState.IsKeyDown(Keys.Escape) && Main.oldKeyState.IsKeyUp(Keys.Escape)) {
+			if (Main.gameMenu || Main.LocalPlayer.dead
+				|| Main.keyState.IsKeyDown(Keys.Escape) && Main.oldKeyState.IsKeyUp(Keys.Escape)) {
 				Close();
 				return;
 			}

@@ -18,15 +18,19 @@ namespace Soulmates.Common.UI;
 public sealed class TalkModeState : UIState
 {
 	private readonly List<UITextPanel<string>> optionButtons = [];
+	private readonly List<(TalkCategory Category, UITextPanel<string> Button)> categoryButtons = [];
 	private SoulboundSigil? sigil;
 	private SoulboundCompanion? companion;
 	private TalkCategory category;
+	private UIPanel? rootPanel;
+	private UIText? title;
 	private UIText? response;
 	private UIText? stats;
+	public bool HasActiveBinding => sigil is not null && companion?.NPC.active == true;
 
 	public override void OnInitialize()
 	{
-		var panel = new UIPanel {
+		rootPanel = new UIPanel {
 			HAlign = 0.5f,
 			VAlign = 0.5f,
 			Width = new StyleDimension(660f, 0f),
@@ -34,12 +38,14 @@ public sealed class TalkModeState : UIState
 			BackgroundColor = new Color(20, 29, 48) * 0.98f,
 			BorderColor = new Color(118, 154, 206)
 		};
-		Append(panel);
+		Append(rootPanel);
+		UIPanel panel = rootPanel;
 
-		panel.Append(new UIText("TALK MODE", 1.1f, true) {
+		title = new UIText(SoulmatesText.Get("UI.Talk.Title", ""), 1.1f, true) {
 			HAlign = 0.5f,
 			Top = new StyleDimension(10f, 0f)
-		});
+		};
+		panel.Append(title);
 
 		var portrait = new UIPanel {
 			Left = new StyleDimension(14f, 0f),
@@ -68,9 +74,9 @@ public sealed class TalkModeState : UIState
 		};
 		portrait.Append(response);
 
-		stats = new UIText("", 0.75f) {
+		stats = new UIText("", 0.68f) {
 			Left = new StyleDimension(8f, 0f),
-			Top = new StyleDimension(278f, 0f),
+			Top = new StyleDimension(270f, 0f),
 			Width = new StyleDimension(-16f, 1f),
 			TextOriginX = 0.5f,
 			HAlign = 0.5f,
@@ -78,13 +84,20 @@ public sealed class TalkModeState : UIState
 		};
 		portrait.Append(stats);
 
-		string[] categories = Enum.GetNames<TalkCategory>();
+		TalkCategory[] categories = Enum.GetValues<TalkCategory>();
 		for (int i = 0; i < categories.Length; i++) {
-			TalkCategory chosen = (TalkCategory)i;
-			var button = Button(categories[i].ToUpperInvariant(), 48f, 248f + i * 65f, 60f, new Color(54, 71, 105), 0.54f, 40f);
+			TalkCategory chosen = categories[i];
+			var button = Button(SoulmatesText.EnumName(chosen).ToUpperInvariant(), 48f, 248f + i * 65f, 60f, new Color(54, 71, 105), 0.54f, 40f);
 			button.OnLeftClick += (_, _) => SelectCategory(chosen);
+			categoryButtons.Add((chosen, button));
 			panel.Append(button);
 		}
+
+		panel.Append(new UIText(SoulmatesText.Get("UI.Talk.ChooseWords"), 0.58f) {
+			Left = new StyleDimension(248f, 0f),
+			Top = new StyleDimension(87f, 0f),
+			TextColor = new Color(155, 174, 203)
+		});
 
 		for (int i = 0; i < 3; i++) {
 			int option = i;
@@ -100,8 +113,13 @@ public sealed class TalkModeState : UIState
 			Width = new StyleDimension(388f, 0f),
 			Height = new StyleDimension(60f, 0f)
 		});
+		panel.Append(new UIText(SoulmatesText.Get("UI.Talk.Pack"), 0.58f) {
+			Left = new StyleDimension(248f, 0f),
+			Top = new StyleDimension(282f, 0f),
+			TextColor = new Color(155, 174, 203)
+		});
 
-		var close = Button("CLOSE", 366f, 248f, 388f, new Color(120, 63, 72), 0.76f, 42f);
+		var close = Button(SoulmatesText.Get("UI.Common.Close"), 366f, 248f, 388f, new Color(120, 63, 72), 0.76f, 42f);
 		close.OnLeftClick += (_, _) => ModContent.GetInstance<TalkModeSystem>().Close();
 		panel.Append(close);
 	}
@@ -111,12 +129,23 @@ public sealed class TalkModeState : UIState
 		sigil = boundSigil;
 		companion = boundCompanion;
 		category = TalkCategory.Care;
+		if (title is not null)
+			title.SetText(SoulmatesText.Get("UI.Talk.Title", sigil.Profile.Name.ToUpperInvariant()));
+		if (rootPanel is not null)
+			rootPanel.BorderColor = Color.Lerp(sigil.Profile.EssenceColor, Color.White, 0.25f);
 		if (response is not null) {
-			response.SetText($"{sigil.Profile.Name} looks at you expectantly.");
+			response.SetText(SoulmatesText.Get("UI.Talk.Greeting", sigil.Profile.Name));
 			response.TextColor = sigil.Profile.EssenceColor;
 		}
 		RefreshOptions();
 		RefreshStats();
+		RefreshCategoryStyles();
+	}
+
+	public void Unbind()
+	{
+		sigil = null;
+		companion = null;
 	}
 
 	private void SelectCategory(TalkCategory selected)
@@ -124,6 +153,16 @@ public sealed class TalkModeState : UIState
 		category = selected;
 		SoundEngine.PlaySound(SoundID.MenuTick);
 		RefreshOptions();
+		RefreshCategoryStyles();
+	}
+
+	public override void Update(GameTime gameTime)
+	{
+		base.Update(gameTime);
+		if (sigil is null)
+			return;
+		RefreshStats();
+		RefreshCategoryStyles();
 	}
 
 	private void Speak(int option)
@@ -132,11 +171,6 @@ public sealed class TalkModeState : UIState
 			ModContent.GetInstance<TalkModeSystem>().Close();
 			return;
 		}
-		if (category == TalkCategory.Work && companion.CurrentJob != CompanionJob.None) {
-			SetResponse($"I am still working on {companion.CurrentJobName}.", accepted: false);
-			return;
-		}
-
 		CompanionProfile profile = sigil.Profile;
 		DialogueResult result = CompanionDialogueEngine.Speak(profile, category, option);
 		profile.Bond = Math.Clamp(profile.Bond + result.BondDelta, 0, 100);
@@ -172,22 +206,28 @@ public sealed class TalkModeState : UIState
 
 		switch (action) {
 			case SpeechAction.Follow:
+				profile.Routine = CompanionJob.None;
 				companion.SetCommand(stay: false);
 				break;
 			case SpeechAction.Stay:
 			case SpeechAction.Rest:
+				profile.Routine = CompanionJob.None;
 				companion.SetCommand(stay: true);
 				break;
 			case SpeechAction.Explore:
+				profile.Routine = CompanionJob.None;
 				companion.AskToExplore();
 				break;
 			case SpeechAction.FindTreasure:
+				profile.Routine = CompanionJob.FindTreasure;
 				companion.StartJob(CompanionJob.FindTreasure);
 				break;
 			case SpeechAction.Mine:
+				profile.Routine = CompanionJob.Mine;
 				companion.StartJob(CompanionJob.Mine);
 				break;
 			case SpeechAction.Gather:
+				profile.Routine = CompanionJob.Gather;
 				companion.StartJob(CompanionJob.Gather);
 				break;
 			case SpeechAction.VoiceSoft:
@@ -214,8 +254,23 @@ public sealed class TalkModeState : UIState
 		if (stats is null || sigil is null)
 			return;
 		CompanionProfile profile = sigil.Profile;
-		string job = companion?.CurrentJobName ?? "None";
-		stats.SetText($"Bond {profile.Bond} | Mood {profile.Mood} | Energy {profile.Energy}\nPack {profile.PackLoad}/{profile.PackCapacity} | Job: {job}");
+		string job = companion?.CurrentJobName ?? SoulmatesText.Get("Status.Ready");
+		int radius = companion?.CurrentJobRadius ?? 0;
+		string area = radius > 0 ? SoulmatesText.Get("UI.Talk.Radius", radius) : "";
+		stats.SetText(SoulmatesText.Get("UI.Talk.Stats", profile.Bond, profile.Mood, profile.Energy, profile.PackLoad, profile.PackCapacity,
+			job.ToUpperInvariant(), area.ToUpperInvariant()));
+	}
+
+	private void RefreshCategoryStyles()
+	{
+		Color accent = sigil?.Profile.EssenceColor ?? new Color(118, 154, 206);
+		foreach ((TalkCategory buttonCategory, UITextPanel<string> button) in categoryButtons) {
+			bool selected = buttonCategory == category;
+			button.BackgroundColor = selected ? Color.Lerp(new Color(35, 48, 74), accent, 0.55f) : new Color(54, 71, 105);
+			button.BorderColor = selected ? Color.Lerp(accent, Color.White, 0.3f) : new Color(73, 96, 142);
+		}
+		foreach (UITextPanel<string> button in optionButtons)
+			button.BorderColor = Color.Lerp(new Color(58, 80, 122), accent, 0.35f);
 	}
 
 	private static UITextPanel<string> Button(string text, float top, float left, float width, Color color, float scale, float height)
@@ -233,7 +288,6 @@ public sealed class TalkModeState : UIState
 		return button;
 	}
 
-	private static string SplitName(string value) => System.Text.RegularExpressions.Regex.Replace(value, "([a-z])([A-Z])", "$1 $2");
 }
 
 internal sealed class CompanionPackElement(Func<CompanionProfile?> getProfile) : UIElement
@@ -264,6 +318,8 @@ internal sealed class CompanionPackElement(Func<CompanionProfile?> getProfile) :
 			float scale = Math.Min(20f / frame.Width, 20f / frame.Height);
 			Vector2 center = position + new Vector2(slotSize * 0.5f);
 			spriteBatch.Draw(texture, center, frame, Color.White, 0f, frame.Size() * 0.5f, scale, SpriteEffects.None, 0f);
+			if (item.stack > 1)
+				Utils.DrawBorderString(spriteBatch, item.stack.ToString(), position + new Vector2(slotSize - 2f, slotSize - 2f), Color.White, 0.55f, 1f, 1f);
 		}
 	}
 }

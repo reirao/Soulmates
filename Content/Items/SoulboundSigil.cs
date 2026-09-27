@@ -54,7 +54,7 @@ public sealed class SoulboundSigil : ModItem
 		if (player.altFunctionUse == 2 && companion is not null) {
 			if (player.controlUp) {
 				companion.Recall();
-				Main.NewText($"{Profile.Name} returned to the Soulbound Sigil.", Profile.EssenceColor);
+				Main.NewText(SoulmatesText.Get("Messages.Recalled", Profile.Name), Profile.EssenceColor);
 			}
 			else {
 				ModContent.GetInstance<TalkModeSystem>().Open(this, companion);
@@ -73,22 +73,24 @@ public sealed class SoulboundSigil : ModItem
 			player.GetModPlayer<SoulmatesPlayer>().ActiveCompanionWhoAmI = index;
 		}
 
-		Main.NewText($"{Profile.Name} answers your call.", Profile.EssenceColor);
+		Main.NewText(SoulmatesText.Get("Messages.Summoned", Profile.Name), Profile.EssenceColor);
 		return true;
 	}
 
 	public override void ModifyTooltips(List<TooltipLine> tooltips)
 	{
-		tooltips.Add(new TooltipLine(Mod, "BoundTo", $"Bound to {Profile.Name}") { OverrideColor = Profile.EssenceColor });
-		tooltips.Add(new TooltipLine(Mod, "Appearance", $"{SplitName(Profile.Muse.ToString())} muse  |  {Profile.Form} form  |  {SplitName(Profile.Aura.ToString())}"));
-		tooltips.Add(new TooltipLine(Mod, "Identity", $"{Profile.Personality}  |  {SplitName(Profile.Talent.ToString())}"));
-		tooltips.Add(new TooltipLine(Mod, "Bond", $"Bond {Profile.Bond}  |  Mood {Profile.Mood}  |  Energy {Profile.Energy}"));
-		tooltips.Add(new TooltipLine(Mod, "Voice", $"Voice: {Profile.Voice}"));
-		tooltips.Add(new TooltipLine(Mod, "Trinket", $"Trinket: {SplitName(Profile.Trinket.ToString())}  |  Pack: {Profile.PackLoad}/{Profile.PackCapacity}  |  Jobs: {Profile.JobsCompleted}"));
-		tooltips.Add(new TooltipLine(Mod, "Controls", "Use: summon  |  Right-click: Talk Mode  |  Up + Right-click: recall"));
+		tooltips.Add(new TooltipLine(Mod, "BoundTo", SoulmatesText.Get("Tooltips.Sigil.BoundTo", Profile.Name)) { OverrideColor = Profile.EssenceColor });
+		tooltips.Add(new TooltipLine(Mod, "Appearance", SoulmatesText.Get("Tooltips.Sigil.Appearance", SoulmatesText.EnumName(Profile.Muse),
+			SoulmatesText.EnumName(Profile.Form), SoulmatesText.EnumName(Profile.Aura))));
+		tooltips.Add(new TooltipLine(Mod, "Identity", SoulmatesText.Get("Tooltips.Sigil.Identity", SoulmatesText.EnumName(Profile.Personality), SoulmatesText.EnumName(Profile.Talent))));
+		tooltips.Add(new TooltipLine(Mod, "Bond", SoulmatesText.Get("Tooltips.Sigil.Stats", Profile.Bond, Profile.Mood, Profile.Energy)));
+		tooltips.Add(new TooltipLine(Mod, "Voice", SoulmatesText.Get("Tooltips.Sigil.Voice", SoulmatesText.EnumName(Profile.Voice))));
+		tooltips.Add(new TooltipLine(Mod, "Trinket", SoulmatesText.Get("Tooltips.Sigil.Trinket", SoulmatesText.EnumName(Profile.Trinket),
+			Profile.PackLoad, Profile.PackCapacity, Profile.JobsCompleted)));
+		if (Profile.Routine != CompanionJob.None)
+			tooltips.Add(new TooltipLine(Mod, "Assignment", SoulmatesText.Get("Tooltips.Sigil.Assignment", SoulmatesText.EnumName(Profile.Routine))));
+		tooltips.Add(new TooltipLine(Mod, "Controls", SoulmatesText.Get("Tooltips.Sigil.Controls")));
 	}
-
-	private static string SplitName(string value) => System.Text.RegularExpressions.Regex.Replace(value, "([a-z])([A-Z])", "$1 $2");
 
 	public override void SaveData(TagCompound tag) => tag["profile"] = Profile.Save();
 	public override void LoadData(TagCompound tag) => Profile = CompanionProfile.Load(tag.GetCompound("profile"));
