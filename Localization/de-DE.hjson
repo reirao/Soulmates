@@ -92,6 +92,13 @@ Mods: {
         Mine: Bergbau
         Gather: Sammeln
       }
+      BondRank: {
+        Newbound: Neugebunden
+        Kindred: Seelenverwandt
+        Trusted: Vertraut
+        Soulbound: Seelengebunden
+        Eternal: Ewig
+      }
       TalkCategory: {
         Care: Fürsorge
         Commands: Befehle
@@ -130,7 +137,7 @@ Mods: {
         ChooseWords: WÄHLE DEINE WORTE
         Pack: GEFÄHRTEN-PACK
         Radius: " | Radius {0}"
-        Stats: "BINDUNG {0}  LAUNE {1}  ENERGIE {2}\nPACK {3}/{4}\n{5}{6}"
+        Stats: "{0}  |  BINDUNG {1}  LAUNE {2}  ENERGIE {3}\nPACK {4}/{5}\n{6}{7}"
       }
     }
     Status: {
@@ -139,6 +146,7 @@ Mods: {
       Mining: "Gebiet abbauen ({0} geschafft)"
       Gathering: "Gebiet sammeln ({0} Gegenstände)"
       SensingTreasure: Schatz aufspüren
+      Guarding: Verteidigt gegen eine Bedrohung
       Assignment: "Auftrag: {0}"
       Ready: Bereit
     }
@@ -149,13 +157,14 @@ Mods: {
       Summoned: "{0} folgt deinem Ruf."
       TrinketRemoved: "{0} hat das Schmuckstück abgelegt."
       TrinketEquipped: "{0} hat {1} ausgerüstet."
+      Healed: "{0} hat {1} Leben wiederhergestellt."
     }
     Tooltips: {
       Sigil: {
         BoundTo: "Gebunden an {0}"
         Appearance: "Muse: {0}  |  Form: {1}  |  {2}"
         Identity: "{0}  |  {1}"
-        Stats: "Bindung {0}  |  Laune {1}  |  Energie {2}"
+        Stats: "{0}  |  Bindung {1}  |  Laune {2}  |  Energie {3}"
         Voice: "Stimme: {0}"
         Trinket: "Schmuckstück: {0}  |  Pack: {1}/{2}  |  Aufträge: {3}"
         Assignment: "Aktiver Auftrag: {0}"
@@ -192,6 +201,17 @@ Mods: {
       New: Wir haben uns gerade erst kennengelernt.
       TrinketRemoved: Du lässt mich wieder mit leichtem Gepäck reisen.
       TrinketEquipped: "Du hast mir {0} anvertraut."
+      Chronicle: {
+        Awakened: Ich erinnere mich an den Moment, in dem du mich ins Dasein gerufen hast.
+        TreasureFound: "Ich erinnere mich an einen Schatz in ungefähr {0} Blöcken Entfernung."
+        MiningCompleted: "Ich erinnere mich daran, {0} Erzblöcke für dich abgebaut zu haben."
+        GatheringCompleted: "Ich erinnere mich daran, {0} Gegenstände für unsere Reise gesammelt zu haben."
+        GuardianVictory: "Ich erinnere mich daran, dich vor {0} beschützt zu haben."
+        HealerAid: "Ich erinnere mich daran, {0} deiner Lebenspunkte wiederhergestellt zu haben."
+        TrinketEquipped: "Ich erinnere mich daran, wie du mir {0} anvertraut hast."
+        TrinketRemoved: Ich erinnere mich daran, wieder mit leichtem Gepäck gereist zu sein.
+        BondMilestone: "Unsere Bindung wurde {0}."
+      }
     }
     Pack: {
       Empty: Mein Pack ist leer.
@@ -206,6 +226,9 @@ Mods: {
       ReturnedMany: "Ich habe {0} Gegenstände zurückgegeben. ({1}/{2})"
       AlreadyEmpty: Mein Pack ist bereits leer.
       InventoryFull: In deinem Inventar ist kein Platz für meine Ladung.
+      SlotEmpty: Dieser Pack-Platz ist leer.
+      WithdrewOne: "Ich habe {0} Gegenstand aus diesem Platz zurückgegeben. ({1}/{2})"
+      WithdrewMany: "Ich habe {0} Gegenstände aus diesem Platz zurückgegeben. ({1}/{2})"
     }
     Dialogue: {
       Options: {

@@ -1,7 +1,10 @@
-Soulmates 0.5.1 - English and German Language Update
+Soulmates 0.6.0 - Living Souls
 
-- Added complete English and German localization for items, companions, interfaces, dialogue, jobs, memories, and status messages.
-- Soulmates now follows the language selected in Terraria automatically.
-- Localized creator options, Talk Mode categories, companion personalities, talents, forms, essences, and auras.
-- Localized the Talk to Companion keybind name and all dynamic Soulbound Sigil tooltips.
-- Preserved English as the fallback language for unsupported languages.
+- Guardian companions now intercept nearby threats and fire bond-scaled soul bolts.
+- Healer companions now react to meaningful injuries and restore life with an energy cost and cooldown.
+- Added five bond ranks: Newbound, Kindred, Trusted, Soulbound, and Eternal.
+- Bond ranks improve work radius, role strength, and late-rank pack capacity.
+- Added a persistent eight-entry memory chronicle for creation, jobs, protection, healing, trinkets, and bond milestones.
+- Repeated memory conversations now cycle through recent shared experiences.
+- Companion pack slots now show full item tooltips and support left-click stack withdrawal or right-click single-item withdrawal.
+- Preserved compatibility with existing Soulbound Sigils and localized all new content in English and German.

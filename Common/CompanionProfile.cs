@@ -82,9 +82,101 @@ public enum CompanionJob : byte
 	Gather
 }
 
+public enum BondRank : byte
+{
+	Newbound,
+	Kindred,
+	Trusted,
+	Soulbound,
+	Eternal
+}
+
+public enum CompanionMemoryKind : byte
+{
+	Awakened,
+	TreasureFound,
+	MiningCompleted,
+	GatheringCompleted,
+	GuardianVictory,
+	HealerAid,
+	TrinketEquipped,
+	TrinketRemoved,
+	BondMilestone
+}
+
+public sealed class CompanionMemory
+{
+	public CompanionMemoryKind Kind { get; set; }
+	public int Amount { get; set; }
+	public string Detail { get; set; } = "";
+
+	public CompanionMemory Clone() => new() { Kind = Kind, Amount = Amount, Detail = Detail };
+
+	public TagCompound Save() => new() {
+		["kind"] = (byte)Kind,
+		["amount"] = Amount,
+		["detail"] = Detail
+	};
+
+	public static CompanionMemory Load(TagCompound tag)
+	{
+		var memory = new CompanionMemory {
+			Kind = (CompanionMemoryKind)tag.GetByte("kind"),
+			Amount = tag.GetInt("amount"),
+			Detail = tag.GetString("detail")
+		};
+		memory.Normalize();
+		return memory;
+	}
+
+	public void Write(BinaryWriter writer)
+	{
+		writer.Write((byte)Kind);
+		writer.Write(Amount);
+		writer.Write(Detail);
+	}
+
+	public static CompanionMemory Read(BinaryReader reader)
+	{
+		var memory = new CompanionMemory {
+			Kind = (CompanionMemoryKind)reader.ReadByte(),
+			Amount = reader.ReadInt32(),
+			Detail = reader.ReadString()
+		};
+		memory.Normalize();
+		return memory;
+	}
+
+	public string Describe() => Kind switch {
+		CompanionMemoryKind.Awakened => SoulmatesText.Get("Memories.Chronicle.Awakened"),
+		CompanionMemoryKind.TreasureFound => SoulmatesText.Get("Memories.Chronicle.TreasureFound", Amount),
+		CompanionMemoryKind.MiningCompleted => SoulmatesText.Get("Memories.Chronicle.MiningCompleted", Amount),
+		CompanionMemoryKind.GatheringCompleted => SoulmatesText.Get("Memories.Chronicle.GatheringCompleted", Amount),
+		CompanionMemoryKind.GuardianVictory => SoulmatesText.Get("Memories.Chronicle.GuardianVictory", Detail),
+		CompanionMemoryKind.HealerAid => SoulmatesText.Get("Memories.Chronicle.HealerAid", Amount),
+		CompanionMemoryKind.TrinketEquipped => SoulmatesText.Get("Memories.Chronicle.TrinketEquipped",
+			Enum.TryParse(Detail, out CompanionTrinket trinket) ? SoulmatesText.EnumName(trinket) : Detail),
+		CompanionMemoryKind.TrinketRemoved => SoulmatesText.Get("Memories.Chronicle.TrinketRemoved"),
+		CompanionMemoryKind.BondMilestone => SoulmatesText.Get("Memories.Chronicle.BondMilestone",
+			Enum.TryParse(Detail, out BondRank rank) ? SoulmatesText.EnumName(rank) : Detail),
+		_ => SoulmatesText.Get("Memories.New")
+	};
+
+	private void Normalize()
+	{
+		if (!Enum.IsDefined(Kind))
+			Kind = CompanionMemoryKind.Awakened;
+		Amount = Math.Max(0, Amount);
+		Detail = Detail?.Trim() ?? "";
+		if (Detail.Length > 80)
+			Detail = Detail[..80];
+	}
+}
+
 public sealed class CompanionProfile
 {
 	public const int MaximumPackSlots = 12;
+	public const int MaximumMemories = 8;
 
 	public Guid Id { get; set; } = Guid.NewGuid();
 	public string Name { get; set; } = "Luma";
@@ -103,9 +195,21 @@ public sealed class CompanionProfile
 	public int JobsCompleted { get; set; }
 	public string LastMemory { get; set; } = SoulmatesText.Get("Memories.New");
 	public List<Item> Pack { get; set; } = [];
+	public List<CompanionMemory> Memories { get; set; } = [];
 
-	public int PackCapacity => Trinket == CompanionTrinket.HearthRibbon ? 12 : 8;
+	public BondRank Rank => Bond switch {
+		>= 85 => BondRank.Eternal,
+		>= 65 => BondRank.Soulbound,
+		>= 40 => BondRank.Trusted,
+		>= 20 => BondRank.Kindred,
+		_ => BondRank.Newbound
+	};
+	public int RankIndex => (int)Rank;
+	public int PackCapacity => Trinket == CompanionTrinket.HearthRibbon
+		? MaximumPackSlots
+		: Math.Min(MaximumPackSlots, 8 + (Rank >= BondRank.Soulbound ? 1 : 0) + (Rank >= BondRank.Eternal ? 1 : 0));
 	public int PackLoad => Pack.Count(item => !item.IsAir);
+	public string LatestMemory => Memories.Count > 0 ? Memories[^1].Describe() : LastMemory;
 
 	public Color EssenceColor => Essence switch {
 		CompanionEssence.Ember => new Color(255, 121, 77),
@@ -132,7 +236,8 @@ public sealed class CompanionProfile
 		Energy = Energy,
 		JobsCompleted = JobsCompleted,
 		LastMemory = LastMemory,
-		Pack = Pack.Where(item => !item.IsAir).Select(item => item.Clone()).ToList()
+		Pack = Pack.Where(item => !item.IsAir).Select(item => item.Clone()).ToList(),
+		Memories = Memories.Select(memory => memory.Clone()).ToList()
 	};
 
 	public TagCompound Save() => new() {
@@ -152,7 +257,8 @@ public sealed class CompanionProfile
 		["energy"] = Energy,
 		["jobsCompleted"] = JobsCompleted,
 		["lastMemory"] = LastMemory,
-		["pack"] = Pack.Where(item => !item.IsAir).Select(ItemIO.Save).ToList()
+		["pack"] = Pack.Where(item => !item.IsAir).Select(ItemIO.Save).ToList(),
+		["memories"] = Memories.Select(memory => memory.Save()).ToList()
 	};
 
 	public static CompanionProfile Load(TagCompound tag)
@@ -176,7 +282,10 @@ public sealed class CompanionProfile
 			LastMemory = tag.ContainsKey("lastMemory") && tag.GetString("lastMemory") is { Length: > 0 } memory
 				? memory
 				: SoulmatesText.Get("Memories.New"),
-			Pack = tag.ContainsKey("pack") ? tag.GetList<TagCompound>("pack").Select(ItemIO.Load).Where(item => !item.IsAir).ToList() : []
+			Pack = tag.ContainsKey("pack") ? tag.GetList<TagCompound>("pack").Select(ItemIO.Load).Where(item => !item.IsAir).ToList() : [],
+			Memories = tag.ContainsKey("memories")
+				? tag.GetList<TagCompound>("memories").Select(CompanionMemory.Load).ToList()
+				: []
 		};
 		profile.Normalize();
 		return profile;
@@ -204,6 +313,10 @@ public sealed class CompanionProfile
 		writer.Write((byte)items.Length);
 		foreach (Item item in items)
 			ItemIO.Send(item, writer, writeStack: true, writeFavorite: false);
+		CompanionMemory[] memories = Memories.TakeLast(MaximumMemories).ToArray();
+		writer.Write((byte)memories.Length);
+		foreach (CompanionMemory memory in memories)
+			memory.Write(writer);
 	}
 
 	public static CompanionProfile Read(BinaryReader reader)
@@ -229,8 +342,36 @@ public sealed class CompanionProfile
 		int count = reader.ReadByte();
 		for (int i = 0; i < count; i++)
 			profile.Pack.Add(ItemIO.Receive(reader, readStack: true, readFavorite: false));
+		int memoryCount = reader.ReadByte();
+		for (int i = 0; i < memoryCount; i++)
+			profile.Memories.Add(CompanionMemory.Read(reader));
 		profile.Normalize();
 		return profile;
+	}
+
+	public void ChangeBond(int amount)
+	{
+		BondRank previous = Rank;
+		Bond = Math.Clamp(Bond + amount, 0, 100);
+		if ((int)Rank > (int)previous)
+			Remember(CompanionMemoryKind.BondMilestone, detail: Rank.ToString());
+	}
+
+	public void Remember(CompanionMemoryKind kind, int amount = 0, string detail = "")
+	{
+		var memory = new CompanionMemory { Kind = kind, Amount = amount, Detail = detail };
+		Memories.Add(memory);
+		if (Memories.Count > MaximumMemories)
+			Memories.RemoveRange(0, Memories.Count - MaximumMemories);
+		LastMemory = memory.Describe();
+	}
+
+	public string RecallMemory(int fromNewest)
+	{
+		if (Memories.Count == 0)
+			return LastMemory;
+		int index = Memories.Count - 1 - Math.Abs(fromNewest % Memories.Count);
+		return Memories[index].Describe();
 	}
 
 	public int Store(Item source)
@@ -283,6 +424,7 @@ public sealed class CompanionProfile
 		if (LastMemory.Length > 240)
 			LastMemory = LastMemory[..240];
 		NormalizePack();
+		Memories = Memories.Where(memory => memory is not null).TakeLast(MaximumMemories).ToList();
 	}
 
 	private void NormalizePack()

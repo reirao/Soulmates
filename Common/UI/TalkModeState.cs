@@ -26,6 +26,7 @@ public sealed class TalkModeState : UIState
 	private UIText? title;
 	private UIText? response;
 	private UIText? stats;
+	private int memoryCursor;
 	public bool HasActiveBinding => sigil is not null && companion?.NPC.active == true;
 
 	public override void OnInitialize()
@@ -107,7 +108,7 @@ public sealed class TalkModeState : UIState
 			panel.Append(button);
 		}
 
-		panel.Append(new CompanionPackElement(() => sigil?.Profile) {
+		panel.Append(new CompanionPackElement(() => sigil?.Profile, () => companion, reply => SetResponse(reply, accepted: true)) {
 			Left = new StyleDimension(248f, 0f),
 			Top = new StyleDimension(299f, 0f),
 			Width = new StyleDimension(388f, 0f),
@@ -129,6 +130,7 @@ public sealed class TalkModeState : UIState
 		sigil = boundSigil;
 		companion = boundCompanion;
 		category = TalkCategory.Care;
+		memoryCursor = 0;
 		if (title is not null)
 			title.SetText(SoulmatesText.Get("UI.Talk.Title", sigil.Profile.Name.ToUpperInvariant()));
 		if (rootPanel is not null)
@@ -173,7 +175,7 @@ public sealed class TalkModeState : UIState
 		}
 		CompanionProfile profile = sigil.Profile;
 		DialogueResult result = CompanionDialogueEngine.Speak(profile, category, option);
-		profile.Bond = Math.Clamp(profile.Bond + result.BondDelta, 0, 100);
+		profile.ChangeBond(result.BondDelta);
 		profile.Mood = Math.Clamp(profile.Mood + result.MoodDelta, 0, 100);
 		profile.Energy = Math.Clamp(profile.Energy + result.EnergyDelta, 0, 100);
 		ApplyAction(profile, result.Action);
@@ -184,6 +186,7 @@ public sealed class TalkModeState : UIState
 			SpeechAction.ShowPack => profile.DescribePack(),
 			SpeechAction.StoreHeldItem => companion.StoreSelectedItem(),
 			SpeechAction.UnloadPack => companion.UnloadPack(),
+			SpeechAction.RecallMemory => profile.RecallMemory(memoryCursor++),
 			_ => result.Reply
 		};
 		SetResponse(reply, result.Accepted);
@@ -257,7 +260,8 @@ public sealed class TalkModeState : UIState
 		string job = companion?.CurrentJobName ?? SoulmatesText.Get("Status.Ready");
 		int radius = companion?.CurrentJobRadius ?? 0;
 		string area = radius > 0 ? SoulmatesText.Get("UI.Talk.Radius", radius) : "";
-		stats.SetText(SoulmatesText.Get("UI.Talk.Stats", profile.Bond, profile.Mood, profile.Energy, profile.PackLoad, profile.PackCapacity,
+		stats.SetText(SoulmatesText.Get("UI.Talk.Stats", SoulmatesText.EnumName(profile.Rank).ToUpperInvariant(), profile.Bond,
+			profile.Mood, profile.Energy, profile.PackLoad, profile.PackCapacity,
 			job.ToUpperInvariant(), area.ToUpperInvariant()));
 	}
 
@@ -290,8 +294,17 @@ public sealed class TalkModeState : UIState
 
 }
 
-internal sealed class CompanionPackElement(Func<CompanionProfile?> getProfile) : UIElement
+internal sealed class CompanionPackElement(
+	Func<CompanionProfile?> getProfile,
+	Func<SoulboundCompanion?> getCompanion,
+	Action<string> report) : UIElement
 {
+	public override void OnInitialize()
+	{
+		OnLeftClick += (_, _) => Withdraw(singleItem: false);
+		OnRightClick += (_, _) => Withdraw(singleItem: true);
+	}
+
 	protected override void DrawSelf(SpriteBatch spriteBatch)
 	{
 		base.DrawSelf(spriteBatch);
@@ -321,5 +334,40 @@ internal sealed class CompanionPackElement(Func<CompanionProfile?> getProfile) :
 			if (item.stack > 1)
 				Utils.DrawBorderString(spriteBatch, item.stack.ToString(), position + new Vector2(slotSize - 2f, slotSize - 2f), Color.White, 0.55f, 1f, 1f);
 		}
+
+		int hovered = SlotAt(Main.MouseScreen);
+		if (hovered >= 0 && hovered < profile.Pack.Count && !profile.Pack[hovered].IsAir) {
+			Main.LocalPlayer.mouseInterface = true;
+			Main.HoverItem = profile.Pack[hovered].Clone();
+			Main.hoverItemName = profile.Pack[hovered].HoverName;
+		}
+	}
+
+	private void Withdraw(bool singleItem)
+	{
+		SoulboundCompanion? companion = getCompanion();
+		if (companion is null)
+			return;
+		int index = SlotAt(Main.MouseScreen);
+		if (index < 0)
+			return;
+		string responseText = companion.WithdrawPackSlot(index, singleItem);
+		report(responseText);
+		SoundEngine.PlaySound(SoundID.Grab);
+	}
+
+	private int SlotAt(Vector2 mousePosition)
+	{
+		CalculatedStyle area = GetDimensions();
+		const float slotSize = 27f;
+		const float gap = 4f;
+		float totalWidth = slotSize * 6f + gap * 5f;
+		Vector2 start = new(area.X + (area.Width - totalWidth) * 0.5f, area.Y);
+		for (int i = 0; i < 12; i++) {
+			Vector2 position = start + new Vector2((i % 6) * (slotSize + gap), (i / 6) * (slotSize + gap));
+			if (new Rectangle((int)position.X, (int)position.Y, (int)slotSize, (int)slotSize).Contains(mousePosition.ToPoint()))
+				return i;
+		}
+		return -1;
 	}
 }

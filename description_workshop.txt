@@ -18,13 +18,15 @@ Soulmates is an experimental project created with extensive AI assistance across
 [list]
 [*]Personality-driven idle, wandering, inspecting, following, and catch-up behavior.
 [*]Persistent bond, mood, energy, and voice style.
+[*]Five bond ranks that improve role strength, work radius, and late-rank pack capacity.
+[*]Guardian companions intercept nearby threats; Healers react to meaningful injuries.
 [*]Talk Mode conversations across Care, Commands, Work, Bond, Voice, and Pack categories.
 [*]Companions can accept a request, react in their own voice, or clearly refuse when tired or unhappy.
 [*]Follow, stay, explore, rest, summon, and recall interactions.
 [*]Area assignments: locate nearby chests, clear every early-ore vein in range, and retrieve every loose item in range.
-[*]Persistent memories of completed jobs.
+[*]A persistent memory chronicle for creation, work, protection, healing, trinkets, and bond milestones.
 [*]A persistent companion pack that holds normal and modded items across saves and summons.
-[*]Visible pack slots, selected-hotbar-item storage, and one-command unloading.
+[*]Interactive pack slots with item tooltips, stack withdrawal, selected-hotbar-item storage, and one-command unloading.
 [*]A stronger soul light and local map discovery wherever the companion travels.
 [*]Predictable refusals based on visible mood and energy instead of a random roll.
 [*]Assignments stay saved during recalls, finish when the area is clear, and report when a new order is needed.
@@ -49,7 +51,7 @@ New characters receive one Soulcore and three Blank Sigils as a prototype starte
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Current Release[/h2]
-Soulmates 0.5.1 is a rounded single-player companion experience focused on creation, identity, autonomous area assignments, conversation, equipment, useful world interaction, and complete English/German localization. Expanded equipment, deeper memories, advanced jobs, and multiplayer synchronization remain planned expansions.
+Soulmates 0.6.0 expands the single-player companion experience with autonomous Guardian and Healer roles, five bond ranks, a persistent memory chronicle, interactive pack slots, autonomous area assignments, conversation, equipment, useful world interaction, and complete English/German localization. Expanded equipment, evolving traits, advanced jobs, and multiplayer synchronization remain planned expansions.
 
 [h2]Controls[/h2]
 [list]
@@ -60,6 +62,7 @@ Soulmates 0.5.1 is a rounded single-player companion experience focused on creat
 [*]Use a Soul Trinket while a companion is summoned: equip it.
 [*]Right-click a Soul Trinket: remove the current trinket.
 [*]Talk Mode > Pack: inspect cargo, store the selected hotbar item, or unload everything.
+[*]Pack slots: left-click to take a stack, right-click to take one item.
 [*]Press V by default: open Talk Mode directly while the companion is summoned.
 [*]Right-click the companion: open Talk Mode directly.
 [*]Choose Follow, Stay, or Explore: cancel the current area assignment.

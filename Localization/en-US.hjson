@@ -92,6 +92,13 @@ Mods: {
         Mine: Mine
         Gather: Gather
       }
+      BondRank: {
+        Newbound: Newbound
+        Kindred: Kindred
+        Trusted: Trusted
+        Soulbound: Soulbound
+        Eternal: Eternal
+      }
       TalkCategory: {
         Care: Care
         Commands: Commands
@@ -130,7 +137,7 @@ Mods: {
         ChooseWords: CHOOSE YOUR WORDS
         Pack: COMPANION PACK
         Radius: " | Radius {0}"
-        Stats: "BOND {0}  MOOD {1}  ENERGY {2}\nPACK {3}/{4}\n{5}{6}"
+        Stats: "{0}  |  BOND {1}  MOOD {2}  ENERGY {3}\nPACK {4}/{5}\n{6}{7}"
       }
     }
     Status: {
@@ -139,6 +146,7 @@ Mods: {
       Mining: "Mining area ({0} cleared)"
       Gathering: "Gathering area ({0} items)"
       SensingTreasure: Sensing treasure
+      Guarding: Guarding against a nearby threat
       Assignment: "{0} assignment"
       Ready: Ready
     }
@@ -149,13 +157,14 @@ Mods: {
       Summoned: "{0} answers your call."
       TrinketRemoved: "{0} removed their trinket."
       TrinketEquipped: "{0} equipped {1}."
+      Healed: "{0} restored {1} life."
     }
     Tooltips: {
       Sigil: {
         BoundTo: "Bound to {0}"
         Appearance: "{0} muse  |  {1} form  |  {2}"
         Identity: "{0}  |  {1}"
-        Stats: "Bond {0}  |  Mood {1}  |  Energy {2}"
+        Stats: "{0}  |  Bond {1}  |  Mood {2}  |  Energy {3}"
         Voice: "Voice: {0}"
         Trinket: "Trinket: {0}  |  Pack: {1}/{2}  |  Jobs: {3}"
         Assignment: "Active assignment: {0}"
@@ -192,6 +201,17 @@ Mods: {
       New: We have only just met.
       TrinketRemoved: You let me travel light again.
       TrinketEquipped: "You entrusted me with the {0}."
+      Chronicle: {
+        Awakened: I remember the moment you called me into being.
+        TreasureFound: "I remember finding treasure about {0} tiles away."
+        MiningCompleted: "I remember clearing {0} ore blocks for you."
+        GatheringCompleted: "I remember gathering {0} items for our journey."
+        GuardianVictory: "I remember protecting you from {0}."
+        HealerAid: "I remember restoring {0} of your life."
+        TrinketEquipped: "I remember when you entrusted me with {0}."
+        TrinketRemoved: I remember traveling light again.
+        BondMilestone: "Our bond became {0}."
+      }
     }
     Pack: {
       Empty: My pack is empty.
@@ -206,6 +226,9 @@ Mods: {
       ReturnedMany: "I returned {0} items. ({1}/{2})"
       AlreadyEmpty: My pack is already empty.
       InventoryFull: Your inventory has no room for my cargo.
+      SlotEmpty: That pack slot is empty.
+      WithdrewOne: "I returned {0} item from that slot. ({1}/{2})"
+      WithdrewMany: "I returned {0} items from that slot. ({1}/{2})"
     }
     Dialogue: {
       Options: {

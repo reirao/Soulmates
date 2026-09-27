@@ -120,6 +120,7 @@ public sealed class SoulCreatorState : UIState
 		draft.JobsCompleted = 0;
 		draft.LastMemory = SoulmatesText.Get("Memories.New");
 		draft.Pack.Clear();
+		draft.Memories.Clear();
 		SoundEngine.PlaySound(SoundID.MenuTick);
 		Refresh();
 	}
@@ -175,7 +176,9 @@ public sealed class SoulCreatorState : UIState
 
 		var item = new Item();
 		item.SetDefaults(ModContent.ItemType<SoulboundSigil>());
-		((SoulboundSigil)item.ModItem).Profile = draft.Clone();
+		CompanionProfile createdProfile = draft.Clone();
+		createdProfile.Remember(CompanionMemoryKind.Awakened);
+		((SoulboundSigil)item.ModItem).Profile = createdProfile;
 		Item leftover = player.GetItem(player.whoAmI, item, GetItemSettings.InventoryEntityToPlayerInventorySettings);
 		if (!leftover.IsAir)
 			Item.NewItem(player.GetSource_Misc("SoulCreator"), player.Hitbox, leftover);

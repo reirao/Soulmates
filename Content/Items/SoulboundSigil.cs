@@ -83,7 +83,8 @@ public sealed class SoulboundSigil : ModItem
 		tooltips.Add(new TooltipLine(Mod, "Appearance", SoulmatesText.Get("Tooltips.Sigil.Appearance", SoulmatesText.EnumName(Profile.Muse),
 			SoulmatesText.EnumName(Profile.Form), SoulmatesText.EnumName(Profile.Aura))));
 		tooltips.Add(new TooltipLine(Mod, "Identity", SoulmatesText.Get("Tooltips.Sigil.Identity", SoulmatesText.EnumName(Profile.Personality), SoulmatesText.EnumName(Profile.Talent))));
-		tooltips.Add(new TooltipLine(Mod, "Bond", SoulmatesText.Get("Tooltips.Sigil.Stats", Profile.Bond, Profile.Mood, Profile.Energy)));
+		tooltips.Add(new TooltipLine(Mod, "Bond", SoulmatesText.Get("Tooltips.Sigil.Stats", SoulmatesText.EnumName(Profile.Rank),
+			Profile.Bond, Profile.Mood, Profile.Energy)));
 		tooltips.Add(new TooltipLine(Mod, "Voice", SoulmatesText.Get("Tooltips.Sigil.Voice", SoulmatesText.EnumName(Profile.Voice))));
 		tooltips.Add(new TooltipLine(Mod, "Trinket", SoulmatesText.Get("Tooltips.Sigil.Trinket", SoulmatesText.EnumName(Profile.Trinket),
 			Profile.PackLoad, Profile.PackCapacity, Profile.JobsCompleted)));

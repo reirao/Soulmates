@@ -21,12 +21,15 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Personality-driven idle, wander, inspect, follow, and catch-up behavior.
 - Talk Mode with Care, Commands, Work, Bond, Voice, and Pack conversations.
 - Mood-, energy-, bond-, and personality-aware replies, including clearly explained refusals.
+- Five visible bond ranks with growing work radius, role strength, and pack capacity.
+- Autonomous Guardian combat and energy-limited Healer support.
 - Area assignments: locate nearby chests, clear every early-ore vein in range, and retrieve every loose item in range.
-- Persistent job memories and completed-job history on each Soulbound Sigil.
+- A persistent memory chronicle covering creation, work, protection, healing, equipment, and bond milestones.
 - Craftable Starfinder Bell, Delver Charm, and Hearth Ribbon companion trinkets.
 - Resting companions recover mood and energy over time.
 - Every companion has a persistent 8-stack pack; the Hearth Ribbon expands it to 12.
 - The Pack conversation can inspect cargo, store the selected hotbar item, or unload everything.
+- Pack slots have item tooltips and return a full stack on left-click or one item on right-click.
 - Companions illuminate dark spaces and reveal the nearby world map as they explore.
 - Work refusals are deterministic and explain whether mood or energy is too low.
 - Active assignments survive recalls and summons, end when the area is clear, and report when the companion needs a new assignment.
@@ -64,7 +67,7 @@ The project targets the current tModLoader 1.4.4 stable release. In the normal M
 - Custom pixel art and layered companion bodies.
 - More trinkets and meaningful equipment tradeoffs.
 - Advanced jobs for later ores and specialized materials.
-- Bond progression, needs, memories, dialogue, and evolving traits.
+- Evolving traits, contextual dialogue, gifts, preferences, and personal quests.
 - Multiplayer synchronization and server-authoritative jobs.
 
 ## License
