@@ -84,7 +84,7 @@ public sealed class SoulboundSigil : ModItem
 		tooltips.Add(new TooltipLine(Mod, "Identity", $"{Profile.Personality}  |  {SplitName(Profile.Talent.ToString())}"));
 		tooltips.Add(new TooltipLine(Mod, "Bond", $"Bond {Profile.Bond}  |  Mood {Profile.Mood}  |  Energy {Profile.Energy}"));
 		tooltips.Add(new TooltipLine(Mod, "Voice", $"Voice: {Profile.Voice}"));
-		tooltips.Add(new TooltipLine(Mod, "Trinket", $"Trinket: {SplitName(Profile.Trinket.ToString())}  |  Jobs: {Profile.JobsCompleted}"));
+		tooltips.Add(new TooltipLine(Mod, "Trinket", $"Trinket: {SplitName(Profile.Trinket.ToString())}  |  Pack: {Profile.PackLoad}/{Profile.PackCapacity}  |  Jobs: {Profile.JobsCompleted}"));
 		tooltips.Add(new TooltipLine(Mod, "Controls", "Use: summon  |  Right-click: Talk Mode  |  Up + Right-click: recall"));
 	}
 

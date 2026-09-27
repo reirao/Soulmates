@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Xna.Framework;
+using Terraria;
 using Terraria.ModLoader.IO;
 
 namespace Soulmates.Common;
@@ -95,6 +98,10 @@ public sealed class CompanionProfile
 	public int Energy { get; set; } = 100;
 	public int JobsCompleted { get; set; }
 	public string LastMemory { get; set; } = "We have only just met.";
+	public List<Item> Pack { get; set; } = [];
+
+	public int PackCapacity => Trinket == CompanionTrinket.HearthRibbon ? 12 : 8;
+	public int PackLoad => Pack.Count(item => !item.IsAir);
 
 	public Color EssenceColor => Essence switch {
 		CompanionEssence.Ember => new Color(255, 121, 77),
@@ -119,7 +126,8 @@ public sealed class CompanionProfile
 		Mood = Mood,
 		Energy = Energy,
 		JobsCompleted = JobsCompleted,
-		LastMemory = LastMemory
+		LastMemory = LastMemory,
+		Pack = Pack.Where(item => !item.IsAir).Select(item => item.Clone()).ToList()
 	};
 
 	public TagCompound Save() => new() {
@@ -137,7 +145,8 @@ public sealed class CompanionProfile
 		["mood"] = Mood,
 		["energy"] = Energy,
 		["jobsCompleted"] = JobsCompleted,
-		["lastMemory"] = LastMemory
+		["lastMemory"] = LastMemory,
+		["pack"] = Pack.Where(item => !item.IsAir).Select(ItemIO.Save).ToList()
 	};
 
 	public static CompanionProfile Load(TagCompound tag) => new() {
@@ -157,7 +166,8 @@ public sealed class CompanionProfile
 		JobsCompleted = tag.ContainsKey("jobsCompleted") ? tag.GetInt("jobsCompleted") : 0,
 		LastMemory = tag.ContainsKey("lastMemory") && tag.GetString("lastMemory") is { Length: > 0 } memory
 			? memory
-			: "We have only just met."
+			: "We have only just met.",
+		Pack = tag.ContainsKey("pack") ? tag.GetList<TagCompound>("pack").Select(ItemIO.Load).Where(item => !item.IsAir).ToList() : []
 	};
 
 	public void Write(BinaryWriter writer)
@@ -177,23 +187,72 @@ public sealed class CompanionProfile
 		writer.Write(Energy);
 		writer.Write(JobsCompleted);
 		writer.Write(LastMemory);
+		writer.Write((byte)Math.Min(Pack.Count, byte.MaxValue));
+		foreach (Item item in Pack.Take(byte.MaxValue))
+			ItemIO.Send(item, writer, writeStack: true, writeFavorite: false);
 	}
 
-	public static CompanionProfile Read(BinaryReader reader) => new() {
-		Id = Guid.TryParse(reader.ReadString(), out Guid id) ? id : Guid.NewGuid(),
-		Name = reader.ReadString(),
-		Personality = (CompanionPersonality)reader.ReadByte(),
-		Talent = (CompanionTalent)reader.ReadByte(),
-		Essence = (CompanionEssence)reader.ReadByte(),
-		Form = (CompanionForm)reader.ReadByte(),
-		Aura = (CompanionAura)reader.ReadByte(),
-		Muse = (CompanionMuse)reader.ReadByte(),
-		Voice = (CompanionVoice)reader.ReadByte(),
-		Trinket = (CompanionTrinket)reader.ReadByte(),
-		Bond = reader.ReadInt32(),
-		Mood = reader.ReadInt32(),
-		Energy = reader.ReadInt32(),
-		JobsCompleted = reader.ReadInt32(),
-		LastMemory = reader.ReadString()
-	};
+	public static CompanionProfile Read(BinaryReader reader)
+	{
+		var profile = new CompanionProfile {
+			Id = Guid.TryParse(reader.ReadString(), out Guid id) ? id : Guid.NewGuid(),
+			Name = reader.ReadString(),
+			Personality = (CompanionPersonality)reader.ReadByte(),
+			Talent = (CompanionTalent)reader.ReadByte(),
+			Essence = (CompanionEssence)reader.ReadByte(),
+			Form = (CompanionForm)reader.ReadByte(),
+			Aura = (CompanionAura)reader.ReadByte(),
+			Muse = (CompanionMuse)reader.ReadByte(),
+			Voice = (CompanionVoice)reader.ReadByte(),
+			Trinket = (CompanionTrinket)reader.ReadByte(),
+			Bond = reader.ReadInt32(),
+			Mood = reader.ReadInt32(),
+			Energy = reader.ReadInt32(),
+			JobsCompleted = reader.ReadInt32(),
+			LastMemory = reader.ReadString()
+		};
+		int count = reader.ReadByte();
+		for (int i = 0; i < count; i++)
+			profile.Pack.Add(ItemIO.Receive(reader, readStack: true, readFavorite: false));
+		return profile;
+	}
+
+	public int Store(Item source)
+	{
+		if (source.IsAir)
+			return 0;
+		int originalStack = source.stack;
+		foreach (Item stored in Pack) {
+			if (stored.type != source.type || stored.prefix != source.prefix || stored.stack >= stored.maxStack)
+				continue;
+			int moved = Math.Min(source.stack, stored.maxStack - stored.stack);
+			stored.stack += moved;
+			source.stack -= moved;
+			if (source.stack <= 0) {
+				source.TurnToAir();
+				return originalStack;
+			}
+		}
+
+		while (!source.IsAir && PackLoad < PackCapacity) {
+			Item stored = source.Clone();
+			stored.stack = Math.Min(source.stack, source.maxStack);
+			stored.favorited = false;
+			Pack.Add(stored);
+			source.stack -= stored.stack;
+			if (source.stack <= 0)
+				source.TurnToAir();
+		}
+		return originalStack - (source.IsAir ? 0 : source.stack);
+	}
+
+	public string DescribePack()
+	{
+		if (PackLoad == 0)
+			return "My pack is empty.";
+		string contents = string.Join(", ", Pack.Where(item => !item.IsAir).Take(5).Select(item => $"{item.Name} x{item.stack}"));
+		if (PackLoad > 5)
+			contents += $", and {PackLoad - 5} more stacks";
+		return $"I carry {contents}. ({PackLoad}/{PackCapacity})";
+	}
 }

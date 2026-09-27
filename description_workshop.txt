@@ -18,6 +18,10 @@ Soulmates turns the reusable Soulcore into a companion creator inside Terraria. 
 [*]Follow, stay, explore, rest, summon, and recall interactions.
 [*]Real work requests: locate nearby chests, mine a controlled batch of stone or early ore, and retrieve loose items.
 [*]Persistent memories of completed jobs.
+[*]A persistent companion pack that holds normal and modded items across saves and summons.
+[*]Visible pack slots, selected-hotbar-item storage, and one-command unloading.
+[*]A stronger soul light and local map discovery wherever the companion travels.
+[*]Predictable refusals based on visible mood and energy instead of a random roll.
 [/list]
 
 [h2]Soul Trinkets[/h2]
@@ -47,6 +51,7 @@ Soulmates 0.4 is a rounded single-player companion experience focused on creatio
 [*]Hold Up + right-click active Sigil: recall the companion.
 [*]Use a Soul Trinket while a companion is summoned: equip it.
 [*]Right-click a Soul Trinket: remove the current trinket.
+[*]Talk Mode > Pack: inspect cargo, store the selected hotbar item, or unload everything.
 [/list]
 
 [h2]Feedback and Source[/h2]

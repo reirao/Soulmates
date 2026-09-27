@@ -1,5 +1,4 @@
 using System;
-using Terraria;
 
 namespace Soulmates.Common.Dialogue;
 
@@ -9,7 +8,8 @@ public enum TalkCategory
 	Commands,
 	Work,
 	Bond,
-	Voice
+	Voice,
+	Pack
 }
 
 public enum SpeechAction
@@ -24,7 +24,10 @@ public enum SpeechAction
 	Rest,
 	VoiceSoft,
 	VoiceDirect,
-	VoicePlayful
+	VoicePlayful,
+	ShowPack,
+	StoreHeldItem,
+	UnloadPack
 }
 
 public readonly record struct DialogueResult(string Reply, bool Accepted, SpeechAction Action, int BondDelta, int MoodDelta, int EnergyDelta);
@@ -36,7 +39,8 @@ public static class CompanionDialogueEngine
 		["Please follow me.", "Wait here for me.", "Come explore with me."],
 		["Look around for treasure.", "Can you help me mine?", "Gather anything interesting."],
 		["Do you trust me?", "Tell me something about you.", "I am glad you are here."],
-		["Speak softly with me.", "Be direct with me.", "Be more playful."]
+		["Speak softly with me.", "Be direct with me.", "Be more playful."],
+		["What are you carrying?", "Take my selected hotbar item.", "Give me everything you carry."]
 	];
 
 	public static string[] GetOptions(TalkCategory category) => Options[(int)category];
@@ -46,17 +50,18 @@ public static class CompanionDialogueEngine
 		option = Math.Clamp(option, 0, 2);
 		if (category == TalkCategory.Voice)
 			return ConfigureVoice(profile, option);
+		if (category == TalkCategory.Pack)
+			return Pack(option);
 
 		bool demanding = category is TalkCategory.Commands or TalkCategory.Work;
-		int refusalChance = demanding ? 18 : 2;
-		refusalChance += Math.Max(0, 45 - profile.Energy) / 2;
-		refusalChance += Math.Max(0, 40 - profile.Mood) / 3;
-		refusalChance -= Math.Min(15, profile.Bond / 4);
-		refusalChance += profile.Personality == CompanionPersonality.Mischievous ? 8 : 0;
-		refusalChance -= profile.Personality == CompanionPersonality.Loyal ? 8 : 0;
-
-		if (demanding && Main.rand.Next(100) < Math.Clamp(refusalChance, 4, 70))
-			return Refusal(profile, category);
+		int requiredEnergy = category == TalkCategory.Work ? 12 : 3;
+		int requiredMood = category == TalkCategory.Work ? 20 : 10;
+		if (profile.Personality == CompanionPersonality.Loyal)
+			requiredMood -= 5;
+		if (profile.Personality == CompanionPersonality.Brave)
+			requiredEnergy -= 2;
+		if (demanding && (profile.Energy < requiredEnergy || profile.Mood < requiredMood))
+			return Refusal(profile, category, requiredEnergy);
 
 		return category switch {
 			TalkCategory.Care => Care(profile, option),
@@ -91,13 +96,11 @@ public static class CompanionDialogueEngine
 		_ => new DialogueResult(Styled(profile, "And I am glad you called me into being.", "The bond is mutual.", "Good. You are keeping me."), true, SpeechAction.None, 3, 4, 0)
 	};
 
-	private static DialogueResult Refusal(CompanionProfile profile, TalkCategory category)
+	private static DialogueResult Refusal(CompanionProfile profile, TalkCategory category, int requiredEnergy)
 	{
-		string reply = profile.Energy < 35
+		string reply = profile.Energy < requiredEnergy
 			? Styled(profile, "Not yet. I need to rest first.", "No. Energy too low.", "My soul says yes. The rest of me says nap.")
-			: profile.Mood < 35
-				? Styled(profile, "I do not feel like doing that right now.", "Request declined.", "Nope. Ask me nicely later.")
-				: Styled(profile, "Could we do something else instead?", "Not now.", "Counter-offer: absolutely anything else.");
+			: Styled(profile, "I do not feel like doing that right now.", "Mood too low. Request declined.", "Nope. A little kindness first.");
 		return new DialogueResult(reply, false, SpeechAction.None, category == TalkCategory.Commands ? -1 : 0, -1, 0);
 	}
 
@@ -115,6 +118,12 @@ public static class CompanionDialogueEngine
 		};
 		return new DialogueResult(reply, true, action, 1, 1, 0);
 	}
+
+	private static DialogueResult Pack(int option) => option switch {
+		0 => new DialogueResult("Let me check.", true, SpeechAction.ShowPack, 0, 0, 0),
+		1 => new DialogueResult("I will keep it safe.", true, SpeechAction.StoreHeldItem, 0, 0, 0),
+		_ => new DialogueResult("Here. Everything is accounted for.", true, SpeechAction.UnloadPack, 0, 0, 0)
+	};
 
 	private static string PersonalitySecret(CompanionProfile profile) => profile.Personality switch {
 		CompanionPersonality.Curious => Styled(profile, "Sometimes I wonder whether stars dream about us.", "I study everything when you are not looking.", "I have questions about every chest. Especially locked ones."),

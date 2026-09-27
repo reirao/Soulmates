@@ -1,10 +1,10 @@
-Soulmates 0.4.0 - Living Companion Update
+Soulmates 0.4.1 - Pack and Pathfinder Update
 
-- Work requests now perform distinct, real jobs.
-- Treasure jobs locate nearby chests and report direction and distance.
-- Mining jobs carefully extract small batches of stone and early-game ore.
-- Gathering jobs retrieve nearby loose items for the player.
-- Added persistent job memories and completed-job history.
-- Added the Starfinder Bell, Delver Charm, and Hearth Ribbon companion trinkets.
-- Resting companions now recover mood and energy over time.
-- Companion state is synchronized back to its Soulbound Sigil when work finishes or the companion is recalled.
+- Added a persistent companion pack with 8 stack slots, expanded to 12 by the Hearth Ribbon.
+- Added a visual pack display and Pack conversation category.
+- Companions can store the selected hotbar item and unload cargo back to the player.
+- Gathering jobs now carry loose items in the companion pack.
+- Normal and modded items retain their stack, prefix, and mod data across saves and summons.
+- Work can be started repeatedly after each assignment completes.
+- Removed random work refusals; mood and energy now determine willingness predictably.
+- Added stronger companion light and local world-map discovery while exploring darkness.

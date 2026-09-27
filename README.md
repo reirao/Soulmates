@@ -21,6 +21,10 @@ Soulmates is a tModLoader mod about creating companions that feel personal. The 
 - Persistent job memories and completed-job history on each Soulbound Sigil.
 - Craftable Starfinder Bell, Delver Charm, and Hearth Ribbon companion trinkets.
 - Resting companions recover mood and energy over time.
+- Every companion has a persistent 8-stack pack; the Hearth Ribbon expands it to 12.
+- The Pack conversation can inspect cargo, store the selected hotbar item, or unload everything.
+- Companions illuminate dark spaces and reveal the nearby world map as they explore.
+- Work refusals are deterministic and explain whether mood or energy is too low.
 
 The current release is designed and tested for single-player. Full server-authoritative multiplayer commands remain on the roadmap.
 

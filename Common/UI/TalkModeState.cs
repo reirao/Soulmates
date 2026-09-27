@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Soulmates.Common.Dialogue;
 using Soulmates.Content.Items;
 using Soulmates.Content.NPCs;
 using Terraria;
 using Terraria.Audio;
+using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -79,7 +81,7 @@ public sealed class TalkModeState : UIState
 		string[] categories = Enum.GetNames<TalkCategory>();
 		for (int i = 0; i < categories.Length; i++) {
 			TalkCategory chosen = (TalkCategory)i;
-			var button = Button(categories[i].ToUpperInvariant(), 48f, 248f + i * 78f, 72f, new Color(54, 71, 105), 0.63f, 40f);
+			var button = Button(categories[i].ToUpperInvariant(), 48f, 248f + i * 65f, 60f, new Color(54, 71, 105), 0.54f, 40f);
 			button.OnLeftClick += (_, _) => SelectCategory(chosen);
 			panel.Append(button);
 		}
@@ -91,6 +93,13 @@ public sealed class TalkModeState : UIState
 			optionButtons.Add(button);
 			panel.Append(button);
 		}
+
+		panel.Append(new CompanionPackElement(() => sigil?.Profile) {
+			Left = new StyleDimension(248f, 0f),
+			Top = new StyleDimension(299f, 0f),
+			Width = new StyleDimension(388f, 0f),
+			Height = new StyleDimension(60f, 0f)
+		});
 
 		var close = Button("CLOSE", 366f, 248f, 388f, new Color(120, 63, 72), 0.76f, 42f);
 		close.OnLeftClick += (_, _) => ModContent.GetInstance<TalkModeSystem>().Close();
@@ -123,6 +132,10 @@ public sealed class TalkModeState : UIState
 			ModContent.GetInstance<TalkModeSystem>().Close();
 			return;
 		}
+		if (category == TalkCategory.Work && companion.CurrentJob != CompanionJob.None) {
+			SetResponse($"I am still working on {companion.CurrentJobName}.", accepted: false);
+			return;
+		}
 
 		CompanionProfile profile = sigil.Profile;
 		DialogueResult result = CompanionDialogueEngine.Speak(profile, category, option);
@@ -133,12 +146,23 @@ public sealed class TalkModeState : UIState
 		companion.Profile = profile.Clone();
 		companion.NPC.netUpdate = true;
 
-		if (response is not null) {
-			response.SetText($"\"{result.Reply}\"");
-			response.TextColor = result.Accepted ? profile.EssenceColor : Color.IndianRed;
-		}
+		string reply = result.Action switch {
+			SpeechAction.ShowPack => profile.DescribePack(),
+			SpeechAction.StoreHeldItem => companion.StoreSelectedItem(),
+			SpeechAction.UnloadPack => companion.UnloadPack(),
+			_ => result.Reply
+		};
+		SetResponse(reply, result.Accepted);
 		SoundEngine.PlaySound(result.Accepted ? SoundID.Chat : SoundID.MenuClose);
 		RefreshStats();
+	}
+
+	private void SetResponse(string text, bool accepted)
+	{
+		if (response is null || sigil is null)
+			return;
+		response.SetText($"\"{text}\"");
+		response.TextColor = accepted ? sigil.Profile.EssenceColor : Color.IndianRed;
 	}
 
 	private void ApplyAction(CompanionProfile profile, SpeechAction action)
@@ -191,7 +215,7 @@ public sealed class TalkModeState : UIState
 			return;
 		CompanionProfile profile = sigil.Profile;
 		string job = companion?.CurrentJobName ?? "None";
-		stats.SetText($"Bond {profile.Bond} | Mood {profile.Mood} | Energy {profile.Energy}\n{SplitName(profile.Trinket.ToString())} | Job: {job}");
+		stats.SetText($"Bond {profile.Bond} | Mood {profile.Mood} | Energy {profile.Energy}\nPack {profile.PackLoad}/{profile.PackCapacity} | Job: {job}");
 	}
 
 	private static UITextPanel<string> Button(string text, float top, float left, float width, Color color, float scale, float height)
@@ -210,4 +234,36 @@ public sealed class TalkModeState : UIState
 	}
 
 	private static string SplitName(string value) => System.Text.RegularExpressions.Regex.Replace(value, "([a-z])([A-Z])", "$1 $2");
+}
+
+internal sealed class CompanionPackElement(Func<CompanionProfile?> getProfile) : UIElement
+{
+	protected override void DrawSelf(SpriteBatch spriteBatch)
+	{
+		base.DrawSelf(spriteBatch);
+		CompanionProfile? profile = getProfile();
+		if (profile is null)
+			return;
+
+		CalculatedStyle area = GetDimensions();
+		const float slotSize = 27f;
+		const float gap = 4f;
+		float totalWidth = slotSize * 6f + gap * 5f;
+		Vector2 start = new(area.X + (area.Width - totalWidth) * 0.5f, area.Y);
+		Texture2D slotTexture = TextureAssets.InventoryBack.Value;
+		for (int i = 0; i < 12; i++) {
+			Vector2 position = start + new Vector2((i % 6) * (slotSize + gap), (i / 6) * (slotSize + gap));
+			Color slotColor = i < profile.PackCapacity ? Color.White : new Color(35, 40, 52) * 0.65f;
+			spriteBatch.Draw(slotTexture, position, null, slotColor, 0f, Vector2.Zero, slotSize / slotTexture.Width, SpriteEffects.None, 0f);
+			if (i >= profile.Pack.Count || profile.Pack[i].IsAir)
+				continue;
+
+			Item item = profile.Pack[i];
+			Texture2D texture = TextureAssets.Item[item.type].Value;
+			Rectangle frame = Main.itemAnimations[item.type]?.GetFrame(texture) ?? texture.Bounds;
+			float scale = Math.Min(20f / frame.Width, 20f / frame.Height);
+			Vector2 center = position + new Vector2(slotSize * 0.5f);
+			spriteBatch.Draw(texture, center, frame, Color.White, 0f, frame.Size() * 0.5f, scale, SpriteEffects.None, 0f);
+		}
+	}
 }

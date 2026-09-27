@@ -38,11 +38,13 @@ public sealed class SoulboundCompanion : ModNPC
 	private bool hasJobTarget;
 	private int recoveryTimer;
 	private int gatherPause;
+	private int revealTimer;
 
 	public CompanionProfile Profile { get; set; } = new();
 	private Player Owner => Main.player[(int)NPC.ai[0]];
 	private ref float Command => ref NPC.ai[1];
 	public string CommandName => Command == StayCommand ? "Stay" : "Follow";
+	public CompanionJob CurrentJob => activeJob;
 	public string CurrentJobName => activeJob == CompanionJob.None ? "None" : SplitName(activeJob.ToString());
 
 	public override void SetStaticDefaults()
@@ -75,7 +77,8 @@ public sealed class SoulboundCompanion : ModNPC
 		}
 
 		NPC.GivenName = Profile.Name;
-		Lighting.AddLight(NPC.Center, Profile.EssenceColor.ToVector3() * 0.42f);
+		Lighting.AddLight(NPC.Center, Profile.EssenceColor.ToVector3() * 1.15f);
+		RevealSurroundings();
 		UpdateAuraDust();
 		if (activeJob != CompanionJob.None) {
 			UpdateJob();
@@ -294,10 +297,19 @@ public sealed class SoulboundCompanion : ModNPC
 		Item item = Main.item[itemIndex];
 		MoveTo(item.Center, 9f, 0.1f);
 		if (Vector2.DistanceSquared(NPC.Center, item.Center) < 42f * 42f) {
-			item.Center = Owner.Center;
-			item.velocity = Vector2.Zero;
-			item.noGrabDelay = 0;
-			jobCount++;
+			if (!CanCarry(item)) {
+				gatherPause = 45;
+				return;
+			}
+			int moved = Profile.Store(item);
+			if (moved <= 0) {
+				CompleteJob("My pack is full. We should unload it before I gather more.", jobCount > 0);
+				return;
+			}
+			jobCount += moved;
+			if (item.IsAir)
+				item.active = false;
+			SyncProfileToBoundSigil();
 			gatherPause = 30;
 		}
 		if (jobCount >= (Profile.Trinket == CompanionTrinket.HearthRibbon ? 8 : 5) || jobTimer > 720)
@@ -354,7 +366,7 @@ public sealed class SoulboundCompanion : ModNPC
 		float bestDistance = radius * radius;
 		for (int i = 0; i < Main.maxItems; i++) {
 			Item item = Main.item[i];
-			if (!item.active || item.IsAir)
+			if (!item.active || item.IsAir || !CanCarry(item))
 				continue;
 			float distance = Vector2.DistanceSquared(NPC.Center, item.Center);
 			if (distance >= bestDistance)
@@ -363,6 +375,26 @@ public sealed class SoulboundCompanion : ModNPC
 			result = i;
 		}
 		return result;
+	}
+
+	private void RevealSurroundings()
+	{
+		if (Main.dedServ || Owner.whoAmI != Main.myPlayer || ++revealTimer < 10)
+			return;
+		revealTimer = 0;
+		Point center = NPC.Center.ToTileCoordinates();
+		const int radius = 9;
+		for (int x = center.X - radius; x <= center.X + radius; x++) {
+			for (int y = center.Y - radius; y <= center.Y + radius; y++) {
+				if (!WorldGen.InWorld(x, y, 10))
+					continue;
+				float distance = Vector2.Distance(new Vector2(x, y), center.ToVector2());
+				if (distance > radius)
+					continue;
+				byte light = (byte)MathHelper.Clamp(255f - distance * 18f, 80f, 255f);
+				Main.Map.Update(x, y, light);
+			}
+		}
 	}
 
 	private static bool IsMineableWorkTile(ushort type) => IsEarlyOre(type) || type == TileID.Stone;
@@ -474,6 +506,43 @@ public sealed class SoulboundCompanion : ModNPC
 		SyncProfileToBoundSigil();
 		NPC.netUpdate = true;
 	}
+
+	public string StoreSelectedItem()
+	{
+		Item selected = Owner.inventory[Owner.selectedItem];
+		if (selected.IsAir)
+			return "Your selected hotbar slot is empty.";
+		if (!CanCarry(selected))
+			return "That item anchors our bond. I should not carry it inside my pack.";
+		int moved = Profile.Store(selected);
+		if (moved <= 0)
+			return $"My pack is full. ({Profile.PackLoad}/{Profile.PackCapacity})";
+		SyncProfileToBoundSigil();
+		NPC.netUpdate = true;
+		return $"I stored {moved} item{(moved == 1 ? "" : "s")}. ({Profile.PackLoad}/{Profile.PackCapacity})";
+	}
+
+	public string UnloadPack()
+	{
+		int moved = 0;
+		for (int i = Profile.Pack.Count - 1; i >= 0; i--) {
+			Item stored = Profile.Pack[i];
+			int originalStack = stored.stack;
+			Item leftover = Owner.GetItem(Owner.whoAmI, stored, GetItemSettings.InventoryEntityToPlayerInventorySettings);
+			moved += originalStack - (leftover.IsAir ? 0 : leftover.stack);
+			if (leftover.IsAir)
+				Profile.Pack.RemoveAt(i);
+			else
+				Profile.Pack[i] = leftover;
+		}
+		SyncProfileToBoundSigil();
+		NPC.netUpdate = true;
+		return moved > 0
+			? $"I returned {moved} item{(moved == 1 ? "" : "s")}. ({Profile.PackLoad}/{Profile.PackCapacity})"
+			: Profile.PackLoad == 0 ? "My pack is already empty." : "Your inventory has no room for my cargo.";
+	}
+
+	private static bool CanCarry(Item item) => item.ModItem is not Soulcore and not SoulboundSigil and not CompanionTrinketItem;
 
 	public void SyncProfileToBoundSigil()
 	{
