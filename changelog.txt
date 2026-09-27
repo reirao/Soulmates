@@ -5,6 +5,9 @@ Soulmates 0.6.1 - Bound Together
 - Companion profiles and conversation replies now synchronize back to the owning player.
 - Prevented duplicate client-side healing, projectiles, gathering, and world interaction.
 - Added owner validation so invalid network state cancels safely instead of crashing Talk Mode.
+- Every companion now defends against nearby threats; Guardians react faster, reach farther, and hit harder.
+- Talk Mode now shows talent, mood and energy meters, exact action costs, and actionable refusal requirements.
+- Resting immediately restores 30 energy, while waiting provides much faster passive recovery.
 
 Soulmates 0.6.0 - Living Souls
 

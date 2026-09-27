@@ -79,7 +79,7 @@ public sealed class TalkModeState : UIState
 		};
 		portrait.Append(response);
 
-		stats = new UIText("", 0.68f) {
+		stats = new UIText("", 0.56f) {
 			Left = new StyleDimension(8f, 0f),
 			Top = new StyleDimension(270f, 0f),
 			Width = new StyleDimension(-16f, 1f),
@@ -110,7 +110,7 @@ public sealed class TalkModeState : UIState
 
 		for (int i = 0; i < 3; i++) {
 			int option = i;
-			var button = Button("", 130f + i * 54f, 248f, 388f, new Color(43, 64, 98), 0.76f, 46f);
+			var button = Button("", 130f + i * 54f, 248f, 388f, new Color(43, 64, 98), 0.7f, 46f);
 			button.OnLeftClick += (_, _) => Speak(option);
 			optionButtons.Add(button);
 			panel.Append(button);
@@ -234,8 +234,15 @@ public sealed class TalkModeState : UIState
 	private void RefreshOptions()
 	{
 		string[] options = CompanionDialogueEngine.GetOptions(category);
-		for (int i = 0; i < optionButtons.Count; i++)
-			optionButtons[i].SetText($"\"{options[i]}\"");
+		for (int i = 0; i < optionButtons.Count; i++) {
+			int energyChange = CompanionDialogueEngine.GetEnergyChange(category, i);
+			string energy = energyChange < 0
+				? SoulmatesText.Get("UI.Talk.EnergyCost", -energyChange)
+				: energyChange > 0 ? SoulmatesText.Get("UI.Talk.EnergyGain", energyChange) : "";
+			optionButtons[i].SetText(string.IsNullOrEmpty(energy)
+				? $"\"{options[i]}\""
+				: $"\"{options[i]}\"  {energy}");
+		}
 	}
 
 	private void RefreshStats()
@@ -246,9 +253,20 @@ public sealed class TalkModeState : UIState
 		string job = companion?.CurrentJobName ?? SoulmatesText.Get("Status.Ready");
 		int radius = companion?.CurrentJobRadius ?? 0;
 		string area = radius > 0 ? SoulmatesText.Get("UI.Talk.Radius", radius) : "";
-		stats.SetText(SoulmatesText.Get("UI.Talk.Stats", SoulmatesText.EnumName(profile.Rank).ToUpperInvariant(), profile.Bond,
-			profile.Mood, profile.Energy, profile.PackLoad, profile.PackCapacity,
-			job.ToUpperInvariant(), area.ToUpperInvariant()));
+		string energyState = profile.Energy < 8
+			? SoulmatesText.Get("UI.Talk.Energy.Rest")
+			: profile.Energy < 25 ? SoulmatesText.Get("UI.Talk.Energy.Low") : SoulmatesText.Get("UI.Talk.Energy.Ready");
+		stats.SetText(SoulmatesText.Get("UI.Talk.Stats", SoulmatesText.EnumName(profile.Talent).ToUpperInvariant(),
+			SoulmatesText.EnumName(profile.Rank).ToUpperInvariant(), profile.Bond,
+			profile.Mood, Meter(profile.Mood), profile.Energy, Meter(profile.Energy), energyState,
+			profile.PackLoad, profile.PackCapacity, job.ToUpperInvariant(), area.ToUpperInvariant()));
+		stats.TextColor = profile.Energy < 8 ? Color.IndianRed : profile.Energy < 25 ? Color.Goldenrod : Color.LightGray;
+	}
+
+	private static string Meter(int value)
+	{
+		int filled = Math.Clamp((value + 9) / 10, 0, 10);
+		return $"[{new string('|', filled)}{new string('.', 10 - filled)}]";
 	}
 
 	private void RefreshCategoryStyles()

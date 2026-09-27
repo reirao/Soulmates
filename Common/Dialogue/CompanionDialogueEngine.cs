@@ -42,6 +42,16 @@ public static class CompanionDialogueEngine
 		SoulmatesText.Get($"Dialogue.Options.{category}.Option2")
 	];
 
+	public static int GetEnergyChange(TalkCategory category, int option) => (category, Math.Clamp(option, 0, 2)) switch {
+		(TalkCategory.Care, 2) => 30,
+		(TalkCategory.Commands, 0) => -1,
+		(TalkCategory.Commands, 2) => -4,
+		(TalkCategory.Work, 0) => -6,
+		(TalkCategory.Work, 1) => -8,
+		(TalkCategory.Work, 2) => -5,
+		_ => 0
+	};
+
 	public static DialogueResult Speak(CompanionProfile profile, TalkCategory category, int option)
 	{
 		option = Math.Clamp(option, 0, 2);
@@ -51,14 +61,14 @@ public static class CompanionDialogueEngine
 			return Pack(option);
 
 		bool demanding = category is TalkCategory.Commands or TalkCategory.Work;
-		int requiredEnergy = category == TalkCategory.Work ? 12 : 3;
+		int requiredEnergy = Math.Max(1, -GetEnergyChange(category, option));
 		int requiredMood = category == TalkCategory.Work ? 20 : 10;
 		if (profile.Personality == CompanionPersonality.Loyal)
 			requiredMood -= 5;
 		if (profile.Personality == CompanionPersonality.Brave)
-			requiredEnergy -= 2;
+			requiredEnergy = Math.Max(1, requiredEnergy - 1);
 		if (demanding && (profile.Energy < requiredEnergy || profile.Mood < requiredMood))
-			return Refusal(profile, category, requiredEnergy);
+			return Refusal(profile, category, requiredEnergy, requiredMood);
 
 		return category switch {
 			TalkCategory.Care => Care(profile, option),
@@ -72,19 +82,25 @@ public static class CompanionDialogueEngine
 	private static DialogueResult Care(CompanionProfile profile, int option) => option switch {
 		0 => new DialogueResult(Styled(profile, "Dialogue.Replies.Care.Feeling"), true, SpeechAction.None, 1, 1, 0),
 		1 => new DialogueResult(Styled(profile, "Dialogue.Replies.Care.Praise"), true, SpeechAction.None, 2, 4, 0),
-		_ => new DialogueResult(Styled(profile, "Dialogue.Replies.Care.Rest"), true, SpeechAction.Rest, 1, 2, 12)
+		_ => new DialogueResult(Styled(profile, "Dialogue.Replies.Care.Rest"), true, SpeechAction.Rest, 1, 2,
+			GetEnergyChange(TalkCategory.Care, 2))
 	};
 
 	private static DialogueResult Command(CompanionProfile profile, int option) => option switch {
-		0 => new DialogueResult(Styled(profile, "Dialogue.Replies.Commands.Follow"), true, SpeechAction.Follow, 1, 0, -1),
+		0 => new DialogueResult(Styled(profile, "Dialogue.Replies.Commands.Follow"), true, SpeechAction.Follow, 1, 0,
+			GetEnergyChange(TalkCategory.Commands, 0)),
 		1 => new DialogueResult(Styled(profile, "Dialogue.Replies.Commands.Stay"), true, SpeechAction.Stay, 0, 0, 0),
-		_ => new DialogueResult(Styled(profile, "Dialogue.Replies.Commands.Explore"), true, SpeechAction.Explore, 1, 2, -4)
+		_ => new DialogueResult(Styled(profile, "Dialogue.Replies.Commands.Explore"), true, SpeechAction.Explore, 1, 2,
+			GetEnergyChange(TalkCategory.Commands, 2))
 	};
 
 	private static DialogueResult Work(CompanionProfile profile, int option) => option switch {
-		0 => new DialogueResult(Styled(profile, "Dialogue.Replies.Work.Treasure"), true, SpeechAction.FindTreasure, 1, 1, -6),
-		1 => new DialogueResult(Styled(profile, "Dialogue.Replies.Work.Mine"), true, SpeechAction.Mine, 1, 0, -8),
-		_ => new DialogueResult(Styled(profile, "Dialogue.Replies.Work.Gather"), true, SpeechAction.Gather, 1, 1, -5)
+		0 => new DialogueResult(Styled(profile, "Dialogue.Replies.Work.Treasure"), true, SpeechAction.FindTreasure, 1, 1,
+			GetEnergyChange(TalkCategory.Work, 0)),
+		1 => new DialogueResult(Styled(profile, "Dialogue.Replies.Work.Mine"), true, SpeechAction.Mine, 1, 0,
+			GetEnergyChange(TalkCategory.Work, 1)),
+		_ => new DialogueResult(Styled(profile, "Dialogue.Replies.Work.Gather"), true, SpeechAction.Gather, 1, 1,
+			GetEnergyChange(TalkCategory.Work, 2))
 	};
 
 	private static DialogueResult Bond(CompanionProfile profile, int option) => option switch {
@@ -95,11 +111,14 @@ public static class CompanionDialogueEngine
 		_ => new DialogueResult(Styled(profile, "Dialogue.Replies.Bond.Glad"), true, SpeechAction.None, 3, 4, 0)
 	};
 
-	private static DialogueResult Refusal(CompanionProfile profile, TalkCategory category, int requiredEnergy)
+	private static DialogueResult Refusal(CompanionProfile profile, TalkCategory category, int requiredEnergy, int requiredMood)
 	{
-		string reply = Styled(profile, profile.Energy < requiredEnergy
-			? "Dialogue.Replies.Refusal.Energy"
-			: "Dialogue.Replies.Refusal.Mood");
+		bool lacksEnergy = profile.Energy < requiredEnergy;
+		string reply = Styled(profile, lacksEnergy ? "Dialogue.Replies.Refusal.Energy" : "Dialogue.Replies.Refusal.Mood");
+		reply += " " + SoulmatesText.Get(lacksEnergy
+			? "Dialogue.Replies.Refusal.EnergyStatus"
+			: "Dialogue.Replies.Refusal.MoodStatus", lacksEnergy ? profile.Energy : profile.Mood,
+			lacksEnergy ? requiredEnergy : requiredMood);
 		return new DialogueResult(reply, false, SpeechAction.None, category == TalkCategory.Commands ? -1 : 0, -1, 0);
 	}
 

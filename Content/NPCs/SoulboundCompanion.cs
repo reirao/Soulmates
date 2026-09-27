@@ -127,35 +127,31 @@ public sealed class SoulboundCompanion : ModNPC
 		UpdateAuraDust();
 		if (talentCooldown > 0)
 			talentCooldown--;
+		if (UpdateTalentBehavior()) {
+			recoveryTimer = 0;
+			NPC.rotation = MathHelper.Lerp(NPC.rotation, NPC.velocity.X * 0.025f, 0.08f);
+			UpdateFacing();
+			return;
+		}
 		if (activeJob != CompanionJob.None) {
+			recoveryTimer = 0;
 			guardianTarget = -1;
 			UpdateJob();
 			NPC.rotation = MathHelper.Lerp(NPC.rotation, NPC.velocity.X * 0.025f, 0.08f);
 			UpdateFacing();
 			return;
 		}
-		if (UpdateTalentBehavior()) {
-			NPC.rotation = MathHelper.Lerp(NPC.rotation, NPC.velocity.X * 0.025f, 0.08f);
-			UpdateFacing();
-			return;
-		}
-
 		if (Command == StayCommand) {
 			if (brainState != BrainState.Stay) {
 				brainState = BrainState.Stay;
 				idleTarget = NPC.Center;
 			}
 			MoveTo(idleTarget + new Vector2(0f, IdleBob()), 2.2f, 0.04f);
-			if (++recoveryTimer >= 300) {
-				recoveryTimer = 0;
-				Profile.Energy = Math.Clamp(Profile.Energy + (Profile.Trinket == CompanionTrinket.HearthRibbon ? 3 : 2), 0, 100);
-				Profile.Mood = Math.Clamp(Profile.Mood + 1, 0, 100);
-				SyncProfileToBoundSigil();
-			}
+			RecoverEnergy(180, Profile.Trinket == CompanionTrinket.HearthRibbon ? 6 : 4, recoverMood: true);
 			UpdateFacing();
 			return;
 		}
-		recoveryTimer = 0;
+		RecoverEnergy(600, 1, recoverMood: false);
 
 		Vector2 followTarget = Owner.Center + new Vector2(-Owner.direction * 66f, -58f);
 		float distance = Vector2.Distance(NPC.Center, followTarget);
@@ -204,13 +200,15 @@ public sealed class SoulboundCompanion : ModNPC
 		if (Profile.Talent == CompanionTalent.Healer)
 			TryHealOwner();
 
-		if (Profile.Talent != CompanionTalent.Guardian || Profile.Energy <= 5) {
+		bool guardian = Profile.Talent == CompanionTalent.Guardian;
+		int minimumEnergy = guardian ? 1 : 3;
+		if (Profile.Energy < minimumEnergy) {
 			guardianTarget = -1;
 			return false;
 		}
 
 		Vector2 anchor = Command == StayCommand ? idleTarget : Owner.Center;
-		float range = 320f + Profile.RankIndex * 28f;
+		float range = guardian ? 360f + Profile.RankIndex * 32f : 220f + Profile.RankIndex * 18f;
 		NPC? target = FindNearestThreat(anchor, range);
 		if (target is null) {
 			guardianTarget = -1;
@@ -220,23 +218,41 @@ public sealed class SoulboundCompanion : ModNPC
 		guardianTarget = target.whoAmI;
 		brainState = BrainState.Guard;
 		Vector2 awayFromTarget = (anchor - target.Center).SafeNormalize(new Vector2(-Owner.direction, 0f));
-		Vector2 guardPosition = target.Center + awayFromTarget * 105f + new Vector2(0f, -34f + IdleBob() * 0.35f);
-		MoveTo(guardPosition, 10f, 0.11f);
+		Vector2 guardPosition = target.Center + awayFromTarget * (guardian ? 110f : 90f)
+			+ new Vector2(0f, -34f + IdleBob() * 0.35f);
+		MoveTo(guardPosition, guardian ? 11f : 8f, guardian ? 0.12f : 0.09f);
 
 		if (talentCooldown <= 0 && Vector2.DistanceSquared(NPC.Center, target.Center) < 440f * 440f
 			&& Collision.CanHitLine(NPC.position, NPC.width, NPC.height, target.position, target.width, target.height)) {
 			if (Main.netMode != NetmodeID.MultiplayerClient) {
-				Vector2 velocity = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX) * 9f;
-				int damage = 8 + Profile.RankIndex * 2 + Math.Min(5, Profile.JobsCompleted / 5);
+				Vector2 velocity = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX) * (guardian ? 10f : 8f);
+				int damage = guardian
+					? 10 + Profile.RankIndex * 3 + Math.Min(6, Profile.JobsCompleted / 5)
+					: 4 + Profile.RankIndex + Math.Min(3, Profile.JobsCompleted / 8);
 				Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, velocity, ModContent.ProjectileType<SoulBolt>(),
 					damage, 1.5f, Owner.whoAmI, target.whoAmI, NPC.whoAmI);
 				Profile.Energy = Math.Max(0, Profile.Energy - 1);
 				SyncProfileToBoundSigil();
 				NPC.netUpdate = true;
 			}
-			talentCooldown = Math.Max(42, 76 - Profile.RankIndex * 7);
+			talentCooldown = guardian ? Math.Max(36, 68 - Profile.RankIndex * 7) : Math.Max(84, 118 - Profile.RankIndex * 6);
 		}
 		return true;
+	}
+
+	private void RecoverEnergy(int interval, int amount, bool recoverMood)
+	{
+		if (Main.netMode == NetmodeID.MultiplayerClient || ++recoveryTimer < interval)
+			return;
+		recoveryTimer = 0;
+		int previousEnergy = Profile.Energy;
+		Profile.Energy = Math.Clamp(Profile.Energy + amount, 0, 100);
+		if (recoverMood)
+			Profile.Mood = Math.Clamp(Profile.Mood + 1, 0, 100);
+		if (Profile.Energy == previousEnergy && !recoverMood)
+			return;
+		SyncProfileToBoundSigil();
+		NPC.netUpdate = true;
 	}
 
 	private void TryHealOwner()
@@ -772,6 +788,7 @@ public sealed class SoulboundCompanion : ModNPC
 		if (result.Action is SpeechAction.StoreHeldItem or SpeechAction.UnloadPack)
 			SyncOwnerInventory();
 		SyncProfileToBoundSigil();
+		NPC.netUpdate = true;
 		NPC.netUpdate = true;
 		return new CompanionConversationResult(reply, result.Accepted);
 	}

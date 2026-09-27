@@ -19,7 +19,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 [*]Personality-driven idle, wandering, inspecting, following, and catch-up behavior.
 [*]Persistent bond, mood, energy, and voice style.
 [*]Five bond ranks that improve role strength, work radius, and late-rank pack capacity.
-[*]Guardian companions intercept nearby threats; Healers react to meaningful injuries.
+[*]Every companion defends against nearby threats; Guardians react faster, reach farther, and hit harder, while Healers react to meaningful injuries.
 [*]Talk Mode conversations across Care, Commands, Work, Bond, Voice, and Pack categories.
 [*]Companions can accept a request, react in their own voice, or clearly refuse when tired or unhappy.
 [*]Follow, stay, explore, rest, summon, and recall interactions.
