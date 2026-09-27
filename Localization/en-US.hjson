@@ -140,6 +140,10 @@ Mods: {
         Stats: "{0} | {1} | BOND {2}\nMOOD {3}/100 {4}\nENERGY {5}/100 {6} - {7}\nPACK {8}/{9} | {10}{11}"
         EnergyCost: "[Energy -{0}]"
         EnergyGain: "[Energy +{0}]"
+		BondShort: BOND
+		MoodShort: MOOD
+		EnergyShort: ENERGY
+		PackShort: PACK
         Energy: {
           Ready: READY
           Low: LOW
@@ -153,9 +157,8 @@ Mods: {
       Mining: "Mining area ({0} cleared)"
       Gathering: "Gathering area ({0} items)"
       SensingTreasure: Sensing treasure
-      Guarding: Guarding against a nearby threat
-	  DefenseResting: "Defense paused (needs {0} energy)"
-	  Watching: "Watching for threats ({0} tiles)"
+      Guarding: IN COMBAT
+	  Watching: "WATCH: {0} tiles"
       Assignment: "{0} assignment"
       Ready: Ready
     }

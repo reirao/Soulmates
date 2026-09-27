@@ -1,3 +1,12 @@
+Soulmates 0.6.3 - Steadfast
+
+- Basic defense no longer consumes work energy, so companions keep protecting their owner at zero energy.
+- Companions retain targets longer, intercept more smoothly, and visibly strafe while fighting.
+- Soul bolts are larger and brighter with a luminous trail, stronger homing, impact sound, and hit burst.
+- Guardians attack faster and deal clearer early-game damage; every other talent remains a capable defender.
+- Talk Mode is smaller and replaces the overflowing text meters with compact visual mood and energy bars.
+- Combat and watch states are now short, readable, and visible without colliding with the close button.
+
 Soulmates 0.6.2 - Faithful Guardian
 
 - Fixed companions detecting nearby enemies but never attacking when terrain blocked Terraria's line-of-sight check.

@@ -140,6 +140,10 @@ Mods: {
         Stats: "{0} | {1} | BINDUNG {2}\nLAUNE {3}/100 {4}\nENERGIE {5}/100 {6} - {7}\nPACK {8}/{9} | {10}{11}"
         EnergyCost: "[Energie -{0}]"
         EnergyGain: "[Energie +{0}]"
+		BondShort: BINDUNG
+		MoodShort: LAUNE
+		EnergyShort: ENERGIE
+		PackShort: PACK
         Energy: {
           Ready: BEREIT
           Low: NIEDRIG
@@ -153,9 +157,8 @@ Mods: {
       Mining: "Gebiet abbauen ({0} geschafft)"
       Gathering: "Gebiet sammeln ({0} Gegenstände)"
       SensingTreasure: Schatz aufspüren
-      Guarding: Verteidigt gegen eine Bedrohung
-	  DefenseResting: "Verteidigung pausiert (benötigt {0} Energie)"
-	  Watching: "Hält nach Bedrohungen Ausschau ({0} Blöcke)"
+      Guarding: IM KAMPF
+	  Watching: "WACHE: {0} Blöcke"
       Assignment: "Auftrag: {0}"
       Ready: Bereit
     }

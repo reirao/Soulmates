@@ -66,8 +66,6 @@ public sealed class SoulboundCompanion : ModNPC
 		}
 		: guardianTarget >= 0
 			? SoulmatesText.Get("Status.Guarding")
-			: Profile.Energy < DefenseEnergyCost
-			? SoulmatesText.Get("Status.DefenseResting", DefenseEnergyCost)
 			: Profile.Routine != CompanionJob.None
 			? SoulmatesText.Get("Status.Assignment", SoulmatesText.EnumName(Profile.Routine))
 			: SoulmatesText.Get("Status.Watching", (int)(DefenseRange / 16f));
@@ -80,7 +78,6 @@ public sealed class SoulboundCompanion : ModNPC
 	private int MiningRadiusTiles => (Profile.Trinket == CompanionTrinket.DelverCharm ? 34 : 26) + Profile.RankIndex * 2;
 	private int GatheringRadiusTiles => (Profile.Trinket == CompanionTrinket.HearthRibbon ? 42 : 30) + Profile.RankIndex * 2;
 	private int TreasureRadiusTiles => (Profile.Trinket == CompanionTrinket.StarfinderBell ? 90 : 55) + Profile.RankIndex * 3;
-	private int DefenseEnergyCost => Profile.Talent == CompanionTalent.Guardian ? 1 : 3;
 	private float DefenseRange => (Profile.Talent == CompanionTalent.Guardian ? GuardianDefenseRange : StandardDefenseRange)
 		+ Profile.RankIndex * (Profile.Talent == CompanionTalent.Guardian ? 40f : 24f);
 
@@ -208,43 +205,62 @@ public sealed class SoulboundCompanion : ModNPC
 			TryHealOwner();
 
 		bool guardian = Profile.Talent == CompanionTalent.Guardian;
-		if (Profile.Energy < DefenseEnergyCost) {
-			guardianTarget = -1;
-			return false;
-		}
-
 		Vector2 anchor = Command == StayCommand ? idleTarget : Owner.Center;
-		NPC? target = FindNearestThreat(anchor, DefenseRange);
+		NPC? target = FindDefenseTarget(anchor);
 		if (target is null) {
-			guardianTarget = -1;
+			SetGuardianTarget(-1);
 			return false;
 		}
 
-		guardianTarget = target.whoAmI;
+		SetGuardianTarget(target.whoAmI);
 		brainState = BrainState.Guard;
 		Vector2 awayFromTarget = (anchor - target.Center).SafeNormalize(new Vector2(-Owner.direction, 0f));
-		Vector2 guardPosition = target.Center + awayFromTarget * (guardian ? 110f : 90f)
-			+ new Vector2(0f, -34f + IdleBob() * 0.35f);
-		MoveTo(guardPosition, guardian ? 11f : 8f, guardian ? 0.12f : 0.09f);
+		Vector2 strafe = new Vector2(-awayFromTarget.Y, awayFromTarget.X)
+			* MathF.Sin(Main.GlobalTimeWrappedHourly * 2.4f + bobSeed) * (guardian ? 34f : 24f);
+		Vector2 guardPosition = target.Center + awayFromTarget * (guardian ? 145f : 125f)
+			+ strafe + new Vector2(0f, -38f + IdleBob() * 0.3f);
+		MoveTo(guardPosition, guardian ? 12f : 9f, guardian ? 0.14f : 0.11f);
 
 		float attackRange = guardian ? 640f : 520f;
 		if (talentCooldown <= 0 && Vector2.DistanceSquared(NPC.Center, target.Center) < attackRange * attackRange) {
 			if (Main.netMode != NetmodeID.MultiplayerClient) {
-				Vector2 velocity = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX) * (guardian ? 10f : 8f);
+				Vector2 velocity = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX) * (guardian ? 9f : 7.5f);
 				int damage = guardian
-					? 10 + Profile.RankIndex * 3 + Math.Min(6, Profile.JobsCompleted / 5)
-					: 4 + Profile.RankIndex + Math.Min(3, Profile.JobsCompleted / 8);
+					? 14 + Profile.RankIndex * 4 + Math.Min(8, Profile.JobsCompleted / 5)
+					: 6 + Profile.RankIndex * 2 + Math.Min(4, Profile.JobsCompleted / 8);
 				int projectileIndex = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, velocity, ModContent.ProjectileType<SoulBolt>(),
 					damage, 1.5f, Owner.whoAmI, target.whoAmI, NPC.whoAmI);
 				if (projectileIndex >= 0 && projectileIndex < Main.maxProjectiles)
 					Main.projectile[projectileIndex].netUpdate = true;
-				Profile.Energy = Math.Max(0, Profile.Energy - 1);
-				SyncProfileToBoundSigil();
 				NPC.netUpdate = true;
 			}
-			talentCooldown = guardian ? Math.Max(36, 68 - Profile.RankIndex * 7) : Math.Max(84, 118 - Profile.RankIndex * 6);
+			talentCooldown = guardian ? Math.Max(34, 56 - Profile.RankIndex * 5) : Math.Max(64, 92 - Profile.RankIndex * 5);
 		}
 		return true;
+	}
+
+	private NPC? FindDefenseTarget(Vector2 anchor)
+	{
+		if (guardianTarget >= 0 && guardianTarget < Main.maxNPCs) {
+			NPC current = Main.npc[guardianTarget];
+			float leash = DefenseRange * 1.45f;
+			if (IsThreat(current)
+				&& (Vector2.DistanceSquared(anchor, current.Center) <= leash * leash
+					|| Vector2.DistanceSquared(NPC.Center, current.Center) <= leash * leash))
+				return current;
+		}
+		return FindNearestThreat(anchor, DefenseRange);
+	}
+
+	private void SetGuardianTarget(int target)
+	{
+		if (guardianTarget == target)
+			return;
+		guardianTarget = target;
+		if (target >= 0)
+			talentCooldown = Math.Min(talentCooldown, 8);
+		if (Main.netMode != NetmodeID.MultiplayerClient)
+			NPC.netUpdate = true;
 	}
 
 	private void RecoverEnergy(int interval, int amount, bool recoverMood)

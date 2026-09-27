@@ -22,7 +22,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Talk Mode with Care, Commands, Work, Bond, Voice, and Pack conversations.
 - Mood-, energy-, bond-, and personality-aware replies, including clearly explained refusals.
 - Five visible bond ranks with growing work radius, role strength, and pack capacity.
-- Every companion actively watches for nearby threats, including through cave terrain; Guardians react faster, reach farther, and hit harder, while Healers provide energy-limited support.
+- Every companion continuously defends against nearby threats without spending work energy, including through cave terrain; Guardians react faster, reach farther, and hit harder, while Healers provide energy-limited support.
 - Area assignments: locate nearby chests, clear every early-ore vein in range, and retrieve every loose item in range.
 - A persistent memory chronicle covering creation, work, protection, healing, equipment, and bond milestones.
 - Craftable Starfinder Bell, Delver Charm, and Hearth Ribbon companion trinkets.
