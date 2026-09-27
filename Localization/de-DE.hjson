@@ -384,5 +384,10 @@ Mods: {
         }
       }
     }
+    Projectiles: {
+      SoulBolt: {
+        DisplayName: Seelenblitz
+      }
+    }
   }
 }
