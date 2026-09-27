@@ -16,6 +16,15 @@ Soulmates turns the reusable Soulcore into a companion creator inside Terraria. 
 [*]Talk Mode conversations across Care, Commands, Work, Bond, and Voice categories.
 [*]Companions can accept a request, react in their own voice, or occasionally refuse when tired or unhappy.
 [*]Follow, stay, explore, rest, summon, and recall interactions.
+[*]Real work requests: locate nearby chests, mine a controlled batch of stone or early ore, and retrieve loose items.
+[*]Persistent memories of completed jobs.
+[/list]
+
+[h2]Soul Trinkets[/h2]
+[list]
+[*][b]Starfinder Bell[/b] greatly extends treasure-sensing range.
+[*][b]Delver Charm[/b] lets a companion mine two additional blocks per assignment.
+[*][b]Hearth Ribbon[/b] improves gathering range, capacity, and recovery while resting.
 [/list]
 
 [h2]Getting Started[/h2]
@@ -23,9 +32,12 @@ New characters receive one Soulcore and three Blank Sigils as a prototype starte
 
 [b]Soulcore:[/b] 8 Fallen Stars, 5 Amethyst, 10 Stone Blocks
 [b]Blank Sigil:[/b] 3 Fallen Stars, 1 Amethyst, 5 Silk
+[b]Starfinder Bell:[/b] 5 Fallen Stars, 3 Iron or Lead Bars, 1 Lens
+[b]Delver Charm:[/b] 5 Iron or Lead Bars, 2 Amethyst, 20 Stone Blocks
+[b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Current Release[/h2]
-Soulmates is an early playable release focused on companion creation, identity, behavior, and conversation. It is currently intended for single-player play. Equipment, companion inventory, treasure sensing, gathering, real mining jobs, deeper memories, and multiplayer synchronization are planned expansions.
+Soulmates 0.4 is a rounded single-player companion experience focused on creation, identity, behavior, conversation, equipment, and useful world interaction. Expanded equipment, deeper memories, advanced jobs, and multiplayer synchronization remain planned expansions.
 
 [h2]Controls[/h2]
 [list]
@@ -33,6 +45,8 @@ Soulmates is an early playable release focused on companion creation, identity, 
 [*]Use Soulbound Sigil: summon the bound companion.
 [*]Right-click active Sigil: open Talk Mode.
 [*]Hold Up + right-click active Sigil: recall the companion.
+[*]Use a Soul Trinket while a companion is summoned: equip it.
+[*]Right-click a Soul Trinket: remove the current trinket.
 [/list]
 
 [h2]Feedback and Source[/h2]

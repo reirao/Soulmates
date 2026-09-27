@@ -18,6 +18,9 @@ public enum SpeechAction
 	Follow,
 	Stay,
 	Explore,
+	FindTreasure,
+	Mine,
+	Gather,
 	Rest,
 	VoiceSoft,
 	VoiceDirect,
@@ -77,14 +80,14 @@ public static class CompanionDialogueEngine
 	};
 
 	private static DialogueResult Work(CompanionProfile profile, int option) => option switch {
-		0 => new DialogueResult(Styled(profile, "I will listen for things that glitter.", "Beginning treasure sweep.", "If it shines, I am claiming first look."), true, SpeechAction.Explore, 1, 1, -6),
-		1 => new DialogueResult(Styled(profile, "I can scout the stone, but I am still learning to mine it.", "Mining assistance queued. Tool use is still developing.", "I can judge the rocks very sternly for now."), true, SpeechAction.Explore, 1, 0, -5),
-		_ => new DialogueResult(Styled(profile, "I will look for anything worth bringing home.", "Gathering sweep started.", "Interesting is a wonderfully dangerous category."), true, SpeechAction.Explore, 1, 1, -5)
+		0 => new DialogueResult(Styled(profile, "I will listen for things that glitter.", "Beginning treasure sweep.", "If it shines, I am claiming first look."), true, SpeechAction.FindTreasure, 1, 1, -6),
+		1 => new DialogueResult(Styled(profile, "Show me the stone. I will work carefully.", "Mining task accepted.", "Time to negotiate with the rocks."), true, SpeechAction.Mine, 1, 0, -8),
+		_ => new DialogueResult(Styled(profile, "I will bring back what was left behind.", "Gathering sweep started.", "Interesting is a wonderfully dangerous category."), true, SpeechAction.Gather, 1, 1, -5)
 	};
 
 	private static DialogueResult Bond(CompanionProfile profile, int option) => option switch {
 		0 => new DialogueResult(Styled(profile, profile.Bond >= 20 ? "More each day." : "I think trust grows when we keep choosing each other.", profile.Bond >= 20 ? "Trust confirmed." : "Trust is forming.", profile.Bond >= 20 ? "Enough to follow you underground. That is serious." : "Ask me again after fewer lava incidents."), true, SpeechAction.None, 2, 1, 0),
-		1 => new DialogueResult(PersonalitySecret(profile), true, SpeechAction.None, 2, 2, 0),
+		1 => new DialogueResult(profile.JobsCompleted > 0 ? profile.LastMemory : PersonalitySecret(profile), true, SpeechAction.None, 2, 2, 0),
 		_ => new DialogueResult(Styled(profile, "And I am glad you called me into being.", "The bond is mutual.", "Good. You are keeping me."), true, SpeechAction.None, 3, 4, 0)
 	};
 

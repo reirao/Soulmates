@@ -62,6 +62,22 @@ public enum CompanionVoice : byte
 	Playful
 }
 
+public enum CompanionTrinket : byte
+{
+	None,
+	StarfinderBell,
+	DelverCharm,
+	HearthRibbon
+}
+
+public enum CompanionJob : byte
+{
+	None,
+	FindTreasure,
+	Mine,
+	Gather
+}
+
 public sealed class CompanionProfile
 {
 	public Guid Id { get; set; } = Guid.NewGuid();
@@ -73,9 +89,12 @@ public sealed class CompanionProfile
 	public CompanionAura Aura { get; set; }
 	public CompanionMuse Muse { get; set; }
 	public CompanionVoice Voice { get; set; }
+	public CompanionTrinket Trinket { get; set; }
 	public int Bond { get; set; }
 	public int Mood { get; set; } = 100;
 	public int Energy { get; set; } = 100;
+	public int JobsCompleted { get; set; }
+	public string LastMemory { get; set; } = "We have only just met.";
 
 	public Color EssenceColor => Essence switch {
 		CompanionEssence.Ember => new Color(255, 121, 77),
@@ -95,9 +114,12 @@ public sealed class CompanionProfile
 		Aura = Aura,
 		Muse = Muse,
 		Voice = Voice,
+		Trinket = Trinket,
 		Bond = Bond,
 		Mood = Mood,
-		Energy = Energy
+		Energy = Energy,
+		JobsCompleted = JobsCompleted,
+		LastMemory = LastMemory
 	};
 
 	public TagCompound Save() => new() {
@@ -110,9 +132,12 @@ public sealed class CompanionProfile
 		["aura"] = (byte)Aura,
 		["muse"] = (byte)Muse,
 		["voice"] = (byte)Voice,
+		["trinket"] = (byte)Trinket,
 		["bond"] = Bond,
 		["mood"] = Mood,
-		["energy"] = Energy
+		["energy"] = Energy,
+		["jobsCompleted"] = JobsCompleted,
+		["lastMemory"] = LastMemory
 	};
 
 	public static CompanionProfile Load(TagCompound tag) => new() {
@@ -125,9 +150,14 @@ public sealed class CompanionProfile
 		Aura = tag.ContainsKey("aura") ? (CompanionAura)tag.GetByte("aura") : CompanionAura.SoftGlow,
 		Muse = tag.ContainsKey("muse") ? (CompanionMuse)tag.GetByte("muse") : CompanionMuse.Soulkin,
 		Voice = tag.ContainsKey("voice") ? (CompanionVoice)tag.GetByte("voice") : CompanionVoice.Soft,
+		Trinket = tag.ContainsKey("trinket") ? (CompanionTrinket)tag.GetByte("trinket") : CompanionTrinket.None,
 		Bond = tag.GetInt("bond"),
 		Mood = tag.ContainsKey("mood") ? tag.GetInt("mood") : 100,
-		Energy = tag.ContainsKey("energy") ? tag.GetInt("energy") : 100
+		Energy = tag.ContainsKey("energy") ? tag.GetInt("energy") : 100,
+		JobsCompleted = tag.ContainsKey("jobsCompleted") ? tag.GetInt("jobsCompleted") : 0,
+		LastMemory = tag.ContainsKey("lastMemory") && tag.GetString("lastMemory") is { Length: > 0 } memory
+			? memory
+			: "We have only just met."
 	};
 
 	public void Write(BinaryWriter writer)
@@ -141,9 +171,12 @@ public sealed class CompanionProfile
 		writer.Write((byte)Aura);
 		writer.Write((byte)Muse);
 		writer.Write((byte)Voice);
+		writer.Write((byte)Trinket);
 		writer.Write(Bond);
 		writer.Write(Mood);
 		writer.Write(Energy);
+		writer.Write(JobsCompleted);
+		writer.Write(LastMemory);
 	}
 
 	public static CompanionProfile Read(BinaryReader reader) => new() {
@@ -156,8 +189,11 @@ public sealed class CompanionProfile
 		Aura = (CompanionAura)reader.ReadByte(),
 		Muse = (CompanionMuse)reader.ReadByte(),
 		Voice = (CompanionVoice)reader.ReadByte(),
+		Trinket = (CompanionTrinket)reader.ReadByte(),
 		Bond = reader.ReadInt32(),
 		Mood = reader.ReadInt32(),
-		Energy = reader.ReadInt32()
+		Energy = reader.ReadInt32(),
+		JobsCompleted = reader.ReadInt32(),
+		LastMemory = reader.ReadString()
 	};
 }

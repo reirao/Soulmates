@@ -1,10 +1,10 @@
-Soulmates 0.3.2 - Workshop Release Candidate
+Soulmates 0.4.0 - Living Companion Update
 
-- Added the compact Talk Mode conversation interface.
-- Added Care, Commands, Work, Bond, and Voice dialogue categories.
-- Added mood-, energy-, bond-, personality-, and voice-aware responses.
-- Added Follow, Stay, Explore, Rest, and voice configuration actions.
-- Added the Bestiary Muse appearance selector.
-- Added animated companion previews and personality-driven idle behavior.
-- Compacted both companion interfaces and prevented inventory overlap.
-- Added Escape and world-transition handling for companion interfaces.
+- Work requests now perform distinct, real jobs.
+- Treasure jobs locate nearby chests and report direction and distance.
+- Mining jobs carefully extract small batches of stone and early-game ore.
+- Gathering jobs retrieve nearby loose items for the player.
+- Added persistent job memories and completed-job history.
+- Added the Starfinder Bell, Delver Charm, and Hearth Ribbon companion trinkets.
+- Resting companions now recover mood and energy over time.
+- Companion state is synchronized back to its Soulbound Sigil when work finishes or the companion is recalled.

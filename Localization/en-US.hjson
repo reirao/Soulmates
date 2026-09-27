@@ -13,6 +13,18 @@ Mods: {
         DisplayName: Soulbound Sigil
         Tooltip: "A unique companion rests within"
       }
+      StarfinderBell: {
+        DisplayName: Starfinder Bell
+        Tooltip: "Attunes a summoned companion to distant treasure\nUse to equip  |  Right-click to unequip"
+      }
+      DelverCharm: {
+        DisplayName: Delver Charm
+        Tooltip: "Lets a summoned companion mine two extra blocks per job\nUse to equip  |  Right-click to unequip"
+      }
+      HearthRibbon: {
+        DisplayName: Hearth Ribbon
+        Tooltip: "Extends a summoned companion's gathering reach and capacity\nUse to equip  |  Right-click to unequip"
+      }
     }
     NPCs: {
       SoulboundCompanion: {

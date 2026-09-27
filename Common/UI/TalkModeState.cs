@@ -157,6 +157,15 @@ public sealed class TalkModeState : UIState
 			case SpeechAction.Explore:
 				companion.AskToExplore();
 				break;
+			case SpeechAction.FindTreasure:
+				companion.StartJob(CompanionJob.FindTreasure);
+				break;
+			case SpeechAction.Mine:
+				companion.StartJob(CompanionJob.Mine);
+				break;
+			case SpeechAction.Gather:
+				companion.StartJob(CompanionJob.Gather);
+				break;
 			case SpeechAction.VoiceSoft:
 				profile.Voice = CompanionVoice.Soft;
 				break;
@@ -181,7 +190,8 @@ public sealed class TalkModeState : UIState
 		if (stats is null || sigil is null)
 			return;
 		CompanionProfile profile = sigil.Profile;
-		stats.SetText($"Bond {profile.Bond}  |  Mood {profile.Mood}\nEnergy {profile.Energy}  |  Voice {profile.Voice}");
+		string job = companion?.CurrentJobName ?? "None";
+		stats.SetText($"Bond {profile.Bond} | Mood {profile.Mood} | Energy {profile.Energy}\n{SplitName(profile.Trinket.ToString())} | Job: {job}");
 	}
 
 	private static UITextPanel<string> Button(string text, float top, float left, float width, Color color, float scale, float height)
@@ -198,4 +208,6 @@ public sealed class TalkModeState : UIState
 		button.OnMouseOut += (_, _) => button.BackgroundColor = color;
 		return button;
 	}
+
+	private static string SplitName(string value) => System.Text.RegularExpressions.Regex.Replace(value, "([a-z])([A-Z])", "$1 $2");
 }
