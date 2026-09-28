@@ -1,3 +1,9 @@
+Soulmates 0.7.4 - Careful Cargo
+
+- Fixed Gather assignments occasionally multiplying loose item stacks while moving them into the companion pack.
+- Pack transfers now stage a safe copy and remove exactly the accepted amount from the world item.
+- Companion and pack state now synchronize immediately after every successful pickup.
+
 Soulmates 0.7.3 - Kindred Company
 
 - Shared gestures now use Terraria's native emote bubbles.

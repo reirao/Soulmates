@@ -1,5 +1,5 @@
-Create a companion with a soul.
+Soulmates 0.7.4: Create a companion with a soul.
 
 Use the reusable Soulcore to shape unique companions, bind each one to a Soulbound Sigil, and bring them along on your Terraria adventures.
 
-Create persistent animated companions with personality, bond ranks, memories, autonomous combat or healing roles, equipment, their own inventory, useful jobs, and a light that reveals the places they explore. Existing Sigils remain compatible, and switching always leaves exactly one active companion.
+Create persistent animated companions with personality, bond ranks, memories, autonomous combat or healing roles, equipment, their own safely synchronized inventory, useful jobs, and a light that reveals the places they explore. Existing Sigils remain compatible, and switching always leaves exactly one active companion.

@@ -58,7 +58,7 @@ Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils als Start
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Aktuelle Version[/h2]
-Soulmates 0.7.3 Kindred Company bringt gemeinsame Gesten in Terrarias eigenes Emote-System. Längere Texte erscheinen bewusst nur noch gelegentlich, und Companions können nahe Town-NPCs für kurze wortlose Begegnungen und echte NPC-Reaktionen aufsuchen. Halte die rechte Maustaste direkt auf deinem eigenen Charakter oder nutze die konfigurierbare G-Taste, um den Emote-Ring zu öffnen; ein Rechtsklick auf den Companion öffnet weiterhin Talk Mode. Die eigenen Soulkin-Animationen, animierten Bestiary Muses, ruhige Bewegung, der kampfbereite Begleitschutz und bestehende Sigils bleiben vollständig erhalten.
+Soulmates 0.7.4 Careful Cargo behebt einen Fehler beim Sammeln, durch den lose Item-Stacks im Pack vervielfacht werden konnten. Jeder Fund wird jetzt sicher zwischengespeichert, nur in der tatsächlich aufgenommenen Menge aus der Welt entfernt und sofort mit dem Companion-Pack synchronisiert. Native Emotes, ruhige Begegnungen mit Town-NPCs, die eigenen Soulkin-Animationen, animierte Bestiary Muses, die ruhigere Bewegung, der kampfbereite Begleitschutz und bestehende Sigils bleiben vollständig erhalten.
 
 [h2]Steuerung[/h2]
 [list]

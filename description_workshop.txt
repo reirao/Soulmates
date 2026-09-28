@@ -58,7 +58,7 @@ New characters receive one Soulcore and three Blank Sigils as a prototype starte
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Current Release[/h2]
-Soulmates 0.7.3 Kindred Company brings shared gestures into Terraria's native emote system. Longer chatter is deliberately occasional, and companions can approach nearby town NPCs for short wordless exchanges and native NPC responses. Hold right-click directly on your own character or use the configurable G key to open the emote wheel; right-clicking the companion still opens Talk Mode. This release retains the original eight-frame Soulkin animation set, animated Bestiary muses, calmer idle motion, pet-like combat leashing, clean companion switching, persistent levels, multiplayer combat, natural energy recovery, five bond ranks, memories, packs, area assignments, equipment, world interaction, and complete English/German localization.
+Soulmates 0.7.4 Careful Cargo fixes a Gather transfer fault that could multiply loose item stacks inside the companion pack. Every pickup is now staged safely, removes exactly the accepted amount from the world, and synchronizes the pack immediately. This release retains native emotes, quiet town-NPC encounters, the original eight-frame Soulkin animation set, animated Bestiary muses, calmer idle motion, pet-like combat leashing, clean companion switching, persistent levels, multiplayer combat, natural energy recovery, five bond ranks, memories, packs, area assignments, equipment, world interaction, and complete English/German localization.
 
 [h2]Controls[/h2]
 [list]

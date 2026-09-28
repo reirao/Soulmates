@@ -48,7 +48,7 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current release
 
-**Soulmates 0.7.3 - Kindred Company** adds native Terraria emote bubbles, quieter occasional speech, and small autonomous exchanges with nearby town NPCs. Right-clicking your own character opens the emote wheel while right-clicking the companion remains dedicated to Talk Mode. It retains the original animated Soulkin, animated Bestiary muses, calmer idle motion, pet-like combat leashing, and strict single-companion ownership. Existing Soulbound Sigils remain compatible, and switching companions shuts down every replaced NPC, assignment, healing or defense effect, and soul bolt before the new companion becomes active.
+**Soulmates 0.7.4 - Careful Cargo** fixes an item-transfer fault that could multiply loose stacks collected by a Gather assignment. Companions now stage every pickup safely, remove exactly the accepted amount from the world, and synchronize pack changes immediately. The release retains native emotes, quiet town-NPC encounters, the animated Soulkin and Bestiary muses, pet-like combat leashing, and full compatibility with existing Soulbound Sigils.
 
 ## Languages
 

@@ -776,17 +776,16 @@ public sealed class SoulboundCompanion : ModNPC
 				gatherPause = 45;
 				return;
 			}
-			int moved = Profile.Store(item);
+			int moved = StoreLooseItem(item);
 			if (moved <= 0) {
 				CompleteJob(SoulmatesText.Get("Jobs.PackFull"), success: false);
 				return;
 			}
 			jobCount += moved;
-			if (item.IsAir)
-				item.active = false;
 			if (Main.netMode == NetmodeID.Server)
 				NetMessage.SendData(MessageID.SyncItem, -1, -1, null, itemIndex);
 			SyncProfileToBoundSigil();
+			NPC.netUpdate = true;
 			gatherPause = 30;
 		}
 		if (jobTimer > 7200)
@@ -857,6 +856,26 @@ public sealed class SoulboundCompanion : ModNPC
 			result = i;
 		}
 		return result;
+	}
+
+	private int StoreLooseItem(Item worldItem)
+	{
+		if (!worldItem.active || worldItem.IsAir || worldItem.stack <= 0)
+			return 0;
+
+		int available = worldItem.stack;
+		Item transfer = worldItem.Clone();
+		transfer.stack = available;
+		int moved = Math.Clamp(Profile.Store(transfer), 0, available);
+		if (moved <= 0)
+			return 0;
+
+		worldItem.stack = available - moved;
+		if (worldItem.stack <= 0) {
+			worldItem.TurnToAir();
+			worldItem.active = false;
+		}
+		return moved;
 	}
 
 	private void RevealSurroundings()
