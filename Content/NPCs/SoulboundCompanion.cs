@@ -30,8 +30,8 @@ public sealed class SoulboundCompanion : ModNPC
 
 	private const float FollowCommand = 0f;
 	private const float StayCommand = 1f;
-	private const float StandardDefenseRange = 520f;
-	private const float GuardianDefenseRange = 720f;
+	private const float StandardDefenseRange = 320f;
+	private const float GuardianDefenseRange = 448f;
 	private BrainState brainState;
 	private int stateTimer;
 	private int facing = 1;
@@ -89,7 +89,12 @@ public sealed class SoulboundCompanion : ModNPC
 	private int GatheringRadiusTiles => (Profile.Trinket == CompanionTrinket.HearthRibbon ? 42 : 30) + Profile.RankIndex * 2;
 	private int TreasureRadiusTiles => (Profile.Trinket == CompanionTrinket.StarfinderBell ? 90 : 55) + Profile.RankIndex * 3;
 	private float DefenseRange => (Profile.Talent == CompanionTalent.Guardian ? GuardianDefenseRange : StandardDefenseRange)
-		+ Profile.RankIndex * (Profile.Talent == CompanionTalent.Guardian ? 40f : 24f);
+		+ Profile.RankIndex * (Profile.Talent == CompanionTalent.Guardian ? 24f : 16f);
+	private float DefenseLeash => DefenseRange + (Profile.Talent == CompanionTalent.Guardian ? 112f : 80f);
+	private float PursuitRadius => (Profile.Talent == CompanionTalent.Guardian ? 304f : 208f)
+		+ Profile.RankIndex * (Profile.Talent == CompanionTalent.Guardian ? 16f : 12f);
+	private float PassiveAlertRange => (Profile.Talent == CompanionTalent.Guardian ? 288f : 208f)
+		+ Profile.RankIndex * 12f;
 
 	public override void SetStaticDefaults()
 	{
@@ -118,7 +123,10 @@ public sealed class SoulboundCompanion : ModNPC
 
 	public override bool PreHoverInteract(bool mouseIntersects)
 	{
-		if (!mouseIntersects || !Main.mouseRight || !Main.mouseRightRelease)
+		Rectangle interactionArea = NPC.Hitbox;
+		interactionArea.Inflate(10, 10);
+		if (!mouseIntersects || !interactionArea.Contains(Main.MouseWorld.ToPoint())
+			|| !Main.mouseRight || !Main.mouseRightRelease)
 			return true;
 		if (TryGetOwner(out Player owner) && owner.whoAmI == Main.myPlayer && FindBoundSigil() is { } sigil) {
 			ModContent.GetInstance<TalkModeSystem>().Open(sigil, this);
@@ -242,10 +250,13 @@ public sealed class SoulboundCompanion : ModNPC
 		else {
 			guardPosition = target.Center + awayFromTarget * (guardian ? 145f : 125f)
 				+ strafe + new Vector2(0f, -38f + IdleBob() * 0.3f);
+			Vector2 fromAnchor = guardPosition - anchor;
+			if (fromAnchor.LengthSquared() > PursuitRadius * PursuitRadius)
+				guardPosition = anchor + fromAnchor.SafeNormalize(Vector2.UnitX) * PursuitRadius;
 			MoveTo(guardPosition, guardian ? 12f : 9f, guardian ? 0.14f : 0.11f);
 		}
 
-		float attackRange = guardian ? 640f : 520f;
+		float attackRange = guardian ? 520f : 400f;
 		if (Main.netMode != NetmodeID.MultiplayerClient && talentCooldown <= 0
 			&& Vector2.DistanceSquared(NPC.Center, target.Center) < attackRange * attackRange) {
 			Vector2 velocity = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX) * (guardian ? 9f : 7.5f);
@@ -344,10 +355,9 @@ public sealed class SoulboundCompanion : ModNPC
 		if (guardianTarget < 0 || guardianTarget >= Main.maxNPCs)
 			return null;
 		NPC target = Main.npc[guardianTarget];
-		float leash = DefenseRange * 1.6f;
+		float leash = DefenseLeash;
 		return IsThreat(target)
-			&& (Vector2.DistanceSquared(anchor, target.Center) <= leash * leash
-				|| Vector2.DistanceSquared(NPC.Center, target.Center) <= leash * leash)
+			&& Vector2.DistanceSquared(anchor, target.Center) <= leash * leash
 			? target
 			: null;
 	}
@@ -356,10 +366,9 @@ public sealed class SoulboundCompanion : ModNPC
 	{
 		if (guardianTarget >= 0 && guardianTarget < Main.maxNPCs) {
 			NPC current = Main.npc[guardianTarget];
-			float leash = DefenseRange * 1.45f;
+			float leash = DefenseLeash;
 			if (IsThreat(current)
-				&& (Vector2.DistanceSquared(anchor, current.Center) <= leash * leash
-					|| Vector2.DistanceSquared(NPC.Center, current.Center) <= leash * leash))
+				&& Vector2.DistanceSquared(anchor, current.Center) <= leash * leash)
 				return current;
 		}
 		return FindNearestThreat(anchor, DefenseRange);
@@ -429,18 +438,18 @@ public sealed class SoulboundCompanion : ModNPC
 	private NPC? FindNearestThreat(Vector2 anchor, float range)
 	{
 		NPC? result = null;
-		float rangeSquared = range * range;
 		float bestScore = float.MaxValue;
 		for (int i = 0; i < Main.maxNPCs; i++) {
 			NPC candidate = Main.npc[i];
 			if (!IsThreat(candidate))
 				continue;
 			float anchorDistance = Vector2.DistanceSquared(anchor, candidate.Center);
-			float companionDistance = Vector2.DistanceSquared(NPC.Center, candidate.Center);
-			if (anchorDistance > rangeSquared && companionDistance > rangeSquared)
+			bool defendingOwner = candidate.target == Owner.whoAmI;
+			float alertRange = defendingOwner || candidate.type == NPCID.TargetDummy ? range : Math.Min(range, PassiveAlertRange);
+			if (anchorDistance > alertRange * alertRange)
 				continue;
-			float score = Math.Min(anchorDistance, companionDistance);
-			if (candidate.target == Owner.whoAmI)
+			float score = anchorDistance;
+			if (defendingOwner)
 				score *= 0.55f;
 			if (score >= bestScore)
 				continue;
@@ -826,7 +835,8 @@ public sealed class SoulboundCompanion : ModNPC
 	public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
 	{
 		Texture2D texture = CompanionVisuals.GetTexture(Profile.Muse);
-		Rectangle source = CompanionVisuals.GetFrame(Profile.Muse, texture);
+		bool actionFrame = guardianTarget >= 0 || activeJob != CompanionJob.None || NPC.velocity.LengthSquared() > 20f;
+		Rectangle source = CompanionVisuals.GetFrame(Profile.Muse, texture, actionFrame);
 		Vector2 center = NPC.Center - screenPos + new Vector2(0f, IdleBob() * 0.18f) + EmoteDrawOffset();
 		Vector2 origin = source.Size() * 0.5f;
 		float breath = 1f + MathF.Sin(Main.GlobalTimeWrappedHourly * 2f + bobSeed) * 0.025f;

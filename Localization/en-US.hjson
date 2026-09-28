@@ -199,7 +199,7 @@ Mods: {
         Voice: "Voice: {0}"
         Trinket: "Trinket: {0}  |  Pack: {1}/{2}  |  Jobs: {3}"
         Assignment: "Active assignment: {0}"
-        Controls: "Use: summon  |  V: Talk Mode  |  Hold G: emote wheel  |  Up + Right-click: recall"
+        Controls: "Use: summon  |  Right-click companion or V: Talk  |  Hold G: emotes  |  Up + Right-click: recall"
       }
     }
     Directions: {

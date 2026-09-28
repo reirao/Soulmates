@@ -11,11 +11,11 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Craft a reusable Soulcore and Blank Sigils.
 - Receive one Soulcore and three Blank Sigils once per character as a prototype starter kit.
 - Create multiple unique companions from fully localized presets.
-- Shape a companion through an animated live preview.
+- Shape a companion through an animated live preview with an original eight-frame Soulkin sprite.
 - Choose a name, form, essence color, aura, personality, and starting talent.
 - Choose a visual Bestiary Muse: Soulkin, Bunny, Blue Slime, Bird, or Squirrel.
 - Summon one active companion at a time.
-- Right-click an active companion's Sigil to enter Talk Mode.
+- Right-click the summoned companion itself to enter Talk Mode.
 - Hold Up and right-click the Sigil to recall it.
 - Companion identity and progression data are saved on the Sigil.
 - Personality-driven idle, wander, inspect, follow, and catch-up behavior.
@@ -26,7 +26,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Talk Mode with Care, Commands, Work, Bond, Voice, and Pack conversations.
 - Mood-, energy-, bond-, and personality-aware replies, including clearly explained refusals.
 - Five visible bond ranks with growing work radius, role strength, and pack capacity.
-- Every companion continuously defends against nearby threats without spending work energy, including through cave terrain; Guardians react faster, reach farther, and hit harder, while Healers provide energy-limited support.
+- Every companion continuously defends against nearby threats without spending work energy, while staying leashed to its owner or Stay anchor; Guardians react faster, reach farther, and hit harder, while Healers provide energy-limited support.
 - Energy returns naturally outside work and combat, with faster recovery while waiting; the Care > Rest conversation is an optional boost rather than a required chore.
 - Area assignments: locate nearby chests, clear every early-ore vein in range, and retrieve every loose item in range.
 - A persistent memory chronicle covering creation, work, protection, healing, equipment, and bond milestones.
@@ -70,7 +70,7 @@ The project targets the current tModLoader 1.4.4 stable release. In the normal M
 
 ## Roadmap
 
-- Custom pixel art and layered companion bodies.
+- More original animated forms and layered companion bodies.
 - More trinkets and meaningful equipment tradeoffs.
 - Advanced jobs for later ores and specialized materials.
 - Evolving traits, contextual dialogue, gifts, preferences, and personal quests.

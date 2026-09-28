@@ -38,7 +38,7 @@ public sealed class SoulboundSigil : ModItem
 		return clone;
 	}
 
-	public override bool AltFunctionUse(Player player) => true;
+	public override bool AltFunctionUse(Player player) => player.controlUp && SoulboundCompanion.FindFor(player) is not null;
 
 	public override bool CanUseItem(Player player)
 	{
@@ -53,23 +53,11 @@ public sealed class SoulboundSigil : ModItem
 			if (player.whoAmI != Main.myPlayer)
 				return true;
 			if (companion is not null) {
-				if (player.controlUp) {
-					if (Main.netMode == NetmodeID.MultiplayerClient)
-						Soulmates.SendRecallRequest();
-					else
-						companion.Recall();
-					Main.NewText(SoulmatesText.Get("Messages.Recalled", Profile.Name), Profile.EssenceColor);
-				}
-				else {
-					ModContent.GetInstance<TalkModeSystem>().Open(this, companion);
-				}
-			}
-			else {
 				if (Main.netMode == NetmodeID.MultiplayerClient)
-					Soulmates.SendSummonRequest(Profile.Id);
+					Soulmates.SendRecallRequest();
 				else
-					SummonCompanion(player);
-				Main.NewText(SoulmatesText.Get("Messages.Summoned", Profile.Name), Profile.EssenceColor);
+					companion.Recall();
+				Main.NewText(SoulmatesText.Get("Messages.Recalled", Profile.Name), Profile.EssenceColor);
 			}
 			return true;
 		}

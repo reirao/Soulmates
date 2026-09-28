@@ -199,7 +199,7 @@ Mods: {
         Voice: "Stimme: {0}"
         Trinket: "Schmuckstück: {0}  |  Pack: {1}/{2}  |  Aufträge: {3}"
         Assignment: "Aktiver Auftrag: {0}"
-        Controls: "Benutzen: beschwören  |  V: Sprechmodus  |  G halten: Emote-Rad  |  Hoch + Rechtsklick: zurückrufen"
+        Controls: "Benutzen: beschwören  |  Rechtsklick auf Gefährten oder V: Sprechen  |  G halten: Emotes  |  Hoch + Rechtsklick: zurückrufen"
       }
     }
     Directions: {

@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
@@ -13,18 +14,26 @@ public static class CompanionVisuals
 	public static Texture2D GetTexture(CompanionMuse muse)
 	{
 		if (muse == CompanionMuse.Soulkin)
-			return ModContent.Request<Texture2D>("Soulmates/Content/NPCs/SoulboundCompanion", AssetRequestMode.ImmediateLoad).Value;
+			return ModContent.Request<Texture2D>("Soulmates/Content/NPCs/SoulboundCompanionSheet", AssetRequestMode.ImmediateLoad).Value;
 
 		return TextureAssets.Npc[GetNpcId(muse)].Value;
 	}
 
-	public static Rectangle GetFrame(CompanionMuse muse, Texture2D texture)
+	public static Rectangle GetFrame(CompanionMuse muse, Texture2D texture, bool action = false)
 	{
-		if (muse == CompanionMuse.Soulkin)
-			return texture.Bounds;
+		const int frameSpeed = 9;
+		int animationFrame = (int)(Main.GameUpdateCount / frameSpeed);
+		if (muse == CompanionMuse.Soulkin) {
+			const int columns = 4;
+			const int rows = 2;
+			int width = texture.Width / columns;
+			int height = texture.Height / rows;
+			return new Rectangle(animationFrame % columns * width, action ? height : 0, width, height);
+		}
 
-		int frames = Main.npcFrameCount[GetNpcId(muse)];
-		return new Rectangle(0, 0, texture.Width, texture.Height / frames);
+		int frames = Math.Max(1, Main.npcFrameCount[GetNpcId(muse)]);
+		int frame = animationFrame % frames;
+		return new Rectangle(0, frame * texture.Height / frames, texture.Width, texture.Height / frames);
 	}
 
 	private static int GetNpcId(CompanionMuse muse) => muse switch {
