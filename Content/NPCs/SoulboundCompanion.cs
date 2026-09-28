@@ -120,19 +120,17 @@ public sealed class SoulboundCompanion : ModNPC
 	public override bool CheckActive() => !TryGetOwner(out Player owner) || owner.dead;
 
 	public override bool CanChat() => TryGetOwner(out Player owner) && owner.whoAmI == Main.myPlayer;
+	public override string GetChat() => SoulmatesText.Get("UI.Talk.Greeting", Profile.Name);
 
 	public override bool PreHoverInteract(bool mouseIntersects)
 	{
-		Rectangle interactionArea = NPC.Hitbox;
-		interactionArea.Inflate(10, 10);
-		if (!mouseIntersects || !interactionArea.Contains(Main.MouseWorld.ToPoint())
-			|| !Main.mouseRight || !Main.mouseRightRelease)
-			return true;
-		if (TryGetOwner(out Player owner) && owner.whoAmI == Main.myPlayer && FindBoundSigil() is { } sigil) {
+		if (mouseIntersects && Main.mouseRight && Main.mouseRightRelease
+			&& TryGetOwner(out Player owner) && owner.whoAmI == Main.myPlayer && FindBoundSigil() is { } sigil) {
 			ModContent.GetInstance<TalkModeSystem>().Open(sigil, this);
 			Main.LocalPlayer.mouseInterface = true;
 			Main.mouseRightRelease = false;
 		}
+		// The companion owns its interaction surface; never fall through to Terraria's town-NPC chat.
 		return false;
 	}
 

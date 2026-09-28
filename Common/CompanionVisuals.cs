@@ -21,7 +21,7 @@ public static class CompanionVisuals
 
 	public static Rectangle GetFrame(CompanionMuse muse, Texture2D texture, bool action = false)
 	{
-		const int frameSpeed = 9;
+		int frameSpeed = action ? 12 : 30;
 		int animationFrame = (int)(Main.GameUpdateCount / frameSpeed);
 		if (muse == CompanionMuse.Soulkin) {
 			const int columns = 4;

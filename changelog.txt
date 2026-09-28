@@ -3,6 +3,8 @@ Soulmates 0.7.1 - Kindred Motion
 - Added an original eight-frame Soulkin animation sheet with distinct idle, flight, and attack motion.
 - Bestiary muse companions now animate through Terraria's own NPC frames instead of appearing as static images.
 - Right-click Talk Mode now opens only when the companion itself is clicked; ordinary world right-clicks no longer activate the Sigil.
+- Direct interaction now fully suppresses Terraria's fallback NPC chat window.
+- Slowed idle animation to a calm two-second loop while keeping flight and combat responsive.
 - Companions now keep a pet-like combat leash around their owner or Stay anchor and stop chaining into distant enemies.
 - Nearby enemies actively attacking the owner remain the highest-priority defense targets.
 
