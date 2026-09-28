@@ -21,7 +21,8 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Personality-driven idle, wander, inspect, follow, and catch-up behavior.
 - Persistent companion experience with 20 levels earned from combat, healing, work, and shared moments.
 - Hold right-click directly on your own character, point toward an emote, and release to share a social action. The configurable **Companion Emote Wheel** key (`G` by default) remains available as an alternative.
-- Floating world speech and autonomous, context-aware conversation shaped by personality, mood, weather, danger, and location.
+- Native Terraria emote bubbles for shared gestures, with occasional context-aware speech instead of constant text.
+- Quiet social encounters with nearby town NPCs: companions approach, emote, and receive a native NPC response.
 - Personality-specific reactions to normal victories, bosses, and creature deaths.
 - Talk Mode with Care, Commands, Work, Bond, Voice, and Pack conversations.
 - Mood-, energy-, bond-, and personality-aware replies, including clearly explained refusals.
@@ -47,7 +48,7 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current release
 
-**Soulmates 0.7.2 - Kindred Gesture** adds direct hold-and-release emotes by right-clicking your own character while keeping right-click on the companion dedicated to Talk Mode. It retains the original animated Soulkin, animated Bestiary muses, calmer idle motion, pet-like combat leashing, and strict single-companion ownership. Existing Soulbound Sigils remain compatible, and switching companions shuts down every replaced NPC, assignment, healing or defense effect, and soul bolt before the new companion becomes active.
+**Soulmates 0.7.2 - Kindred Gesture** adds direct hold-and-release gestures with native Terraria emote bubbles, quieter occasional speech, and small autonomous exchanges with nearby town NPCs. Right-clicking your own character opens the emote wheel while right-clicking the companion remains dedicated to Talk Mode. It retains the original animated Soulkin, animated Bestiary muses, calmer idle motion, pet-like combat leashing, and strict single-companion ownership. Existing Soulbound Sigils remain compatible, and switching companions shuts down every replaced NPC, assignment, healing or defense effect, and soul bolt before the new companion becomes active.
 
 ## Languages
 
