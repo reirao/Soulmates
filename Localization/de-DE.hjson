@@ -35,6 +35,9 @@ Mods: {
       TalkToCompanion: {
         DisplayName: Mit Gefährten sprechen
       }
+      CompanionEmotes: {
+        DisplayName: Gefährten-Emote-Rad
+      }
     }
     Enums: {
       CompanionPersonality: {
@@ -79,6 +82,14 @@ Mods: {
         Soft: Sanft
         Direct: Direkt
         Playful: Verspielt
+      }
+      CompanionEmote: {
+        Wave: Winken
+        Heart: Herz
+        Cheer: Anfeuern
+        Comfort: Trösten
+        Laugh: Lachen
+        Rest: Ausruhen
       }
       CompanionTrinket: {
         None: Keines
@@ -144,11 +155,16 @@ Mods: {
 		MoodShort: LAUNE
 		EnergyShort: ENERGIE
 		PackShort: PACK
+		Growth: "LV {0} EP {1}/{2}"
+		GrowthMax: "LV {0} MAX"
         Energy: {
           Ready: BEREIT
           Low: NIEDRIG
           Rest: AUSRUHEN
         }
+      }
+      Emotes: {
+        Center: EMOTE
       }
     }
     Status: {
@@ -171,6 +187,7 @@ Mods: {
       TrinketRemoved: "{0} hat das Schmuckstück abgelegt."
       TrinketEquipped: "{0} hat {1} ausgerüstet."
       Healed: "{0} hat {1} Leben wiederhergestellt."
+      LevelUp: "{0} hat Gefährtenlevel {1} erreicht!"
     }
     Tooltips: {
       Sigil: {
@@ -178,10 +195,11 @@ Mods: {
         Appearance: "Muse: {0}  |  Form: {1}  |  {2}"
         Identity: "{0}  |  {1}"
         Stats: "{0}  |  Bindung {1}  |  Laune {2}  |  Energie {3}"
+        Growth: "Level {0}  |  EP {1}/{2}  |  Siege {3}  |  Gemeinsame Momente {4}"
         Voice: "Stimme: {0}"
         Trinket: "Schmuckstück: {0}  |  Pack: {1}/{2}  |  Aufträge: {3}"
         Assignment: "Aktiver Auftrag: {0}"
-        Controls: "Benutzen: beschwören  |  Sprech-Taste: Sprechmodus  |  Hoch + Rechtsklick: zurückrufen"
+        Controls: "Benutzen: beschwören  |  V: Sprechmodus  |  G halten: Emote-Rad  |  Hoch + Rechtsklick: zurückrufen"
       }
     }
     Directions: {
@@ -224,6 +242,9 @@ Mods: {
         TrinketEquipped: "Ich erinnere mich daran, wie du mir {0} anvertraut hast."
         TrinketRemoved: Ich erinnere mich daran, wieder mit leichtem Gepäck gereist zu sein.
         BondMilestone: "Unsere Bindung wurde {0}."
+        CreatureEncounter: "Ich erinnere mich daran, was mit {0} geschehen ist."
+        ExperienceMilestone: "Ich erinnere mich daran, Gefährtenlevel {0} erreicht zu haben."
+        SharedMoment: "Ich erinnere mich an unser gemeinsames {0}."
       }
     }
     Pack: {
@@ -242,6 +263,111 @@ Mods: {
       SlotEmpty: Dieser Pack-Platz ist leer.
       WithdrewOne: "Ich habe {0} Gegenstand aus diesem Platz zurückgegeben. ({1}/{2})"
       WithdrewMany: "Ich habe {0} Gegenstände aus diesem Platz zurückgegeben. ({1}/{2})"
+    }
+    Social: {
+      Autonomous: {
+        Context: {
+          LowEnergy: "Könnten wir einen Moment langsamer machen?"
+          LowMood: "Ich bin da. Ich brauche nur etwas Freundlichkeit."
+          Hurt: "Du bist verletzt. Bitte bleib in meiner Nähe."
+          Rain: "Im Regen fühlt sich jedes Licht wärmer an."
+          Underground: "Ich frage mich, woran sich der Stein erinnert."
+          Night: "Die Sterne wirken näher, wenn wir zusammen reisen."
+          Stay: "Ich halte diesen Ort immer noch für dich."
+        }
+        Curious: {
+          Line0: "Was glaubst du, liegt hinter dem nächsten Hügel?"
+          Line1: "Mir ist etwas Seltsames aufgefallen. Es gefiel mir."
+          Line2: "Glaubst du, die Welt bemerkt auch uns?"
+        }
+        Loyal: {
+          Line0: "Ich kenne inzwischen deine Schritte."
+          Line1: "Wo du hingehst, habe ich eine Richtung."
+          Line2: "Du musst dich dem nicht allein stellen."
+        }
+        Brave: {
+          Line0: "Zeig mir den schwierigen Teil."
+          Line1: "Wir sind bereit für das, was als Nächstes kommt."
+          Line2: "Mut ist leichter in Gesellschaft."
+        }
+        Gentle: {
+          Line0: "Es ist schön, einfach bei dir zu sein."
+          Line1: "Nicht jeder stille Moment muss gefüllt werden."
+          Line2: "Denk bitte auch daran, zu atmen."
+        }
+        Mischievous: {
+          Line0: "Ich habe diese Fackel ganz bestimmt nicht verrückt."
+          Line1: "Das Abenteuer könnte eine fragwürdige Idee vertragen."
+          Line2: "Ich habe Ärger gefunden. Er hat angefangen."
+        }
+      }
+      Emotes: {
+        Wave: {
+          Curious: "Hallo! Hast du etwas entdeckt?"
+          Loyal: "Ich bin hier. Immer."
+          Brave: "Bereit, wenn du es bist!"
+          Gentle: "Hallo. Ich bin froh, dass du da bist."
+          Mischievous: "Ach, jetzt bemerkst du mich?"
+        }
+        Heart: {
+          Curious: "Fühlt sich Wärme so an?"
+          Loyal: "Das gebe ich dir zurück."
+          Brave: "Das ist es wert, beschützt zu werden."
+          Gentle: "Diesen Moment bewahre ich."
+          Mischievous: "Vorsicht. Ich werde noch sentimental."
+        }
+        Cheer: {
+          Curious: "Was feiern wir? Ich bin dabei!"
+          Loyal: "Zusammen. Das ist der wichtige Teil."
+          Brave: "Ja! Wir schaffen das!"
+          Gentle: "Bei dir sieht Hoffnung so leicht aus."
+          Mischievous: "Erst der Siegestanz, später der Grund!"
+        }
+        Comfort: {
+          Curious: "Das hilft mehr, als ich erwartet habe."
+          Loyal: "Ich wusste, dass du bleibst."
+          Brave: "Ich kann stark sein und das trotzdem brauchen."
+          Gentle: "Danke, dass du es bemerkt hast."
+          Mischievous: "Ich war nicht besorgt. Sehr."
+        }
+        Laugh: {
+          Curious: "Warte, erklär mir noch einmal, warum das lustig war."
+          Loyal: "Deinem Lachen folge ich gern."
+          Brave: "Auch Helden brauchen das."
+          Gentle: "Ich mag diesen Klang zwischen uns."
+          Mischievous: "Endlich eine Strategie nach meinem Geschmack!"
+        }
+        Rest: {
+          Curious: "Na gut, aber ich denke beim Ausruhen weiter."
+          Loyal: "Ich halte neben dir Wache."
+          Brave: "Eine taktische Pause. Vernünftig."
+          Gentle: "Ein stiller Moment zusammen klingt wunderbar."
+          Mischievous: "Weck mich, falls etwas Lustiges passiert."
+        }
+      }
+      Combat: {
+        Creature: {
+          Curious: "Ich hätte es gern zuerst verstanden."
+          Loyal: "Ich habe deine Sicherheit gewählt, aber ich erinnere mich daran."
+          Brave: "Ein Leben endete. Wir sollten es nicht leichtnehmen."
+          Gentle: "Das wollte ich nicht. Es tut mir leid."
+          Mischievous: "Das war sehr schnell nicht mehr lustig."
+        }
+        Victory: {
+          Curious: "Jetzt kenne ich eine weitere Art, wie Gefahr sich bewegt."
+          Loyal: "Du bist sicher. Das genügt."
+          Brave: "Gefahr beendet. Bleib hinter mir."
+          Gentle: "Es ist vorbei. Gehen wir weiter."
+          Mischievous: "Es hätte sich ein anderes Paar aussuchen sollen."
+        }
+        Boss: {
+          Curious: "Stell dir vor, was so ein Wesen einmal wusste."
+          Loyal: "Nichts so Großes stellt sich zwischen uns."
+          Brave: "An diesen Sieg werden wir uns erinnern!"
+          Gentle: "Die Welt wirkt jetzt stiller."
+          Mischievous: "Ich glaube, jetzt sind wir die Gefährlichen."
+        }
+      }
     }
     Dialogue: {
       Options: {

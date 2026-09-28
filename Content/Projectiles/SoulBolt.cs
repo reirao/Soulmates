@@ -114,7 +114,7 @@ public sealed class SoulBolt : ModProjectile
 			if (ownerIndex >= 0 && ownerIndex < Main.maxPlayers)
 				target.playerInteraction[ownerIndex] = true;
 			if (target.life <= 0)
-				companion.RecordGuardianVictory(target);
+				companion.RecordDefeat(target);
 		}
 	}
 

@@ -50,6 +50,14 @@ public sealed class SoulboundCompanion : ModNPC
 	private int talentCooldown;
 	private int guardianTarget = -1;
 	private Vector2 jobOrigin;
+	private int socialTimer;
+	private int interactionRewardCooldown;
+	private int combatReactionCooldown;
+	private int speechTimer;
+	private int emoteTimer;
+	private int chatterSequence;
+	private string speechText = "";
+	private CompanionEmote activeEmote;
 	private readonly HashSet<Point> failedMiningTargets = [];
 
 	public CompanionProfile Profile { get; set; } = new();
@@ -101,6 +109,7 @@ public sealed class SoulboundCompanion : ModNPC
 		NPC.dontTakeDamage = true;
 		NPC.netAlways = true;
 		bobSeed = Main.rand.NextFloat(MathHelper.TwoPi);
+		socialTimer = Main.rand.Next(720, 1200);
 	}
 
 	public override bool CheckActive() => !TryGetOwner(out Player owner) || owner.dead;
@@ -131,6 +140,8 @@ public sealed class SoulboundCompanion : ModNPC
 		RevealSurroundings();
 		ResumeAssignment();
 		UpdateAuraDust();
+		UpdateSocialState();
+		UpdateAutonomousSocialBehavior();
 		if (talentCooldown > 0)
 			talentCooldown--;
 		if (UpdateTalentBehavior()) {
@@ -148,10 +159,8 @@ public sealed class SoulboundCompanion : ModNPC
 			return;
 		}
 		if (Command == StayCommand) {
-			if (brainState != BrainState.Stay) {
+			if (brainState != BrainState.Stay)
 				brainState = BrainState.Stay;
-				idleTarget = NPC.Center;
-			}
 			MoveTo(idleTarget + new Vector2(0f, IdleBob()), 2.2f, 0.04f);
 			RecoverEnergy(120, Profile.Trinket == CompanionTrinket.HearthRibbon ? 5 : 3, recoverMood: true);
 			UpdateFacing();
@@ -223,9 +232,18 @@ public sealed class SoulboundCompanion : ModNPC
 		Vector2 awayFromTarget = (anchor - target.Center).SafeNormalize(new Vector2(-Owner.direction, 0f));
 		Vector2 strafe = new Vector2(-awayFromTarget.Y, awayFromTarget.X)
 			* MathF.Sin(Main.GlobalTimeWrappedHourly * 2.4f + bobSeed) * (guardian ? 34f : 24f);
-		Vector2 guardPosition = target.Center + awayFromTarget * (guardian ? 145f : 125f)
-			+ strafe + new Vector2(0f, -38f + IdleBob() * 0.3f);
-		MoveTo(guardPosition, guardian ? 12f : 9f, guardian ? 0.14f : 0.11f);
+		Vector2 guardPosition;
+		if (Command == StayCommand) {
+			Vector2 orbit = new Vector2(MathF.Sin(Main.GlobalTimeWrappedHourly * 1.8f + bobSeed) * 24f,
+				-10f + IdleBob() * 0.45f);
+			guardPosition = idleTarget + orbit;
+			MoveTo(guardPosition, guardian ? 5.5f : 4.5f, guardian ? 0.12f : 0.1f);
+		}
+		else {
+			guardPosition = target.Center + awayFromTarget * (guardian ? 145f : 125f)
+				+ strafe + new Vector2(0f, -38f + IdleBob() * 0.3f);
+			MoveTo(guardPosition, guardian ? 12f : 9f, guardian ? 0.14f : 0.11f);
+		}
 
 		float attackRange = guardian ? 640f : 520f;
 		if (Main.netMode != NetmodeID.MultiplayerClient && talentCooldown <= 0
@@ -245,6 +263,80 @@ public sealed class SoulboundCompanion : ModNPC
 			talentCooldown = guardian ? Math.Max(55, 82 - Profile.RankIndex * 6) : Math.Max(90, 130 - Profile.RankIndex * 8);
 		}
 		return true;
+	}
+
+	private void UpdateSocialState()
+	{
+		if (speechTimer > 0)
+			speechTimer--;
+		else
+			speechText = "";
+		if (interactionRewardCooldown > 0)
+			interactionRewardCooldown--;
+		if (combatReactionCooldown > 0)
+			combatReactionCooldown--;
+		if (emoteTimer <= 0)
+			return;
+		emoteTimer--;
+		UpdateEmoteEffects();
+	}
+
+	private void UpdateAutonomousSocialBehavior()
+	{
+		if (Main.netMode == NetmodeID.MultiplayerClient || --socialTimer > 0)
+			return;
+		int minimum = Profile.Personality == CompanionPersonality.Mischievous ? 900 : 1200;
+		int maximum = Profile.Personality == CompanionPersonality.Gentle ? 2200 : 1900;
+		socialTimer = Main.rand.Next(minimum, maximum);
+		if (activeJob != CompanionJob.None || guardianTarget >= 0 || Owner.dead
+			|| Vector2.DistanceSquared(NPC.Center, Owner.Center) > 520f * 520f)
+			return;
+
+		string key;
+		if (Profile.Energy < 20)
+			key = "Social.Autonomous.Context.LowEnergy";
+		else if (Profile.Mood < 25)
+			key = "Social.Autonomous.Context.LowMood";
+		else if (Owner.statLife < Owner.statLifeMax2 / 3)
+			key = "Social.Autonomous.Context.Hurt";
+		else if (Main.raining)
+			key = "Social.Autonomous.Context.Rain";
+		else if (Owner.ZoneRockLayerHeight || Owner.ZoneUnderworldHeight)
+			key = "Social.Autonomous.Context.Underground";
+		else if (!Main.dayTime)
+			key = "Social.Autonomous.Context.Night";
+		else if (Command == StayCommand)
+			key = "Social.Autonomous.Context.Stay";
+		else {
+			int line = chatterSequence++ % 3;
+			key = $"Social.Autonomous.{Profile.Personality}.Line{line}";
+		}
+
+		CompanionEmote gesture = Profile.Personality switch {
+			CompanionPersonality.Gentle => CompanionEmote.Heart,
+			CompanionPersonality.Brave => CompanionEmote.Cheer,
+			CompanionPersonality.Mischievous => CompanionEmote.Laugh,
+			_ => CompanionEmote.Wave
+		};
+		StartEmote(gesture, 110);
+		SpeakLocalized(key);
+	}
+
+	private void UpdateEmoteEffects()
+	{
+		if (Main.dedServ || emoteTimer % 6 != 0)
+			return;
+		int dustType = activeEmote switch {
+			CompanionEmote.Heart or CompanionEmote.Comfort => DustID.PinkTorch,
+			CompanionEmote.Cheer => DustID.GoldFlame,
+			CompanionEmote.Laugh => DustID.Confetti,
+			CompanionEmote.Rest => DustID.BlueTorch,
+			_ => DustID.Enchanted_Gold
+		};
+		Vector2 position = NPC.Center + new Vector2(Main.rand.NextFloat(-24f, 24f), Main.rand.NextFloat(-42f, -12f));
+		Dust dust = Dust.NewDustPerfect(position, dustType, Main.rand.NextVector2Circular(0.8f, 0.8f), 90,
+			Profile.EssenceColor, 0.85f);
+		dust.noGravity = true;
 	}
 
 	private NPC? GetSynchronizedDefenseTarget(Vector2 anchor)
@@ -317,6 +409,7 @@ public sealed class SoulboundCompanion : ModNPC
 		Owner.HealEffect(amount, broadcast: true);
 		Profile.Energy = Math.Max(0, Profile.Energy - 4);
 		Profile.Remember(CompanionMemoryKind.HealerAid, amount);
+		bool leveledUp = Profile.GainExperience(2, out int newLevel);
 		talentCooldown = Math.Max(360, 660 - Profile.RankIndex * 60);
 		SyncProfileToBoundSigil();
 		for (int i = 0; i < 12; i++) {
@@ -325,6 +418,8 @@ public sealed class SoulboundCompanion : ModNPC
 			dust.noGravity = true;
 		}
 		string message = SoulmatesText.Get("Messages.Healed", Profile.Name, amount);
+		if (leveledUp)
+			message += " " + SoulmatesText.Get("Messages.LevelUp", Profile.Name, newLevel);
 		if (Main.netMode == NetmodeID.Server)
 			global::Soulmates.Soulmates.SendProfileUpdate(Owner, this, message);
 		else
@@ -696,16 +791,21 @@ public sealed class SoulboundCompanion : ModNPC
 	private void CompleteJob(string memory, bool success, CompanionMemoryKind? memoryKind = null, int memoryAmount = 0)
 	{
 		Profile.LastMemory = memory;
+		bool leveledUp = false;
+		int newLevel = Profile.Level;
 		if (success) {
 			Profile.JobsCompleted++;
 			Profile.ChangeBond(2);
 			Profile.Mood = Math.Clamp(Profile.Mood + 1, 0, 100);
+			leveledUp = Profile.GainExperience(Math.Clamp(3 + Math.Max(0, memoryAmount) / 5, 3, 10), out newLevel);
 			if (memoryKind is { } kind)
 				Profile.Remember(kind, memoryAmount);
 		}
 		Profile.Routine = CompanionJob.None;
 		SyncProfileToBoundSigil();
 		string message = $"{Profile.Name}: {memory}";
+		if (leveledUp)
+			message += " " + SoulmatesText.Get("Messages.LevelUp", Profile.Name, newLevel);
 		if (Main.netMode == NetmodeID.Server)
 			global::Soulmates.Soulmates.SendProfileUpdate(Owner, this, message);
 		else
@@ -727,25 +827,118 @@ public sealed class SoulboundCompanion : ModNPC
 	{
 		Texture2D texture = CompanionVisuals.GetTexture(Profile.Muse);
 		Rectangle source = CompanionVisuals.GetFrame(Profile.Muse, texture);
-		Vector2 center = NPC.Center - screenPos + new Vector2(0f, IdleBob() * 0.18f);
+		Vector2 center = NPC.Center - screenPos + new Vector2(0f, IdleBob() * 0.18f) + EmoteDrawOffset();
 		Vector2 origin = source.Size() * 0.5f;
 		float breath = 1f + MathF.Sin(Main.GlobalTimeWrappedHourly * 2f + bobSeed) * 0.025f;
+		float emoteScale = emoteTimer > 0 && activeEmote is CompanionEmote.Heart or CompanionEmote.Cheer
+			? 1.04f + MathF.Sin(Main.GlobalTimeWrappedHourly * 6f) * 0.025f
+			: 1f;
 		Vector2 formScale = Profile.Form switch {
 			CompanionForm.Round => new Vector2(1.12f, 0.92f),
 			CompanionForm.Wisp => new Vector2(0.88f, 1.14f),
 			_ => Vector2.One
 		};
-		Vector2 scale = formScale * (64f / Math.Max(source.Width, source.Height)) * breath;
+		Vector2 scale = formScale * (64f / Math.Max(source.Width, source.Height)) * breath * emoteScale;
 		SpriteEffects effects = facing < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 		Color tint = Color.Lerp(Color.White, Profile.EssenceColor, 0.34f);
+		float drawRotation = NPC.rotation + EmoteRotationOffset();
 		DrawJobOrbit(spriteBatch, center);
 
 		for (int i = 0; i < 4; i++) {
 			Vector2 glowOffset = new Vector2(2f, 0f).RotatedBy(MathHelper.PiOver2 * i);
-			spriteBatch.Draw(texture, center + glowOffset, source, Profile.EssenceColor * 0.18f, NPC.rotation, origin, scale, effects, 0f);
+			spriteBatch.Draw(texture, center + glowOffset, source, Profile.EssenceColor * 0.18f, drawRotation, origin, scale, effects, 0f);
 		}
-		spriteBatch.Draw(texture, center, source, tint, NPC.rotation, origin, scale, effects, 0f);
+		spriteBatch.Draw(texture, center, source, tint, drawRotation, origin, scale, effects, 0f);
+		DrawSpeechBubble(spriteBatch, center);
 		return false;
+	}
+
+	private Vector2 EmoteDrawOffset()
+	{
+		if (emoteTimer <= 0)
+			return Vector2.Zero;
+		float time = Main.GlobalTimeWrappedHourly;
+		return activeEmote switch {
+			CompanionEmote.Cheer => new Vector2(0f, -MathF.Abs(MathF.Sin(time * 7f)) * 9f),
+			CompanionEmote.Heart or CompanionEmote.Comfort => new Vector2(0f, MathF.Sin(time * 4f) * 4f - 3f),
+			CompanionEmote.Laugh => new Vector2(MathF.Sin(time * 15f) * 3f, 0f),
+			CompanionEmote.Rest => new Vector2(0f, 7f),
+			_ => Vector2.Zero
+		};
+	}
+
+	private float EmoteRotationOffset()
+	{
+		if (emoteTimer <= 0)
+			return 0f;
+		float time = Main.GlobalTimeWrappedHourly;
+		return activeEmote switch {
+			CompanionEmote.Wave => MathF.Sin(time * 7f) * 0.13f,
+			CompanionEmote.Laugh => MathF.Sin(time * 15f) * 0.055f,
+			CompanionEmote.Rest => facing * 0.08f,
+			_ => 0f
+		};
+	}
+
+	private void DrawSpeechBubble(SpriteBatch spriteBatch, Vector2 companionCenter)
+	{
+		if (speechTimer <= 0 || string.IsNullOrWhiteSpace(speechText))
+			return;
+		float zoom = Math.Max(1f, Main.GameViewMatrix.Zoom.X);
+		float textScale = 0.68f / zoom;
+		List<string> lines = WrapSpeech(speechText, 220f / zoom, textScale);
+		float width = 0f;
+		foreach (string line in lines)
+			width = Math.Max(width, FontAssets.MouseText.Value.MeasureString(line).X * textScale);
+		float lineHeight = 20f / zoom;
+		float paddingX = 11f / zoom;
+		float paddingY = 8f / zoom;
+		float height = lines.Count * lineHeight;
+		float halfWidth = width * 0.5f + paddingX;
+		float halfHeight = height * 0.5f + paddingY;
+		Vector2 viewportCenter = new(Main.screenWidth * 0.5f, Main.screenHeight * 0.5f);
+		float visibleLeft = viewportCenter.X * (1f - 1f / zoom);
+		float visibleRight = viewportCenter.X * (1f + 1f / zoom);
+		float visibleTop = viewportCenter.Y * (1f - 1f / zoom);
+		float visibleBottom = viewportCenter.Y * (1f + 1f / zoom);
+		float safeTop = visibleTop + 54f / zoom;
+		Vector2 bubbleCenter = companionCenter + new Vector2(0f, -(68f / zoom + halfHeight));
+		if (bubbleCenter.Y - halfHeight < safeTop)
+			bubbleCenter.Y = companionCenter.Y + 54f / zoom + halfHeight;
+		bubbleCenter.X = MathHelper.Clamp(bubbleCenter.X, visibleLeft + halfWidth + 8f / zoom,
+			visibleRight - halfWidth - 8f / zoom);
+		bubbleCenter.Y = MathHelper.Clamp(bubbleCenter.Y, safeTop + halfHeight,
+			visibleBottom - halfHeight - 10f / zoom);
+		Rectangle background = new((int)(bubbleCenter.X - width * 0.5f - paddingX), (int)(bubbleCenter.Y - height * 0.5f - paddingY),
+			(int)(width + paddingX * 2f), (int)(height + paddingY * 2f));
+		Texture2D pixel = TextureAssets.MagicPixel.Value;
+		spriteBatch.Draw(pixel, background, new Color(11, 17, 29) * 0.9f);
+		spriteBatch.Draw(pixel, new Rectangle(background.X, background.Y, background.Width, 2), Profile.EssenceColor * 0.9f);
+		for (int i = 0; i < lines.Count; i++) {
+			Vector2 size = FontAssets.MouseText.Value.MeasureString(lines[i]) * textScale;
+			Vector2 position = new(bubbleCenter.X - size.X * 0.5f, background.Y + 6f / zoom + i * lineHeight);
+			Utils.DrawBorderString(spriteBatch, lines[i], position, Color.White, textScale);
+		}
+	}
+
+	private static List<string> WrapSpeech(string text, float maximumWidth, float scale)
+	{
+		var lines = new List<string>();
+		string current = "";
+		foreach (string word in text.Split(' ', StringSplitOptions.RemoveEmptyEntries)) {
+			string candidate = string.IsNullOrEmpty(current) ? word : $"{current} {word}";
+			if (!string.IsNullOrEmpty(current) && FontAssets.MouseText.Value.MeasureString(candidate).X * scale > maximumWidth) {
+				lines.Add(current);
+				current = word;
+			}
+			else
+				current = candidate;
+		}
+		if (!string.IsNullOrEmpty(current))
+			lines.Add(current);
+		if (lines.Count == 0)
+			lines.Add("...");
+		return lines;
 	}
 
 	private void DrawJobOrbit(SpriteBatch spriteBatch, Vector2 center)
@@ -780,6 +973,10 @@ public sealed class SoulboundCompanion : ModNPC
 		writer.Write((byte)activeJob);
 		writer.Write(jobCount);
 		writer.Write((short)guardianTarget);
+		writer.Write(idleTarget.X);
+		writer.Write(idleTarget.Y);
+		writer.Write((byte)activeEmote);
+		writer.Write((short)Math.Clamp(emoteTimer, 0, short.MaxValue));
 	}
 
 	public override void ReceiveExtraAI(BinaryReader reader)
@@ -788,6 +985,9 @@ public sealed class SoulboundCompanion : ModNPC
 		activeJob = (CompanionJob)reader.ReadByte();
 		jobCount = reader.ReadInt32();
 		guardianTarget = reader.ReadInt16();
+		idleTarget = new Vector2(reader.ReadSingle(), reader.ReadSingle());
+		activeEmote = (CompanionEmote)reader.ReadByte();
+		emoteTimer = reader.ReadInt16();
 		if (Main.netMode != NetmodeID.MultiplayerClient || !TryGetOwner(out Player owner) || owner.whoAmI != Main.myPlayer)
 			return;
 		foreach (Item item in owner.inventory) {
@@ -937,14 +1137,111 @@ public sealed class SoulboundCompanion : ModNPC
 		NPC.netUpdate = true;
 	}
 
-	public void RecordGuardianVictory(NPC defeated)
+	public void ShowSpeech(string text)
 	{
-		if (Main.netMode == NetmodeID.MultiplayerClient || Profile.Talent != CompanionTalent.Guardian)
+		speechText = string.IsNullOrWhiteSpace(text) ? "..." : text.Trim();
+		if (speechText.Length > 180)
+			speechText = speechText[..180];
+		speechTimer = Math.Clamp(180 + speechText.Length * 2, 210, 360);
+	}
+
+	public void PerformEmote(CompanionEmote emote)
+	{
+		if (Main.netMode == NetmodeID.MultiplayerClient || !Enum.IsDefined(emote))
 			return;
-		Profile.Remember(CompanionMemoryKind.GuardianVictory, detail: defeated.TypeName);
-		Profile.Mood = Math.Min(100, Profile.Mood + 1);
+
+		bool rewarded = interactionRewardCooldown <= 0;
+		bool leveledUp = false;
+		int newLevel = Profile.Level;
+		if (rewarded) {
+			(int bond, int mood, int energy, int experience) = emote switch {
+				CompanionEmote.Wave => (1, 1, 0, 1),
+				CompanionEmote.Heart => (2, 4, 0, 2),
+				CompanionEmote.Cheer => (1, 2, 2, 2),
+				CompanionEmote.Comfort => (2, 5, 3, 2),
+				CompanionEmote.Laugh => (1, 4, 0, 1),
+				_ => (2, 2, 8, 2)
+			};
+			Profile.ChangeBond(bond);
+			Profile.Mood = Math.Clamp(Profile.Mood + mood, 0, 100);
+			Profile.Energy = Math.Clamp(Profile.Energy + energy, 0, 100);
+			Profile.Interactions++;
+			leveledUp = Profile.GainExperience(experience, out newLevel);
+			if (Profile.Interactions == 1 || Profile.Interactions % 5 == 0)
+				Profile.Remember(CompanionMemoryKind.SharedMoment, detail: emote.ToString());
+			interactionRewardCooldown = 300;
+		}
+
+		if (emote == CompanionEmote.Rest)
+			SetCommand(stay: true);
+		StartEmote(emote, 150);
+		SpeakLocalized($"Social.Emotes.{emote}.{Profile.Personality}");
 		SyncProfileToBoundSigil();
 		NPC.netUpdate = true;
+		string message = leveledUp ? SoulmatesText.Get("Messages.LevelUp", Profile.Name, newLevel) : "";
+		if (Main.netMode == NetmodeID.Server)
+			global::Soulmates.Soulmates.SendProfileUpdate(Owner, this, message);
+		else if (!string.IsNullOrEmpty(message))
+			Main.NewText(message, Profile.EssenceColor);
+	}
+
+	public void RecordDefeat(NPC defeated)
+	{
+		if (Main.netMode == NetmodeID.MultiplayerClient || defeated.type == NPCID.TargetDummy)
+			return;
+		bool creature = defeated.catchItem > 0 || defeated.type != NPCID.None && defeated.type < NPCID.Sets.CountsAsCritter.Length
+			&& NPCID.Sets.CountsAsCritter[defeated.type];
+		int experience = defeated.boss ? 12 : creature ? 1 : Math.Clamp(1 + defeated.lifeMax / 120, 1, 7);
+		Profile.DefeatedEnemies++;
+		bool leveledUp = Profile.GainExperience(experience, out int newLevel);
+
+		if (creature) {
+			Profile.Remember(CompanionMemoryKind.CreatureEncounter, detail: defeated.TypeName);
+			int moodDelta = Profile.Personality switch {
+				CompanionPersonality.Gentle => -5,
+				CompanionPersonality.Curious => -1,
+				CompanionPersonality.Mischievous => -1,
+				_ => 0
+			};
+			Profile.Mood = Math.Clamp(Profile.Mood + moodDelta, 0, 100);
+		}
+		else {
+			if (Profile.Talent == CompanionTalent.Guardian)
+				Profile.Remember(CompanionMemoryKind.GuardianVictory, detail: defeated.TypeName);
+			Profile.Mood = Math.Min(100, Profile.Mood + 1);
+		}
+
+		if (combatReactionCooldown <= 0 || defeated.boss || creature) {
+			string kind = defeated.boss ? "Boss" : creature ? "Creature" : "Victory";
+			StartEmote(creature && Profile.Personality == CompanionPersonality.Gentle
+				? CompanionEmote.Comfort
+				: CompanionEmote.Cheer, 130);
+			SpeakLocalized($"Social.Combat.{kind}.{Profile.Personality}");
+			combatReactionCooldown = creature ? 360 : 240;
+		}
+
+		SyncProfileToBoundSigil();
+		NPC.netUpdate = true;
+		string message = leveledUp ? SoulmatesText.Get("Messages.LevelUp", Profile.Name, newLevel) : "";
+		if (Main.netMode == NetmodeID.Server)
+			global::Soulmates.Soulmates.SendProfileUpdate(Owner, this, message);
+		else if (!string.IsNullOrEmpty(message))
+			Main.NewText(message, Profile.EssenceColor);
+	}
+
+	private void StartEmote(CompanionEmote emote, int duration)
+	{
+		activeEmote = emote;
+		emoteTimer = Math.Max(emoteTimer, duration);
+		NPC.netUpdate = true;
+	}
+
+	private void SpeakLocalized(string key, string argument = "")
+	{
+		if (Main.netMode == NetmodeID.Server)
+			global::Soulmates.Soulmates.SendCompanionSpeech(Owner, this, key, argument);
+		else
+			ShowSpeech(string.IsNullOrEmpty(argument) ? SoulmatesText.Get(key) : SoulmatesText.Get(key, argument));
 	}
 
 	public string StoreSelectedItem()

@@ -295,15 +295,19 @@ internal sealed class CompanionVitalsElement(
 
 		CalculatedStyle area = GetDimensions();
 		Vector2 topLeft = new(area.X, area.Y);
-		string identity = $"{SoulmatesText.EnumName(profile.Talent).ToUpperInvariant()} | "
-			+ $"{SoulmatesText.EnumName(profile.Rank).ToUpperInvariant()} | {SoulmatesText.Get("UI.Talk.BondShort")} {profile.Bond}";
-		Utils.DrawBorderString(spriteBatch, identity, topLeft, Color.LightGray, 0.45f);
+		string growth = profile.Level >= CompanionProfile.MaximumLevel
+			? SoulmatesText.Get("UI.Talk.GrowthMax", profile.Level)
+			: SoulmatesText.Get("UI.Talk.Growth", profile.Level, profile.ExperienceIntoLevel, profile.ExperienceNeededForNextLevel);
+		string identity = $"{SoulmatesText.EnumName(profile.Talent).ToUpperInvariant()} | {growth} | "
+			+ SoulmatesText.EnumName(profile.Rank).ToUpperInvariant();
+		Utils.DrawBorderString(spriteBatch, identity, topLeft, Color.LightGray, 0.4f);
 		DrawMeter(spriteBatch, topLeft + new Vector2(0f, 18f), SoulmatesText.Get("UI.Talk.MoodShort"), profile.Mood,
 			new Color(225, 117, 156));
 		DrawMeter(spriteBatch, topLeft + new Vector2(0f, 36f), SoulmatesText.Get("UI.Talk.EnergyShort"), profile.Energy,
 			profile.Energy < 20 ? new Color(225, 101, 92) : new Color(94, 196, 225));
 		string status = getCompanion()?.CurrentJobName ?? SoulmatesText.Get("Status.Ready");
-		string footer = $"{SoulmatesText.Get("UI.Talk.PackShort")} {profile.PackLoad}/{profile.PackCapacity} | {status}";
+		string footer = $"{SoulmatesText.Get("UI.Talk.BondShort")} {profile.Bond} | "
+			+ $"{SoulmatesText.Get("UI.Talk.PackShort")} {profile.PackLoad}/{profile.PackCapacity} | {status}";
 		Utils.DrawBorderString(spriteBatch, footer.ToUpperInvariant(), topLeft + new Vector2(0f, 55f), profile.EssenceColor, 0.43f);
 	}
 

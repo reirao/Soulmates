@@ -1,3 +1,12 @@
+Soulmates 0.7.0 - Living Bond
+
+- Added persistent companion experience and 20 levels earned through combat, healing, completed work, and shared moments.
+- Added a hold-and-release radial emote wheel with six personality-aware social interactions.
+- Companions now speak on their own through floating world bubbles and react to weather, caves, injuries, rest, and quiet travel.
+- Combat reactions now reflect personality, with distinct responses to ordinary victories, bosses, and creature deaths.
+- Added animated emote gestures, new memories, victory and interaction counters, and visible level progress.
+- Fixed Stay so companions defend a synchronized world anchor instead of drifting back to the player or firing from a stale position.
+
 Soulmates 0.6.4 - True Guard
 
 - Fixed Host & Play combat authority: the server now owns target selection and clients render only the synchronized target.

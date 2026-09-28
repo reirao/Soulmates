@@ -19,6 +19,10 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Hold Up and right-click the Sigil to recall it.
 - Companion identity and progression data are saved on the Sigil.
 - Personality-driven idle, wander, inspect, follow, and catch-up behavior.
+- Persistent companion experience with 20 levels earned from combat, healing, work, and shared moments.
+- Hold the configurable **Companion Emote Wheel** key (`G` by default), point toward an emote, and release to share a social action.
+- Floating world speech and autonomous, context-aware conversation shaped by personality, mood, weather, danger, and location.
+- Personality-specific reactions to normal victories, bosses, and creature deaths.
 - Talk Mode with Care, Commands, Work, Bond, Voice, and Pack conversations.
 - Mood-, energy-, bond-, and personality-aware replies, including clearly explained refusals.
 - Five visible bond ranks with growing work radius, role strength, and pack capacity.
@@ -36,6 +40,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Active assignments survive recalls and summons, end when the area is clear, and report when the companion needs a new assignment.
 - Press the configurable **Talk to Companion** hotkey (`V` by default) to open Talk Mode without selecting the Sigil.
 - Right-click the summoned companion to open Talk Mode directly.
+- Stay is a true world anchor: companions defend that location without drifting back to the player.
 - Play in English or German; Soulmates follows Terraria's selected language automatically.
 
 The current release supports single-player and server-authoritative multiplayer companions. Summoning, recalling, conversations, jobs, pack actions, and trinkets are validated by the server and synchronized back to the owning player.

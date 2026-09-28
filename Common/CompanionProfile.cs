@@ -66,6 +66,16 @@ public enum CompanionVoice : byte
 	Playful
 }
 
+public enum CompanionEmote : byte
+{
+	Wave,
+	Heart,
+	Cheer,
+	Comfort,
+	Laugh,
+	Rest
+}
+
 public enum CompanionTrinket : byte
 {
 	None,
@@ -101,7 +111,10 @@ public enum CompanionMemoryKind : byte
 	HealerAid,
 	TrinketEquipped,
 	TrinketRemoved,
-	BondMilestone
+	BondMilestone,
+	CreatureEncounter,
+	ExperienceMilestone,
+	SharedMoment
 }
 
 public sealed class CompanionMemory
@@ -159,6 +172,10 @@ public sealed class CompanionMemory
 		CompanionMemoryKind.TrinketRemoved => SoulmatesText.Get("Memories.Chronicle.TrinketRemoved"),
 		CompanionMemoryKind.BondMilestone => SoulmatesText.Get("Memories.Chronicle.BondMilestone",
 			Enum.TryParse(Detail, out BondRank rank) ? SoulmatesText.EnumName(rank) : Detail),
+		CompanionMemoryKind.CreatureEncounter => SoulmatesText.Get("Memories.Chronicle.CreatureEncounter", Detail),
+		CompanionMemoryKind.ExperienceMilestone => SoulmatesText.Get("Memories.Chronicle.ExperienceMilestone", Amount),
+		CompanionMemoryKind.SharedMoment => SoulmatesText.Get("Memories.Chronicle.SharedMoment",
+			Enum.TryParse(Detail, out CompanionEmote emote) ? SoulmatesText.EnumName(emote) : Detail),
 		_ => SoulmatesText.Get("Memories.New")
 	};
 
@@ -177,6 +194,7 @@ public sealed class CompanionProfile
 {
 	public const int MaximumPackSlots = 12;
 	public const int MaximumMemories = 8;
+	public const int MaximumLevel = 20;
 
 	public Guid Id { get; set; } = Guid.NewGuid();
 	public string Name { get; set; } = "Luma";
@@ -193,6 +211,9 @@ public sealed class CompanionProfile
 	public int Mood { get; set; } = 100;
 	public int Energy { get; set; } = 100;
 	public int JobsCompleted { get; set; }
+	public int Experience { get; set; }
+	public int DefeatedEnemies { get; set; }
+	public int Interactions { get; set; }
 	public string LastMemory { get; set; } = SoulmatesText.Get("Memories.New");
 	public List<Item> Pack { get; set; } = [];
 	public List<CompanionMemory> Memories { get; set; } = [];
@@ -205,6 +226,19 @@ public sealed class CompanionProfile
 		_ => BondRank.Newbound
 	};
 	public int RankIndex => (int)Rank;
+	public int Level {
+		get {
+			for (int level = MaximumLevel; level > 1; level--) {
+				if (Experience >= ExperienceForLevel(level))
+					return level;
+			}
+			return 1;
+		}
+	}
+	public int ExperienceIntoLevel => Level >= MaximumLevel ? 0 : Experience - ExperienceForLevel(Level);
+	public int ExperienceNeededForNextLevel => Level >= MaximumLevel
+		? 0
+		: ExperienceForLevel(Level + 1) - ExperienceForLevel(Level);
 	public int PackCapacity => Trinket == CompanionTrinket.HearthRibbon
 		? MaximumPackSlots
 		: Math.Min(MaximumPackSlots, 8 + (Rank >= BondRank.Soulbound ? 1 : 0) + (Rank >= BondRank.Eternal ? 1 : 0));
@@ -235,6 +269,9 @@ public sealed class CompanionProfile
 		Mood = Mood,
 		Energy = Energy,
 		JobsCompleted = JobsCompleted,
+		Experience = Experience,
+		DefeatedEnemies = DefeatedEnemies,
+		Interactions = Interactions,
 		LastMemory = LastMemory,
 		Pack = Pack.Where(item => !item.IsAir).Select(item => item.Clone()).ToList(),
 		Memories = Memories.Select(memory => memory.Clone()).ToList()
@@ -256,6 +293,9 @@ public sealed class CompanionProfile
 		["mood"] = Mood,
 		["energy"] = Energy,
 		["jobsCompleted"] = JobsCompleted,
+		["experience"] = Experience,
+		["defeatedEnemies"] = DefeatedEnemies,
+		["interactions"] = Interactions,
 		["lastMemory"] = LastMemory,
 		["pack"] = Pack.Where(item => !item.IsAir).Select(ItemIO.Save).ToList(),
 		["memories"] = Memories.Select(memory => memory.Save()).ToList()
@@ -279,6 +319,9 @@ public sealed class CompanionProfile
 			Mood = tag.ContainsKey("mood") ? tag.GetInt("mood") : 100,
 			Energy = tag.ContainsKey("energy") ? tag.GetInt("energy") : 100,
 			JobsCompleted = tag.ContainsKey("jobsCompleted") ? tag.GetInt("jobsCompleted") : 0,
+			Experience = tag.ContainsKey("experience") ? tag.GetInt("experience") : 0,
+			DefeatedEnemies = tag.ContainsKey("defeatedEnemies") ? tag.GetInt("defeatedEnemies") : 0,
+			Interactions = tag.ContainsKey("interactions") ? tag.GetInt("interactions") : 0,
 			LastMemory = tag.ContainsKey("lastMemory") && tag.GetString("lastMemory") is { Length: > 0 } memory
 				? memory
 				: SoulmatesText.Get("Memories.New"),
@@ -308,6 +351,9 @@ public sealed class CompanionProfile
 		writer.Write(Mood);
 		writer.Write(Energy);
 		writer.Write(JobsCompleted);
+		writer.Write(Experience);
+		writer.Write(DefeatedEnemies);
+		writer.Write(Interactions);
 		writer.Write(LastMemory);
 		Item[] items = Pack.Where(item => !item.IsAir).Take(MaximumPackSlots).ToArray();
 		writer.Write((byte)items.Length);
@@ -337,6 +383,9 @@ public sealed class CompanionProfile
 			Mood = reader.ReadInt32(),
 			Energy = reader.ReadInt32(),
 			JobsCompleted = reader.ReadInt32(),
+			Experience = reader.ReadInt32(),
+			DefeatedEnemies = reader.ReadInt32(),
+			Interactions = reader.ReadInt32(),
 			LastMemory = reader.ReadString()
 		};
 		int count = reader.ReadByte();
@@ -355,6 +404,22 @@ public sealed class CompanionProfile
 		Bond = Math.Clamp(Bond + amount, 0, 100);
 		if ((int)Rank > (int)previous)
 			Remember(CompanionMemoryKind.BondMilestone, detail: Rank.ToString());
+	}
+
+	public bool GainExperience(int amount, out int newLevel)
+	{
+		int previousLevel = Level;
+		Experience = Math.Clamp(Experience + Math.Max(0, amount), 0, ExperienceForLevel(MaximumLevel));
+		newLevel = Level;
+		if (newLevel > previousLevel)
+			Remember(CompanionMemoryKind.ExperienceMilestone, newLevel);
+		return newLevel > previousLevel;
+	}
+
+	public static int ExperienceForLevel(int level)
+	{
+		int step = Math.Clamp(level, 1, MaximumLevel) - 1;
+		return step * step * 12;
 	}
 
 	public void Remember(CompanionMemoryKind kind, int amount = 0, string detail = "")
@@ -420,6 +485,9 @@ public sealed class CompanionProfile
 		Mood = Math.Clamp(Mood, 0, 100);
 		Energy = Math.Clamp(Energy, 0, 100);
 		JobsCompleted = Math.Max(0, JobsCompleted);
+		Experience = Math.Clamp(Experience, 0, ExperienceForLevel(MaximumLevel));
+		DefeatedEnemies = Math.Max(0, DefeatedEnemies);
+		Interactions = Math.Max(0, Interactions);
 		LastMemory = string.IsNullOrWhiteSpace(LastMemory) ? SoulmatesText.Get("Memories.New") : LastMemory.Trim();
 		if (LastMemory.Length > 240)
 			LastMemory = LastMemory[..240];

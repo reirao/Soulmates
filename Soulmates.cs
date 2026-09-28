@@ -21,20 +21,26 @@ public sealed class Soulmates : Mod
 		SummonRequest,
 		TrinketRequest,
 		PackWithdrawRequest,
-		ProfileUpdate
+		ProfileUpdate,
+		EmoteRequest,
+		CompanionSpeech
 	}
 
 	internal static ModKeybind TalkKeybind { get; private set; } = null!;
+	internal static ModKeybind EmoteKeybind { get; private set; } = null!;
 
 	public override void Load()
 	{
 		if (!Terraria.Main.dedServ)
 			TalkKeybind = KeybindLoader.RegisterKeybind(this, "TalkToCompanion", "V");
+		if (!Terraria.Main.dedServ)
+			EmoteKeybind = KeybindLoader.RegisterKeybind(this, "CompanionEmotes", "G");
 	}
 
 	public override void Unload()
 	{
 		TalkKeybind = null!;
+		EmoteKeybind = null!;
 	}
 
 	internal static void SendTalkRequest(TalkCategory category, int option, int memoryCursor)
@@ -89,6 +95,28 @@ public sealed class Soulmates : Mod
 		packet.Send();
 	}
 
+	internal static void SendEmoteRequest(CompanionEmote emote)
+	{
+		if (Main.netMode != NetmodeID.MultiplayerClient)
+			return;
+		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
+		packet.Write((byte)MessageType.EmoteRequest);
+		packet.Write((byte)emote);
+		packet.Send();
+	}
+
+	internal static void SendCompanionSpeech(Player player, SoulboundCompanion companion, string key, string argument = "")
+	{
+		if (Main.netMode != NetmodeID.Server)
+			return;
+		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
+		packet.Write((byte)MessageType.CompanionSpeech);
+		packet.Write(companion.Profile.Id.ToString());
+		packet.Write(key);
+		packet.Write(argument);
+		packet.Send(player.whoAmI);
+	}
+
 	internal static void SendProfileUpdate(Player player, SoulboundCompanion companion, string message = "")
 	{
 		if (Main.netMode != NetmodeID.Server)
@@ -124,6 +152,12 @@ public sealed class Soulmates : Mod
 				break;
 			case MessageType.ProfileUpdate:
 				HandleProfileUpdate(reader);
+				break;
+			case MessageType.EmoteRequest:
+				HandleEmoteRequest(reader, whoAmI);
+				break;
+			case MessageType.CompanionSpeech:
+				HandleCompanionSpeech(reader);
 				break;
 		}
 	}
@@ -227,6 +261,27 @@ public sealed class Soulmates : Mod
 		ApplyClientProfile(profile);
 		if (!string.IsNullOrWhiteSpace(message))
 			Main.NewText(message, profile.EssenceColor);
+	}
+
+	private static void HandleEmoteRequest(BinaryReader reader, int whoAmI)
+	{
+		CompanionEmote emote = (CompanionEmote)reader.ReadByte();
+		if (Main.netMode != NetmodeID.Server || !Enum.IsDefined(emote)
+			|| whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active)
+			return;
+		if (SoulboundCompanion.FindFor(Main.player[whoAmI]) is { } companion)
+			companion.PerformEmote(emote);
+	}
+
+	private static void HandleCompanionSpeech(BinaryReader reader)
+	{
+		Guid profileId = Guid.TryParse(reader.ReadString(), out Guid parsed) ? parsed : Guid.Empty;
+		string key = reader.ReadString();
+		string argument = reader.ReadString();
+		if (Main.netMode != NetmodeID.MultiplayerClient || profileId == Guid.Empty)
+			return;
+		if (SoulboundCompanion.FindFor(Main.LocalPlayer) is { } companion && companion.Profile.Id == profileId)
+			companion.ShowSpeech(string.IsNullOrEmpty(argument) ? SoulmatesText.Get(key) : SoulmatesText.Get(key, argument));
 	}
 
 	private static void ApplyClientProfile(CompanionProfile profile)

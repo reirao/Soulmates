@@ -26,9 +26,17 @@ public sealed class SoulmatesPlayer : ModPlayer
 
 	public override void ProcessTriggers(TriggersSet triggersSet)
 	{
-		if (!Soulmates.TalkKeybind.JustPressed || Player.whoAmI != Main.myPlayer)
+		if (Player.whoAmI != Main.myPlayer)
 			return;
-		if (SoulboundCompanion.FindFor(Player) is not { } companion)
+		SoulboundCompanion? companion = SoulboundCompanion.FindFor(Player);
+		EmoteWheelSystem emoteWheel = ModContent.GetInstance<EmoteWheelSystem>();
+		if (Soulmates.EmoteKeybind.JustReleased)
+			emoteWheel.Release();
+		if (Soulmates.EmoteKeybind.JustPressed && companion is not null && !Main.playerInventory
+			&& !ModContent.GetInstance<TalkModeSystem>().IsOpen)
+			emoteWheel.Open(companion);
+
+		if (!Soulmates.TalkKeybind.JustPressed || companion is null)
 			return;
 		if (companion.FindBoundSigil() is not { } sigil)
 			return;

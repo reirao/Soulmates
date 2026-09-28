@@ -35,6 +35,9 @@ Mods: {
       TalkToCompanion: {
         DisplayName: Talk to Companion
       }
+      CompanionEmotes: {
+        DisplayName: Companion Emote Wheel
+      }
     }
     Enums: {
       CompanionPersonality: {
@@ -79,6 +82,14 @@ Mods: {
         Soft: Soft
         Direct: Direct
         Playful: Playful
+      }
+      CompanionEmote: {
+        Wave: Wave
+        Heart: Heart
+        Cheer: Cheer
+        Comfort: Comfort
+        Laugh: Laugh
+        Rest: Rest
       }
       CompanionTrinket: {
         None: None
@@ -144,11 +155,16 @@ Mods: {
 		MoodShort: MOOD
 		EnergyShort: ENERGY
 		PackShort: PACK
+		Growth: "LV {0} XP {1}/{2}"
+		GrowthMax: "LV {0} MAX"
         Energy: {
           Ready: READY
           Low: LOW
           Rest: REST
         }
+      }
+      Emotes: {
+        Center: EMOTE
       }
     }
     Status: {
@@ -171,6 +187,7 @@ Mods: {
       TrinketRemoved: "{0} removed their trinket."
       TrinketEquipped: "{0} equipped {1}."
       Healed: "{0} restored {1} life."
+      LevelUp: "{0} reached companion level {1}!"
     }
     Tooltips: {
       Sigil: {
@@ -178,10 +195,11 @@ Mods: {
         Appearance: "{0} muse  |  {1} form  |  {2}"
         Identity: "{0}  |  {1}"
         Stats: "{0}  |  Bond {1}  |  Mood {2}  |  Energy {3}"
+        Growth: "Level {0}  |  XP {1}/{2}  |  Victories {3}  |  Shared moments {4}"
         Voice: "Voice: {0}"
         Trinket: "Trinket: {0}  |  Pack: {1}/{2}  |  Jobs: {3}"
         Assignment: "Active assignment: {0}"
-        Controls: "Use: summon  |  Talk keybind: Talk Mode  |  Up + Right-click: recall"
+        Controls: "Use: summon  |  V: Talk Mode  |  Hold G: emote wheel  |  Up + Right-click: recall"
       }
     }
     Directions: {
@@ -224,6 +242,9 @@ Mods: {
         TrinketEquipped: "I remember when you entrusted me with {0}."
         TrinketRemoved: I remember traveling light again.
         BondMilestone: "Our bond became {0}."
+        CreatureEncounter: "I remember what happened to {0}."
+        ExperienceMilestone: "I remember reaching companion level {0}."
+        SharedMoment: "I remember when we shared a {0}."
       }
     }
     Pack: {
@@ -242,6 +263,111 @@ Mods: {
       SlotEmpty: That pack slot is empty.
       WithdrewOne: "I returned {0} item from that slot. ({1}/{2})"
       WithdrewMany: "I returned {0} items from that slot. ({1}/{2})"
+    }
+    Social: {
+      Autonomous: {
+        Context: {
+          LowEnergy: "Could we slow down for a moment?"
+          LowMood: "I am here. I just need a little kindness."
+          Hurt: "You are hurt. Please stay near me."
+          Rain: "The rain makes every light feel warmer."
+          Underground: "I wonder what the stone remembers."
+          Night: "The stars feel closer when we travel together."
+          Stay: "I am still holding this place for you."
+        }
+        Curious: {
+          Line0: "What do you think is beyond the next hill?"
+          Line1: "I noticed something strange. I liked it."
+          Line2: "Do you think the world notices us back?"
+        }
+        Loyal: {
+          Line0: "I know your footsteps now."
+          Line1: "Where you go, I have a direction."
+          Line2: "You do not have to face this alone."
+        }
+        Brave: {
+          Line0: "Point me toward the difficult part."
+          Line1: "We are ready for whatever comes next."
+          Line2: "Courage is easier with company."
+        }
+        Gentle: {
+          Line0: "It is nice simply being here with you."
+          Line1: "Not every quiet moment needs filling."
+          Line2: "Please remember to breathe, too."
+        }
+        Mischievous: {
+          Line0: "I definitely did not move that torch."
+          Line1: "Adventure could use one questionable idea."
+          Line2: "I found trouble. It found me first."
+        }
+      }
+      Emotes: {
+        Wave: {
+          Curious: "Hi! Did you discover something?"
+          Loyal: "I am here. Always."
+          Brave: "Ready when you are!"
+          Gentle: "Hello. I am glad you are here."
+          Mischievous: "Oh, now you notice me?"
+        }
+        Heart: {
+          Curious: "Is that what warmth feels like?"
+          Loyal: "Right back at you."
+          Brave: "That is worth protecting."
+          Gentle: "I will keep this moment."
+          Mischievous: "Careful. I might get sentimental."
+        }
+        Cheer: {
+          Curious: "What are we celebrating? I am in!"
+          Loyal: "Together. That is the important part."
+          Brave: "Yes! We can do this!"
+          Gentle: "You make hope look easy."
+          Mischievous: "Victory dance first, reason later!"
+        }
+        Comfort: {
+          Curious: "That helps more than I expected."
+          Loyal: "I knew you would stay."
+          Brave: "I can be strong and still need this."
+          Gentle: "Thank you for noticing."
+          Mischievous: "I was not worried. Much."
+        }
+        Laugh: {
+          Curious: "Wait, tell me why that was funny again."
+          Loyal: "Your laugh is easy to follow."
+          Brave: "Even heroes need that."
+          Gentle: "I like this sound between us."
+          Mischievous: "Finally, my kind of strategy!"
+        }
+        Rest: {
+          Curious: "Fine, but I am thinking while resting."
+          Loyal: "I will keep watch beside you."
+          Brave: "A tactical pause. Sensible."
+          Gentle: "A quiet moment together sounds lovely."
+          Mischievous: "Wake me if something hilarious happens."
+        }
+      }
+      Combat: {
+        Creature: {
+          Curious: "I wish I could have understood it first."
+          Loyal: "I chose your safety, but I will remember it."
+          Brave: "A life ended. We should not make light of it."
+          Gentle: "I did not want that. I am sorry."
+          Mischievous: "That stopped being funny very quickly."
+        }
+        Victory: {
+          Curious: "Now I know one more way danger moves."
+          Loyal: "You are safe. That is enough."
+          Brave: "Threat ended. Stay behind me."
+          Gentle: "It is over. Let us keep moving."
+          Mischievous: "It should have picked a different pair."
+        }
+        Boss: {
+          Curious: "Imagine what a creature like that once knew."
+          Loyal: "Nothing that large gets between us."
+          Brave: "That was a victory worth remembering!"
+          Gentle: "The world feels quieter now."
+          Mischievous: "I think we just became the dangerous ones."
+        }
+      }
     }
     Dialogue: {
       Options: {
