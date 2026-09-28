@@ -156,14 +156,16 @@ public sealed class EmoteWheelSystem : ModSystem
 	private static void DrawDiamond(SpriteBatch spriteBatch, Texture2D pixel, Vector2 center, float size, Color color)
 	{
 		float side = size / MathF.Sqrt(2f);
-		spriteBatch.Draw(pixel, center, null, color, MathHelper.PiOver4, new Vector2(0.5f),
-			new Vector2(side), SpriteEffects.None, 0f);
+		Vector2 origin = new(pixel.Width * 0.5f, pixel.Height * 0.5f);
+		Vector2 scale = new(side / pixel.Width, side / pixel.Height);
+		spriteBatch.Draw(pixel, center, null, color, MathHelper.PiOver4, origin, scale, SpriteEffects.None, 0f);
 	}
 
 	private static void DrawLine(SpriteBatch spriteBatch, Texture2D pixel, Vector2 start, Vector2 end, Color color, float width)
 	{
 		Vector2 edge = end - start;
-		spriteBatch.Draw(pixel, start, null, color, edge.ToRotation(), new Vector2(0f, 0.5f),
-			new Vector2(edge.Length(), width), SpriteEffects.None, 0f);
+		Vector2 origin = new(0f, pixel.Height * 0.5f);
+		Vector2 scale = new(edge.Length() / pixel.Width, width / pixel.Height);
+		spriteBatch.Draw(pixel, start, null, color, edge.ToRotation(), origin, scale, SpriteEffects.None, 0f);
 	}
 }

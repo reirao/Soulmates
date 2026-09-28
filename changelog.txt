@@ -3,6 +3,8 @@ Soulmates 0.7.2 - Kindred Gesture
 - Hold right-click directly on your own character, point toward an emote, and release to share it.
 - Right-clicking the companion remains dedicated to Talk Mode, and ordinary world right-clicks remain untouched.
 - The configurable G key remains available as an alternative way to open the emote wheel.
+- Fixed native Terraria muse sprites sometimes remaining invisible by explicitly loading their NPC texture sheets.
+- Fixed radial emote geometry stretching across the screen when Terraria's magic-pixel texture is larger than one pixel.
 
 Soulmates 0.7.1 - Kindred Motion
 

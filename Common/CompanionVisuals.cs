@@ -21,7 +21,9 @@ public static class CompanionVisuals
 			return ModContent.Request<Texture2D>($"Soulmates/Content/NPCs/Soulkin/{state}{frame}", AssetRequestMode.ImmediateLoad).Value;
 		}
 
-		return TextureAssets.Npc[GetNpcId(muse)].Value;
+		int npcId = GetNpcId(muse);
+		Main.instance.LoadNPC(npcId);
+		return TextureAssets.Npc[npcId].Value;
 	}
 
 	public static Rectangle GetFrame(CompanionMuse muse, Texture2D texture, bool action = false)
