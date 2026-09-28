@@ -11,10 +11,10 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Craft a reusable Soulcore and Blank Sigils.
 - Receive one Soulcore and three Blank Sigils once per character as a prototype starter kit.
 - Create multiple unique companions from fully localized presets.
-- Shape a companion through an animated live preview with an original eight-frame Soulkin sprite.
+- Shape a companion through an animated live preview with an original eight-frame Soulkin sprite, including compatibility for existing Sigils.
 - Choose a name, form, essence color, aura, personality, and starting talent.
 - Choose a visual Bestiary Muse: Soulkin, Bunny, Blue Slime, Bird, or Squirrel.
-- Summon one active companion at a time.
+- Summon exactly one active companion at a time; switching Sigils cleanly retires the previous companion, assignment, and projectiles.
 - Right-click the summoned companion itself to enter Talk Mode.
 - Hold Up and right-click the Sigil to recall it.
 - Companion identity and progression data are saved on the Sigil.
@@ -44,6 +44,10 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Play in English or German; Soulmates follows Terraria's selected language automatically.
 
 The current release supports single-player and server-authoritative multiplayer companions. Summoning, recalling, conversations, jobs, pack actions, and trinkets are validated by the server and synchronized back to the owning player.
+
+## Current release
+
+**Soulmates 0.7.1 - Kindred Motion** adds the original animated Soulkin, animated Bestiary muses, direct companion interaction, calmer idle motion, pet-like combat leashing, and strict single-companion ownership. Existing Soulbound Sigils remain compatible, and switching companions now shuts down every replaced NPC, assignment, healing or defense effect, and soul bolt before the new companion becomes active.
 
 ## Languages
 
