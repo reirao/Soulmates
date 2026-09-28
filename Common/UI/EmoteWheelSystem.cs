@@ -29,14 +29,16 @@ public sealed class EmoteWheelSystem : ModSystem
 	private int openTicks;
 	private Vector2 center;
 	private SoulboundCompanion? companion;
+	private bool releaseOnRightMouseUp;
 
 	public bool IsOpen => open;
 
-	public void Open(SoulboundCompanion boundCompanion)
+	public void Open(SoulboundCompanion boundCompanion, bool releaseOnRightMouseUp = false)
 	{
 		if (Main.dedServ || Main.gameMenu || Main.LocalPlayer.dead || open)
 			return;
 		companion = boundCompanion;
+		this.releaseOnRightMouseUp = releaseOnRightMouseUp;
 		center = new Vector2(
 			Math.Clamp(Main.MouseScreen.X, 118f, Main.screenWidth - 118f),
 			Math.Clamp(Main.MouseScreen.Y, 118f, Main.screenHeight - 118f));
@@ -72,6 +74,7 @@ public sealed class EmoteWheelSystem : ModSystem
 		selected = -1;
 		openTicks = 0;
 		companion = null;
+		releaseOnRightMouseUp = false;
 	}
 
 	public override void UpdateUI(GameTime gameTime)
@@ -80,6 +83,10 @@ public sealed class EmoteWheelSystem : ModSystem
 			return;
 		if (Main.gameMenu || Main.LocalPlayer.dead || companion?.NPC.active != true) {
 			Close();
+			return;
+		}
+		if (releaseOnRightMouseUp && !Main.mouseRight) {
+			Release();
 			return;
 		}
 

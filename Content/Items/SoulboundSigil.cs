@@ -107,6 +107,7 @@ public sealed class SoulboundSigil : ModItem
 		if (Profile.Routine != CompanionJob.None)
 			tooltips.Add(new TooltipLine(Mod, "Assignment", SoulmatesText.Get("Tooltips.Sigil.Assignment", SoulmatesText.EnumName(Profile.Routine))));
 		tooltips.Add(new TooltipLine(Mod, "Controls", SoulmatesText.Get("Tooltips.Sigil.Controls")));
+		tooltips.Add(new TooltipLine(Mod, "Emotes", SoulmatesText.Get("Tooltips.Sigil.Emotes")));
 	}
 
 	public override void SaveData(TagCompound tag) => tag["profile"] = Profile.Save();
