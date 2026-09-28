@@ -198,8 +198,7 @@ public sealed class Soulmates : Mod
 	{
 		if (Main.netMode != NetmodeID.Server || whoAmI < 0 || whoAmI >= Main.maxPlayers)
 			return;
-		if (SoulboundCompanion.FindFor(Main.player[whoAmI]) is { } companion)
-			companion.Recall();
+		SoulboundCompanion.RecallAllFor(Main.player[whoAmI]);
 	}
 
 	private static void HandleSummonRequest(BinaryReader reader, int whoAmI)

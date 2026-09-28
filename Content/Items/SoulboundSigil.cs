@@ -56,7 +56,7 @@ public sealed class SoulboundSigil : ModItem
 				if (Main.netMode == NetmodeID.MultiplayerClient)
 					Soulmates.SendRecallRequest();
 				else
-					companion.Recall();
+					SoulboundCompanion.RecallAllFor(player);
 				Main.NewText(SoulmatesText.Get("Messages.Recalled", Profile.Name), Profile.EssenceColor);
 			}
 			return true;
@@ -76,7 +76,8 @@ public sealed class SoulboundSigil : ModItem
 
 	internal void SummonCompanion(Player player)
 	{
-		SoulboundCompanion.FindFor(player)?.Recall();
+		Profile.Normalize();
+		SoulboundCompanion.RecallAllFor(player);
 
 		int index = NPC.NewNPC(new EntitySource_ItemUse(player, Item), (int)player.Center.X, (int)player.Center.Y - 48,
 			ModContent.NPCType<SoulboundCompanion>(), ai0: player.whoAmI);

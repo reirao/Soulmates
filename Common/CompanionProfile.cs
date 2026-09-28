@@ -469,6 +469,8 @@ public sealed class CompanionProfile
 
 	public void Normalize()
 	{
+		if (Id == Guid.Empty)
+			Id = Guid.NewGuid();
 		Name = string.IsNullOrWhiteSpace(Name) ? "Luma" : Name.Trim();
 		if (Name.Length > 24)
 			Name = Name[..24];

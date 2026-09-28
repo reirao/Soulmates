@@ -140,6 +140,8 @@ public sealed class SoulboundCompanion : ModNPC
 			NPC.active = false;
 			return;
 		}
+		if (Main.netMode != NetmodeID.MultiplayerClient && !ClaimActiveSlot(owner))
+			return;
 
 		NPC.GivenName = Profile.Name;
 		Lighting.AddLight(NPC.Center, Profile.EssenceColor.ToVector3() * 1.15f);
@@ -832,9 +834,10 @@ public sealed class SoulboundCompanion : ModNPC
 
 	public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
 	{
-		Texture2D texture = CompanionVisuals.GetTexture(Profile.Muse);
+		CompanionMuse muse = Enum.IsDefined(Profile.Muse) ? Profile.Muse : CompanionMuse.Soulkin;
 		bool actionFrame = guardianTarget >= 0 || activeJob != CompanionJob.None || NPC.velocity.LengthSquared() > 20f;
-		Rectangle source = CompanionVisuals.GetFrame(Profile.Muse, texture, actionFrame);
+		Texture2D texture = CompanionVisuals.GetTexture(muse, actionFrame);
+		Rectangle source = CompanionVisuals.GetFrame(muse, texture, actionFrame);
 		Vector2 center = NPC.Center - screenPos + new Vector2(0f, IdleBob() * 0.18f) + EmoteDrawOffset();
 		Vector2 origin = source.Size() * 0.5f;
 		float breath = 1f + MathF.Sin(Main.GlobalTimeWrappedHourly * 2f + bobSeed) * 0.025f;
@@ -1334,6 +1337,8 @@ public sealed class SoulboundCompanion : ModNPC
 	public void Recall()
 	{
 		SyncProfileToBoundSigil();
+		SyncOwnerInventory();
+		StopOwnedEffects();
 		if (Owner.active)
 			Owner.GetModPlayer<SoulmatesPlayer>().ActiveCompanionWhoAmI = -1;
 		NPC.active = false;
@@ -1352,12 +1357,65 @@ public sealed class SoulboundCompanion : ModNPC
 
 	public static SoulboundCompanion? FindFor(Player player)
 	{
+		SoulmatesPlayer state = player.GetModPlayer<SoulmatesPlayer>();
+		if (IsOwnedCompanion(state.ActiveCompanionWhoAmI, player))
+			return Main.npc[state.ActiveCompanionWhoAmI].ModNPC as SoulboundCompanion;
+
 		for (int i = 0; i < Main.maxNPCs; i++) {
 			NPC npc = Main.npc[i];
-			if (npc.active && npc.type == ModContent.NPCType<SoulboundCompanion>() && (int)npc.ai[0] == player.whoAmI)
+			if (IsOwnedCompanion(i, player)) {
+				state.ActiveCompanionWhoAmI = i;
 				return npc.ModNPC as SoulboundCompanion;
+			}
 		}
+		state.ActiveCompanionWhoAmI = -1;
 		return null;
+	}
+
+	public static void RecallAllFor(Player player)
+	{
+		for (int i = 0; i < Main.maxNPCs; i++) {
+			if (IsOwnedCompanion(i, player) && Main.npc[i].ModNPC is SoulboundCompanion companion)
+				companion.Recall();
+		}
+		player.GetModPlayer<SoulmatesPlayer>().ActiveCompanionWhoAmI = -1;
+	}
+
+	private bool ClaimActiveSlot(Player owner)
+	{
+		SoulmatesPlayer state = owner.GetModPlayer<SoulmatesPlayer>();
+		if (state.ActiveCompanionWhoAmI == NPC.whoAmI)
+			return true;
+		if (IsOwnedCompanion(state.ActiveCompanionWhoAmI, owner)) {
+			int keeper = state.ActiveCompanionWhoAmI;
+			Recall();
+			state.ActiveCompanionWhoAmI = keeper;
+			return false;
+		}
+		state.ActiveCompanionWhoAmI = NPC.whoAmI;
+		return true;
+	}
+
+	private void StopOwnedEffects()
+	{
+		for (int i = 0; i < Main.maxProjectiles; i++) {
+			Projectile projectile = Main.projectile[i];
+			if (projectile.active && projectile.type == ModContent.ProjectileType<SoulBolt>()
+				&& (int)projectile.ai[1] == NPC.whoAmI)
+				projectile.Kill();
+		}
+		guardianTarget = -1;
+		activeJob = CompanionJob.None;
+		speechTimer = 0;
+		speechText = "";
+	}
+
+	private static bool IsOwnedCompanion(int index, Player player)
+	{
+		if (index < 0 || index >= Main.maxNPCs)
+			return false;
+		NPC npc = Main.npc[index];
+		return npc.active && npc.type == ModContent.NPCType<SoulboundCompanion>() && (int)npc.ai[0] == player.whoAmI;
 	}
 
 	private bool TryGetOwner(out Player owner)
