@@ -1,0 +1,86 @@
+[h1]Erschaffe einen Companion mit Seele.[/h1]
+
+Soulmates macht aus dem wiederverwendbaren Soulcore einen Companion-Editor direkt in Terraria. Forme einen kleinen, einzigartigen Geist, binde ihn an sein eigenes Soulbound Sigil, beschwöre ihn in die Welt und entwickle eure Beziehung durch Fürsorge, Gespräche und gemeinsame Aufgaben.
+
+[b]Sprachen:[/b] Englisch und Deutsch. Soulmates übernimmt automatisch die in Terraria ausgewählte Sprache.
+
+[h2]Hinweis zur KI-unterstützten Entwicklung[/h2]
+Soulmates ist ein experimentelles Projekt, das bei Programmierung, Texten, Benutzeroberfläche und visueller Entwicklung umfassend mit KI-Unterstützung entstanden ist. Workshop-Bild, Mod-Icon und der eigene Soulkin-Sprite wurden KI-generiert und anschließend in die Mod integriert. Die derzeitigen Hasen-, Blauer-Schleim-, Vogel-, Eichhörnchen-, Item- und Inventargrafiken verwenden Terraria-Assets als Platzhalter. Neue Funktionen werden vor der Veröffentlichung vom Ersteller im Spiel geprüft.
+
+[h2]Erschaffe deinen Soulmate[/h2]
+[list]
+[*]Wähle Name, Bestiary Muse, Körperform, Essenz, Aura, Persönlichkeit und Starttalent.
+[*]Beobachte im animierten Vorschaufenster, wie sich dein Companion verändert, einschließlich des eigenen Soulkin-Sprites mit acht Animationsframes und Kompatibilität zu bestehenden Sigils.
+[*]Erschaffe mehrere Companions; jedes Soulbound Sigil bewahrt seine eigene Identität und seine Werte.
+[*]Wechsle frei zwischen Sigils: Genau ein Companion bleibt aktiv, während Aufgaben, Effekte und Projektile des vorherigen sauber beendet werden.
+[/list]
+
+[h2]Ein Companion mit Charakter[/h2]
+[list]
+[*]Persönlichkeitsabhängiges Ruhen, Umherwandern, Erkunden, Folgen und Aufholen.
+[*]Dauerhaft gespeicherte Bindung, Stimmung, Energie und Sprechweise.
+[*]20 Companion-Level durch Kämpfe, Heilung, Arbeit und gemeinsame Momente.
+[*]Ein radialer Gestenring mit sechs persönlichkeitsabhängigen Interaktionen und echten Terraria-Emote-Bubbles.
+[*]Ruhigeres autonomes Verhalten mit gelegentlichen Texten und kleinen wortlosen Begegnungen mit Town-NPCs.
+[*]Situationsabhängige Reaktionen auf Stimmung, Wetter, Gefahr, Verletzungen und Aufenthaltsort.
+[*]Unterschiedliche Reaktionen auf normale Siege, Bosse und getötete friedliche Kreaturen.
+[*]Fünf Bindungsränge, die Rollenstärke, Arbeitsradius und später die Pack-Kapazität verbessern.
+[*]Jeder Companion verteidigt dich ohne Arbeitsenergie zu verbrauchen und bleibt dabei in der Nähe seines Besitzers oder Stay-Ankers. Guardians reagieren schneller und stärker; Healers versorgen bedeutsame Verletzungen.
+[*]Energie regeneriert sich außerhalb von Arbeit und Kampf von selbst und beim Warten schneller. Eine Pause zu erbitten ist nur ein zusätzlicher Bonus.
+[*]Talk Mode mit Fürsorge, Befehlen, Arbeit, Bindung, Stimme und Pack.
+[*]Companions können zustimmen, in ihrer eigenen Stimme reagieren oder bei Erschöpfung und schlechter Stimmung nachvollziehbar ablehnen.
+[*]Folgen, Bleiben, Erkunden, Ausruhen, Beschwören und Zurückrufen.
+[*]Gebietsaufgaben: nahe Truhen finden, frühe Erzadern vollständig abbauen und herumliegende Gegenstände einsammeln.
+[*]Eine dauerhafte Erinnerungschronik über Erschaffung, Arbeit, Schutz, Heilung, Trinkets und Bindungsmeilensteine.
+[*]Ein eigenes dauerhaftes Pack für normale und gemoddete Items, das Speichern und Beschwören übersteht.
+[*]Interaktive Pack-Slots mit Tooltips, Stack-Entnahme, Einlagern des ausgewählten Hotbar-Items und vollständigem Entladen.
+[*]Stärkeres Seelenlicht und Aufdeckung der Karte, wo immer dein Companion unterwegs ist.
+[*]Vorhersehbare Ablehnungen anhand sichtbarer Stimmung und Energie statt eines Zufallswurfs.
+[*]Aufgaben bleiben beim Zurückrufen erhalten, enden wenn das Gebiet leer ist und melden, wann ein neuer Auftrag nötig ist.
+[*]Konfigurierbare Taste für Talk Mode, standardmäßig V.
+[*]Direkte Interaktion per Rechtsklick auf den beschworenen Companion.
+[/list]
+
+[h2]Soul Trinkets[/h2]
+[list]
+[*][b]Starfinder Bell[/b] vergrößert die Reichweite der Schatzsuche deutlich.
+[*][b]Delver Charm[/b] erweitert den Bergbauradius und beschleunigt das Räumen von Erzadern.
+[*][b]Hearth Ribbon[/b] verbessert Sammelreichweite, Kapazität und Erholung beim Warten.
+[/list]
+
+[h2]Erste Schritte[/h2]
+Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils als Startausrüstung. Beide Gegenstände können außerdem an einer Werkbank hergestellt werden.
+
+[b]Soulcore:[/b] 8 Fallen Stars, 5 Amethyst, 10 Stone Blocks
+[b]Blank Sigil:[/b] 3 Fallen Stars, 1 Amethyst, 5 Silk
+[b]Starfinder Bell:[/b] 5 Fallen Stars, 3 Iron oder Lead Bars, 1 Lens
+[b]Delver Charm:[/b] 5 Iron oder Lead Bars, 2 Amethyst, 20 Stone Blocks
+[b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
+
+[h2]Aktuelle Version[/h2]
+Soulmates 0.7.3 Kindred Company bringt gemeinsame Gesten in Terrarias eigenes Emote-System. Längere Texte erscheinen bewusst nur noch gelegentlich, und Companions können nahe Town-NPCs für kurze wortlose Begegnungen und echte NPC-Reaktionen aufsuchen. Halte die rechte Maustaste direkt auf deinem eigenen Charakter oder nutze die konfigurierbare G-Taste, um den Emote-Ring zu öffnen; ein Rechtsklick auf den Companion öffnet weiterhin Talk Mode. Die eigenen Soulkin-Animationen, animierten Bestiary Muses, ruhige Bewegung, der kampfbereite Begleitschutz und bestehende Sigils bleiben vollständig erhalten.
+
+[h2]Steuerung[/h2]
+[list]
+[*]Soulcore benutzen: Soul Creator öffnen.
+[*]Soulbound Sigil benutzen: gebundenen Companion beschwören.
+[*]Nach oben halten + Rechtsklick auf das aktive Sigil: Companion zurückrufen.
+[*]Soul Trinket bei aktivem Companion benutzen: Trinket ausrüsten.
+[*]Rechtsklick auf ein Soul Trinket: aktuelles Trinket entfernen.
+[*]Talk Mode > Pack: Ladung ansehen, ausgewähltes Hotbar-Item einlagern oder alles entladen.
+[*]Pack-Slots: Linksklick nimmt einen Stack, Rechtsklick nimmt ein Item.
+[*]Standardmäßig V drücken: Talk Mode direkt öffnen.
+[*]Rechtsklick auf dem eigenen Charakter halten, auf eine Geste zeigen und loslassen.
+[*]Alternativ standardmäßig G halten, auf eine Geste zeigen und loslassen.
+[*]Rechtsklick auf den Companion: Talk Mode direkt öffnen.
+[*]Folgen, Bleiben oder Erkunden beendet den aktuellen Gebietsauftrag.
+[/list]
+
+[h2]Feedback und Quellcode[/h2]
+Fehlerberichte und Entwicklungsupdates:
+[url=https://github.com/reirao/Soulmates]Soulmates auf GitHub[/url]
+
+Danke, dass du diesen kleinen Seelen beim Wachsen hilfst.
+
+[quote=tModLoader Soulmates]
+Developed By AETHER LUX[/quote]

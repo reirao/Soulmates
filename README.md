@@ -48,7 +48,7 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current release
 
-**Soulmates 0.7.2 - Kindred Gesture** adds direct hold-and-release gestures with native Terraria emote bubbles, quieter occasional speech, and small autonomous exchanges with nearby town NPCs. Right-clicking your own character opens the emote wheel while right-clicking the companion remains dedicated to Talk Mode. It retains the original animated Soulkin, animated Bestiary muses, calmer idle motion, pet-like combat leashing, and strict single-companion ownership. Existing Soulbound Sigils remain compatible, and switching companions shuts down every replaced NPC, assignment, healing or defense effect, and soul bolt before the new companion becomes active.
+**Soulmates 0.7.3 - Kindred Company** adds native Terraria emote bubbles, quieter occasional speech, and small autonomous exchanges with nearby town NPCs. Right-clicking your own character opens the emote wheel while right-clicking the companion remains dedicated to Talk Mode. It retains the original animated Soulkin, animated Bestiary muses, calmer idle motion, pet-like combat leashing, and strict single-companion ownership. Existing Soulbound Sigils remain compatible, and switching companions shuts down every replaced NPC, assignment, healing or defense effect, and soul bolt before the new companion becomes active.
 
 ## Languages
 

@@ -1,10 +1,14 @@
+Soulmates 0.7.3 - Kindred Company
+
+- Shared gestures now use Terraria's native emote bubbles.
+- Longer companion chatter appears only occasionally, with context-sensitive silent reactions in between.
+- Companions can approach nearby town NPCs for short, wordless emote exchanges and native NPC responses.
+
 Soulmates 0.7.2 - Kindred Gesture
 
 - Hold right-click directly on your own character, point toward an emote, and release to share it.
 - Right-clicking the companion remains dedicated to Talk Mode, and ordinary world right-clicks remain untouched.
 - The configurable G key remains available as an alternative way to open the emote wheel.
-- Shared gestures now use Terraria's native emote bubbles, while longer companion chatter appears only occasionally.
-- Companions can approach nearby town NPCs for short, wordless emote exchanges and native NPC reactions.
 - Fixed native Terraria muse sprites sometimes remaining invisible by explicitly loading their NPC texture sheets.
 - Fixed radial emote geometry stretching across the screen when Terraria's magic-pixel texture is larger than one pixel.
 
