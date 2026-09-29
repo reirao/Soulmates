@@ -2,14 +2,14 @@
 
 Soulmates macht aus dem wiederverwendbaren Soulcore einen Companion-Editor direkt in Terraria. Forme einen kleinen, einzigartigen Geist, binde ihn an sein eigenes Soulbound Sigil, beschwöre ihn in die Welt und entwickle eure Beziehung durch Fürsorge, Gespräche und gemeinsame Aufgaben.
 
-[img]https://raw.githubusercontent.com/reirao/Soulmates/main/media/soulmates-overview.png[/img]
+[img]https://raw.githubusercontent.com/reirao/Soulmates/main/media/soulmates-overview-0941.png[/img]
 
 [url=https://github.com/reirao/Soulmates/releases/latest][b]Vollständige Screenshot-Galerie und Downloads des neuesten Releases auf GitHub ansehen.[/b][/url]
 
 [b]Sprachen:[/b] Englisch und Deutsch. Soulmates übernimmt automatisch die in Terraria ausgewählte Sprache.
 
 [h2]Hinweis zur KI-unterstützten Entwicklung[/h2]
-Soulmates ist ein experimentelles Projekt, das bei Programmierung, Texten, Benutzeroberfläche und visueller Entwicklung umfassend mit KI-Unterstützung entstanden ist. Workshop-Bild, Mod-Icon und der eigene Soulkin-Sprite wurden KI-generiert und anschließend in die Mod integriert. Die derzeitigen Hasen-, Blauer-Schleim-, Vogel-, Eichhörnchen-, Item- und Inventargrafiken verwenden Terraria-Assets als Platzhalter. Neue Funktionen werden vor der Veröffentlichung vom Ersteller im Spiel geprüft.
+Soulmates ist ein experimentelles Projekt, das bei Programmierung, Texten, Benutzeroberfläche und visueller Entwicklung umfassend mit KI-Unterstützung entstanden ist. Workshop-Bild, Mod-Icon, der eigene Soulkin-Sprite, das Promo-Keyart und die Zusammenstellung der Feature-Tafel wurden KI-generiert und anschließend in die Mod integriert. Die Bilder innerhalb der Feature-Tafel sind echte Ingame-Aufnahmen. Die derzeitigen Hasen-, Blauer-Schleim-, Vogel-, Eichhörnchen-, Item- und Inventargrafiken verwenden Terraria-Assets als Platzhalter. Neue Funktionen werden vor der Veröffentlichung vom Ersteller im Spiel geprüft.
 
 [h2]Erschaffe deinen Soulmate[/h2]
 [list]

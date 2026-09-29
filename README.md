@@ -2,9 +2,11 @@
 
 Soulmates is a tModLoader mod about creating companions that feel personal. The reusable **Soulcore** opens a small companion creator. Each finished companion is stored in its own **Soulbound Sigil** with a persistent name, appearance, personality, talent, bond, mood, and energy.
 
-![Soulmates feature overview](media/soulmates-overview.webp)
+![Soulmates companion key art](media/soulmates-0941-keyart.png)
 
 ## In-game gallery
+
+![Soulmates v0.9.4.1 feature overview](media/soulmates-overview-0941.png)
 
 | Soul Creator | Living companion |
 | --- | --- |
@@ -20,7 +22,7 @@ Soulmates is a tModLoader mod about creating companions that feel personal. The 
 
 ## AI-assisted development disclosure
 
-Soulmates is an experimental project created with extensive AI assistance across programming, writing, interface work, and visual development. The Workshop icon, mod icon, and custom Soulkin sprite were AI-generated and then integrated into the mod. The current Bunny, Blue Slime, Bird, Squirrel, item, and inventory visuals reuse Terraria assets as placeholders. Features are reviewed and tested in-game by the creator before release.
+Soulmates is an experimental project created with extensive AI assistance across programming, writing, interface work, and visual development. The Workshop icon, mod icon, custom Soulkin sprite, promotional key art, and feature-board composition were AI-generated and then integrated into the mod. The screenshots inside the feature board are real in-game captures. The current Bunny, Blue Slime, Bird, Squirrel, item, and inventory visuals reuse Terraria assets as placeholders. Features are reviewed and tested in-game by the creator before release.
 
 ## Features
 
