@@ -2,11 +2,9 @@
 
 Soulmates is a tModLoader mod about creating companions that feel personal. The reusable **Soulcore** opens a small companion creator. Each finished companion is stored in its own **Soulbound Sigil** with a persistent name, appearance, personality, talent, bond, mood, and energy.
 
-![Soulmates companion key art](media/soulmates-0941-keyart.png)
+![Soulmates feature overview](media/soulmates-overview.webp)
 
 ## In-game gallery
-
-![Soulmates v0.9.4.1 feature overview](media/soulmates-overview-0941.png)
 
 | Soul Creator | Living companion |
 | --- | --- |
@@ -22,7 +20,7 @@ Soulmates is a tModLoader mod about creating companions that feel personal. The 
 
 ## AI-assisted development disclosure
 
-Soulmates is an experimental project created with extensive AI assistance across programming, writing, interface work, and visual development. The Workshop icon, mod icon, custom Soulkin sprite, promotional key art, and feature-board composition were AI-generated and then integrated into the mod. The screenshots inside the feature board are real in-game captures. The current Bunny, Blue Slime, Bird, Squirrel, item, and inventory visuals reuse Terraria assets as placeholders. Features are reviewed and tested in-game by the creator before release.
+Soulmates is an experimental project created with extensive AI assistance across programming, writing, interface work, and visual development. The Workshop icon, mod icon, and custom Soulkin sprite were AI-generated and then integrated into the mod. The current Bunny, Blue Slime, Bird, Squirrel, item, and inventory visuals reuse Terraria assets as placeholders. Features are reviewed and tested in-game by the creator before release.
 
 ## Features
 
@@ -44,7 +42,8 @@ Soulmates is an experimental project created with extensive AI assistance across
 - A companion named **AETHER** is an Omni Soul with every starting talent instinct and learned perk available.
 - Personality-driven autonomous moments add small surprises without overriding combat, Stay, explicit assignments, or low-energy recovery.
 - Persistent companion experience with 20 levels earned from combat, healing, work, and shared moments.
-- Use the icon-based Soulwheel for commands, work, bonding, direct pack access, details, and all 151 vanilla Terraria emotes. Categories open into crescent sub-wheels and large categories page without becoming a window. The configurable **Companion Emote Wheel** key (`G` by default) opens its Terraria-emote branch directly.
+- Use the compact Companion Soulwheel for commands, work, bonding, direct pack access, and details.
+- Right-click your own character, or press the configurable **Companion Emote Wheel** key (`G` by default), to open the separate Player Emote Wheel with all 151 vanilla Terraria emotes. Categories unfold into crescent sub-wheels instead of another window.
 - Native Terraria emote bubbles for shared gestures, with occasional context-aware speech instead of constant text.
 - Quiet social encounters with nearby town NPCs: companions approach, emote, and receive a native NPC response.
 - Personality-specific reactions to normal victories, bosses, and creature deaths.
