@@ -74,6 +74,7 @@ public sealed class SoulboundCompanion : ModNPC
 	private int recoveryTimer;
 	private int gatherPause;
 	private int jobTargetItem = -1;
+	private ForestAction gatherForestAction;
 	private int areaEmptyTimer;
 	private int revealTimer;
 	private int talentCooldown;
@@ -517,7 +518,7 @@ public sealed class SoulboundCompanion : ModNPC
 			return true;
 		}
 
-		if (FindAutonomousForestTask(out Point forestTarget, out ForestAction forestAction)) {
+		if (FindForestTask(Owner.Center, out Point forestTarget, out ForestAction forestAction)) {
 			BeginAutonomousActivity(AutonomyActivity.TendForest);
 			autonomyTargetTile = forestTarget;
 			autonomyForestAction = forestAction;
@@ -583,10 +584,9 @@ public sealed class SoulboundCompanion : ModNPC
 			autonomyWorkCount++;
 			Profile.Energy = Math.Max(0, Profile.Energy - 1);
 			Profile.GainExperience(EagerGatherer ? 2 : 1, out _);
-			SyncProfileToBoundSigil();
+			SyncPackState();
 			if (Main.netMode == NetmodeID.Server)
 				NetMessage.SendData(MessageID.SyncItem, -1, -1, null, collectedItemIndex);
-			NPC.netUpdate = true;
 		}
 
 		if (moved <= 0 || Profile.Energy < 16 || autonomyWorkCount >= AutonomousLootSweepLimit
@@ -692,19 +692,14 @@ public sealed class SoulboundCompanion : ModNPC
 		if (Vector2.DistanceSquared(NPC.Center, target) > 68f * 68f || autonomyActionTimer % 30 != 0)
 			return true;
 
-		bool success = autonomyForestAction switch {
-			ForestAction.ShakeTree => ShakeAutonomousTree(),
-			ForestAction.ClearDeadwood => ClearAutonomousDeadwood(),
-			ForestAction.PlantAcorn => PlantAutonomousAcorn(),
-			_ => false
-		};
+		bool success = PerformForestAction(autonomyTargetTile, autonomyForestAction);
 		tendedForestTargets.Add(autonomyTargetTile);
 		if (success) {
 			autonomyWorkCount++;
 			Profile.Energy = Math.Max(0, Profile.Energy - 1);
 			Profile.GainExperience(2, out _);
-			SyncProfileToBoundSigil();
-			NPC.netUpdate = true;
+			ShowNativeEmote(EmoteID.MiscTree, 75);
+			SyncPackState();
 		}
 
 		int sweepLimit = Profile.ForesterUnlocked ? AutonomousForestSweepLimit : 1;
@@ -717,7 +712,7 @@ public sealed class SoulboundCompanion : ModNPC
 
 	private bool TryRetargetAutonomousForestry()
 	{
-		if (!FindAutonomousForestTask(out Point nextTarget, out ForestAction nextAction))
+		if (!FindForestTask(Owner.Center, out Point nextTarget, out ForestAction nextAction))
 			return false;
 		autonomyTargetTile = nextTarget;
 		autonomyForestAction = nextAction;
@@ -735,18 +730,25 @@ public sealed class SoulboundCompanion : ModNPC
 		CancelAutonomousActivity(autonomyWorkCount > 0 ? 180 : 260);
 	}
 
-	private bool ShakeAutonomousTree()
+	private bool PerformForestAction(Point target, ForestAction action) => action switch {
+		ForestAction.ShakeTree => ShakeTree(target),
+		ForestAction.ClearDeadwood => ClearDeadwood(target),
+		ForestAction.PlantAcorn => PlantAcorn(target),
+		_ => false
+	};
+
+	private bool ShakeTree(Point target)
 	{
-		if (!WorldGen.InWorld(autonomyTargetTile.X, autonomyTargetTile.Y, 10))
+		if (!WorldGen.InWorld(target.X, target.Y, 10))
 			return false;
-		Tile tile = Main.tile[autonomyTargetTile.X, autonomyTargetTile.Y];
+		Tile tile = Main.tile[target.X, target.Y];
 		if (!tile.HasTile || !IsTreeTrunk(tile.TileType))
 			return false;
 		if (ShakeTreeMethod is null)
 			return false;
 		int previousShakes = TreeShakeCountField?.GetValue(null) is int count ? count : -1;
 		try {
-			ShakeTreeMethod.Invoke(null, [autonomyTargetTile.X, autonomyTargetTile.Y]);
+			ShakeTreeMethod.Invoke(null, [target.X, target.Y]);
 		}
 		catch (Exception exception) when (exception is TargetInvocationException or MethodAccessException or ArgumentException) {
 			return false;
@@ -754,42 +756,42 @@ public sealed class SoulboundCompanion : ModNPC
 		if (previousShakes >= 0 && TreeShakeCountField?.GetValue(null) is int currentShakes
 			&& currentShakes <= previousShakes)
 			return false;
-		CollectNearbyLooseItems(autonomyTargetTile.ToWorldCoordinates(), 360f, 8);
+		CollectNearbyLooseItems(target.ToWorldCoordinates(), 360f, 8);
 		return true;
 	}
 
-	private bool ClearAutonomousDeadwood()
+	private bool ClearDeadwood(Point target)
 	{
-		if (!WorldGen.InWorld(autonomyTargetTile.X, autonomyTargetTile.Y, 10)
-			|| !Main.tile[autonomyTargetTile.X, autonomyTargetTile.Y].HasTile
-			|| Main.tile[autonomyTargetTile.X, autonomyTargetTile.Y].TileType != TileID.FallenLog)
+		if (!WorldGen.InWorld(target.X, target.Y, 10)
+			|| !Main.tile[target.X, target.Y].HasTile
+			|| Main.tile[target.X, target.Y].TileType != TileID.FallenLog)
 			return false;
 
-		WorldGen.KillTile(autonomyTargetTile.X, autonomyTargetTile.Y);
-		bool success = !Main.tile[autonomyTargetTile.X, autonomyTargetTile.Y].HasTile;
+		WorldGen.KillTile(target.X, target.Y);
+		bool success = !Main.tile[target.X, target.Y].HasTile;
 		if (success) {
-			CollectNearbyLooseItems(autonomyTargetTile.ToWorldCoordinates(), 240f, 8);
+			CollectNearbyLooseItems(target.ToWorldCoordinates(), 240f, 8);
 			if (Main.netMode == NetmodeID.Server)
 				NetMessage.SendData(MessageID.TileManipulation, -1, -1, null, 0,
-					autonomyTargetTile.X, autonomyTargetTile.Y);
+					target.X, target.Y);
 		}
 		return success;
 	}
 
-	private bool PlantAutonomousAcorn()
+	private bool PlantAcorn(Point target)
 	{
-		if (!HasPackItem(ItemID.Acorn) || !CanPlantAcornAt(autonomyTargetTile.X, autonomyTargetTile.Y))
+		if (!HasPackItem(ItemID.Acorn) || !CanPlantAcornAt(target.X, target.Y))
 			return false;
-		bool placed = WorldGen.PlaceTile(autonomyTargetTile.X, autonomyTargetTile.Y, TileID.Saplings,
+		bool placed = WorldGen.PlaceTile(target.X, target.Y, TileID.Saplings,
 			mute: true, forced: false, plr: Owner.whoAmI, style: 0);
-		if (!placed || !Main.tile[autonomyTargetTile.X, autonomyTargetTile.Y].HasTile)
+		if (!placed || !Main.tile[target.X, target.Y].HasTile)
 			return false;
 
 		ConsumePackItem(ItemID.Acorn);
-		WorldGen.SquareTileFrame(autonomyTargetTile.X, autonomyTargetTile.Y);
+		WorldGen.SquareTileFrame(target.X, target.Y);
 		if (Main.netMode == NetmodeID.Server)
 			NetMessage.SendData(MessageID.TileManipulation, -1, -1, null, 1,
-				autonomyTargetTile.X, autonomyTargetTile.Y, TileID.Saplings);
+				target.X, target.Y, TileID.Saplings);
 		return true;
 	}
 
@@ -843,14 +845,14 @@ public sealed class SoulboundCompanion : ModNPC
 		return result != Point.Zero;
 	}
 
-	private bool FindAutonomousForestTask(out Point result, out ForestAction action)
+	private bool FindForestTask(Vector2 searchCenter, out Point result, out ForestAction action)
 	{
 		result = Point.Zero;
 		action = ForestAction.None;
-		Point center = Owner.Center.ToTileCoordinates();
+		Point center = searchCenter.ToTileCoordinates();
 		float bestScore = float.MaxValue;
 		bool canPlant = Profile.ForesterUnlocked && HasPackItem(ItemID.Acorn);
-		const int radius = 18;
+		int radius = Profile.ForesterUnlocked ? 28 : 22;
 		for (int x = center.X - radius; x <= center.X + radius; x++) {
 			for (int y = center.Y - radius; y <= center.Y + radius; y++) {
 				if (!WorldGen.InWorld(x, y, 10))
@@ -859,7 +861,7 @@ public sealed class SoulboundCompanion : ModNPC
 				Point candidate;
 				ForestAction candidateAction;
 				float priority;
-				if (tile.HasTile && tile.TileType == TileID.FallenLog && tile.WallType == WallID.None) {
+				if (tile.HasTile && tile.TileType == TileID.FallenLog) {
 					candidate = new Point(x, y);
 					candidateAction = ForestAction.ClearDeadwood;
 					priority = 0.55f;
@@ -1404,6 +1406,10 @@ public sealed class SoulboundCompanion : ModNPC
 
 	private void UpdateGatherJob()
 	{
+		if (gatherForestAction != ForestAction.None) {
+			UpdateGatherForestTask();
+			return;
+		}
 		if (gatherPause > 0) {
 			gatherPause--;
 			MoveTo(jobOrigin + new Vector2(0f, -52f + IdleBob()), 7f, 0.08f);
@@ -1412,6 +1418,12 @@ public sealed class SoulboundCompanion : ModNPC
 		if (!IsValidGatherTarget(jobTargetItem))
 			jobTargetItem = FindNearestLooseItem();
 		if (jobTargetItem < 0) {
+			if (FindForestTask(jobOrigin, out jobTarget, out gatherForestAction)) {
+				areaEmptyTimer = 0;
+				hasJobTarget = true;
+				UpdateGatherForestTask();
+				return;
+			}
 			areaEmptyTimer++;
 			MoveTo(jobOrigin + new Vector2(0f, -54f + IdleBob()), 5f, 0.06f);
 			if (areaEmptyTimer >= 90) {
@@ -1445,13 +1457,36 @@ public sealed class SoulboundCompanion : ModNPC
 			Profile.Energy = Math.Max(0, Profile.Energy - 1);
 			if (Main.netMode == NetmodeID.Server)
 				NetMessage.SendData(MessageID.SyncItem, -1, -1, null, jobTargetItem);
-			SyncProfileToBoundSigil();
-			NPC.netUpdate = true;
+			SyncPackState();
 			jobTargetItem = -1;
 			gatherPause = 6;
 		}
 		if (jobTimer > 7200)
 			CompleteJob(SoulmatesText.Get("Jobs.Gathering.Timeout", jobCount), success: false);
+	}
+
+	private void UpdateGatherForestTask()
+	{
+		Vector2 target = jobTarget.ToWorldCoordinates();
+		MoveTo(target + new Vector2(0f, -18f), 7f, 0.085f);
+		if (Vector2.DistanceSquared(NPC.Center, target) > 68f * 68f || jobTimer % 24 != 0)
+			return;
+
+		ForestAction action = gatherForestAction;
+		bool success = PerformForestAction(jobTarget, action);
+		tendedForestTargets.Add(jobTarget);
+		gatherForestAction = ForestAction.None;
+		hasJobTarget = false;
+		jobTarget = Point.Zero;
+		gatherPause = success ? 6 : 2;
+		if (!success)
+			return;
+
+		jobCount++;
+		Profile.Energy = Math.Max(0, Profile.Energy - 1);
+		Profile.GainExperience(Profile.ForesterUnlocked ? 2 : 1, out _);
+		ShowNativeEmote(EmoteID.MiscTree, 75);
+		SyncPackState();
 	}
 
 	private bool FindNearestChest(out Point result)
@@ -1552,11 +1587,18 @@ public sealed class SoulboundCompanion : ModNPC
 			return 0;
 
 		int available = worldItem.stack;
+		int unitsBefore = PackUnitCount();
+		var packBefore = new List<Item>(Profile.Pack.Count);
+		foreach (Item stored in Profile.Pack)
+			packBefore.Add(stored.Clone());
 		Item transfer = worldItem.Clone();
 		transfer.stack = available;
 		int moved = Math.Clamp(Profile.Store(transfer), 0, available);
-		if (moved <= 0)
+		int confirmed = Math.Clamp(PackUnitCount() - unitsBefore, 0, available);
+		if (moved <= 0 || confirmed != moved) {
+			Profile.Pack = packBefore;
 			return 0;
+		}
 
 		worldItem.stack = available - moved;
 		if (worldItem.stack <= 0) {
@@ -1564,6 +1606,16 @@ public sealed class SoulboundCompanion : ModNPC
 			worldItem.active = false;
 		}
 		return moved;
+	}
+
+	private int PackUnitCount()
+	{
+		int total = 0;
+		foreach (Item item in Profile.Pack) {
+			if (!item.IsAir)
+				total += item.stack;
+		}
+		return total;
 	}
 
 	private bool HasPackItem(int itemType) => Profile.Pack.Exists(item => !item.IsAir && item.type == itemType && item.stack > 0);
@@ -1607,10 +1659,8 @@ public sealed class SoulboundCompanion : ModNPC
 				NetMessage.SendData(MessageID.SyncItem, -1, -1, null, i);
 		}
 
-		if (movedTotal > 0) {
-			SyncProfileToBoundSigil();
-			NPC.netUpdate = true;
-		}
+		if (movedTotal > 0)
+			SyncPackState();
 		return movedTotal;
 	}
 
@@ -1679,6 +1729,7 @@ public sealed class SoulboundCompanion : ModNPC
 		jobCount = 0;
 		gatherPause = 0;
 		jobTargetItem = -1;
+		gatherForestAction = ForestAction.None;
 		areaEmptyTimer = 0;
 		hasJobTarget = false;
 		jobOrigin = Vector2.Zero;
@@ -2031,10 +2082,13 @@ public sealed class SoulboundCompanion : ModNPC
 		jobCount = 0;
 		gatherPause = 0;
 		jobTargetItem = -1;
+		gatherForestAction = ForestAction.None;
 		areaEmptyTimer = 0;
 		hasJobTarget = false;
 		jobOrigin = owner.Center;
 		failedMiningTargets.Clear();
+		if (job == CompanionJob.Gather)
+			tendedForestTargets.Clear();
 		Command = FollowCommand;
 		NPC.netUpdate = true;
 	}
@@ -2049,6 +2103,7 @@ public sealed class SoulboundCompanion : ModNPC
 		jobCount = 0;
 		gatherPause = 0;
 		jobTargetItem = -1;
+		gatherForestAction = ForestAction.None;
 		areaEmptyTimer = 0;
 		hasJobTarget = false;
 		jobOrigin = Vector2.Zero;
@@ -2204,6 +2259,7 @@ public sealed class SoulboundCompanion : ModNPC
 		jobCount = 0;
 		gatherPause = 0;
 		jobTargetItem = -1;
+		gatherForestAction = ForestAction.None;
 		areaEmptyTimer = 0;
 		hasJobTarget = false;
 		jobOrigin = Vector2.Zero;
@@ -2313,6 +2369,14 @@ public sealed class SoulboundCompanion : ModNPC
 				return;
 			}
 		}
+	}
+
+	private void SyncPackState()
+	{
+		SyncProfileToBoundSigil();
+		NPC.netUpdate = true;
+		if (Main.netMode == NetmodeID.Server)
+			global::Soulmates.Soulmates.SendProfileUpdate(Owner, this);
 	}
 
 	public SoulboundSigil? FindBoundSigil()

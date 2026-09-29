@@ -70,7 +70,7 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current release
 
-**Soulmates 0.9.1 - Soulwheel Input Hotfix** makes every category, action, page, and back control respond through independent mouse press tracking. The Soulwheel still combines commands, jobs, relationship gestures, every vanilla Terraria emote, the companion pack, and full details in compact crescent sub-wheels. Existing Sigils remain compatible.
+**Soulmates 0.9.2 - Reliable Gathering** synchronizes every collected stack directly into the visible companion pack. The Gather command now combines loose-item collection with nearby tree shaking, fallen-log clearing, drop collection, and acorn planting; successful forestry is marked by a visible tree emote. The Soulwheel click fix from 0.9.1 remains included, and existing Sigils remain compatible.
 
 ## Languages
 

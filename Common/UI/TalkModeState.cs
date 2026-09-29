@@ -32,6 +32,7 @@ public sealed class TalkModeState : UIState
 	private int memoryCursor;
 	private bool awaitingResponse;
 	public bool HasActiveBinding => sigil is not null && companion?.NPC.active == true;
+	private CompanionProfile? DisplayProfile => companion?.NPC.active == true ? companion.Profile : sigil?.Profile;
 
 	public override void OnInitialize()
 	{
@@ -61,7 +62,7 @@ public sealed class TalkModeState : UIState
 			BorderColor = new Color(67, 93, 133)
 		};
 		panel.Append(portrait);
-		portrait.Append(new SoulPreviewElement(() => sigil?.Profile ?? new CompanionProfile()) {
+		portrait.Append(new SoulPreviewElement(() => DisplayProfile ?? new CompanionProfile()) {
 			Left = new StyleDimension(6f, 0f),
 			Top = new StyleDimension(4f, 0f),
 			Width = new StyleDimension(-12f, 1f),
@@ -79,7 +80,7 @@ public sealed class TalkModeState : UIState
 		};
 		portrait.Append(response);
 
-		portrait.Append(new CompanionVitalsElement(() => sigil?.Profile, () => companion) {
+		portrait.Append(new CompanionVitalsElement(() => DisplayProfile, () => companion) {
 			Left = new StyleDimension(6f, 0f),
 			Top = new StyleDimension(205f, 0f),
 			Width = new StyleDimension(-12f, 1f),
@@ -113,7 +114,7 @@ public sealed class TalkModeState : UIState
 			panel.Append(button);
 		}
 
-		panel.Append(new CompanionPackElement(() => sigil?.Profile, WithdrawPackSlot) {
+		panel.Append(new CompanionPackElement(() => DisplayProfile, WithdrawPackSlot) {
 			Left = new StyleDimension(210f, 0f),
 			Top = new StyleDimension(268f, 0f),
 			Width = new StyleDimension(376f, 0f),
@@ -135,16 +136,17 @@ public sealed class TalkModeState : UIState
 	{
 		sigil = boundSigil;
 		companion = boundCompanion;
+		sigil.Profile = companion.Profile.Clone();
 		category = Enum.IsDefined(initialCategory) ? initialCategory : TalkCategory.Care;
 		memoryCursor = 0;
 		RefreshLocalizedLabels();
 		if (title is not null)
-			title.SetText(SoulmatesText.Get("UI.Talk.Title", sigil.Profile.Name.ToUpperInvariant()));
+			title.SetText(SoulmatesText.Get("UI.Talk.Title", companion.Profile.Name.ToUpperInvariant()));
 		if (rootPanel is not null)
-			rootPanel.BorderColor = Color.Lerp(sigil.Profile.EssenceColor, Color.White, 0.25f);
+			rootPanel.BorderColor = Color.Lerp(companion.Profile.EssenceColor, Color.White, 0.25f);
 		if (response is not null) {
-			response.SetText(SoulmatesText.Get("UI.Talk.Greeting", sigil.Profile.Name));
-			response.TextColor = sigil.Profile.EssenceColor;
+			response.SetText(SoulmatesText.Get("UI.Talk.Greeting", companion.Profile.Name));
+			response.TextColor = companion.Profile.EssenceColor;
 		}
 		RefreshOptions();
 		RefreshCategoryStyles();
@@ -237,7 +239,7 @@ public sealed class TalkModeState : UIState
 		if (response is null || sigil is null)
 			return;
 		response.SetText($"\"{text}\"");
-		response.TextColor = accepted ? sigil.Profile.EssenceColor : Color.IndianRed;
+		response.TextColor = accepted ? DisplayProfile?.EssenceColor ?? Color.White : Color.IndianRed;
 	}
 
 	private void RefreshOptions()
@@ -256,7 +258,7 @@ public sealed class TalkModeState : UIState
 
 	private void RefreshCategoryStyles()
 	{
-		Color accent = sigil?.Profile.EssenceColor ?? new Color(118, 154, 206);
+		Color accent = DisplayProfile?.EssenceColor ?? new Color(118, 154, 206);
 		foreach ((TalkCategory buttonCategory, UITextPanel<string> button) in categoryButtons) {
 			bool selected = buttonCategory == category;
 			button.BackgroundColor = selected ? Color.Lerp(new Color(35, 48, 74), accent, 0.55f) : new Color(54, 71, 105);
@@ -371,6 +373,7 @@ internal sealed class CompanionPackElement(
 				continue;
 
 			Item item = profile.Pack[i];
+			Main.instance.LoadItem(item.type);
 			Texture2D texture = TextureAssets.Item[item.type].Value;
 			Rectangle frame = Main.itemAnimations[item.type]?.GetFrame(texture) ?? texture.Bounds;
 			float scale = Math.Min(20f / frame.Width, 20f / frame.Height);

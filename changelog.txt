@@ -1,3 +1,10 @@
+Soulmates 0.9.2 - Reliable Gathering
+
+- Collected world items now push an explicit authoritative pack update to their owner instead of relying only on NPC synchronization.
+- The pack view reads the summoned companion's live profile and eagerly loads stored item textures, so new contents appear immediately.
+- The Gather command now includes nearby tree shaking, fallen-log clearing, drop collection, and acorn planting instead of leaving forestry to occasional autonomy.
+- Forestry searches farther, accepts natural fallen logs regardless of background walls, and shows a visible tree emote after successful work.
+
 Soulmates 0.9.1 - Soulwheel Input Hotfix
 
 - Fixed Soulwheel category and action clicks being ignored when tModLoader had already consumed Terraria's shared mouse-release state.
