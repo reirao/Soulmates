@@ -4,7 +4,7 @@ Soulmates macht aus dem wiederverwendbaren Soulcore einen Companion-Editor direk
 
 [img]https://raw.githubusercontent.com/reirao/Soulmates/main/media/soulmates-overview.png[/img]
 
-[url=https://github.com/reirao/Soulmates/releases/tag/v0.7.4][b]Vollständige Screenshot-Galerie und Release-Downloads auf GitHub ansehen.[/b][/url]
+[url=https://github.com/reirao/Soulmates/releases/latest][b]Vollständige Screenshot-Galerie und Downloads des neuesten Releases auf GitHub ansehen.[/b][/url]
 
 [b]Sprachen:[/b] Englisch und Deutsch. Soulmates übernimmt automatisch die in Terraria ausgewählte Sprache.
 
@@ -22,6 +22,10 @@ Soulmates ist ein experimentelles Projekt, das bei Programmierung, Texten, Benut
 [h2]Ein Companion mit Charakter[/h2]
 [list]
 [*]Persönlichkeitsabhängiges Ruhen, Umherwandern, Erkunden, Folgen und Aufholen.
+[*]Ein kompaktes Aktionsrad mit acht Einträgen für Bewegung, Arbeit, Autonomie und die vollständige Detailansicht.
+[*]Dauerhafte Autonomie pro Companion, die jederzeit an- oder ausgeschaltet werden kann.
+[*]Talentabhängige Initiative: Sammler holen nahe Drops, Bergarbeiter helfen in kurzen Etappen beim Abbau, Schatzsucher untersuchen nahe Truhen, Beschützer fangen Gefahren ab und Heiler reagieren auf Verletzungen.
+[*]Persönlichkeitsabhängige autonome Momente sorgen für kleine Überraschungen, ohne Kampf, Warten, direkte Aufträge oder Erholung zu übergehen.
 [*]Dauerhaft gespeicherte Bindung, Stimmung, Energie und Sprechweise.
 [*]20 Companion-Level durch Kämpfe, Heilung, Arbeit und gemeinsame Momente.
 [*]Ein radialer Gestenring mit sechs persönlichkeitsabhängigen Interaktionen und echten Terraria-Emote-Bubbles.
@@ -42,7 +46,7 @@ Soulmates ist ein experimentelles Projekt, das bei Programmierung, Texten, Benut
 [*]Vorhersehbare Ablehnungen anhand sichtbarer Stimmung und Energie statt eines Zufallswurfs.
 [*]Aufgaben bleiben beim Zurückrufen erhalten, enden wenn das Gebiet leer ist und melden, wann ein neuer Auftrag nötig ist.
 [*]Konfigurierbare Taste für Talk Mode, standardmäßig V.
-[*]Direkte Interaktion per Rechtsklick auf den beschworenen Companion.
+[*]Der vollständige Talk Mode bleibt über Details im Aktionsrad oder die konfigurierbare V-Taste erreichbar.
 [/list]
 
 [h2]Soul Trinkets[/h2]
@@ -62,7 +66,7 @@ Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils als Start
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Aktuelle Version[/h2]
-Soulmates 0.7.4 Careful Cargo behebt einen Fehler beim Sammeln, durch den lose Item-Stacks im Pack vervielfacht werden konnten. Jeder Fund wird jetzt sicher zwischengespeichert, nur in der tatsächlich aufgenommenen Menge aus der Welt entfernt und sofort mit dem Companion-Pack synchronisiert. Native Emotes, ruhige Begegnungen mit Town-NPCs, die eigenen Soulkin-Animationen, animierte Bestiary Muses, die ruhigere Bewegung, der kampfbereite Begleitschutz und bestehende Sigils bleiben vollständig erhalten.
+Soulmates 0.8.0 Soul Initiative macht das kompakte Companion-Aktionsrad zur wichtigsten Interaktion und gibt jedem Talent einen eigenen hilfreichen Instinkt. Autonomie ist dauerhaft, sichtbar, optional, persönlichkeitsabhängig und ordnet sich Kampf, Warten, direkten Aufträgen und Erholung unter. Der vollständige Talk Mode bleibt als Detailansicht erhalten, und bestehende Soulbound Sigils bleiben kompatibel.
 
 [h2]Steuerung[/h2]
 [list]
@@ -73,10 +77,10 @@ Soulmates 0.7.4 Careful Cargo behebt einen Fehler beim Sammeln, durch den lose I
 [*]Rechtsklick auf ein Soul Trinket: aktuelles Trinket entfernen.
 [*]Talk Mode > Pack: Ladung ansehen, ausgewähltes Hotbar-Item einlagern oder alles entladen.
 [*]Pack-Slots: Linksklick nimmt einen Stack, Rechtsklick nimmt ein Item.
-[*]Standardmäßig V drücken: Talk Mode direkt öffnen.
+[*]Rechtsklick auf den Companion halten: eine Aktion im Radialmenü wählen.
+[*]Details im Radialmenü wählen oder standardmäßig V drücken: den vollständigen Talk Mode öffnen.
 [*]Rechtsklick auf dem eigenen Charakter halten, auf eine Geste zeigen und loslassen.
 [*]Alternativ standardmäßig G halten, auf eine Geste zeigen und loslassen.
-[*]Rechtsklick auf den Companion: Talk Mode direkt öffnen.
 [*]Folgen, Bleiben oder Erkunden beendet den aktuellen Gebietsauftrag.
 [/list]
 

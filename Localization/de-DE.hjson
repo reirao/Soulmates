@@ -91,6 +91,16 @@ Mods: {
         Laugh: Lachen
         Rest: Ausruhen
       }
+      CompanionQuickAction: {
+        Follow: Folgen
+        Stay: Warten
+        Explore: Erkunden
+        FindTreasure: Schatz
+        Mine: Bergbau
+        Gather: Sammeln
+        ToggleAutonomy: Autonomie
+        Details: Details
+      }
       CompanionTrinket: {
         None: Keines
         StarfinderBell: Sternensucherglocke
@@ -166,6 +176,20 @@ Mods: {
       Emotes: {
         Center: EMOTE
       }
+      CompanionWheel: {
+        Center: SOULMATE
+        AutonomyOn: AUTO AN
+        AutonomyOff: AUTO AUS
+        Actions: {
+          Follow: FOLGEN
+          Stay: WARTEN
+          Explore: ERKUNDEN
+          FindTreasure: SCHATZ
+          Mine: BERGBAU
+          Gather: SAMMELN
+          Details: DETAILS
+        }
+      }
     }
     Status: {
       Stay: Warten
@@ -178,6 +202,11 @@ Mods: {
 	  Watching: "WACHE: {0} Blöcke"
       Assignment: "Auftrag: {0}"
       Ready: Bereit
+      Autonomy: {
+        FetchItem: SAMMELT AUF
+        AssistMining: HILFT ABBAUEN
+        InspectTreasure: UNTERSUCHT
+      }
     }
     Messages: {
       StarterKit: Ein Seelenkern regt sich in deinen Händen...
@@ -199,7 +228,7 @@ Mods: {
         Voice: "Stimme: {0}"
         Trinket: "Schmuckstück: {0}  |  Pack: {1}/{2}  |  Aufträge: {3}"
         Assignment: "Aktiver Auftrag: {0}"
-        Controls: "Benutzen: beschwören  |  Rechtsklick auf Gefährten oder V: Sprechen  |  Hoch + Rechtsklick: zurückrufen"
+        Controls: "Benutzen: beschwören  |  Rechtsklick auf Gefährten: Aktionsrad  |  V: Details  |  Hoch + Rechtsklick: zurückrufen"
         Emotes: "Emotes: Rechtsklick auf dich oder G halten, zeigen und loslassen"
       }
     }
@@ -264,6 +293,20 @@ Mods: {
       SlotEmpty: Dieser Pack-Platz ist leer.
       WithdrewOne: "Ich habe {0} Gegenstand aus diesem Platz zurückgegeben. ({1}/{2})"
       WithdrewMany: "Ich habe {0} Gegenstände aus diesem Platz zurückgegeben. ({1}/{2})"
+    }
+    Autonomy: {
+      Enabled: Ich werde aufmerksam bleiben, selbst entscheiden und helfen, wenn ich eine Gelegenheit sehe.
+      Disabled: Verstanden. Ich warte auf deine Anweisungen.
+      Fetched: "Mir ist {0} aufgefallen. Ich bewahre es sicher auf."
+      Mined: "Ich habe beim Arbeiten {0} Erzblöcke in der Nähe mit abgebaut."
+      Treasure: "Etwas Interessantes zum Untersuchen liegt {0}."
+      Surprise: {
+        Curious: Ich habe etwas Interessantes gesehen. Vielleicht musste ich es untersuchen.
+        Loyal: Ich habe unsere Umgebung geprüft. Ich bin noch immer hier.
+        Brave: Eine kurze Patrouille. Jetzt weiß alles in der Nähe, dass wir bereit sind.
+        Gentle: Ich dachte, dieser Moment könnte ein wenig Wärme gebrauchen.
+        Mischievous: Ich habe ein sehr ernstes und ganz bestimmt harmloses Experiment durchgeführt.
+      }
     }
     Social: {
       Autonomous: {

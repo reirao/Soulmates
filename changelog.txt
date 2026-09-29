@@ -1,3 +1,15 @@
+Soulmates 0.8.0 - Soul Initiative
+
+- Right-click a summoned companion to open a compact eight-action radial menu for follow, stay, explore, work, autonomy, and details.
+- The full Talk Mode remains available through Details or the configurable V hotkey and now uses a smaller layout.
+- Added persistent per-companion autonomy that can be toggled directly from the radial menu.
+- Gatherers retrieve nearby loose items one stack at a time, Miners assist in short bursts while their owner mines, and Treasure Seekers investigate nearby chests.
+- Guardians and Healers retain their autonomous combat and recovery roles, giving every starting talent a distinct form of initiative.
+- Personality-driven autonomous moments add quiet, surprising behavior without interrupting combat, explicit assignments, Stay, or low-energy recovery.
+- Added server-authoritative radial actions and autonomous state synchronization for multiplayer.
+- Existing Soulbound Sigils gain autonomy by default and remain fully compatible.
+- Excluded repository gallery media from the packaged mod to reduce download size.
+
 Soulmates 0.7.4 - Careful Cargo
 
 - Fixed Gather assignments occasionally multiplying loose item stacks while moving them into the companion pack.

@@ -4,7 +4,7 @@ Soulmates turns the reusable Soulcore into a companion creator inside Terraria. 
 
 [img]https://raw.githubusercontent.com/reirao/Soulmates/main/media/soulmates-overview.png[/img]
 
-[url=https://github.com/reirao/Soulmates/releases/tag/v0.7.4][b]View the complete screenshot gallery and release downloads on GitHub.[/b][/url]
+[url=https://github.com/reirao/Soulmates/releases/latest][b]View the complete screenshot gallery and latest release downloads on GitHub.[/b][/url]
 
 [b]Languages:[/b] English and German. Soulmates follows Terraria's selected language automatically.
 
@@ -22,6 +22,10 @@ Soulmates is an experimental project created with extensive AI assistance across
 [h2]A Companion With Character[/h2]
 [list]
 [*]Personality-driven idle, wandering, inspecting, following, and catch-up behavior.
+[*]A compact eight-action companion wheel for movement, work, autonomy, and the full Details view.
+[*]Persistent per-companion autonomy that can be switched on or off at any time.
+[*]Talent-driven initiative: Gatherers retrieve nearby drops, Miners help in short bursts while you mine, Treasure Seekers investigate nearby chests, Guardians intercept danger, and Healers react to injuries.
+[*]Personality-driven autonomous moments add small surprises without overriding combat, Stay, explicit assignments, or low-energy recovery.
 [*]Persistent bond, mood, energy, and voice style.
 [*]Persistent experience and 20 companion levels earned through combat, healing, work, and shared moments.
 [*]A hold-and-release radial emote wheel with six personality-aware gestures shown through Terraria's native emote bubbles.
@@ -42,7 +46,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 [*]Predictable refusals based on visible mood and energy instead of a random roll.
 [*]Assignments stay saved during recalls, finish when the area is clear, and report when a new order is needed.
 [*]A configurable Talk to Companion hotkey, set to V by default.
-[*]Direct right-click interaction with the summoned companion.
+[*]The full Talk Mode remains available through Details on the wheel or the configurable V hotkey.
 [/list]
 
 [h2]Soul Trinkets[/h2]
@@ -62,7 +66,7 @@ New characters receive one Soulcore and three Blank Sigils as a prototype starte
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Current Release[/h2]
-Soulmates 0.7.4 Careful Cargo fixes a Gather transfer fault that could multiply loose item stacks inside the companion pack. Every pickup is now staged safely, removes exactly the accepted amount from the world, and synchronizes the pack immediately. This release retains native emotes, quiet town-NPC encounters, the original eight-frame Soulkin animation set, animated Bestiary muses, calmer idle motion, pet-like combat leashing, clean companion switching, persistent levels, multiplayer combat, natural energy recovery, five bond ranks, memories, packs, area assignments, equipment, world interaction, and complete English/German localization.
+Soulmates 0.8.0 Soul Initiative makes the compact companion wheel the primary interaction and gives every talent a distinct helpful instinct. Autonomy is persistent, visible, optional, personality-aware, and always yields to combat, Stay, explicit assignments, or recovery. The full Talk Mode remains available as the detailed view, and existing Soulbound Sigils remain compatible.
 
 [h2]Controls[/h2]
 [list]
@@ -73,10 +77,10 @@ Soulmates 0.7.4 Careful Cargo fixes a Gather transfer fault that could multiply 
 [*]Right-click a Soul Trinket: remove the current trinket.
 [*]Talk Mode > Pack: inspect cargo, store the selected hotbar item, or unload everything.
 [*]Pack slots: left-click to take a stack, right-click to take one item.
-[*]Press V by default: open Talk Mode directly while the companion is summoned.
+[*]Right-click the companion and hold: choose an action from the radial menu.
+[*]Choose Details on the radial menu, or press V by default: open the full Talk Mode.
 [*]Hold right-click on your own character, point toward an emote, and release to share it.
 [*]Alternatively hold G by default, point toward an emote, and release.
-[*]Right-click the companion: open Talk Mode directly.
 [*]Choose Follow, Stay, or Explore: cancel the current area assignment.
 [/list]
 

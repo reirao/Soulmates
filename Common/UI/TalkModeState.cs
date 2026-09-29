@@ -37,8 +37,8 @@ public sealed class TalkModeState : UIState
 		rootPanel = new UIPanel {
 			HAlign = 0.5f,
 			VAlign = 0.5f,
-			Width = new StyleDimension(640f, 0f),
-			Height = new StyleDimension(410f, 0f),
+			Width = new StyleDimension(600f, 0f),
+			Height = new StyleDimension(376f, 0f),
 			BackgroundColor = new Color(20, 29, 48) * 0.98f,
 			BorderColor = new Color(118, 154, 206)
 		};
@@ -47,31 +47,31 @@ public sealed class TalkModeState : UIState
 
 		title = new UIText(SoulmatesText.Get("UI.Talk.Title", ""), 1f, true) {
 			HAlign = 0.5f,
-			Top = new StyleDimension(10f, 0f)
+			Top = new StyleDimension(7f, 0f)
 		};
 		panel.Append(title);
 
 		var portrait = new UIPanel {
-			Left = new StyleDimension(12f, 0f),
-			Top = new StyleDimension(44f, 0f),
-			Width = new StyleDimension(210f, 0f),
-			Height = new StyleDimension(310f, 0f),
+			Left = new StyleDimension(10f, 0f),
+			Top = new StyleDimension(40f, 0f),
+			Width = new StyleDimension(188f, 0f),
+			Height = new StyleDimension(290f, 0f),
 			BackgroundColor = new Color(10, 17, 31),
 			BorderColor = new Color(67, 93, 133)
 		};
 		panel.Append(portrait);
 		portrait.Append(new SoulPreviewElement(() => sigil?.Profile ?? new CompanionProfile()) {
-			Left = new StyleDimension(8f, 0f),
-			Top = new StyleDimension(5f, 0f),
-			Width = new StyleDimension(-16f, 1f),
-			Height = new StyleDimension(150f, 0f)
+			Left = new StyleDimension(6f, 0f),
+			Top = new StyleDimension(4f, 0f),
+			Width = new StyleDimension(-12f, 1f),
+			Height = new StyleDimension(132f, 0f)
 		});
 
-		response = new UIText("...", 0.76f) {
-			Left = new StyleDimension(12f, 0f),
-			Top = new StyleDimension(158f, 0f),
-			Width = new StyleDimension(-24f, 1f),
-			Height = new StyleDimension(68f, 0f),
+		response = new UIText("...", 0.7f) {
+			Left = new StyleDimension(10f, 0f),
+			Top = new StyleDimension(140f, 0f),
+			Width = new StyleDimension(-20f, 1f),
+			Height = new StyleDimension(58f, 0f),
 			TextOriginX = 0.5f,
 			HAlign = 0.5f,
 			IsWrapped = true
@@ -79,9 +79,9 @@ public sealed class TalkModeState : UIState
 		portrait.Append(response);
 
 		portrait.Append(new CompanionVitalsElement(() => sigil?.Profile, () => companion) {
-			Left = new StyleDimension(8f, 0f),
-			Top = new StyleDimension(232f, 0f),
-			Width = new StyleDimension(-16f, 1f),
+			Left = new StyleDimension(6f, 0f),
+			Top = new StyleDimension(205f, 0f),
+			Width = new StyleDimension(-12f, 1f),
 			Height = new StyleDimension(68f, 0f)
 		});
 
@@ -90,42 +90,42 @@ public sealed class TalkModeState : UIState
 			TalkCategory chosen = categories[i];
 			int column = i % 3;
 			int row = i / 3;
-			var button = Button(chosen.ToString().ToUpperInvariant(), 44f + row * 33f, 234f + column * 128f, 116f,
-				new Color(54, 71, 105), 0.58f, 30f);
+			var button = Button(chosen.ToString().ToUpperInvariant(), 40f + row * 31f, 210f + column * 122f, 112f,
+				new Color(54, 71, 105), 0.56f, 28f);
 			button.OnLeftClick += (_, _) => SelectCategory(chosen);
 			categoryButtons.Add((chosen, button));
 			panel.Append(button);
 		}
 
 		chooseWordsLabel = new UIText("", 0.58f) {
-			Left = new StyleDimension(234f, 0f),
-			Top = new StyleDimension(112f, 0f),
+			Left = new StyleDimension(210f, 0f),
+			Top = new StyleDimension(105f, 0f),
 			TextColor = new Color(155, 174, 203)
 		};
 		panel.Append(chooseWordsLabel);
 
 		for (int i = 0; i < 3; i++) {
 			int option = i;
-			var button = Button("", 126f + i * 50f, 234f, 372f, new Color(43, 64, 98), 0.66f, 42f);
+			var button = Button("", 118f + i * 46f, 210f, 376f, new Color(43, 64, 98), 0.62f, 39f);
 			button.OnLeftClick += (_, _) => Speak(option);
 			optionButtons.Add(button);
 			panel.Append(button);
 		}
 
 		panel.Append(new CompanionPackElement(() => sigil?.Profile, WithdrawPackSlot) {
-			Left = new StyleDimension(234f, 0f),
-			Top = new StyleDimension(296f, 0f),
-			Width = new StyleDimension(372f, 0f),
-			Height = new StyleDimension(54f, 0f)
+			Left = new StyleDimension(210f, 0f),
+			Top = new StyleDimension(268f, 0f),
+			Width = new StyleDimension(376f, 0f),
+			Height = new StyleDimension(50f, 0f)
 		});
 		packLabel = new UIText("", 0.58f) {
-			Left = new StyleDimension(234f, 0f),
-			Top = new StyleDimension(279f, 0f),
+			Left = new StyleDimension(210f, 0f),
+			Top = new StyleDimension(252f, 0f),
 			TextColor = new Color(155, 174, 203)
 		};
 		panel.Append(packLabel);
 
-		closeButton = Button("", 356f, 234f, 372f, new Color(120, 63, 72), 0.7f, 34f);
+		closeButton = Button("", 329f, 210f, 376f, new Color(120, 63, 72), 0.67f, 34f);
 		closeButton.OnLeftClick += (_, _) => ModContent.GetInstance<TalkModeSystem>().Close();
 		panel.Append(closeButton);
 	}

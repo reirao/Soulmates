@@ -31,16 +31,17 @@ public sealed class SoulmatesPlayer : ModPlayer
 			return;
 		SoulboundCompanion? companion = SoulboundCompanion.FindFor(Player);
 		EmoteWheelSystem emoteWheel = ModContent.GetInstance<EmoteWheelSystem>();
+		CompanionWheelSystem companionWheel = ModContent.GetInstance<CompanionWheelSystem>();
 		TalkModeSystem talkMode = ModContent.GetInstance<TalkModeSystem>();
 		if (Soulmates.EmoteKeybind.JustReleased)
 			emoteWheel.Release();
 		if (Soulmates.EmoteKeybind.JustPressed && companion is not null && !Main.playerInventory
-			&& !talkMode.IsOpen)
+			&& !talkMode.IsOpen && !companionWheel.IsOpen)
 			emoteWheel.Open(companion);
 		if (companion is not null)
 			TryOpenSelfEmoteWheel(companion, emoteWheel, talkMode);
 
-		if (!Soulmates.TalkKeybind.JustPressed || companion is null)
+		if (!Soulmates.TalkKeybind.JustPressed || companion is null || companionWheel.IsOpen)
 			return;
 		if (companion.FindBoundSigil() is not { } sigil)
 			return;

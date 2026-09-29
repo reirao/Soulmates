@@ -31,10 +31,13 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Choose a name, form, essence color, aura, personality, and starting talent.
 - Choose a visual Bestiary Muse: Soulkin, Bunny, Blue Slime, Bird, or Squirrel.
 - Summon exactly one active companion at a time; switching Sigils cleanly retires the previous companion, assignment, and projectiles.
-- Right-click the summoned companion itself to enter Talk Mode.
+- Right-click the summoned companion itself to open a compact eight-action radial menu.
 - Hold Up and right-click the Sigil to recall it.
 - Companion identity and progression data are saved on the Sigil.
 - Personality-driven idle, wander, inspect, follow, and catch-up behavior.
+- Persistent per-companion autonomy, switchable from the action wheel.
+- Talent-driven initiative: Gatherers retrieve nearby drops, Miners help in short bursts while their owner mines, Treasure Seekers investigate nearby chests, Guardians intercept danger, and Healers react to injuries.
+- Personality-driven autonomous moments add small surprises without overriding combat, Stay, explicit assignments, or low-energy recovery.
 - Persistent companion experience with 20 levels earned from combat, healing, work, and shared moments.
 - Hold right-click directly on your own character, point toward an emote, and release to share a social action. The configurable **Companion Emote Wheel** key (`G` by default) remains available as an alternative.
 - Native Terraria emote bubbles for shared gestures, with occasional context-aware speech instead of constant text.
@@ -56,7 +59,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Work refusals are deterministic and explain whether mood or energy is too low.
 - Active assignments survive recalls and summons, end when the area is clear, and report when the companion needs a new assignment.
 - Press the configurable **Talk to Companion** hotkey (`V` by default) to open Talk Mode without selecting the Sigil.
-- Right-click the summoned companion to open Talk Mode directly.
+- Choose **Details** on the companion action wheel, or press `V`, to open the complete Talk Mode with level, bond, mood, energy, pack, memories, and conversations.
 - Stay is a true world anchor: companions defend that location without drifting back to the player.
 - Play in English or German; Soulmates follows Terraria's selected language automatically.
 
@@ -64,7 +67,7 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current release
 
-**Soulmates 0.7.4 - Careful Cargo** fixes an item-transfer fault that could multiply loose stacks collected by a Gather assignment. Companions now stage every pickup safely, remove exactly the accepted amount from the world, and synchronize pack changes immediately. The release retains native emotes, quiet town-NPC encounters, the animated Soulkin and Bestiary muses, pet-like combat leashing, and full compatibility with existing Soulbound Sigils.
+**Soulmates 0.8.0 - Soul Initiative** makes the companion action wheel the compact primary interaction and turns autonomy into a visible, controllable part of each relationship. Every talent now has a distinct helpful instinct, personalities create occasional unscripted moments, and explicit player intent always has priority. Existing Soulbound Sigils enable autonomy by default and remain fully compatible.
 
 ## Languages
 

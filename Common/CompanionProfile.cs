@@ -76,6 +76,18 @@ public enum CompanionEmote : byte
 	Rest
 }
 
+public enum CompanionQuickAction : byte
+{
+	Follow,
+	Stay,
+	Explore,
+	FindTreasure,
+	Mine,
+	Gather,
+	ToggleAutonomy,
+	Details
+}
+
 public enum CompanionTrinket : byte
 {
 	None,
@@ -207,6 +219,7 @@ public sealed class CompanionProfile
 	public CompanionVoice Voice { get; set; }
 	public CompanionTrinket Trinket { get; set; }
 	public CompanionJob Routine { get; set; }
+	public bool AutonomyEnabled { get; set; } = true;
 	public int Bond { get; set; }
 	public int Mood { get; set; } = 100;
 	public int Energy { get; set; } = 100;
@@ -265,6 +278,7 @@ public sealed class CompanionProfile
 		Voice = Voice,
 		Trinket = Trinket,
 		Routine = Routine,
+		AutonomyEnabled = AutonomyEnabled,
 		Bond = Bond,
 		Mood = Mood,
 		Energy = Energy,
@@ -289,6 +303,7 @@ public sealed class CompanionProfile
 		["voice"] = (byte)Voice,
 		["trinket"] = (byte)Trinket,
 		["routine"] = (byte)Routine,
+		["autonomyEnabled"] = AutonomyEnabled,
 		["bond"] = Bond,
 		["mood"] = Mood,
 		["energy"] = Energy,
@@ -315,6 +330,7 @@ public sealed class CompanionProfile
 			Voice = tag.ContainsKey("voice") ? (CompanionVoice)tag.GetByte("voice") : CompanionVoice.Soft,
 			Trinket = tag.ContainsKey("trinket") ? (CompanionTrinket)tag.GetByte("trinket") : CompanionTrinket.None,
 			Routine = tag.ContainsKey("routine") ? (CompanionJob)tag.GetByte("routine") : CompanionJob.None,
+			AutonomyEnabled = !tag.ContainsKey("autonomyEnabled") || tag.GetBool("autonomyEnabled"),
 			Bond = tag.GetInt("bond"),
 			Mood = tag.ContainsKey("mood") ? tag.GetInt("mood") : 100,
 			Energy = tag.ContainsKey("energy") ? tag.GetInt("energy") : 100,
@@ -347,6 +363,7 @@ public sealed class CompanionProfile
 		writer.Write((byte)Voice);
 		writer.Write((byte)Trinket);
 		writer.Write((byte)Routine);
+		writer.Write(AutonomyEnabled);
 		writer.Write(Bond);
 		writer.Write(Mood);
 		writer.Write(Energy);
@@ -379,6 +396,7 @@ public sealed class CompanionProfile
 			Voice = (CompanionVoice)reader.ReadByte(),
 			Trinket = (CompanionTrinket)reader.ReadByte(),
 			Routine = (CompanionJob)reader.ReadByte(),
+			AutonomyEnabled = reader.ReadBoolean(),
 			Bond = reader.ReadInt32(),
 			Mood = reader.ReadInt32(),
 			Energy = reader.ReadInt32(),

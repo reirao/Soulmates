@@ -91,6 +91,16 @@ Mods: {
         Laugh: Laugh
         Rest: Rest
       }
+      CompanionQuickAction: {
+        Follow: Follow
+        Stay: Stay
+        Explore: Explore
+        FindTreasure: Treasure
+        Mine: Mine
+        Gather: Gather
+        ToggleAutonomy: Autonomy
+        Details: Details
+      }
       CompanionTrinket: {
         None: None
         StarfinderBell: Starfinder Bell
@@ -166,6 +176,20 @@ Mods: {
       Emotes: {
         Center: EMOTE
       }
+      CompanionWheel: {
+        Center: SOULMATE
+        AutonomyOn: AUTO ON
+        AutonomyOff: AUTO OFF
+        Actions: {
+          Follow: FOLLOW
+          Stay: STAY
+          Explore: EXPLORE
+          FindTreasure: TREASURE
+          Mine: MINE
+          Gather: GATHER
+          Details: DETAILS
+        }
+      }
     }
     Status: {
       Stay: Stay
@@ -178,6 +202,11 @@ Mods: {
 	  Watching: "WATCH: {0} tiles"
       Assignment: "{0} assignment"
       Ready: Ready
+      Autonomy: {
+        FetchItem: PICKING UP
+        AssistMining: HELPING MINE
+        InspectTreasure: INVESTIGATING
+      }
     }
     Messages: {
       StarterKit: A Soulcore stirs in your hands...
@@ -199,7 +228,7 @@ Mods: {
         Voice: "Voice: {0}"
         Trinket: "Trinket: {0}  |  Pack: {1}/{2}  |  Jobs: {3}"
         Assignment: "Active assignment: {0}"
-        Controls: "Use: summon  |  Right-click companion or V: Talk  |  Up + Right-click: recall"
+        Controls: "Use: summon  |  Right-click companion: action wheel  |  V: details  |  Up + Right-click: recall"
         Emotes: "Emotes: hold right-click on yourself or hold G, point, and release"
       }
     }
@@ -264,6 +293,20 @@ Mods: {
       SlotEmpty: That pack slot is empty.
       WithdrewOne: "I returned {0} item from that slot. ({1}/{2})"
       WithdrewMany: "I returned {0} items from that slot. ({1}/{2})"
+    }
+    Autonomy: {
+      Enabled: I will watch, decide, and help when I see a good moment.
+      Disabled: Understood. I will wait for your directions.
+      Fetched: "I noticed {0}. I will keep it safe."
+      Mined: "I cleared {0} nearby ore blocks while you worked."
+      Treasure: "Something worth investigating is {0}."
+      Surprise: {
+        Curious: I saw something interesting. I may have gone to inspect it.
+        Loyal: I checked our surroundings. I am still right here.
+        Brave: A quick patrol. Everything nearby knows we are ready.
+        Gentle: I thought this moment needed a little warmth.
+        Mischievous: I conducted a very serious and definitely harmless experiment.
+      }
     }
     Social: {
       Autonomous: {

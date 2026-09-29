@@ -6,6 +6,7 @@ using Soulmates.Common.UI;
 using Soulmates.Content.Items;
 using Soulmates.Content.NPCs;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -23,7 +24,9 @@ public sealed class Soulmates : Mod
 		PackWithdrawRequest,
 		ProfileUpdate,
 		EmoteRequest,
-		CompanionSpeech
+		CompanionSpeech,
+		QuickActionRequest,
+		QuickActionResponse
 	}
 
 	internal static ModKeybind TalkKeybind { get; private set; } = null!;
@@ -105,6 +108,16 @@ public sealed class Soulmates : Mod
 		packet.Send();
 	}
 
+	internal static void SendQuickActionRequest(CompanionQuickAction action)
+	{
+		if (Main.netMode != NetmodeID.MultiplayerClient)
+			return;
+		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
+		packet.Write((byte)MessageType.QuickActionRequest);
+		packet.Write((byte)action);
+		packet.Send();
+	}
+
 	internal static void SendCompanionSpeech(Player player, SoulboundCompanion companion, string key, string argument = "")
 	{
 		if (Main.netMode != NetmodeID.Server)
@@ -158,6 +171,12 @@ public sealed class Soulmates : Mod
 				break;
 			case MessageType.CompanionSpeech:
 				HandleCompanionSpeech(reader);
+				break;
+			case MessageType.QuickActionRequest:
+				HandleQuickActionRequest(reader, whoAmI);
+				break;
+			case MessageType.QuickActionResponse:
+				HandleQuickActionResponse(reader);
 				break;
 		}
 	}
@@ -281,6 +300,38 @@ public sealed class Soulmates : Mod
 			return;
 		if (SoulboundCompanion.FindFor(Main.LocalPlayer) is { } companion && companion.Profile.Id == profileId)
 			companion.ShowSpeech(string.IsNullOrEmpty(argument) ? SoulmatesText.Get(key) : SoulmatesText.Get(key, argument));
+	}
+
+	private void HandleQuickActionRequest(BinaryReader reader, int whoAmI)
+	{
+		CompanionQuickAction action = (CompanionQuickAction)reader.ReadByte();
+		if (Main.netMode != NetmodeID.Server || !Enum.IsDefined(action) || action == CompanionQuickAction.Details
+			|| whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active)
+			return;
+		if (SoulboundCompanion.FindFor(Main.player[whoAmI]) is not { } companion)
+			return;
+
+		CompanionConversationResult result = companion.PerformQuickAction(action);
+		ModPacket packet = GetPacket();
+		packet.Write((byte)MessageType.QuickActionResponse);
+		packet.Write(result.Accepted);
+		packet.Write(result.Reply);
+		companion.Profile.Write(packet);
+		packet.Send(whoAmI);
+	}
+
+	private static void HandleQuickActionResponse(BinaryReader reader)
+	{
+		bool accepted = reader.ReadBoolean();
+		string reply = reader.ReadString();
+		CompanionProfile profile = CompanionProfile.Read(reader);
+		if (Main.netMode != NetmodeID.MultiplayerClient)
+			return;
+
+		ApplyClientProfile(profile);
+		if (SoulboundCompanion.FindFor(Main.LocalPlayer) is { } companion && companion.Profile.Id == profile.Id)
+			companion.ShowSpeech(reply);
+		SoundEngine.PlaySound(accepted ? SoundID.Chat : SoundID.MenuClose);
 	}
 
 	private static void ApplyClientProfile(CompanionProfile profile)
