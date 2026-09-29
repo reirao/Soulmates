@@ -57,6 +57,9 @@ public sealed class SoulboundCompanion : ModNPC
 	private const float StayCommand = 1f;
 	private const float StandardDefenseRange = 320f;
 	private const float GuardianDefenseRange = 448f;
+	private const int AutonomousLootSweepLimit = 12;
+	private const int AutonomousLootTargetTimeout = 480;
+	private const int AutonomousForestSweepLimit = 5;
 	private BrainState brainState;
 	private int stateTimer;
 	private int facing = 1;
@@ -548,15 +551,25 @@ public sealed class SoulboundCompanion : ModNPC
 	private bool UpdateAutonomousFetch()
 	{
 		if (autonomyTargetItem < 0 || autonomyTargetItem >= Main.maxItems) {
-			if (Main.netMode != NetmodeID.MultiplayerClient)
-				CancelAutonomousActivity();
+			if (Main.netMode == NetmodeID.MultiplayerClient)
+				return false;
+			if (TryRetargetAutonomousLoot())
+				return true;
+			FinishAutonomousLootSweep();
 			return false;
 		}
 
 		Item item = Main.item[autonomyTargetItem];
-		if (!item.active || item.IsAir || !CanCollectLooseItem(item) || autonomyActionTimer > 480) {
-			if (Main.netMode != NetmodeID.MultiplayerClient)
-				CancelAutonomousActivity();
+		bool targetTimedOut = autonomyActionTimer > AutonomousLootTargetTimeout;
+		if (!item.active || item.IsAir
+			|| Main.netMode != NetmodeID.MultiplayerClient && !CanCollectLooseItem(item)
+			|| targetTimedOut) {
+			if (Main.netMode == NetmodeID.MultiplayerClient)
+				return false;
+			int excludedTarget = targetTimedOut ? autonomyTargetItem : -1;
+			if (TryRetargetAutonomousLoot(excludedTarget))
+				return true;
+			FinishAutonomousLootSweep();
 			return false;
 		}
 
@@ -564,25 +577,44 @@ public sealed class SoulboundCompanion : ModNPC
 		if (Vector2.DistanceSquared(NPC.Center, item.Center) >= 42f * 42f || Main.netMode == NetmodeID.MultiplayerClient)
 			return true;
 
-		string itemName = item.Name;
+		int collectedItemIndex = autonomyTargetItem;
 		int moved = StoreLooseItem(item);
 		if (moved > 0) {
+			autonomyWorkCount++;
 			Profile.Energy = Math.Max(0, Profile.Energy - 1);
 			Profile.GainExperience(EagerGatherer ? 2 : 1, out _);
 			SyncProfileToBoundSigil();
 			if (Main.netMode == NetmodeID.Server)
-				NetMessage.SendData(MessageID.SyncItem, -1, -1, null, autonomyTargetItem);
-			if (Main.rand.NextBool(3)) {
-				StartEmote(CompanionEmote.Cheer, 90);
-				ShowNativeEmote(CompanionEmote.Cheer, 110);
-			}
-			if (Main.rand.NextBool(4))
-				SpeakLocalized("Autonomy.Fetched", itemName);
+				NetMessage.SendData(MessageID.SyncItem, -1, -1, null, collectedItemIndex);
+			NPC.netUpdate = true;
 		}
-		else
-			SpeakLocalized("Jobs.PackFull");
-		CancelAutonomousActivity(EagerGatherer ? 90 : 180);
-		return false;
+
+		if (moved <= 0 || Profile.Energy < 16 || autonomyWorkCount >= AutonomousLootSweepLimit
+			|| !TryRetargetAutonomousLoot()) {
+			FinishAutonomousLootSweep();
+			return false;
+		}
+		return true;
+	}
+
+	private bool TryRetargetAutonomousLoot(int excludedItem = -1)
+	{
+		autonomyTargetItem = -1;
+		autonomyActionTimer = 0;
+		if (!FindAutonomousLooseItem(out int nextTarget, excludedItem))
+			return false;
+		autonomyTargetItem = nextTarget;
+		NPC.netUpdate = true;
+		return true;
+	}
+
+	private void FinishAutonomousLootSweep()
+	{
+		if (autonomyWorkCount > 0 && Main.rand.NextBool(3)) {
+			StartEmote(CompanionEmote.Cheer, 90);
+			ShowNativeEmote(CompanionEmote.Cheer, 110);
+		}
+		CancelAutonomousActivity(EagerGatherer ? 45 : 90);
 	}
 
 	private bool UpdateAutonomousMining()
@@ -652,7 +684,9 @@ public sealed class SoulboundCompanion : ModNPC
 			return true;
 		if (autonomyActionTimer > 600) {
 			tendedForestTargets.Add(autonomyTargetTile);
-			CancelAutonomousActivity(300);
+			if (TryRetargetAutonomousForestry())
+				return true;
+			FinishAutonomousForestry();
 			return false;
 		}
 		if (Vector2.DistanceSquared(NPC.Center, target) > 68f * 68f || autonomyActionTimer % 30 != 0)
@@ -666,14 +700,38 @@ public sealed class SoulboundCompanion : ModNPC
 		};
 		tendedForestTargets.Add(autonomyTargetTile);
 		if (success) {
+			autonomyWorkCount++;
 			Profile.Energy = Math.Max(0, Profile.Energy - 1);
 			Profile.GainExperience(2, out _);
 			SyncProfileToBoundSigil();
+			NPC.netUpdate = true;
+		}
+
+		if (Profile.Energy >= 16 && autonomyWorkCount < AutonomousForestSweepLimit
+			&& TryRetargetAutonomousForestry())
+			return true;
+		FinishAutonomousForestry();
+		return false;
+	}
+
+	private bool TryRetargetAutonomousForestry()
+	{
+		if (!FindAutonomousForestTask(out Point nextTarget, out ForestAction nextAction))
+			return false;
+		autonomyTargetTile = nextTarget;
+		autonomyForestAction = nextAction;
+		autonomyActionTimer = 0;
+		NPC.netUpdate = true;
+		return true;
+	}
+
+	private void FinishAutonomousForestry()
+	{
+		if (autonomyWorkCount > 0 && Main.rand.NextBool(2)) {
 			StartEmote(CompanionEmote.Cheer, 75);
 			ShowNativeEmote(CompanionEmote.Cheer, 90);
 		}
-		CancelAutonomousActivity(success ? 420 : 260);
-		return false;
+		CancelAutonomousActivity(autonomyWorkCount > 0 ? 180 : 260);
 	}
 
 	private bool ShakeAutonomousTree()
@@ -709,7 +767,7 @@ public sealed class SoulboundCompanion : ModNPC
 		WorldGen.KillTile(autonomyTargetTile.X, autonomyTargetTile.Y);
 		bool success = !Main.tile[autonomyTargetTile.X, autonomyTargetTile.Y].HasTile;
 		if (success) {
-			CollectNearbyLooseItems(autonomyTargetTile.ToWorldCoordinates(), 160f, 8);
+			CollectNearbyLooseItems(autonomyTargetTile.ToWorldCoordinates(), 240f, 8);
 			if (Main.netMode == NetmodeID.Server)
 				NetMessage.SendData(MessageID.TileManipulation, -1, -1, null, 0,
 					autonomyTargetTile.X, autonomyTargetTile.Y);
@@ -734,7 +792,7 @@ public sealed class SoulboundCompanion : ModNPC
 		return true;
 	}
 
-	private bool FindAutonomousLooseItem(out int result)
+	private bool FindAutonomousLooseItem(out int result, int excludedItem = -1)
 	{
 		result = -1;
 		float radius = (EagerGatherer ? 20f : 13f) * 16f;
@@ -743,7 +801,7 @@ public sealed class SoulboundCompanion : ModNPC
 		float bestScore = float.MaxValue;
 		for (int i = 0; i < Main.maxItems; i++) {
 			Item item = Main.item[i];
-			if (!item.active || item.IsAir || !CanCollectLooseItem(item)
+			if (i == excludedItem || !item.active || item.IsAir || !CanCollectLooseItem(item)
 				|| item.playerIndexTheItemIsReservedFor != 255 && item.playerIndexTheItemIsReservedFor != Owner.whoAmI)
 				continue;
 			float ownerDistance = Vector2.DistanceSquared(Owner.Center, item.Center);
@@ -1389,7 +1447,7 @@ public sealed class SoulboundCompanion : ModNPC
 			SyncProfileToBoundSigil();
 			NPC.netUpdate = true;
 			jobTargetItem = -1;
-			gatherPause = 30;
+			gatherPause = 6;
 		}
 		if (jobTimer > 7200)
 			CompleteJob(SoulmatesText.Get("Jobs.Gathering.Timeout", jobCount), success: false);

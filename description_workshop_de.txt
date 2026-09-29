@@ -69,7 +69,7 @@ Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils als Start
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Aktuelle Version[/h2]
-Soulmates 0.8.0 Soul Initiative macht Autonomie sichtbar, optional, persönlichkeitsabhängig und lernfähig. Soulmates sammeln Drops und passende Teilstapel zuverlässig, können Forstpflege lernen, pausieren und setzen Arbeit nach natürlicher Erholung fort und reagieren über Terrarias vollständigen nativen Emote-Katalog. AETHER ist im Soul Creator als Omni-Seele mit allen Talentinstinkten und Perks auswählbar. Kampf, Warten, direkte Aufträge, Multiplayer-Validierung und die Kompatibilität bestehender Soulbound Sigils wurden für lange Spielsitzungen gehärtet.
+Soulmates 0.8.1 Loot Flow lässt Gefährten nahe Drops in einer zusammenhängenden Sammelrunde aufnehmen, bei verschwundener Beute sofort ein neues Ziel wählen und sauber stoppen, sobald das Gebiet leer, das Pack voll oder die Energie niedrig ist. Forstkundige Gefährten verbinden Baum-Schütteln, das Abbauen gefallener Stämme, das direkte Sammeln von Holz und Samen sowie vorsichtiges Eichelpflanzen zu begrenzten Arbeitsrunden. Pack-Kapazität, Teilstapel, Item-Reservierungen und Multiplayer-Autorität bleiben geschützt. Lernen, natürliche Erholung, native Emotes, die AETHER-Omni-Seele und bestehende Soulbound Sigils bleiben vollständig kompatibel.
 
 [h2]Steuerung[/h2]
 [list]

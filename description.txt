@@ -1,5 +1,5 @@
-Soulmates 0.8.0: Create a companion with a soul.
+Soulmates 0.8.1: Create a companion with a soul.
 
 Use the reusable Soulcore to shape unique companions, including the Omni Soul AETHER, bind each one to a Soulbound Sigil, and bring them along on your Terraria adventures.
 
-Persistent animated companions learn from your behavior, defend and heal, collect and mine, tend forests, interact through Terraria's native emotes, carry a safely synchronized inventory, recover naturally, and resume useful work. Existing Sigils remain compatible, and switching always leaves exactly one active companion.
+Persistent animated companions learn from your behavior, defend and heal, sweep up nearby loot, mine, shake trees, clear fallen logs, collect wood and seeds, plant acorns, interact through Terraria's native emotes, carry a safely synchronized inventory, recover naturally, and resume useful work. Existing Sigils remain compatible, and switching always leaves exactly one active companion.

@@ -1,3 +1,11 @@
+Soulmates 0.8.1 - Loot Flow
+
+- Autonomous looting now continues as one coordinated sweep instead of stopping after every item stack.
+- Companions immediately retarget when loot disappears, becomes unavailable, or cannot be reached in time.
+- Direct gathering uses shorter pauses while pack capacity, ownership reservations, energy, and server authority remain enforced.
+- Foresters can now chain nearby tree shakes, fallen-log clearing, drop collection, and acorn planting into bounded work rounds.
+- Tree and deadwood drops are collected immediately, including wood, acorns, and anything shaken from the canopy.
+
 Soulmates 0.8.0 - Soul Initiative
 
 - Right-click a summoned companion to open a compact eight-action radial menu for follow, stay, explore, work, autonomy, and details.

@@ -70,7 +70,7 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current release
 
-**Soulmates 0.8.0 - Soul Initiative** makes autonomy visible, controllable, and capable of learning from the player. Soulmates reliably collect nearby drops and compatible partial stacks, remember behavioral insights, can unlock careful forest tending, recover and resume interrupted work, and respond to Terraria's complete native emote catalog. AETHER is selectable as the special Omni Soul with every talent instinct and perk. Explicit player intent always has priority, multiplayer creation and actions are server-authoritative, and existing Soulbound Sigils remain compatible.
+**Soulmates 0.8.1 - Loot Flow** turns autonomous pickup into a coordinated sweep: companions chain nearby drops, immediately retarget when an item disappears, and pause only after the area is clear, their pack is full, or their energy runs low. Foresters also chain tree shaking, fallen-log clearing, immediate drop collection, and careful acorn planting into bounded work rounds. Pack capacity, item reservations, and server authority remain enforced. Soul Initiative's learning, natural recovery, native emotes, AETHER Omni Soul, and existing Soulbound Sigil compatibility remain intact.
 
 ## Languages
 
