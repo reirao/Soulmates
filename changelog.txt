@@ -1,3 +1,15 @@
+Soulmates 0.9.0 - Soulwheel
+
+- Replaced the separate hold-and-release action and relationship wheels with one click-driven radial Soulwheel.
+- Right-clicking either the summoned companion or your own character now opens the same compact interface.
+- Commands, work, bonding, Terraria emotes, the companion pack, and full details are visible as small icon categories.
+- Categories expand into crescent sub-wheels; all 151 vanilla Terraria emotes are grouped into seven paged radial categories without opening Terraria's large emote window.
+- Follow, Stay, Explore, Autonomy, Treasure, Mine, and Gather are now communicated through familiar emote symbols with localized hover labels.
+- The pack icon opens the companion inventory directly, while Details retains the complete Talk Mode for stats, growth, memories, and conversation.
+- The Soul Creator now shows all five starting talents as directly selectable visual class icons with a clear active state.
+- Unified wheel ownership prevents the old action, relationship, and native emote interfaces from competing for the same right-click.
+- Existing Soulbound Sigils and multiplayer-authoritative command, pack, and emote behavior remain compatible.
+
 Soulmates 0.8.2 - Visible Forestry
 
 - Every autonomous companion can now shake one nearby tree or clear one fallen log during a decision cycle.

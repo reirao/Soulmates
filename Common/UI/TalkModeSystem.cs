@@ -1,6 +1,7 @@
 #nullable enable
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Soulmates.Common.Dialogue;
 using Soulmates.Content.Items;
 using Soulmates.Content.NPCs;
 using Terraria;
@@ -25,11 +26,15 @@ public sealed class TalkModeSystem : ModSystem
 	}
 
 	public void Open(SoulboundSigil sigil, SoulboundCompanion companion)
+		=> Open(sigil, companion, TalkCategory.Care);
+
+	public void Open(SoulboundSigil sigil, SoulboundCompanion companion, TalkCategory initialCategory)
 	{
 		if (talkState is null || talkInterface is null || IsOpen)
 			return;
 		ModContent.GetInstance<SoulCreatorSystem>().Close();
-		talkState.Bind(sigil, companion);
+		ModContent.GetInstance<CompanionWheelSystem>().Close();
+		talkState.Bind(sigil, companion, initialCategory);
 		talkInterface.SetState(talkState);
 		Main.playerInventory = false;
 	}

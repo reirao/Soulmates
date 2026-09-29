@@ -22,6 +22,7 @@ public sealed class SoulCreatorState : UIState
 	private int nameIndex;
 	private UIText? details;
 	private UIText? status;
+	private UIText? talentLabel;
 	private bool creationPending;
 
 	public override void OnInitialize()
@@ -81,30 +82,48 @@ public sealed class SoulCreatorState : UIState
 		AddCycleButton(panel, "UI.Creator.Fields.Essence", 165f, left, width, () => SoulmatesText.EnumName(draft.Essence), () => draft.Essence = Next(draft.Essence));
 		AddCycleButton(panel, "UI.Creator.Fields.Aura", 204f, left, width, () => SoulmatesText.EnumName(draft.Aura), () => draft.Aura = Next(draft.Aura));
 		AddCycleButton(panel, "UI.Creator.Fields.Personality", 243f, left, width, () => SoulmatesText.EnumName(draft.Personality), () => draft.Personality = Next(draft.Personality));
-		AddCycleButton(panel, "UI.Creator.Fields.Talent", 282f, left, width,
-			() => draft.IsAether ? SoulmatesText.Get("UI.Talk.OmniSoul") : SoulmatesText.EnumName(draft.Talent),
-			() => draft.Talent = Next(draft.Talent));
 
-		var randomize = Button("", 324f, left, width, new Color(82, 74, 116));
+		talentLabel = new UIText("", 0.58f) {
+			Left = new StyleDimension(left + 2f, 0f),
+			Top = new StyleDimension(282f, 0f),
+			TextColor = new Color(164, 183, 211)
+		};
+		panel.Append(talentLabel);
+		refreshButtons.Add(() => talentLabel.SetText(SoulmatesText.Get("UI.Creator.Fields.Talent").ToUpperInvariant()));
+
+		CompanionTalent[] talents = Enum.GetValues<CompanionTalent>();
+		float talentWidth = width / talents.Length;
+		for (int i = 0; i < talents.Length; i++) {
+			CompanionTalent talent = talents[i];
+			var choice = new TalentChoiceElement(talent, () => draft, SelectTalent) {
+				Left = new StyleDimension(left + i * talentWidth, 0f),
+				Top = new StyleDimension(298f, 0f),
+				Width = new StyleDimension(talentWidth, 0f),
+				Height = new StyleDimension(55f, 0f)
+			};
+			panel.Append(choice);
+		}
+
+		var randomize = Button("", 357f, left, width, new Color(82, 74, 116));
 		refreshButtons.Add(() => randomize.SetText(SoulmatesText.Get("UI.Creator.Randomize")));
 		randomize.OnLeftClick += (_, _) => RandomizeDraft();
 		panel.Append(randomize);
 
 		status = new UIText(SoulmatesText.Get("UI.Creator.RequiresSigil"), 0.8f) {
 			Left = new StyleDimension(left, 0f),
-			Top = new StyleDimension(362f, 0f),
+			Top = new StyleDimension(394f, 0f),
 			Width = new StyleDimension(width, 0f),
 			TextOriginX = 0.5f,
 			TextColor = Color.LightGray
 		};
 		panel.Append(status);
 
-		var create = Button("", 410f, 14f, 450f, new Color(55, 129, 112));
+		var create = Button("", 420f, 14f, 450f, new Color(55, 129, 112));
 		refreshButtons.Add(() => create.SetText(SoulmatesText.Get("UI.Creator.Create")));
 		create.OnLeftClick += (_, _) => CreateCompanion();
 		panel.Append(create);
 
-		var close = Button("", 410f, 480f, 176f, new Color(120, 63, 72));
+		var close = Button("", 420f, 480f, 176f, new Color(120, 63, 72));
 		refreshButtons.Add(() => close.SetText(SoulmatesText.Get("UI.Common.Close")));
 		close.OnLeftClick += (_, _) => ModContent.GetInstance<SoulCreatorSystem>().Close();
 		panel.Append(close);
@@ -150,6 +169,13 @@ public sealed class SoulCreatorState : UIState
 	{
 		ResetDraft();
 		draft.Muse = (CompanionMuse)Main.rand.Next(Enum.GetValues<CompanionMuse>().Length);
+		Refresh();
+	}
+
+	private void SelectTalent(CompanionTalent talent)
+	{
+		draft.Talent = talent;
+		SoundEngine.PlaySound(SoundID.MenuTick);
 		Refresh();
 	}
 
@@ -260,6 +286,57 @@ public sealed class SoulCreatorState : UIState
 		return values[(Array.IndexOf(values, value) + 1) % values.Length];
 	}
 
+}
+
+internal sealed class TalentChoiceElement(
+	CompanionTalent talent,
+	Func<CompanionProfile> getProfile,
+	Action<CompanionTalent> selectTalent) : UIElement
+{
+	public override void OnInitialize()
+	{
+		OnLeftClick += (_, _) => selectTalent(talent);
+	}
+
+	protected override void DrawSelf(SpriteBatch spriteBatch)
+	{
+		base.DrawSelf(spriteBatch);
+		CompanionProfile profile = getProfile();
+		CalculatedStyle area = GetDimensions();
+		bool selected = profile.Talent == talent;
+		Color accent = selected ? profile.EssenceColor : new Color(91, 112, 151);
+		Vector2 center = new(area.X + area.Width * 0.5f, area.Y + 19f);
+		Texture2D slot = TextureAssets.InventoryBack.Value;
+		Vector2 origin = slot.Size() * 0.5f;
+		float size = IsMouseHovering ? 42f : 38f;
+		spriteBatch.Draw(slot, center, null, selected ? Color.White : accent * 0.72f, 0f, origin,
+			(size + 5f) / slot.Width, SpriteEffects.None, 0f);
+		spriteBatch.Draw(slot, center, null, selected ? Color.Lerp(new Color(34, 44, 67), accent, 0.55f) : new Color(24, 32, 50),
+			0f, origin, size / slot.Width, SpriteEffects.None, 0f);
+
+		int itemType = talent switch {
+			CompanionTalent.TreasureSeeker => ItemID.GoldCoin,
+			CompanionTalent.Miner => ItemID.IronPickaxe,
+			CompanionTalent.Guardian => ItemID.IronBroadsword,
+			CompanionTalent.Gatherer => ItemID.Acorn,
+			_ => ItemID.LesserHealingPotion
+		};
+		Main.instance.LoadItem(itemType);
+		Texture2D texture = TextureAssets.Item[itemType].Value;
+		Rectangle frame = Main.itemAnimations[itemType]?.GetFrame(texture) ?? texture.Bounds;
+		float iconScale = Math.Min(23f / frame.Width, 23f / frame.Height);
+		spriteBatch.Draw(texture, center, frame, Color.White, 0f, frame.Size() * 0.5f, iconScale, SpriteEffects.None, 0f);
+
+		string label = SoulmatesText.EnumName(talent);
+		float labelScale = Math.Min(0.43f, (area.Width - 4f) / Math.Max(1f, FontAssets.MouseText.Value.MeasureString(label).X));
+		Vector2 labelSize = FontAssets.MouseText.Value.MeasureString(label) * labelScale;
+		Utils.DrawBorderString(spriteBatch, label, new Vector2(center.X - labelSize.X * 0.5f, area.Y + 40f),
+			selected ? Color.White : Color.LightGray, labelScale);
+		if (IsMouseHovering) {
+			Main.LocalPlayer.mouseInterface = true;
+			Main.hoverItemName = label;
+		}
+	}
 }
 
 internal sealed class SoulPreviewElement(Func<CompanionProfile> getProfile) : UIElement

@@ -4,12 +4,10 @@ using Soulmates.Content.Items;
 using Soulmates.Content.NPCs;
 using Soulmates.Common.UI;
 using Terraria;
-using Terraria.GameContent.UI.States;
 using Terraria.GameInput;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
-using Terraria.UI;
 
 namespace Soulmates.Common;
 
@@ -65,16 +63,13 @@ public sealed class SoulmatesPlayer : ModPlayer
 		if (Player.whoAmI != Main.myPlayer)
 			return;
 		SoulboundCompanion? companion = SoulboundCompanion.FindFor(Player);
-		EmoteWheelSystem emoteWheel = ModContent.GetInstance<EmoteWheelSystem>();
 		CompanionWheelSystem companionWheel = ModContent.GetInstance<CompanionWheelSystem>();
 		TalkModeSystem talkMode = ModContent.GetInstance<TalkModeSystem>();
-		if (Soulmates.EmoteKeybind.JustReleased)
-			emoteWheel.Release();
 		if (Soulmates.EmoteKeybind.JustPressed && companion is not null && !Main.playerInventory
 			&& !talkMode.IsOpen && !companionWheel.IsOpen)
-			emoteWheel.Open(companion);
+			companionWheel.OpenEmotes(companion);
 		if (companion is not null)
-			TryOpenSelfEmoteMenu(companion, emoteWheel, companionWheel, talkMode);
+			TryOpenSelfSoulwheel(companion, companionWheel, talkMode);
 
 		if (!Soulmates.TalkKeybind.JustPressed || companion is null || companionWheel.IsOpen)
 			return;
@@ -83,11 +78,11 @@ public sealed class SoulmatesPlayer : ModPlayer
 		talkMode.Open(sigil, companion);
 	}
 
-	private void TryOpenSelfEmoteMenu(SoulboundCompanion companion, EmoteWheelSystem emoteWheel,
-		CompanionWheelSystem companionWheel, TalkModeSystem talkMode)
+	private void TryOpenSelfSoulwheel(SoulboundCompanion companion, CompanionWheelSystem companionWheel,
+		TalkModeSystem talkMode)
 	{
 		if (!Main.mouseRight || !Main.mouseRightRelease || Main.playerInventory || Player.mouseInterface
-			|| talkMode.IsOpen || emoteWheel.IsOpen || companionWheel.IsOpen)
+			|| talkMode.IsOpen || companionWheel.IsOpen)
 			return;
 
 		Point mouseWorld = Main.MouseWorld.ToPoint();
@@ -99,8 +94,7 @@ public sealed class SoulmatesPlayer : ModPlayer
 		if (!selfInteractionBounds.Contains(mouseWorld) || HasWorldInteractionAt(mouseWorld))
 			return;
 
-		emoteWheel.Close();
-		IngameFancyUI.OpenUIState(new UIEmotesMenu());
+		companionWheel.OpenEmotes(companion);
 		Player.mouseInterface = true;
 		Main.blockMouse = true;
 		Main.mouseRightRelease = false;

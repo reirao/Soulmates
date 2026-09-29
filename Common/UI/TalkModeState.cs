@@ -131,11 +131,11 @@ public sealed class TalkModeState : UIState
 		panel.Append(closeButton);
 	}
 
-	public void Bind(SoulboundSigil boundSigil, SoulboundCompanion boundCompanion)
+	public void Bind(SoulboundSigil boundSigil, SoulboundCompanion boundCompanion, TalkCategory initialCategory = TalkCategory.Care)
 	{
 		sigil = boundSigil;
 		companion = boundCompanion;
-		category = TalkCategory.Care;
+		category = Enum.IsDefined(initialCategory) ? initialCategory : TalkCategory.Care;
 		memoryCursor = 0;
 		RefreshLocalizedLabels();
 		if (title is not null)

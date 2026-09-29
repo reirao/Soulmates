@@ -28,10 +28,10 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Receive one Soulcore and three Blank Sigils once per character as a prototype starter kit.
 - Create multiple unique companions from fully localized presets.
 - Shape a companion through an animated live preview with an original eight-frame Soulkin sprite, including compatibility for existing Sigils.
-- Choose a name, form, essence color, aura, personality, and starting talent.
+- Choose a name, form, essence color, aura, personality, and one of five visible starting-talent classes.
 - Choose a visual Bestiary Muse: Soulkin, Bunny, Blue Slime, Bird, or Squirrel.
 - Summon exactly one active companion at a time; switching Sigils cleanly retires the previous companion, assignment, and projectiles.
-- Right-click the summoned companion itself to open a compact eight-action radial menu.
+- Right-click the summoned companion or your own character to open the compact Soulwheel.
 - Hold Up and right-click the Sigil to recall it.
 - Companion identity and progression data are saved on the Sigil.
 - Personality-driven idle, wander, inspect, follow, and catch-up behavior.
@@ -42,7 +42,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 - A companion named **AETHER** is an Omni Soul with every starting talent instinct and learned perk available.
 - Personality-driven autonomous moments add small surprises without overriding combat, Stay, explicit assignments, or low-energy recovery.
 - Persistent companion experience with 20 levels earned from combat, healing, work, and shared moments.
-- Right-click directly on your own character to open Terraria's complete native emote menu, including original vanilla and modded emote graphics. The configurable **Companion Emote Wheel** key (`G` by default) keeps the compact six-action relationship wheel.
+- Use the icon-based Soulwheel for commands, work, bonding, direct pack access, details, and all 151 vanilla Terraria emotes. Categories open into crescent sub-wheels and large categories page without becoming a window. The configurable **Companion Emote Wheel** key (`G` by default) opens its Terraria-emote branch directly.
 - Native Terraria emote bubbles for shared gestures, with occasional context-aware speech instead of constant text.
 - Quiet social encounters with nearby town NPCs: companions approach, emote, and receive a native NPC response.
 - Personality-specific reactions to normal victories, bosses, and creature deaths.
@@ -70,7 +70,7 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current release
 
-**Soulmates 0.8.2 - Visible Forestry** lets every autonomous companion shake nearby trees and clear fallen logs. Gatherers, AETHER, and companions who learn Forester gain advanced multi-target forestry and acorn planting, with progress shown directly in details and Sigil tooltips. Loot Flow's coordinated pickup, immediate retargeting, pack safety, item reservations, and server authority remain intact, as do natural recovery, native emotes, and existing Soulbound Sigil compatibility.
+**Soulmates 0.9.0 - Soulwheel** replaces the separate action and emote interfaces with one click-driven radial control. Commands, jobs, relationship gestures, every vanilla Terraria emote, the companion pack, and full details are reached through small icon categories and crescent sub-wheels. The Soul Creator now presents all five starting talents as direct visual class choices. Existing Sigils remain compatible.
 
 ## Languages
 

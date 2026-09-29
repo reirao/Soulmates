@@ -235,8 +235,32 @@ Mods: {
 
 			CompanionWheel: {
 				Center: SOULMATE
+				Back: Zurück
+				Close: Schließen
+				Previous: Vorherige Seite
+				Next: Nächste Seite
+				Status: "{0} | Energie {1} | Pack {2}/{3}"
 				AutonomyOn: AUTO AN
 				AutonomyOff: AUTO AUS
+
+				Categories: {
+					Commands: Befehle
+					Work: Arbeit
+					Bond: Bindung
+					Emotes: Terraria-Emotes
+					Pack: Gefährten-Pack
+					Details: Details
+				}
+
+				NativeCategories: {
+					General: Gefühle
+					Rps: Schere Stein Papier
+					Items: Gegenstände
+					Nature: Natur & Wetter
+					Town: Stadt
+					Creatures: Wesen
+					Dangers: Gefahren
+				}
 
 				Actions: {
 					Follow: FOLGEN

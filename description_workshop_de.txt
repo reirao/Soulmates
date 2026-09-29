@@ -13,7 +13,7 @@ Soulmates ist ein experimentelles Projekt, das bei Programmierung, Texten, Benut
 
 [h2]Erschaffe deinen Soulmate[/h2]
 [list]
-[*]Wähle Name, Bestiary Muse, Körperform, Essenz, Aura, Persönlichkeit und Starttalent.
+[*]Wähle Name, Bestiary Muse, Körperform, Essenz, Aura, Persönlichkeit und eine von fünf sichtbaren Startklassen.
 [*]Beobachte im animierten Vorschaufenster, wie sich dein Companion verändert, einschließlich des eigenen Soulkin-Sprites mit acht Animationsframes und Kompatibilität zu bestehenden Sigils.
 [*]Erschaffe mehrere Companions; jedes Soulbound Sigil bewahrt seine eigene Identität und seine Werte.
 [*]Wechsle frei zwischen Sigils: Genau ein Companion bleibt aktiv, während Aufgaben, Effekte und Projektile des vorherigen sauber beendet werden.
@@ -22,7 +22,7 @@ Soulmates ist ein experimentelles Projekt, das bei Programmierung, Texten, Benut
 [h2]Ein Companion mit Charakter[/h2]
 [list]
 [*]Persönlichkeitsabhängiges Ruhen, Umherwandern, Erkunden, Folgen und Aufholen.
-[*]Ein kompaktes Aktionsrad mit acht Einträgen für Bewegung, Arbeit, Autonomie und die vollständige Detailansicht.
+[*]Ein kompaktes, symbolbasiertes Soulwheel für Befehle, Arbeit, Bindung, Terraria-Emotes, das Companion-Pack und die vollständige Detailansicht.
 [*]Dauerhafte Autonomie pro Companion, die jederzeit an- oder ausgeschaltet werden kann.
 [*]Talentabhängige Initiative: Jeder Companion sammelt nahe nutzbare Drops, Sammler tun dies schneller und in größerer Reichweite, Bergarbeiter helfen in kurzen Etappen und verstauen ihren Abbau, Schatzsucher untersuchen nahe Truhen, Beschützer fangen Gefahren ab und Heiler reagieren auf Verletzungen.
 [*]Dauerhafte Lernneigungen passen sich deinem Sammeln, Bergbau, deiner Forstpflege, deinen Kämpfen und Erkundungen an.
@@ -31,7 +31,7 @@ Soulmates ist ein experimentelles Projekt, das bei Programmierung, Texten, Benut
 [*]Persönlichkeitsabhängige autonome Momente sorgen für kleine Überraschungen, ohne Kampf, Warten, direkte Aufträge oder Erholung zu übergehen.
 [*]Dauerhaft gespeicherte Bindung, Stimmung, Energie und Sprechweise.
 [*]20 Companion-Level durch Kämpfe, Heilung, Arbeit und gemeinsame Momente.
-[*]Rechtsklick auf deinen Charakter öffnet Terrarias vollständiges Emote-Menü mit Originalgrafiken; Soulmates reagieren auf Vanilla- und Mod-Emotes. G hält den kompakten Beziehungsring bereit.
+[*]Rechtsklick auf deinen Charakter oder Companion öffnet dasselbe Soulwheel. Seine halbmondförmigen Kategorien enthalten alle 151 Vanilla-Emotes mit Originalgrafiken; Soulmates antworten mit nativen Sprechblasen. G öffnet direkt den Terraria-Emote-Zweig.
 [*]Ruhigeres autonomes Verhalten mit gelegentlichen Texten und kleinen wortlosen Begegnungen mit Town-NPCs.
 [*]Situationsabhängige Reaktionen auf Stimmung, Wetter, Gefahr, Verletzungen und Aufenthaltsort.
 [*]Unterschiedliche Reaktionen auf normale Siege, Bosse und getötete friedliche Kreaturen.
@@ -69,7 +69,7 @@ Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils als Start
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Aktuelle Version[/h2]
-Soulmates 0.8.2 Sichtbare Forstpflege lässt jeden autonomen Gefährten nahe Bäume schütteln und gefallene Stämme räumen. Sammler, AETHER und Gefährten mit erlernter Forstpflege erhalten erweiterte Runden mit bis zu fünf Zielen und können Eicheln pflanzen; der Fortschritt ist in Details und Sigil-Tooltips sichtbar. Koordiniertes Looten, sofortige Neuzielwahl, Pack-Kapazität, Teilstapel, Item-Reservierungen, Multiplayer-Autorität, natürliche Erholung, native Emotes und bestehende Soulbound Sigils bleiben kompatibel.
+Soulmates 0.9.0 Soulwheel ersetzt die getrennten Aktions- und Emote-Oberflächen durch eine klickbare Radialsteuerung. Befehle, Arbeit, Beziehungsgesten, alle 151 Vanilla-Emotes, das Companion-Pack und die vollständigen Details liegen in kleinen Symbolkategorien mit halbmondförmigen Unterrädern. Der Soul Creator zeigt nun alle fünf Starttalente als direkt auswählbare Klassen. Bestehende Soulbound Sigils bleiben kompatibel.
 
 [h2]Steuerung[/h2]
 [list]
@@ -80,10 +80,10 @@ Soulmates 0.8.2 Sichtbare Forstpflege lässt jeden autonomen Gefährten nahe Bä
 [*]Rechtsklick auf ein Soul Trinket: aktuelles Trinket entfernen.
 [*]Talk Mode > Pack: Ladung ansehen, ausgewähltes Hotbar-Item einlagern oder alles entladen.
 [*]Pack-Slots: Linksklick nimmt einen Stack, Rechtsklick nimmt ein Item.
-[*]Rechtsklick auf den Companion halten: eine Aktion im Radialmenü wählen.
-[*]Details im Radialmenü wählen oder standardmäßig V drücken: den vollständigen Talk Mode öffnen.
-[*]Rechtsklick auf dem eigenen Charakter halten, auf eine Geste zeigen und loslassen.
-[*]Alternativ standardmäßig G halten, auf eine Geste zeigen und loslassen.
+[*]Rechtsklick auf den Companion oder den eigenen Charakter: Soulwheel öffnen; Symbolkategorien und halbmondförmige Aktionen mit Linksklick wählen.
+[*]Taschensymbol wählen: Companion-Pack direkt öffnen.
+[*]Details im Soulwheel wählen oder standardmäßig V drücken: den vollständigen Talk Mode öffnen.
+[*]Standardmäßig G drücken: Soulwheel direkt bei den Terraria-Emote-Kategorien öffnen.
 [*]Folgen, Bleiben oder Erkunden beendet den aktuellen Gebietsauftrag.
 [/list]
 

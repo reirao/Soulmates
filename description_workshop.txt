@@ -13,7 +13,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 
 [h2]Create Your Soulmate[/h2]
 [list]
-[*]Choose a name, Bestiary muse, body form, essence, aura, personality, and starting talent.
+[*]Choose a name, Bestiary muse, body form, essence, aura, personality, and one of five visible starting-talent classes.
 [*]Watch the animated preview change as you shape the companion, including an original eight-frame Soulkin sprite that remains compatible with existing Sigils.
 [*]Create multiple companions; every Soulbound Sigil keeps its own identity and stats.
 [*]Switch freely between Sigils: exactly one companion remains active, and the previous companion's jobs, effects, and projectiles shut down cleanly.
@@ -22,7 +22,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 [h2]A Companion With Character[/h2]
 [list]
 [*]Personality-driven idle, wandering, inspecting, following, and catch-up behavior.
-[*]A compact eight-action companion wheel for movement, work, autonomy, and the full Details view.
+[*]One compact icon-based Soulwheel for commands, work, bonding, Terraria emotes, the companion pack, and the full Details view.
 [*]Persistent per-companion autonomy that can be switched on or off at any time.
 [*]Talent-driven initiative: every companion retrieves nearby usable drops, Gatherers do so faster and farther, Miners help in short bursts and collect what they mine, Treasure Seekers investigate nearby chests, Guardians intercept danger, and Healers react to injuries.
 [*]Persistent learning insights adapt to your gathering, mining, forestry, combat, and exploration habits.
@@ -31,7 +31,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 [*]Personality-driven autonomous moments add small surprises without overriding combat, Stay, explicit assignments, or low-energy recovery.
 [*]Persistent bond, mood, energy, and voice style.
 [*]Persistent experience and 20 companion levels earned through combat, healing, work, and shared moments.
-[*]Right-click your character for Terraria's full native emote menu and original graphics; Soulmates react to vanilla and modded emotes. Hold G for the compact six-action relationship wheel.
+[*]Right-click your character or companion for the same Soulwheel. Its crescent categories include all 151 vanilla Terraria emotes with original graphics, and Soulmates answer them with native bubbles. G opens the Terraria-emote branch directly.
 [*]Quieter autonomous behavior with occasional speech and small wordless exchanges with nearby town NPCs.
 [*]Floating world speech and autonomous conversation shaped by personality, mood, weather, danger, and location.
 [*]Distinct personality reactions to ordinary victories, bosses, and creature deaths.
@@ -69,7 +69,7 @@ New characters receive one Soulcore and three Blank Sigils as a prototype starte
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Current Release[/h2]
-Soulmates 0.8.2 Visible Forestry lets every autonomous companion shake nearby trees and clear fallen logs. Gatherers, AETHER, and companions who learn Forester gain advanced five-target forestry rounds and acorn planting, with progress visible in companion details and Sigil tooltips. Coordinated loot pickup, immediate retargeting, pack capacity, partial stacks, item reservations, multiplayer authority, natural recovery, native emotes, and existing Soulbound Sigil compatibility remain intact.
+Soulmates 0.9.0 Soulwheel replaces the separate action and emote interfaces with one click-driven radial control. Commands, jobs, relationship gestures, all 151 vanilla Terraria emotes, the companion pack, and full details live in small icon categories with crescent sub-wheels. The Soul Creator now exposes all five starting talents as direct visual class choices. Existing Soulbound Sigils remain compatible.
 
 [h2]Controls[/h2]
 [list]
@@ -80,10 +80,10 @@ Soulmates 0.8.2 Visible Forestry lets every autonomous companion shake nearby tr
 [*]Right-click a Soul Trinket: remove the current trinket.
 [*]Talk Mode > Pack: inspect cargo, store the selected hotbar item, or unload everything.
 [*]Pack slots: left-click to take a stack, right-click to take one item.
-[*]Right-click the companion and hold: choose an action from the radial menu.
-[*]Choose Details on the radial menu, or press V by default: open the full Talk Mode.
-[*]Hold right-click on your own character, point toward an emote, and release to share it.
-[*]Alternatively hold G by default, point toward an emote, and release.
+[*]Right-click the companion or your own character: open the Soulwheel; left-click icon categories and their crescent actions.
+[*]Choose the bag icon: open the companion pack directly.
+[*]Choose Details on the Soulwheel, or press V by default: open the full Talk Mode.
+[*]Press G by default: open the Soulwheel directly on its Terraria-emote categories.
 [*]Choose Follow, Stay, or Explore: cancel the current area assignment.
 [/list]
 
