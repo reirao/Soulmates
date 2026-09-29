@@ -31,7 +31,7 @@ Soulmates ist ein experimentelles Projekt, das bei Programmierung, Texten, Benut
 [*]Persönlichkeitsabhängige autonome Momente sorgen für kleine Überraschungen, ohne Kampf, Warten, direkte Aufträge oder Erholung zu übergehen.
 [*]Dauerhaft gespeicherte Bindung, Stimmung, Energie und Sprechweise.
 [*]20 Companion-Level durch Kämpfe, Heilung, Arbeit und gemeinsame Momente.
-[*]Rechtsklick auf deinen Charakter oder Companion öffnet dasselbe Soulwheel. Seine halbmondförmigen Kategorien enthalten alle 151 Vanilla-Emotes mit Originalgrafiken; Soulmates antworten mit nativen Sprechblasen. G öffnet direkt den Terraria-Emote-Zweig.
+[*]Rechtsklick auf den Companion öffnet Befehle, Arbeit, Bindung, Pack und Details. Rechtsklick auf deinen Charakter oder G öffnet das getrennte Terraria-Emote-Rad mit allen 151 Vanilla-Grafiken; Soulmates antworten mit nativen Blasen.
 [*]Ruhigeres autonomes Verhalten mit gelegentlichen Texten und kleinen wortlosen Begegnungen mit Town-NPCs.
 [*]Situationsabhängige Reaktionen auf Stimmung, Wetter, Gefahr, Verletzungen und Aufenthaltsort.
 [*]Unterschiedliche Reaktionen auf normale Siege, Bosse und getötete friedliche Kreaturen.
@@ -69,7 +69,7 @@ Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils als Start
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Aktuelle Version[/h2]
-Soulmates 0.9.3 trennt die Bedienung in zwei kontextbezogene Räder: Rechtsklick auf den Companion zeigt seine Befehle, Arbeit, Bindung, Pack und Details; Rechtsklick auf den eigenen Charakter oder die Emote-Taste zeigt Terrarias Emotes. Das Bäume-Schütteln verwendet nun Terrarias tatsächliche Bodenkoordinate und funktioniert über Sammeln und Autonomie. Die zuverlässige Pack-Synchronisierung bleibt enthalten; bestehende Soulbound Sigils bleiben kompatibel.
+Soulmates 0.9.4 hält Companion-Texte von Terraria-Emote-Blasen frei, begrenzt automatisch gesammelte Eicheln auf einen nützlichen Forstvorrat, lässt überschüssige Drops sicher in der Welt und erkennt geeignete Pflanzplätze zuverlässiger. Die getrennten Räder für Companion und Spieler bleiben erhalten; bestehende Soulbound Sigils bleiben kompatibel.
 
 [h2]Steuerung[/h2]
 [list]

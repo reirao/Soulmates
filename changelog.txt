@@ -1,3 +1,10 @@
+Soulmates 0.9.4 - Tidy Talk and Forestry Supplies
+
+- Companion speech now appears beside the companion and avoids the centered Terraria emote bubble.
+- Automatic pickup keeps a practical reserve of up to 12 acorns instead of filling the pack with every tree drop.
+- Partial acorn pickup removes only the confirmed stored amount; excess acorns remain safely in the world.
+- Foresters accept practical planting spaces more reliably, helping them spend their carried acorn reserve.
+
 Soulmates 0.9.3 - Context Wheels and Forestry Fix
 
 - Right-clicking the companion now shows only companion commands, work, bonding, pack access, and details.

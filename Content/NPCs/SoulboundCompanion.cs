@@ -60,6 +60,7 @@ public sealed class SoulboundCompanion : ModNPC
 	private const int AutonomousLootSweepLimit = 12;
 	private const int AutonomousLootTargetTimeout = 480;
 	private const int AutonomousForestSweepLimit = 5;
+	private const int AcornReserveLimit = 12;
 	private BrainState brainState;
 	private int stateTimer;
 	private int facing = 1;
@@ -906,14 +907,12 @@ public sealed class SoulboundCompanion : ModNPC
 		if (!ground.HasTile || !IsAcornGround(ground.TileType))
 			return false;
 
-		for (int scanX = x - 2; scanX <= x + 2; scanX++) {
-			for (int scanY = y - 5; scanY <= y; scanY++) {
-				if (!WorldGen.InWorld(scanX, scanY, 10) || Main.tile[scanX, scanY].HasTile)
-					return false;
-			}
+		for (int scanY = y - 4; scanY <= y; scanY++) {
+			if (!WorldGen.InWorld(x, scanY, 10) || Main.tile[x, scanY].HasTile)
+				return false;
 		}
-		for (int scanX = x - 5; scanX <= x + 5; scanX++) {
-			for (int scanY = y - 8; scanY <= y + 1; scanY++) {
+		for (int scanX = x - 3; scanX <= x + 3; scanX++) {
+			for (int scanY = y - 6; scanY <= y + 1; scanY++) {
 				if (!WorldGen.InWorld(scanX, scanY, 10))
 					continue;
 				Tile nearby = Main.tile[scanX, scanY];
@@ -1564,6 +1563,8 @@ public sealed class SoulboundCompanion : ModNPC
 			if (!item.active || item.IsAir || !CanCarry(item) || IsRecoveryPickup(item)
 				|| item.playerIndexTheItemIsReservedFor != 255 && item.playerIndexTheItemIsReservedFor != Owner.whoAmI)
 				continue;
+			if (item.type == ItemID.Acorn && PackItemCount(ItemID.Acorn) >= AcornReserveLimit)
+				continue;
 			if (Vector2.DistanceSquared(jobOrigin, item.Center) < radius * radius)
 				return true;
 		}
@@ -1583,10 +1584,12 @@ public sealed class SoulboundCompanion : ModNPC
 
 	private int StoreLooseItem(Item worldItem)
 	{
-		if (!worldItem.active || worldItem.IsAir || worldItem.stack <= 0 || !CanCollectLooseItem(worldItem))
+		if (!worldItem.active || worldItem.IsAir || worldItem.stack <= 0)
 			return 0;
 
-		int available = worldItem.stack;
+		int available = AvailableCarryAmount(worldItem);
+		if (available <= 0)
+			return 0;
 		int unitsBefore = PackUnitCount();
 		var packBefore = new List<Item>(Profile.Pack.Count);
 		foreach (Item stored in Profile.Pack)
@@ -1600,7 +1603,7 @@ public sealed class SoulboundCompanion : ModNPC
 			return 0;
 		}
 
-		worldItem.stack = available - moved;
+		worldItem.stack -= moved;
 		if (worldItem.stack <= 0) {
 			worldItem.TurnToAir();
 			worldItem.active = false;
@@ -1613,6 +1616,16 @@ public sealed class SoulboundCompanion : ModNPC
 		int total = 0;
 		foreach (Item item in Profile.Pack) {
 			if (!item.IsAir)
+				total += item.stack;
+		}
+		return total;
+	}
+
+	private int PackItemCount(int itemType)
+	{
+		int total = 0;
+		foreach (Item item in Profile.Pack) {
+			if (!item.IsAir && item.type == itemType)
 				total += item.stack;
 		}
 		return total;
@@ -1821,11 +1834,17 @@ public sealed class SoulboundCompanion : ModNPC
 		float visibleTop = viewportCenter.Y * (1f - 1f / zoom);
 		float visibleBottom = viewportCenter.Y * (1f + 1f / zoom);
 		float safeTop = visibleTop + 54f / zoom;
-		Vector2 bubbleCenter = companionCenter + new Vector2(0f, -(68f / zoom + halfHeight));
+		float side = facing >= 0 ? -1f : 1f;
+		float sideOffset = halfWidth + 40f / zoom;
+		float preferredX = companionCenter.X + side * sideOffset;
+		float minimumX = visibleLeft + halfWidth + 8f / zoom;
+		float maximumX = visibleRight - halfWidth - 8f / zoom;
+		if (preferredX < minimumX || preferredX > maximumX)
+			preferredX = companionCenter.X - side * sideOffset;
+		Vector2 bubbleCenter = new(preferredX, companionCenter.Y - (72f / zoom + halfHeight));
 		if (bubbleCenter.Y - halfHeight < safeTop)
 			bubbleCenter.Y = companionCenter.Y + 54f / zoom + halfHeight;
-		bubbleCenter.X = MathHelper.Clamp(bubbleCenter.X, visibleLeft + halfWidth + 8f / zoom,
-			visibleRight - halfWidth - 8f / zoom);
+		bubbleCenter.X = MathHelper.Clamp(bubbleCenter.X, minimumX, maximumX);
 		bubbleCenter.Y = MathHelper.Clamp(bubbleCenter.Y, safeTop + halfHeight,
 			visibleBottom - halfHeight - 10f / zoom);
 		Rectangle background = new((int)(bubbleCenter.X - width * 0.5f - paddingX), (int)(bubbleCenter.Y - height * 0.5f - paddingY),
@@ -2358,8 +2377,24 @@ public sealed class SoulboundCompanion : ModNPC
 
 	private static bool CanCarry(Item item) => item.ModItem is not Soulcore and not SoulboundSigil and not CompanionTrinketItem;
 
-	private bool CanCollectLooseItem(Item item) => CanCarry(item) && !IsRecoveryPickup(item) && Profile.CanStore(item)
-		&& (item.playerIndexTheItemIsReservedFor == 255 || item.playerIndexTheItemIsReservedFor == Owner.whoAmI);
+	private bool CanCollectLooseItem(Item item) => AvailableCarryAmount(item) > 0;
+
+	private int AvailableCarryAmount(Item item)
+	{
+		if (!item.active || item.IsAir || item.stack <= 0 || !CanCarry(item) || IsRecoveryPickup(item)
+			|| item.playerIndexTheItemIsReservedFor != 255 && item.playerIndexTheItemIsReservedFor != Owner.whoAmI)
+			return 0;
+
+		int available = item.stack;
+		if (item.type == ItemID.Acorn)
+			available = Math.Min(available, Math.Max(0, AcornReserveLimit - PackItemCount(ItemID.Acorn)));
+		if (available <= 0)
+			return 0;
+
+		Item probe = item.Clone();
+		probe.stack = available;
+		return Profile.CanStore(probe) ? available : 0;
+	}
 
 	public void SyncProfileToBoundSigil()
 	{

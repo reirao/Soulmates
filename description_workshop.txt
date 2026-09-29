@@ -31,7 +31,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 [*]Personality-driven autonomous moments add small surprises without overriding combat, Stay, explicit assignments, or low-energy recovery.
 [*]Persistent bond, mood, energy, and voice style.
 [*]Persistent experience and 20 companion levels earned through combat, healing, work, and shared moments.
-[*]Right-click your character or companion for the same Soulwheel. Its crescent categories include all 151 vanilla Terraria emotes with original graphics, and Soulmates answer them with native bubbles. G opens the Terraria-emote branch directly.
+[*]Right-click the companion for commands, work, bonding, pack access, and details. Right-click your character or press G for the separate Terraria-emote wheel with all 151 vanilla graphics; Soulmates answer with native bubbles.
 [*]Quieter autonomous behavior with occasional speech and small wordless exchanges with nearby town NPCs.
 [*]Floating world speech and autonomous conversation shaped by personality, mood, weather, danger, and location.
 [*]Distinct personality reactions to ordinary victories, bosses, and creature deaths.
@@ -69,7 +69,7 @@ New characters receive one Soulcore and three Blank Sigils as a prototype starte
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Current Release[/h2]
-Soulmates 0.9.3 separates the controls into two contextual wheels: right-click the companion for its commands, work, bonding, pack, and details; right-click your character or press the emote hotkey for Terraria emotes. Tree shaking now uses Terraria's actual supporting-ground coordinate and works through both Gather and autonomy. Reliable pack synchronization remains included, and existing Soulbound Sigils remain compatible.
+Soulmates 0.9.4 keeps companion speech clear of Terraria emote bubbles, limits automatically collected acorns to a useful forestry reserve, leaves excess drops safely in the world, and finds practical planting spaces more reliably. The separate companion and player wheels remain intact, and existing Soulbound Sigils remain compatible.
 
 [h2]Controls[/h2]
 [list]

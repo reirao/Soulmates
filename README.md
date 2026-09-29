@@ -70,7 +70,7 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current release
 
-**Soulmates 0.9.3 - Context Wheels and Forestry Fix** separates companion controls from the player's Terraria emotes. Right-click the companion for commands, work, bonding, pack access, and details; right-click your character or press the emote hotkey for the dedicated player-emote wheel. Tree shaking now follows Terraria's actual ground-tile convention, while the reliable pack synchronization from 0.9.2 remains included. Existing Sigils remain compatible.
+**Soulmates 0.9.4 - Tidy Talk and Forestry Supplies** keeps companion speech clear of native emote bubbles, limits automatically collected acorns to a useful forestry reserve, leaves excess drops safely in the world, and accepts practical planting spaces more reliably. The contextual companion and player wheels from 0.9.3 remain unchanged, and existing Sigils remain compatible.
 
 ## Languages
 
