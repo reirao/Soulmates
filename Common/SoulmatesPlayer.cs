@@ -21,6 +21,8 @@ public sealed class SoulmatesPlayer : ModPlayer
 	private int serverGatheringObservationCooldown;
 	private int feedbackActivityCooldown;
 	private bool rightMouseDown;
+	private bool queuedSelfSoulwheel;
+	private Point queuedSelfSoulwheelPosition;
 	private Guid feedbackProfileId;
 	private readonly Dictionary<int, int> feedbackPackCounts = [];
 
@@ -30,6 +32,7 @@ public sealed class SoulmatesPlayer : ModPlayer
 	{
 		ActiveCompanionWhoAmI = -1;
 		rightMouseDown = false;
+		queuedSelfSoulwheel = false;
 		feedbackProfileId = Guid.Empty;
 		feedbackPackCounts.Clear();
 	}
@@ -38,6 +41,7 @@ public sealed class SoulmatesPlayer : ModPlayer
 	{
 		ActiveCompanionWhoAmI = -1;
 		rightMouseDown = false;
+		queuedSelfSoulwheel = false;
 		feedbackProfileId = Guid.Empty;
 		feedbackPackCounts.Clear();
 	}
@@ -50,6 +54,7 @@ public sealed class SoulmatesPlayer : ModPlayer
 			serverGatheringObservationCooldown--;
 		if (Player.whoAmI == Main.myPlayer) {
 			SoulboundCompanion? companion = SoulboundCompanion.FindFor(Player);
+			OpenQueuedSelfSoulwheel(companion);
 			SoulmatesFeedbackSystem.Tick(Player, companion);
 			TrackFeedbackPack(companion);
 			TrackFeedbackActivity(companion);
@@ -157,7 +162,7 @@ public sealed class SoulmatesPlayer : ModPlayer
 			&& !talkMode.IsOpen && !companionWheel.IsOpen && !initiativePrompt.IsOpen && !mailbox.IsOpen)
 			companionWheel.OpenEmotes(companion);
 		if (companion is not null && rightPressed)
-			TryOpenSelfSoulwheel(companion, companionWheel, initiativePrompt, talkMode);
+			QueueSelfSoulwheel(companion, companionWheel, initiativePrompt, talkMode);
 
 		if (!Soulmates.TalkKeybind.JustPressed || companion is null || companionWheel.IsOpen
 			|| initiativePrompt.IsOpen || mailbox.IsOpen)
@@ -167,9 +172,10 @@ public sealed class SoulmatesPlayer : ModPlayer
 		talkMode.Open(sigil, companion);
 	}
 
-	private void TryOpenSelfSoulwheel(SoulboundCompanion companion, CompanionWheelSystem companionWheel,
+	private void QueueSelfSoulwheel(SoulboundCompanion companion, CompanionWheelSystem companionWheel,
 		InitiativePromptSystem initiativePrompt, TalkModeSystem talkMode)
 	{
+		queuedSelfSoulwheel = false;
 		if (Main.playerInventory || Player.mouseInterface
 			|| talkMode.IsOpen || companionWheel.IsOpen || initiativePrompt.IsOpen
 			|| !Main.HoverItem.IsAir || Player.cursorItemIconEnabled
@@ -185,6 +191,36 @@ public sealed class SoulmatesPlayer : ModPlayer
 		if (!selfInteractionBounds.Contains(mouseWorld) || HasWorldInteractionAt(mouseWorld))
 			return;
 
+		queuedSelfSoulwheelPosition = mouseWorld;
+		queuedSelfSoulwheel = true;
+	}
+
+	private void OpenQueuedSelfSoulwheel(SoulboundCompanion? companion)
+	{
+		if (!queuedSelfSoulwheel)
+			return;
+		queuedSelfSoulwheel = false;
+		if (companion is null)
+			return;
+
+		CompanionWheelSystem companionWheel = ModContent.GetInstance<CompanionWheelSystem>();
+		InitiativePromptSystem initiativePrompt = ModContent.GetInstance<InitiativePromptSystem>();
+		TalkModeSystem talkMode = ModContent.GetInstance<TalkModeSystem>();
+		FeedbackMailboxSystem mailbox = ModContent.GetInstance<FeedbackMailboxSystem>();
+		if (Main.playerInventory || Player.mouseInterface || talkMode.IsOpen || companionWheel.IsOpen
+			|| initiativePrompt.IsOpen || mailbox.IsOpen || Player.tileInteractionHappened
+			|| Main.HasInteractibleObjectThatIsNotATile
+			|| Player.cursorItemIconEnabled || !Main.HoverItem.IsAir)
+			return;
+
+		Point mouseWorld = queuedSelfSoulwheelPosition;
+		if (companion.NPC.Hitbox.Contains(mouseWorld))
+			return;
+		Rectangle selfInteractionBounds = Player.Hitbox;
+		selfInteractionBounds.Inflate(14, 8);
+		if (!selfInteractionBounds.Contains(mouseWorld) || HasWorldInteractionAt(mouseWorld))
+			return;
+
 		companionWheel.OpenEmotes(companion);
 		Player.mouseInterface = true;
 		Main.blockMouse = true;
@@ -193,7 +229,7 @@ public sealed class SoulmatesPlayer : ModPlayer
 
 	private static bool HasWorldInteractionAt(Point mouseWorld)
 	{
-		Point tilePosition = Main.MouseWorld.ToTileCoordinates();
+		Point tilePosition = mouseWorld.ToVector2().ToTileCoordinates();
 		if (!WorldGen.InWorld(tilePosition.X, tilePosition.Y, 1))
 			return true;
 		Tile tile = Main.tile[tilePosition.X, tilePosition.Y];

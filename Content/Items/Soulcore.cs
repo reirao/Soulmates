@@ -31,6 +31,13 @@ public sealed class Soulcore : ModItem
 	}
 
 	public override bool CanUseItem(Player player) => !ModContent.GetInstance<SoulCreatorSystem>().IsOpen;
+	public override bool CanRightClick() => !ModContent.GetInstance<SoulCreatorSystem>().IsOpen;
+
+	public override void RightClick(Player player)
+	{
+		if (player.whoAmI == Main.myPlayer)
+			ModContent.GetInstance<SoulCreatorSystem>().Open();
+	}
 
 	public override void AddRecipes()
 	{

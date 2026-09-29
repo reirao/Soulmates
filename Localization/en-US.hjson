@@ -6,7 +6,7 @@ Mods: {
 				Tooltip:
 					'''
 					A reusable tool for shaping new companions
-					Use to open the Soul Creator
+					Use or right-click to open the Soul Creator
 					'''
 			}
 
