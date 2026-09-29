@@ -38,8 +38,8 @@ public sealed class SoulCreatorSystem : ModSystem
 
 	public void Close() => creatorInterface?.SetState(null);
 
-	internal void ReceiveNetworkResponse(bool accepted, string companionName, CompanionEssence essence)
-		=> CreatorState?.ReceiveNetworkResponse(accepted, companionName, essence);
+	internal void ReceiveNetworkResponse(CompanionCreationResult result, string companionName, CompanionEssence essence)
+		=> CreatorState?.ReceiveNetworkResponse(result, companionName, essence);
 
 	public override void UpdateUI(GameTime gameTime)
 	{

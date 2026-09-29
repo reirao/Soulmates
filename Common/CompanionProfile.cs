@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
@@ -220,6 +221,7 @@ public sealed class CompanionProfile
 	public const int MaximumMemories = 8;
 	public const int MaximumLevel = 20;
 	public const int ForesterUnlockInsight = 24;
+	public const int ForestrySupplyLimit = 12;
 
 	public Guid Id { get; set; } = Guid.NewGuid();
 	public string Name { get; set; } = "Luma";
@@ -566,45 +568,94 @@ public sealed class CompanionProfile
 
 	public int Store(Item source)
 	{
-		if (source.IsAir)
-			return 0;
 		NormalizePack();
-		int originalStack = source.stack;
+		int permitted = GetStorableAmount(source);
+		if (permitted <= 0)
+			return 0;
+
+		Item transfer = source.Clone();
+		transfer.stack = permitted;
 		foreach (Item stored in Pack) {
-			if (stored.stack >= stored.maxStack || !ItemLoader.CanStack(stored, source))
+			if (stored.stack >= stored.maxStack || !ItemLoader.CanStack(stored, transfer))
 				continue;
-			ItemLoader.TryStackItems(stored, source, out _, infiniteSource: false);
-			if (source.stack <= 0) {
-				source.TurnToAir();
-				return originalStack;
-			}
+			ItemLoader.TryStackItems(stored, transfer, out _, infiniteSource: false);
+			if (transfer.IsAir || transfer.stack <= 0)
+				break;
 		}
 
-		while (!source.IsAir && PackLoad < PackCapacity) {
-			Item stored = source.Clone();
-			stored.stack = Math.Min(source.stack, source.maxStack);
+		while (!transfer.IsAir && transfer.stack > 0 && PackLoad < PackCapacity) {
+			Item stored = transfer.Clone();
+			stored.stack = Math.Min(transfer.stack, transfer.maxStack);
 			stored.favorited = false;
 			Pack.Add(stored);
-			source.stack -= stored.stack;
-			if (source.stack <= 0)
-				source.TurnToAir();
+			transfer.stack -= stored.stack;
+			if (transfer.stack <= 0)
+				transfer.TurnToAir();
 		}
-		return originalStack - (source.IsAir ? 0 : source.stack);
+
+		int moved = permitted - (transfer.IsAir ? 0 : transfer.stack);
+		source.stack -= moved;
+		if (source.stack <= 0)
+			source.TurnToAir();
+		return moved;
 	}
 
-	public bool CanStore(Item source)
+	public int GetStorableAmount(Item source)
 	{
 		if (source.IsAir || source.stack <= 0)
-			return false;
+			return 0;
+
+		int permitted = source.stack;
+		if (source.type == ItemID.Acorn)
+			permitted = Math.Min(permitted, Math.Max(0, ForestrySupplyLimit - ItemCount(ItemID.Acorn)));
+		if (permitted <= 0)
+			return 0;
+
 		int occupiedSlots = 0;
+		int available = 0;
 		foreach (Item stored in Pack) {
 			if (stored is null || stored.IsAir)
 				continue;
 			occupiedSlots++;
-			if (stored.stack < stored.maxStack && ItemLoader.CanStack(stored, source))
-				return true;
+			if (stored.stack < stored.maxStack && ItemLoader.CanStack(stored, source)) {
+				available += stored.maxStack - stored.stack;
+				if (available >= permitted)
+					return permitted;
+			}
 		}
-		return occupiedSlots < PackCapacity;
+
+		int freeSlots = Math.Max(0, PackCapacity - occupiedSlots);
+		long totalCapacity = (long)available + (long)freeSlots * Math.Max(1, source.maxStack);
+		return (int)Math.Min(permitted, Math.Min(int.MaxValue, totalCapacity));
+	}
+
+	public bool CanStore(Item source) => GetStorableAmount(source) > 0;
+
+	public int ItemCount(int itemType)
+	{
+		long total = 0;
+		foreach (Item item in Pack) {
+			if (item is not null && !item.IsAir && item.type == itemType)
+				total += item.stack;
+		}
+		return (int)Math.Min(int.MaxValue, total);
+	}
+
+	public int RemoveExcess(int itemType, int maximum)
+	{
+		int remaining = Math.Max(0, maximum);
+		int removed = 0;
+		for (int i = 0; i < Pack.Count; i++) {
+			Item item = Pack[i];
+			if (item is null || item.IsAir || item.type != itemType)
+				continue;
+			int keep = Math.Min(item.stack, remaining);
+			removed += item.stack - keep;
+			item.stack = keep;
+			remaining -= keep;
+		}
+		NormalizePack();
+		return removed;
 	}
 
 	public void Normalize()

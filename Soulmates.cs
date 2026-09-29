@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Text;
 using Soulmates.Common;
 using Soulmates.Common.Dialogue;
 using Soulmates.Common.UI;
@@ -38,14 +37,16 @@ public sealed class Soulmates : Mod
 
 	public override void Load()
 	{
-		if (!Terraria.Main.dedServ)
+		if (!Terraria.Main.dedServ) {
+			CompanionVisuals.Load();
 			TalkKeybind = KeybindLoader.RegisterKeybind(this, "TalkToCompanion", "V");
-		if (!Terraria.Main.dedServ)
 			EmoteKeybind = KeybindLoader.RegisterKeybind(this, "CompanionEmotes", "G");
+		}
 	}
 
 	public override void Unload()
 	{
+		CompanionVisuals.Unload();
 		TalkKeybind = null!;
 		EmoteKeybind = null!;
 	}
@@ -384,7 +385,7 @@ public sealed class Soulmates : Mod
 
 	private void HandleCreateCompanionRequest(BinaryReader reader, int whoAmI)
 	{
-		string name = NormalizeCompanionName(reader.ReadString());
+		string name = CompanionCreationService.NormalizeName(reader.ReadString());
 		CompanionMuse muse = (CompanionMuse)reader.ReadByte();
 		CompanionForm form = (CompanionForm)reader.ReadByte();
 		CompanionEssence essence = (CompanionEssence)reader.ReadByte();
@@ -392,23 +393,11 @@ public sealed class Soulmates : Mod
 		CompanionPersonality personality = (CompanionPersonality)reader.ReadByte();
 		CompanionTalent talent = (CompanionTalent)reader.ReadByte();
 		if (Main.netMode != NetmodeID.Server || whoAmI < 0 || whoAmI >= Main.maxPlayers
-			|| !Main.player[whoAmI].active || !Enum.IsDefined(muse) || !Enum.IsDefined(form)
-			|| !Enum.IsDefined(essence) || !Enum.IsDefined(aura) || !Enum.IsDefined(personality)
-			|| !Enum.IsDefined(talent)) {
-			SendCreateCompanionResponse(whoAmI, false, name, CompanionEssence.Starlight);
+			|| !Main.player[whoAmI].active)
 			return;
-		}
 
 		Player player = Main.player[whoAmI];
-		var item = new Item();
-		item.SetDefaults(ModContent.ItemType<SoulboundSigil>());
-		if (item.ModItem is not SoulboundSigil sigil || !player.ConsumeItem(ModContent.ItemType<BlankSigil>())) {
-			SendCreateCompanionResponse(whoAmI, false, name, essence);
-			return;
-		}
-
-		var profile = new CompanionProfile {
-			Id = Guid.NewGuid(),
+		var request = new CompanionProfile {
 			Name = name,
 			Muse = muse,
 			Form = form,
@@ -417,48 +406,36 @@ public sealed class Soulmates : Mod
 			Personality = personality,
 			Talent = talent
 		};
-		profile.Normalize();
-		profile.Remember(CompanionMemoryKind.Awakened);
-		sigil.Profile = profile;
-		Item leftover = player.GetItem(player.whoAmI, item, GetItemSettings.InventoryEntityToPlayerInventorySettings);
-		if (!leftover.IsAir)
-			Item.NewItem(player.GetSource_Misc("SoulCreator"), player.Hitbox, leftover);
-		SyncPlayerInventory(player);
-		SendCreateCompanionResponse(whoAmI, true, profile.Name, profile.Essence);
+		CompanionCreationResult result = CompanionCreationService.TryCreate(player, request, out CompanionProfile profile);
+		if (result == CompanionCreationResult.Success)
+			SyncPlayerInventory(player);
+		SendCreateCompanionResponse(whoAmI, result, profile.Name, profile.Essence);
 	}
 
 	private static void HandleCreateCompanionResponse(BinaryReader reader)
 	{
-		bool accepted = reader.ReadBoolean();
+		CompanionCreationResult result = (CompanionCreationResult)reader.ReadByte();
 		string name = reader.ReadString();
 		CompanionEssence essence = (CompanionEssence)reader.ReadByte();
 		if (Main.netMode != NetmodeID.MultiplayerClient)
 			return;
+		if (!Enum.IsDefined(result))
+			result = CompanionCreationResult.InvalidRequest;
 		if (!Enum.IsDefined(essence))
 			essence = CompanionEssence.Starlight;
-		ModContent.GetInstance<SoulCreatorSystem>().ReceiveNetworkResponse(accepted, name, essence);
+		ModContent.GetInstance<SoulCreatorSystem>().ReceiveNetworkResponse(result, name, essence);
 	}
 
-	private void SendCreateCompanionResponse(int playerIndex, bool accepted, string name, CompanionEssence essence)
+	private void SendCreateCompanionResponse(int playerIndex, CompanionCreationResult result, string name, CompanionEssence essence)
 	{
 		if (Main.netMode != NetmodeID.Server || playerIndex < 0 || playerIndex >= Main.maxPlayers)
 			return;
 		ModPacket packet = GetPacket();
 		packet.Write((byte)MessageType.CreateCompanionResponse);
-		packet.Write(accepted);
+		packet.Write((byte)result);
 		packet.Write(name);
 		packet.Write((byte)essence);
 		packet.Send(playerIndex);
-	}
-
-	private static string NormalizeCompanionName(string name)
-	{
-		var result = new StringBuilder(24);
-		foreach (char character in (name ?? "").Trim()) {
-			if (!char.IsControl(character) && result.Length < 24)
-				result.Append(character);
-		}
-		return result.Length > 0 ? result.ToString() : "Luma";
 	}
 
 	private static void SyncPlayerInventory(Player player)

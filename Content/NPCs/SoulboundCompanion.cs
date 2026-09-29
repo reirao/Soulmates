@@ -60,7 +60,6 @@ public sealed class SoulboundCompanion : ModNPC
 	private const int AutonomousLootSweepLimit = 12;
 	private const int AutonomousLootTargetTimeout = 480;
 	private const int AutonomousForestSweepLimit = 5;
-	private const int AcornReserveLimit = 12;
 	private BrainState brainState;
 	private int stateTimer;
 	private int facing = 1;
@@ -102,6 +101,7 @@ public sealed class SoulboundCompanion : ModNPC
 	private ForestAction autonomyForestAction;
 	private int learningObservationTimer;
 	private int tendedForestResetTimer;
+	private bool packReconciled;
 	private string speechText = "";
 	private CompanionEmote activeEmote;
 	private readonly HashSet<Point> failedMiningTargets = [];
@@ -198,8 +198,11 @@ public sealed class SoulboundCompanion : ModNPC
 			NPC.netUpdate = true;
 			return;
 		}
-		if (Main.netMode != NetmodeID.MultiplayerClient && !ClaimActiveSlot(owner))
-			return;
+		if (Main.netMode != NetmodeID.MultiplayerClient) {
+			if (!ClaimActiveSlot(owner))
+				return;
+			ReconcilePackOnce();
+		}
 
 		NPC.GivenName = Profile.Name;
 		Lighting.AddLight(NPC.Center, Profile.EssenceColor.ToVector3() * 1.15f);
@@ -757,7 +760,6 @@ public sealed class SoulboundCompanion : ModNPC
 		if (previousShakes >= 0 && TreeShakeCountField?.GetValue(null) is int currentShakes
 			&& currentShakes <= previousShakes)
 			return false;
-		CollectNearbyLooseItems(target.ToWorldCoordinates(), 360f, 8);
 		return true;
 	}
 
@@ -771,7 +773,6 @@ public sealed class SoulboundCompanion : ModNPC
 		WorldGen.KillTile(target.X, target.Y);
 		bool success = !Main.tile[target.X, target.Y].HasTile;
 		if (success) {
-			CollectNearbyLooseItems(target.ToWorldCoordinates(), 240f, 8);
 			if (Main.netMode == NetmodeID.Server)
 				NetMessage.SendData(MessageID.TileManipulation, -1, -1, null, 0,
 					target.X, target.Y);
@@ -1563,7 +1564,8 @@ public sealed class SoulboundCompanion : ModNPC
 			if (!item.active || item.IsAir || !CanCarry(item) || IsRecoveryPickup(item)
 				|| item.playerIndexTheItemIsReservedFor != 255 && item.playerIndexTheItemIsReservedFor != Owner.whoAmI)
 				continue;
-			if (item.type == ItemID.Acorn && PackItemCount(ItemID.Acorn) >= AcornReserveLimit)
+			if (item.type == ItemID.Acorn
+				&& Profile.ItemCount(ItemID.Acorn) >= CompanionProfile.ForestrySupplyLimit)
 				continue;
 			if (Vector2.DistanceSquared(jobOrigin, item.Center) < radius * radius)
 				return true;
@@ -1616,16 +1618,6 @@ public sealed class SoulboundCompanion : ModNPC
 		int total = 0;
 		foreach (Item item in Profile.Pack) {
 			if (!item.IsAir)
-				total += item.stack;
-		}
-		return total;
-	}
-
-	private int PackItemCount(int itemType)
-	{
-		int total = 0;
-		foreach (Item item in Profile.Pack) {
-			if (!item.IsAir && item.type == itemType)
 				total += item.stack;
 		}
 		return total;
@@ -2385,15 +2377,26 @@ public sealed class SoulboundCompanion : ModNPC
 			|| item.playerIndexTheItemIsReservedFor != 255 && item.playerIndexTheItemIsReservedFor != Owner.whoAmI)
 			return 0;
 
-		int available = item.stack;
-		if (item.type == ItemID.Acorn)
-			available = Math.Min(available, Math.Max(0, AcornReserveLimit - PackItemCount(ItemID.Acorn)));
-		if (available <= 0)
-			return 0;
+		return Profile.GetStorableAmount(item);
+	}
 
-		Item probe = item.Clone();
-		probe.stack = available;
-		return Profile.CanStore(probe) ? available : 0;
+	private void ReconcilePackOnce()
+	{
+		if (packReconciled)
+			return;
+		packReconciled = true;
+		int excess = Profile.RemoveExcess(ItemID.Acorn, CompanionProfile.ForestrySupplyLimit);
+		if (excess <= 0)
+			return;
+
+		var returned = new Item();
+		returned.SetDefaults(ItemID.Acorn);
+		returned.stack = excess;
+		Item leftover = Owner.GetItem(Owner.whoAmI, returned, GetItemSettings.InventoryEntityToPlayerInventorySettings);
+		if (!leftover.IsAir)
+			Item.NewItem(Owner.GetSource_Misc("SoulmatesPackRepair"), Owner.Hitbox, leftover);
+		SyncPackState();
+		SyncOwnerInventory();
 	}
 
 	public void SyncProfileToBoundSigil()

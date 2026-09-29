@@ -1,3 +1,11 @@
+Soulmates 0.9.4.1 - Coherent Cargo Hotfix
+
+- Unified every pack insertion behind one capacity and item-limit policy in single-player and multiplayer.
+- The 12-acorn forestry reserve now applies to world pickup and manual storage; existing excess is returned safely to the owner on summon.
+- Tree shaking and deadwood clearing no longer perform a second broad pickup sweep; their drops enter the normal visible gathering flow.
+- Replaced duplicate single-player and server creation code with one atomic inventory transaction and clear timeout/full-inventory feedback.
+- Soulkin frames now preload without synchronous asset requests during normal UI and world rendering.
+
 Soulmates 0.9.4 - Tidy Talk and Forestry Supplies
 
 - Companion speech now appears beside the companion and avoids the centered Terraria emote bubble.

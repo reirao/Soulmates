@@ -24,6 +24,7 @@ public sealed class SoulCreatorState : UIState
 	private UIText? status;
 	private UIText? talentLabel;
 	private bool creationPending;
+	private int creationPendingTimer;
 
 	public override void OnInitialize()
 	{
@@ -161,6 +162,7 @@ public sealed class SoulCreatorState : UIState
 		draft.Pack.Clear();
 		draft.Memories.Clear();
 		creationPending = false;
+		creationPendingTimer = 0;
 		SoundEngine.PlaySound(SoundID.MenuTick);
 		Refresh();
 	}
@@ -220,36 +222,29 @@ public sealed class SoulCreatorState : UIState
 
 		if (Main.netMode == NetmodeID.MultiplayerClient) {
 			creationPending = true;
+			creationPendingTimer = 600;
 			SetStatus(SoulmatesText.Get("UI.Creator.Creating"), draft.EssenceColor);
 			global::Soulmates.Soulmates.SendCreateCompanionRequest(draft);
 			return;
 		}
 
-		if (!player.ConsumeItem(blankType)) {
-			SetStatus(SoulmatesText.Get("UI.Creator.ConsumeFailed"), Color.IndianRed);
+		CompanionCreationResult result = CompanionCreationService.TryCreate(player, draft, out CompanionProfile createdProfile);
+		if (result != CompanionCreationResult.Success) {
+			ShowCreationFailure(result);
 			return;
 		}
 
-		var item = new Item();
-		item.SetDefaults(ModContent.ItemType<SoulboundSigil>());
-		CompanionProfile createdProfile = draft.Clone();
-		createdProfile.Remember(CompanionMemoryKind.Awakened);
-		((SoulboundSigil)item.ModItem).Profile = createdProfile;
-		Item leftover = player.GetItem(player.whoAmI, item, GetItemSettings.InventoryEntityToPlayerInventorySettings);
-		if (!leftover.IsAir)
-			Item.NewItem(player.GetSource_Misc("SoulCreator"), player.Hitbox, leftover);
-
 		SoundEngine.PlaySound(SoundID.Item4);
-		Main.NewText(SoulmatesText.Get("Messages.SoulCreated", draft.Name), draft.EssenceColor);
+		Main.NewText(SoulmatesText.Get("Messages.SoulCreated", createdProfile.Name), createdProfile.EssenceColor);
 		ModContent.GetInstance<SoulCreatorSystem>().Close();
 	}
 
-	internal void ReceiveNetworkResponse(bool accepted, string companionName, CompanionEssence essence)
+	internal void ReceiveNetworkResponse(CompanionCreationResult result, string companionName, CompanionEssence essence)
 	{
 		creationPending = false;
-		if (!accepted) {
-			SetStatus(SoulmatesText.Get("UI.Creator.ConsumeFailed"), Color.IndianRed);
-			SoundEngine.PlaySound(SoundID.MenuClose);
+		creationPendingTimer = 0;
+		if (result != CompanionCreationResult.Success) {
+			ShowCreationFailure(result);
 			return;
 		}
 
@@ -257,6 +252,26 @@ public sealed class SoulCreatorState : UIState
 		Color color = new CompanionProfile { Essence = essence }.EssenceColor;
 		Main.NewText(SoulmatesText.Get("Messages.SoulCreated", companionName), color);
 		ModContent.GetInstance<SoulCreatorSystem>().Close();
+	}
+
+	public override void Update(GameTime gameTime)
+	{
+		base.Update(gameTime);
+		if (!creationPending || --creationPendingTimer > 0)
+			return;
+		creationPending = false;
+		ShowCreationFailure(CompanionCreationResult.InvalidRequest);
+	}
+
+	private void ShowCreationFailure(CompanionCreationResult result)
+	{
+		string key = result switch {
+			CompanionCreationResult.MissingBlankSigil => "UI.Creator.NeedSigil",
+			CompanionCreationResult.InventoryFull => "UI.Creator.InventoryFull",
+			_ => "UI.Creator.ConsumeFailed"
+		};
+		SetStatus(SoulmatesText.Get(key), Color.IndianRed);
+		SoundEngine.PlaySound(SoundID.MenuClose);
 	}
 
 	private void Refresh()

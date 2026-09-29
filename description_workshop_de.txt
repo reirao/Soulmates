@@ -69,7 +69,7 @@ Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils als Start
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Aktuelle Version[/h2]
-Soulmates 0.9.4 hält Companion-Texte von Terraria-Emote-Blasen frei, begrenzt automatisch gesammelte Eicheln auf einen nützlichen Forstvorrat, lässt überschüssige Drops sicher in der Welt und erkennt geeignete Pflanzplätze zuverlässiger. Die getrennten Räder für Companion und Spieler bleiben erhalten; bestehende Soulbound Sigils bleiben kompatibel.
+Soulmates 0.9.4.1 verwendet in Singleplayer und Multiplayer einen einheitlichen Frachtweg. Der Forstvorrat von 12 Eicheln gilt nun für jeden Zugang zum Pack, vorhandene Übermengen gehen sicher an den Spieler zurück, Baumdrops folgen dem normalen sichtbaren Sammelablauf und die Seelenerstellung ist eine atomare Inventaraktion mit klarer Rückmeldung. Bestehende Soulbound Sigils bleiben kompatibel.
 
 [h2]Steuerung[/h2]
 [list]

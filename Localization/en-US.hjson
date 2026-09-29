@@ -177,6 +177,7 @@ Mods: {
 				Field: "{0}: {1}"
 				NeedSigil: You need a Blank Sigil.
 				ConsumeFailed: The Blank Sigil could not be consumed.
+				InventoryFull: You need one free inventory slot to bind this soul.
 				Creating: Binding this soul...
 				Details:
 					'''

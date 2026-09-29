@@ -177,6 +177,7 @@ Mods: {
 				Field: "{0}: {1}"
 				NeedSigil: Du benötigst ein Leeres Siegel.
 				ConsumeFailed: Das Leere Siegel konnte nicht verbraucht werden.
+				InventoryFull: Du benötigst einen freien Inventarplatz, um diese Seele zu binden.
 				Creating: Diese Seele wird gebunden...
 				Details:
 					'''

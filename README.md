@@ -70,7 +70,7 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current release
 
-**Soulmates 0.9.4 - Tidy Talk and Forestry Supplies** keeps companion speech clear of native emote bubbles, limits automatically collected acorns to a useful forestry reserve, leaves excess drops safely in the world, and accepts practical planting spaces more reliably. The contextual companion and player wheels from 0.9.3 remain unchanged, and existing Sigils remain compatible.
+**Soulmates 0.9.4.1 - Coherent Cargo Hotfix** routes every pack insertion through one rule set in single-player and multiplayer. The 12-acorn forestry reserve now covers automatic pickup and manual storage, old excess is returned to the owner without loss, tree drops use the normal visible gathering flow, and Soul creation is one atomic inventory operation with clear failure feedback. Existing Sigils remain compatible.
 
 ## Languages
 
