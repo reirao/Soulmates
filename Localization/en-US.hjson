@@ -332,6 +332,7 @@ Mods: {
 			Stay: Stay
 			Follow: Follow
 			Mining: MINING · {0} CLEARED
+			MiningProgress: MINING · {0}/{1}
 			Gathering: GATHERING · {0} ITEMS
 			SensingTreasure: Sensing treasure
 			AwaitingAnswer: ASKING: {0}
@@ -339,6 +340,8 @@ Mods: {
 			Recovering: RECOVERING ENERGY
 			Watching: OBSERVING · {0} TILES
 			Assignment: "{0} assignment"
+			AssignmentPaused: "RESTING · {0}"
+			AssignmentPausedProgress: "RESTING · {0} · {1}/{2}"
 			Ready: Ready
 
 			Autonomy: {

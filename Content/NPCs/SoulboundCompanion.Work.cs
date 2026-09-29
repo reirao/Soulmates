@@ -66,6 +66,8 @@ public sealed partial class SoulboundCompanion
 		directedJob = true;
 		directedMiningTileType = tileType;
 		BuildDirectedMiningTargets(target, tileType);
+		miningPlanReady = true;
+		jobPlannedTotal = directedMiningTargets.Count;
 		jobOrigin = target.ToWorldCoordinates();
 		jobTarget = target;
 		hasJobTarget = true;
@@ -90,6 +92,7 @@ public sealed partial class SoulboundCompanion
 		directedJob = true;
 		jobOrigin = item.Center;
 		jobTargetItem = itemIndex;
+		jobPlannedTotal = item.stack;
 		SyncProfileToBoundSigil();
 		NPC.netUpdate = true;
 
@@ -140,10 +143,19 @@ public sealed partial class SoulboundCompanion
 
 	private void UpdateJob()
 	{
+		if (Main.netMode == NetmodeID.MultiplayerClient) {
+			if (!jobRecoveryPaused) {
+				jobTimer++;
+				UpdateJobEffects();
+			}
+			return;
+		}
+		if (jobRecoveryPaused) {
+			UpdatePausedJobRecovery();
+			return;
+		}
 		jobTimer++;
 		UpdateJobEffects();
-		if (Main.netMode == NetmodeID.MultiplayerClient)
-			return;
 		if (Profile.Energy < 5 || Profile.Mood < 15) {
 			PauseAssignmentForRecovery();
 			return;
@@ -159,6 +171,25 @@ public sealed partial class SoulboundCompanion
 				UpdateGatherJob();
 				break;
 		}
+	}
+
+	private void UpdatePausedJobRecovery()
+	{
+		MoveTo(idleTarget + new Vector2(0f, IdleBob()), 1.6f, 0.028f);
+		RecoverEnergy(120, Profile.Trinket == CompanionTrinket.HearthRibbon ? 5 : 3, recoverMood: true);
+		if (Profile.Energy < 12 || Profile.Mood < 20)
+			return;
+
+		jobRecoveryPaused = false;
+		recoveryTimer = 0;
+		Command = FollowCommand;
+		brainState = BrainState.Follow;
+		stateTimer = 1;
+		ShowNativeEmote(EmoteID.EmoteHappiness, 90);
+		SoulmatesFeedbackSystem.Record("job_resumed_after_recovery", ("job", activeJob.ToString()),
+			("work_count", jobCount), ("planned_total", jobPlannedTotal), ("energy", Profile.Energy));
+		SyncProfileToBoundSigil();
+		NPC.netUpdate = true;
 	}
 
 	private void UpdateJobEffects()
@@ -196,7 +227,7 @@ public sealed partial class SoulboundCompanion
 		}
 		hasJobTarget = true;
 		Vector2 target = jobTarget.ToWorldCoordinates(16f, -24f);
-		MoveTo(target, 8f, 0.08f);
+		MoveTo(target, 6.5f, 0.07f);
 		if (Main.rand.NextBool(5)) {
 			Dust dust = Dust.NewDustPerfect(Vector2.Lerp(NPC.Center, target, Main.rand.NextFloat()), DustID.Enchanted_Gold,
 				Vector2.Zero, 100, Profile.EssenceColor, 0.8f);
@@ -228,7 +259,7 @@ public sealed partial class SoulboundCompanion
 		}
 		hasJobTarget = true;
 		Vector2 target = jobTarget.ToWorldCoordinates();
-		MoveTo(target, 7f, 0.09f);
+		MoveTo(target, 6f, 0.075f);
 		if (Vector2.DistanceSquared(NPC.Center, target) > 58f * 58f)
 			return;
 
@@ -240,7 +271,7 @@ public sealed partial class SoulboundCompanion
 		if (!WorldGen.InWorld(jobTarget.X, jobTarget.Y, 10)
 			|| !Main.tile[jobTarget.X, jobTarget.Y].HasTile
 			|| !CanMineTile(jobTarget.X, jobTarget.Y, includeLearnedMaterials: true)) {
-			directedMiningTargets.Remove(jobTarget);
+			DiscardMiningTarget(jobTarget);
 			hasJobTarget = false;
 			return;
 		}
@@ -260,7 +291,7 @@ public sealed partial class SoulboundCompanion
 		}
 		else
 			failedMiningTargets.Add(jobTarget);
-		directedMiningTargets.Remove(jobTarget);
+		DiscardMiningTarget(jobTarget);
 		hasJobTarget = false;
 		if (jobTimer > 7200)
 			CompleteJob(SoulmatesText.Get("Jobs.Mining.Timeout", jobCount), success: false);
@@ -274,24 +305,25 @@ public sealed partial class SoulboundCompanion
 		}
 		if (gatherPause > 0) {
 			gatherPause--;
-			MoveTo(jobOrigin + new Vector2(0f, -52f + IdleBob()), 7f, 0.08f);
+			MoveTo(jobOrigin + new Vector2(0f, -52f + IdleBob()), 5.5f, 0.065f);
 			return;
 		}
 		if (directedJob && !IsValidGatherTarget(jobTargetItem)) {
 			CompleteJob(SoulmatesText.Get("TargetOrders.TargetLost"), success: false);
 			return;
 		}
-		if (!directedJob && !IsValidGatherTarget(jobTargetItem))
+		if (!directedJob && !IsValidGatherTarget(jobTargetItem) && areaEmptyTimer % 10 == 0)
 			jobTargetItem = FindNearestLooseItem();
 		if (jobTargetItem < 0) {
-			if (FindForestTask(jobOrigin, out jobTarget, out gatherForestAction)) {
+			bool checkForest = areaEmptyTimer % 30 == 0;
+			if (checkForest && FindForestTask(jobOrigin, out jobTarget, out gatherForestAction)) {
 				areaEmptyTimer = 0;
 				hasJobTarget = true;
 				UpdateGatherForestTask();
 				return;
 			}
 			areaEmptyTimer++;
-			MoveTo(jobOrigin + new Vector2(0f, -54f + IdleBob()), 5f, 0.06f);
+			MoveTo(jobOrigin + new Vector2(0f, -54f + IdleBob()), 4f, 0.05f);
 			if (areaEmptyTimer >= 90) {
 				bool blockedByPack = HasNearbyCarryableItem();
 				CompleteJob(blockedByPack
@@ -306,7 +338,7 @@ public sealed partial class SoulboundCompanion
 		areaEmptyTimer = 0;
 
 		Item item = Main.item[jobTargetItem];
-		MoveTo(item.Center + new Vector2(0f, -8f), 8f, 0.08f);
+		MoveTo(item.Center + new Vector2(0f, -8f), 6.5f, 0.07f);
 		if (Vector2.DistanceSquared(NPC.Center, item.Center) < 42f * 42f) {
 			if (Main.netMode == NetmodeID.MultiplayerClient)
 				return;
@@ -340,7 +372,7 @@ public sealed partial class SoulboundCompanion
 	private void UpdateGatherForestTask()
 	{
 		Vector2 target = jobTarget.ToWorldCoordinates();
-		MoveTo(target + new Vector2(0f, -18f), 7f, 0.085f);
+		MoveTo(target + new Vector2(0f, -18f), 6f, 0.07f);
 		if (Vector2.DistanceSquared(NPC.Center, target) > 68f * 68f || jobTimer % 24 != 0)
 			return;
 
@@ -400,32 +432,67 @@ public sealed partial class SoulboundCompanion
 			return result != Point.Zero;
 		}
 
-		Point center = jobOrigin.ToTileCoordinates();
+		if (!miningPlanReady)
+			PlanAreaMiningTargets();
+		while (plannedMiningCursor < plannedMiningTargets.Count) {
+			Point candidate = plannedMiningTargets[plannedMiningCursor];
+			if (WorldGen.InWorld(candidate.X, candidate.Y, 10)
+				&& Main.tile[candidate.X, candidate.Y].HasTile
+				&& !failedMiningTargets.Contains(candidate)
+				&& CanMineTile(candidate.X, candidate.Y, includeLearnedMaterials: true)) {
+				result = candidate;
+				return true;
+			}
+			plannedMiningCursor++;
+		}
 		result = Point.Zero;
-		float bestScore = float.MaxValue;
+		return false;
+	}
+
+	private void PlanAreaMiningTargets()
+	{
+		plannedMiningTargets.Clear();
+		plannedMiningCursor = 0;
+		Point center = jobOrigin.ToTileCoordinates();
 		int radius = MiningRadiusTiles;
 		for (int x = center.X - radius; x <= center.X + radius; x++) {
 			for (int y = center.Y - radius; y <= center.Y + radius; y++) {
 				if (!WorldGen.InWorld(x, y, 10))
 					continue;
-				Tile tile = Main.tile[x, y];
-				if (!tile.HasTile || !CanMineTile(x, y, includeLearnedMaterials: true))
-					continue;
-				var candidate = new Point(x, y);
-				if (failedMiningTargets.Contains(candidate))
-					continue;
+				Point candidate = new(x, y);
 				if (Vector2.DistanceSquared(candidate.ToVector2(), center.ToVector2()) > radius * radius)
 					continue;
-				float score = Vector2.DistanceSquared(candidate.ToWorldCoordinates(), NPC.Center);
-				if (IsOreTile(tile.TileType))
-					score *= 0.35f;
-				if (score >= bestScore)
-					continue;
-				bestScore = score;
-				result = candidate;
+				Tile tile = Main.tile[x, y];
+				if (tile.HasTile && CanMineTile(x, y, includeLearnedMaterials: true))
+					plannedMiningTargets.Add(candidate);
 			}
 		}
-		return result != Point.Zero;
+
+		plannedMiningTargets.Sort((left, right) => {
+			bool leftOre = IsOreTile(Main.tile[left.X, left.Y].TileType);
+			bool rightOre = IsOreTile(Main.tile[right.X, right.Y].TileType);
+			if (leftOre != rightOre)
+				return leftOre ? -1 : 1;
+			float leftDistance = Vector2.DistanceSquared(left.ToWorldCoordinates(), jobOrigin);
+			float rightDistance = Vector2.DistanceSquared(right.ToWorldCoordinates(), jobOrigin);
+			return leftDistance.CompareTo(rightDistance);
+		});
+		jobPlannedTotal = plannedMiningTargets.Count;
+		miningPlanReady = true;
+		SoulmatesFeedbackSystem.Record("mining_plan_created", ("target_count", jobPlannedTotal),
+			("radius_tiles", radius));
+		NPC.netUpdate = true;
+	}
+
+	private void DiscardMiningTarget(Point target)
+	{
+		if (directedJob) {
+			directedMiningTargets.Remove(target);
+			return;
+		}
+		if (plannedMiningCursor < plannedMiningTargets.Count
+			&& plannedMiningTargets[plannedMiningCursor] == target)
+			plannedMiningCursor++;
 	}
 
 	private int FindNearestLooseItem()
@@ -562,6 +629,9 @@ public sealed partial class SoulboundCompanion
 			return;
 		revealTimer = 0;
 		Point center = NPC.Center.ToTileCoordinates();
+		if (center == lastRevealCenter)
+			return;
+		lastRevealCenter = center;
 		const int radius = 9;
 		for (int x = center.X - radius; x <= center.X + radius; x++) {
 			for (int y = center.Y - radius; y <= center.Y + radius; y++) {
@@ -617,6 +687,11 @@ public sealed partial class SoulboundCompanion
 		activeJob = CompanionJob.None;
 		jobTimer = 0;
 		jobCount = 0;
+		jobPlannedTotal = 0;
+		jobRecoveryPaused = false;
+		miningPlanReady = false;
+		plannedMiningTargets.Clear();
+		plannedMiningCursor = 0;
 		gatherPause = 0;
 		jobTargetItem = -1;
 		gatherForestAction = ForestAction.None;

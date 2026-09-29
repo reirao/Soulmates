@@ -78,12 +78,18 @@ public sealed partial class SoulboundCompanion : ModNPC
 	private bool directedJob;
 	private ushort directedMiningTileType;
 	private readonly HashSet<Point> directedMiningTargets = [];
+	private readonly List<Point> plannedMiningTargets = [];
+	private int plannedMiningCursor;
+	private bool miningPlanReady;
+	private bool jobRecoveryPaused;
+	private int jobPlannedTotal;
 	private int recoveryTimer;
 	private int gatherPause;
 	private int jobTargetItem = -1;
 	private ForestAction gatherForestAction;
 	private int areaEmptyTimer;
 	private int revealTimer;
+	private Point lastRevealCenter = new(-1, -1);
 	private int attackCooldown;
 	private int healingCooldown;
 	private int guardianTarget = -1;
@@ -142,7 +148,12 @@ public sealed partial class SoulboundCompanion : ModNPC
 	public bool HasPendingInitiative => pendingAutonomyActivity != AutonomyActivity.None;
 	public CompanionInitiativeKind PendingInitiativeKind => InitiativeKindFor(pendingAutonomyActivity);
 	public string CurrentJobName => activeJob != CompanionJob.None
-		? activeJob switch {
+		? jobRecoveryPaused
+			? jobPlannedTotal > 0
+				? SoulmatesText.Get("Status.AssignmentPausedProgress", SoulmatesText.EnumName(activeJob), jobCount, jobPlannedTotal)
+				: SoulmatesText.Get("Status.AssignmentPaused", SoulmatesText.EnumName(activeJob))
+			: activeJob switch {
+			CompanionJob.Mine when jobPlannedTotal > 0 => SoulmatesText.Get("Status.MiningProgress", jobCount, jobPlannedTotal),
 			CompanionJob.Mine => SoulmatesText.Get("Status.Mining", jobCount),
 			CompanionJob.Gather => SoulmatesText.Get("Status.Gathering", jobCount),
 			CompanionJob.FindTreasure => SoulmatesText.Get("Status.SensingTreasure"),
@@ -259,13 +270,15 @@ public sealed partial class SoulboundCompanion : ModNPC
 		if (healingCooldown > 0)
 			healingCooldown--;
 		if (UpdateTalentBehavior()) {
-			recoveryTimer = 0;
+			if (!jobRecoveryPaused)
+				recoveryTimer = 0;
 			NPC.rotation = MathHelper.Lerp(NPC.rotation, NPC.velocity.X * 0.025f, 0.08f);
 			UpdateFacing();
 			return;
 		}
 		if (activeJob != CompanionJob.None) {
-			recoveryTimer = 0;
+			if (!jobRecoveryPaused)
+				recoveryTimer = 0;
 			guardianTarget = -1;
 			UpdateJob();
 			NPC.rotation = MathHelper.Lerp(NPC.rotation, NPC.velocity.X * 0.025f, 0.08f);
@@ -287,7 +300,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 		if (Command == StayCommand) {
 			if (brainState != BrainState.Stay)
 				brainState = BrainState.Stay;
-			MoveTo(idleTarget + new Vector2(0f, IdleBob()), 2.2f, 0.04f);
+			MoveTo(idleTarget + new Vector2(0f, IdleBob()), 1.8f, 0.032f);
 			RecoverEnergy(120, Profile.Trinket == CompanionTrinket.HearthRibbon ? 5 : 3, recoverMood: true);
 			UpdateFacing();
 			return;
@@ -315,20 +328,20 @@ public sealed partial class SoulboundCompanion : ModNPC
 
 		switch (brainState) {
 			case BrainState.Idle:
-				MoveTo(followTarget + new Vector2(0f, IdleBob()), 2.4f, 0.035f);
+				MoveTo(followTarget + new Vector2(0f, IdleBob()), 2f, 0.03f);
 				break;
 			case BrainState.Wander:
-				MoveTo(idleTarget + new Vector2(0f, IdleBob() * 0.5f), 4.2f, 0.055f);
+				MoveTo(idleTarget + new Vector2(0f, IdleBob() * 0.5f), 3f, 0.045f);
 				break;
 			case BrainState.Inspect:
 				Vector2 inspectOffset = new Vector2(MathF.Sin((stateTimer + bobSeed) * 0.035f) * 26f, -82f + IdleBob());
-				MoveTo(Owner.Center + inspectOffset, 3.4f, 0.045f);
+				MoveTo(Owner.Center + inspectOffset, 2.8f, 0.04f);
 				break;
 			case BrainState.CatchUp:
-				MoveTo(followTarget, 14f, 0.13f);
+				MoveTo(followTarget, 11f, 0.11f);
 				break;
 			default:
-				MoveTo(followTarget, 8f, 0.075f);
+				MoveTo(followTarget, 6.5f, 0.065f);
 				break;
 		}
 

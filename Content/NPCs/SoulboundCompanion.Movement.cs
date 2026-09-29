@@ -57,7 +57,7 @@ public sealed partial class SoulboundCompanion
 			NPC.velocity *= 0.94f;
 	}
 
-	private float IdleBob() => MathF.Sin(Main.GlobalTimeWrappedHourly * 2.2f + bobSeed) * 7f;
+	private float IdleBob() => MathF.Sin(Main.GlobalTimeWrappedHourly * 1.65f + bobSeed) * 5f;
 
 	private void UpdateFacing()
 	{

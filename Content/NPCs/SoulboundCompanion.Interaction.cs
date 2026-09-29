@@ -167,6 +167,11 @@ public sealed partial class SoulboundCompanion
 		activeJob = job;
 		jobTimer = 0;
 		jobCount = 0;
+		jobPlannedTotal = 0;
+		jobRecoveryPaused = false;
+		miningPlanReady = false;
+		plannedMiningTargets.Clear();
+		plannedMiningCursor = 0;
 		gatherPause = 0;
 		jobTargetItem = -1;
 		gatherForestAction = ForestAction.None;
@@ -188,6 +193,11 @@ public sealed partial class SoulboundCompanion
 		Profile.Routine = CompanionJob.None;
 		jobTimer = 0;
 		jobCount = 0;
+		jobPlannedTotal = 0;
+		jobRecoveryPaused = false;
+		miningPlanReady = false;
+		plannedMiningTargets.Clear();
+		plannedMiningCursor = 0;
 		gatherPause = 0;
 		jobTargetItem = -1;
 		gatherForestAction = ForestAction.None;
@@ -216,7 +226,7 @@ public sealed partial class SoulboundCompanion
 			speechText = speechText[..180];
 		speechDuration = Math.Clamp(420 + speechText.Length * 3, 540, 780);
 		speechTimer = speechDuration;
-		speechAnchorWorld = NPC.Center;
+		speechAnchorWorld = SpeechAnchorTarget();
 		speechTrailWorld = NPC.Center;
 	}
 
@@ -345,20 +355,15 @@ public sealed partial class SoulboundCompanion
 
 	private void PauseAssignmentForRecovery()
 	{
-		activeJob = CompanionJob.None;
-		jobTimer = 0;
-		jobCount = 0;
-		gatherPause = 0;
-		jobTargetItem = -1;
-		gatherForestAction = ForestAction.None;
-		areaEmptyTimer = 0;
-		hasJobTarget = false;
-		jobOrigin = Vector2.Zero;
-		failedMiningTargets.Clear();
-		ClearDirectedJob();
+		if (jobRecoveryPaused)
+			return;
+		jobRecoveryPaused = true;
 		Command = StayCommand;
 		brainState = BrainState.Stay;
 		idleTarget = NPC.Center;
+		ShowNativeEmote(EmoteID.EmoteSleep, 120);
+		SoulmatesFeedbackSystem.Record("job_paused_for_recovery", ("job", activeJob.ToString()),
+			("work_count", jobCount), ("planned_total", jobPlannedTotal), ("energy", Profile.Energy));
 		SyncProfileToBoundSigil();
 		NPC.netUpdate = true;
 	}

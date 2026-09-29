@@ -129,7 +129,7 @@ public sealed partial class SoulboundCompanion
 			return false;
 		}
 
-		MoveTo(item.Center + new Vector2(0f, -10f), EagerGatherer ? 8.5f : 7.5f, 0.085f);
+		MoveTo(item.Center + new Vector2(0f, -10f), EagerGatherer ? 7f : 6.5f, 0.075f);
 		if (Vector2.DistanceSquared(NPC.Center, item.Center) >= 42f * 42f || Main.netMode == NetmodeID.MultiplayerClient)
 			return true;
 
@@ -175,7 +175,7 @@ public sealed partial class SoulboundCompanion
 	private bool UpdateAutonomousMining()
 	{
 		Vector2 target = autonomyTargetTile.ToWorldCoordinates();
-		MoveTo(target, 7f, 0.09f);
+		MoveTo(target, 6f, 0.075f);
 		if (Main.netMode == NetmodeID.MultiplayerClient)
 			return true;
 		if (autonomyActionTimer > 720 || Profile.Energy < 12) {
@@ -220,7 +220,7 @@ public sealed partial class SoulboundCompanion
 	private bool UpdateAutonomousTreasure()
 	{
 		Vector2 target = autonomyTargetTile.ToWorldCoordinates(16f, -24f);
-		MoveTo(target, 6.5f, 0.085f);
+		MoveTo(target, 5.5f, 0.07f);
 		if (Main.netMode == NetmodeID.MultiplayerClient)
 			return true;
 		if (Vector2.DistanceSquared(NPC.Center, target) > 92f * 92f && autonomyActionTimer <= 540)
@@ -238,7 +238,7 @@ public sealed partial class SoulboundCompanion
 	private bool UpdateAutonomousForestry()
 	{
 		Vector2 target = autonomyTargetTile.ToWorldCoordinates();
-		MoveTo(target + new Vector2(0f, -18f), 6.5f, 0.075f);
+		MoveTo(target + new Vector2(0f, -18f), 5.5f, 0.065f);
 		if (Main.netMode == NetmodeID.MultiplayerClient)
 			return true;
 		if (autonomyActionTimer > 600) {

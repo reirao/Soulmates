@@ -26,6 +26,8 @@ public sealed partial class SoulboundCompanion
 		Profile.Write(writer);
 		writer.Write((byte)activeJob);
 		writer.Write(jobCount);
+		writer.Write(jobPlannedTotal);
+		writer.Write(jobRecoveryPaused);
 		writer.Write((short)guardianTarget);
 		writer.Write(idleTarget.X);
 		writer.Write(idleTarget.Y);
@@ -54,6 +56,8 @@ public sealed partial class SoulboundCompanion
 		Profile = CompanionProfile.Read(reader);
 		activeJob = (CompanionJob)reader.ReadByte();
 		jobCount = reader.ReadInt32();
+		jobPlannedTotal = reader.ReadInt32();
+		jobRecoveryPaused = reader.ReadBoolean();
 		guardianTarget = reader.ReadInt16();
 		idleTarget = new Vector2(reader.ReadSingle(), reader.ReadSingle());
 		activeEmote = (CompanionEmote)reader.ReadByte();

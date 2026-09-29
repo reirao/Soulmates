@@ -117,14 +117,14 @@ public sealed partial class SoulboundCompanion
 		if (opacity <= 0.01f)
 			return;
 		float zoom = Math.Max(1f, Main.GameViewMatrix.Zoom.X);
-		float textScale = 0.68f / zoom;
-		List<string> lines = WrapSpeech(speechText, 220f / zoom, textScale);
+		float textScale = 0.8f / zoom;
+		List<string> lines = WrapSpeech(speechText, 250f / zoom, textScale);
 		float width = 0f;
 		foreach (string line in lines)
 			width = Math.Max(width, FontAssets.MouseText.Value.MeasureString(line).X * textScale);
-		float lineHeight = 20f / zoom;
-		float paddingX = 11f / zoom;
-		float paddingY = 8f / zoom;
+		float lineHeight = 23f / zoom;
+		float paddingX = 13f / zoom;
+		float paddingY = 9f / zoom;
 		float height = lines.Count * lineHeight;
 		float halfWidth = width * 0.5f + paddingX;
 		float halfHeight = height * 0.5f + paddingY;
@@ -199,6 +199,15 @@ public sealed partial class SoulboundCompanion
 		}
 		float pulse = 0.35f + (MathF.Sin(time * 1.6f) + 1f) * (defending ? 0.2f : 0.12f);
 		spriteBatch.Draw(pixel, new Rectangle((int)center.X - 16, (int)center.Y - 43, 32, 2), color * pulse);
+		if (activeJob != CompanionJob.None && jobPlannedTotal > 0) {
+			const int barWidth = 34;
+			float progress = MathHelper.Clamp(jobCount / (float)jobPlannedTotal, 0f, 1f);
+			var background = new Rectangle((int)center.X - barWidth / 2, (int)center.Y - 49, barWidth, 4);
+			spriteBatch.Draw(pixel, background, new Color(8, 13, 23) * 0.82f);
+			int fillWidth = (int)MathF.Round((barWidth - 2) * progress);
+			if (fillWidth > 0)
+				spriteBatch.Draw(pixel, new Rectangle(background.X + 1, background.Y + 1, fillWidth, 2), color * 0.95f);
+		}
 	}
 
 	private Color JobColor(CompanionJob job) => job switch {

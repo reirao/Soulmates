@@ -27,12 +27,12 @@ public sealed partial class SoulboundCompanion
 		if (speechTimer > 0) {
 			speechTimer--;
 			if (speechAnchorWorld == Vector2.Zero) {
-				speechAnchorWorld = NPC.Center;
+				speechAnchorWorld = SpeechAnchorTarget();
 				speechTrailWorld = NPC.Center;
 			}
 			Vector2 previousAnchor = speechAnchorWorld;
-			speechAnchorWorld = Vector2.Lerp(speechAnchorWorld, NPC.Center, 0.045f);
-			speechTrailWorld = Vector2.Lerp(speechTrailWorld, previousAnchor, 0.11f);
+			speechAnchorWorld = Vector2.Lerp(speechAnchorWorld, SpeechAnchorTarget(), 0.12f);
+			speechTrailWorld = Vector2.Lerp(speechTrailWorld, previousAnchor, 0.07f);
 		}
 		else {
 			speechText = "";
@@ -167,6 +167,13 @@ public sealed partial class SoulboundCompanion
 			global::Soulmates.Soulmates.SendProfileUpdate(Owner, this, message);
 		else if (!string.IsNullOrEmpty(message))
 			Main.NewText(message, Profile.EssenceColor);
+	}
+
+	private Vector2 SpeechAnchorTarget()
+	{
+		if (!TryGetOwner(out Player owner))
+			return NPC.Center;
+		return owner.Center + new Vector2(-owner.direction * 28f, -10f);
 	}
 
 	private void QueueImitation(LearnedBehavior behavior)

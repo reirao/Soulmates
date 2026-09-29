@@ -93,6 +93,11 @@ public sealed partial class SoulboundCompanion
 		}
 		guardianTarget = -1;
 		activeJob = CompanionJob.None;
+		jobRecoveryPaused = false;
+		jobPlannedTotal = 0;
+		miningPlanReady = false;
+		plannedMiningTargets.Clear();
+		plannedMiningCursor = 0;
 		CancelAutonomousActivity();
 		speechTimer = 0;
 		speechDuration = 0;
