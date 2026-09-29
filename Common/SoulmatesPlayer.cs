@@ -159,8 +159,10 @@ public sealed class SoulmatesPlayer : ModPlayer
 		bool rightPressed = Main.mouseRight && !rightMouseDown;
 		rightMouseDown = Main.mouseRight;
 		if (Soulmates.EmoteKeybind.JustPressed && companion is not null && !Main.playerInventory
-			&& !talkMode.IsOpen && !companionWheel.IsOpen && !initiativePrompt.IsOpen && !mailbox.IsOpen)
+			&& !talkMode.IsOpen && !companionWheel.IsOpen && !initiativePrompt.IsOpen && !mailbox.IsOpen) {
 			companionWheel.OpenEmotes(companion);
+			SoulmatesFeedbackSystem.Record("player_emote_wheel_opened", ("input", "keybind"));
+		}
 		if (companion is not null && rightPressed)
 			QueueSelfSoulwheel(companion, companionWheel, initiativePrompt, talkMode);
 
@@ -177,22 +179,19 @@ public sealed class SoulmatesPlayer : ModPlayer
 	{
 		queuedSelfSoulwheel = false;
 		if (Main.playerInventory || Player.mouseInterface
-			|| talkMode.IsOpen || companionWheel.IsOpen || initiativePrompt.IsOpen
-			|| !Main.HoverItem.IsAir || Player.cursorItemIconEnabled
-			|| ItemLoader.AltFunctionUse(Player.HeldItem, Player))
+			|| talkMode.IsOpen || companionWheel.IsOpen || initiativePrompt.IsOpen)
 			return;
 
 		Point mouseWorld = Main.MouseWorld.ToPoint();
-		if (companion.NPC.Hitbox.Contains(mouseWorld))
-			return;
-
 		Rectangle selfInteractionBounds = Player.Hitbox;
 		selfInteractionBounds.Inflate(14, 8);
-		if (!selfInteractionBounds.Contains(mouseWorld) || HasWorldInteractionAt(mouseWorld))
+		if (!selfInteractionBounds.Contains(mouseWorld) || CompanionIsCloser(companion, mouseWorld)
+			|| HasWorldInteractionAt(mouseWorld, companion.NPC.whoAmI))
 			return;
 
 		queuedSelfSoulwheelPosition = mouseWorld;
 		queuedSelfSoulwheel = true;
+		SoulmatesFeedbackSystem.Record("player_emote_wheel_queued", ("input", "self_right_click"));
 	}
 
 	private void OpenQueuedSelfSoulwheel(SoulboundCompanion? companion)
@@ -208,26 +207,33 @@ public sealed class SoulmatesPlayer : ModPlayer
 		TalkModeSystem talkMode = ModContent.GetInstance<TalkModeSystem>();
 		FeedbackMailboxSystem mailbox = ModContent.GetInstance<FeedbackMailboxSystem>();
 		if (Main.playerInventory || Player.mouseInterface || talkMode.IsOpen || companionWheel.IsOpen
-			|| initiativePrompt.IsOpen || mailbox.IsOpen || Player.tileInteractionHappened
-			|| Main.HasInteractibleObjectThatIsNotATile
-			|| Player.cursorItemIconEnabled || !Main.HoverItem.IsAir)
+			|| initiativePrompt.IsOpen || mailbox.IsOpen)
 			return;
 
 		Point mouseWorld = queuedSelfSoulwheelPosition;
-		if (companion.NPC.Hitbox.Contains(mouseWorld))
-			return;
 		Rectangle selfInteractionBounds = Player.Hitbox;
 		selfInteractionBounds.Inflate(14, 8);
-		if (!selfInteractionBounds.Contains(mouseWorld) || HasWorldInteractionAt(mouseWorld))
+		if (!selfInteractionBounds.Contains(mouseWorld) || CompanionIsCloser(companion, mouseWorld)
+			|| HasWorldInteractionAt(mouseWorld, companion.NPC.whoAmI))
 			return;
 
 		companionWheel.OpenEmotes(companion);
+		SoulmatesFeedbackSystem.Record("player_emote_wheel_opened", ("input", "self_right_click"));
 		Player.mouseInterface = true;
 		Main.blockMouse = true;
 		Main.mouseRightRelease = false;
 	}
 
-	private static bool HasWorldInteractionAt(Point mouseWorld)
+	private bool CompanionIsCloser(SoulboundCompanion companion, Point mouseWorld)
+	{
+		if (!companion.NPC.Hitbox.Contains(mouseWorld))
+			return false;
+		Vector2 mouse = mouseWorld.ToVector2();
+		return Vector2.DistanceSquared(mouse, companion.NPC.Center)
+			< Vector2.DistanceSquared(mouse, Player.Center);
+	}
+
+	private static bool HasWorldInteractionAt(Point mouseWorld, int ignoredNpc)
 	{
 		Point tilePosition = mouseWorld.ToVector2().ToTileCoordinates();
 		if (!WorldGen.InWorld(tilePosition.X, tilePosition.Y, 1))
@@ -240,7 +246,7 @@ public sealed class SoulmatesPlayer : ModPlayer
 
 		for (int i = 0; i < Main.maxNPCs; i++) {
 			NPC npc = Main.npc[i];
-			if (npc.active && npc.Hitbox.Contains(mouseWorld))
+			if (i != ignoredNpc && npc.active && npc.Hitbox.Contains(mouseWorld))
 				return true;
 		}
 		return false;

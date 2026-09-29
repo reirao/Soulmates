@@ -15,7 +15,6 @@ public sealed class WorkbenchInteraction : GlobalTile
 
 		Main.playerInventory = true;
 		Main.recBigList = false;
-		Main.LocalPlayer.tileInteractionHappened = true;
 		Recipe.FindRecipes();
 		SoundEngine.PlaySound(SoundID.MenuOpen with { Volume = 0.5f });
 	}

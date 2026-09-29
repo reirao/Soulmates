@@ -138,6 +138,7 @@ public sealed class CompanionWheelSystem : ModSystem
 	{
 		if (Main.dedServ || Main.gameMenu || Main.LocalPlayer.dead || Main.playerInventory)
 			return;
+		ModContent.GetInstance<DirectOrderSystem>().Cancel();
 		ModContent.GetInstance<TalkModeSystem>().Close();
 		ModContent.GetInstance<FeedbackMailboxSystem>().Close();
 		companion = boundCompanion;

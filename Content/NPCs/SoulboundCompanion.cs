@@ -217,6 +217,12 @@ public sealed partial class SoulboundCompanion : ModNPC
 	{
 		if (mouseIntersects && Main.mouseRight && Main.mouseRightRelease
 			&& TryGetOwner(out Player owner) && owner.whoAmI == Main.myPlayer) {
+			Vector2 mouse = Main.MouseWorld;
+			Rectangle ownerBounds = owner.Hitbox;
+			ownerBounds.Inflate(14, 8);
+			if (ownerBounds.Contains(mouse.ToPoint())
+				&& Vector2.DistanceSquared(mouse, owner.Center) <= Vector2.DistanceSquared(mouse, NPC.Center))
+				return false;
 			ModContent.GetInstance<CompanionWheelSystem>().Open(this);
 			Main.LocalPlayer.mouseInterface = true;
 			Main.blockMouse = true;
