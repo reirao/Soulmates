@@ -32,10 +32,11 @@ Soulmates was created with extensive AI assistance across programming, writing, 
 [list]
 [*]Resting, wandering, exploring, following, catching up, and small surprises depend on personality. Autonomy can be toggled per companion.
 [*]Initiative questions appear as an emote crescent. Choose Yes, No, Always, or Never separately for gathering, mining, forestry, and treasure hunting.
+[*]Choose an area assignment or arm a precise cursor order for one material cluster or loose item. Planned work shows progress and resumes after natural energy recovery.
 [*]Every companion retrieves nearby usable drops. Gatherers work farther and faster, Miners clear early ore, Treasure Seekers inspect chests, Guardians intercept danger, and Healers respond to injuries.
 [*]Companions defend without spending work energy and stay near their owner or Stay anchor. Guardians react harder; Healers address meaningful injuries.
-[*]Learned inclinations adapt to your gathering, mining, forestry, combat, and exploration habits.
-[*]The Forester perk shakes trees, clears natural fallen logs, collects seeds, and carefully replants carried acorns.
+[*]Learned inclinations weigh repeated gathering, mining, forestry, combat, and exploration habits instead of merely copying the latest event.
+[*]The Forester perk shakes trees, clears natural fallen logs, collects seeds, carefully replants carried acorns, and leaves unproductive trees alone for a while.
 [*]A companion named AETHER is an Omni Soul with every talent instinct and learned perk.
 [*]Assignments survive recall, end when an area is clear, and report when a new order is needed.
 [/list]
@@ -66,8 +67,8 @@ New characters receive one Soulcore and three Blank Sigils. Everything can also 
 [b]Delver Charm:[/b] 5 Iron/Lead Bars, 2 Amethyst, 20 Stone Blocks
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
-[h2]Current Release: 0.10.0 - AETHER-EGG Alpha[/h2]
-This grown but deliberately pre-1.0 foundation gives initiative questions their own compact Terraria-emote prompt, restores vanilla right-click priority, keeps companions facing their combat target, and turns five observed habits into named adaptive instincts that deliberately imitate the owner. AETHER begins with every talent instinct and learned perk. Existing Sigils remain compatible.
+[h2]Current Release: 0.11.0 - Deliberate Souls[/h2]
+This AETHER-EGG Alpha update adds precise cursor orders, one-pass area work plans, visible progress, assignments that pause and resume through energy recovery, weighted imitation of the owner's habits, calmer movement, and forestry that recognizes when trees should be left alone. AETHER begins with every talent instinct and learned perk. Existing Sigils remain compatible.
 [b]Legacy install note:[/b] If you manually installed a GitHub `9.9.x` build, remove that duplicate `.tmod` before using the Workshop AETHER-EGG line. Normal Workshop subscriptions replace themselves automatically.
 
 [h2]How Soulmates Got Here[/h2]

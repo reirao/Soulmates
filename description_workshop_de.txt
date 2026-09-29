@@ -32,10 +32,11 @@ Soulmates entstand mit umfassender KI-Unterstützung bei Programmierung, Texten,
 [list]
 [*]Ruhen, Wandern, Erkunden, Folgen, Aufholen und kleine Überraschungen richten sich nach der Persönlichkeit. Autonomie lässt sich pro Companion umschalten.
 [*]Initiativfragen erscheinen als Emote-Halbmond. Entscheide für Sammeln, Bergbau, Forstpflege und Schatzsuche getrennt mit Ja, Nein, Immer oder Nie.
+[*]Wähle einen Gebietsauftrag oder einen präzisen Cursorbefehl für eine Materialader oder ein loses Item. Geplante Arbeit zeigt Fortschritt und wird nach natürlicher Energieerholung fortgesetzt.
 [*]Jeder Companion sammelt nahe nutzbare Drops. Sammler arbeiten weiter und schneller, Bergarbeiter räumen frühe Erzadern, Schatzsucher untersuchen Truhen, Beschützer fangen Gefahren ab und Heiler reagieren auf Verletzungen.
 [*]Companions verteidigen ohne Arbeitsenergie zu verbrauchen und bleiben beim Besitzer oder Stay-Anker. Guardians reagieren stärker, Healers versorgen wichtige Verletzungen.
-[*]Erlernte Neigungen passen sich deinem Sammeln, Bergbau, Forsten, Kämpfen und Erkunden an.
-[*]Der Forstpflege-Perk schüttelt Bäume, räumt natürliche umgestürzte Stämme, sammelt Samen und pflanzt mitgeführte Eicheln vorsichtig nach.
+[*]Erlernte Neigungen gewichten wiederholtes Sammeln, Bergbauen, Forsten, Kämpfen und Erkunden, statt nur das letzte Ereignis nachzuahmen.
+[*]Der Forstpflege-Perk schüttelt Bäume, räumt natürliche umgestürzte Stämme, sammelt Samen, pflanzt mitgeführte Eicheln vorsichtig nach und lässt unergiebige Bäume eine Weile in Ruhe.
 [*]Ein Companion namens AETHER ist eine Omni-Seele mit allen Talentinstinkten und erlernten Perks.
 [*]Aufträge bleiben beim Zurückrufen erhalten, enden wenn das Gebiet leer ist und melden, wann ein neuer Auftrag nötig ist.
 [/list]
@@ -66,8 +67,8 @@ Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils. Alles is
 [b]Delver Charm:[/b] 5 Iron/Lead Bars, 2 Amethyst, 20 Stone Blocks
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
-[h2]Aktuelle Version: 0.10.0 - AETHER-EGG Alpha[/h2]
-Dieses gewachsene, aber bewusst noch nicht fertige Fundament gibt Initiativfragen ein eigenes kompaktes Terraria-Emote-Menü, respektiert wieder Vanilla-Rechtsklicks, hält Companions im Kampf zum Ziel ausgerichtet und macht aus fünf beobachteten Gewohnheiten benannte Lerninstinkte, mit denen sie den Spieler gezielt nachahmen. AETHER besitzt von Anfang an alle Talentinstinkte und erlernten Perks. Bestehende Sigils bleiben kompatibel.
+[h2]Aktuelle Version: 0.11.0 - Deliberate Souls[/h2]
+Dieses AETHER-EGG-Alpha-Update ergänzt präzise Cursorbefehle, einmalig geplante Gebietsarbeit, sichtbaren Fortschritt, nach Energiepausen fortgesetzte Aufträge, gewichtetes Lernen aus deinen Gewohnheiten, ruhigere Bewegung und eine Forstpflege, die stille Bäume auch einmal in Ruhe lässt. AETHER besitzt von Anfang an alle Talentinstinkte und erlernten Perks. Bestehende Sigils bleiben kompatibel.
 [b]Hinweis zu alten Installationen:[/b] Falls du einen `9.9.x`-Build von GitHub manuell installiert hast, entferne diese doppelte `.tmod`, bevor du die Workshop-Fassung von AETHER-EGG verwendest. Normale Workshop-Abonnements ersetzen ihre eigene Datei automatisch.
 
 [h2]Wie Soulmates hierherkam[/h2]

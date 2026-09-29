@@ -79,13 +79,13 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current release
 
-**Soulmates 0.10.0 - AETHER-EGG Alpha** is the grown but deliberately pre-1.0 foundation. It gives initiative questions their own compact emote prompt, restores vanilla right-click priority, keeps companions facing their combat target, and turns five observed habits into named adaptive instincts that can deliberately imitate the owner. AETHER begins with every talent instinct and learned perk. Existing Sigils remain compatible.
+**Soulmates 0.11.0 - Deliberate Souls** makes the AETHER-EGG Alpha more purposeful. Companions accept precise cursor orders, plan area work once, show progress, pause for natural recovery without forgetting the assignment, and weigh repeated owner habits instead of letting the latest pickup overwrite a stronger lesson. Forestry recognizes quiet trees and avoids fruitless loops. AETHER begins with every talent instinct and learned perk. Existing Sigils remain compatible.
 
 The maturity gates for Alpha, Beta, release candidate, and 1.0 are defined in [VERSIONING.md](VERSIONING.md). The former `9.9.x` values were experimental build counters and remain in the changelog only as project history.
 
 ## How Soulmates got here
 
-Soulmates began as a reusable item for shaping a personal pet. Repeated in-game passes turned that small idea into persistent Sigils, companion personalities, combat support, work assignments, a real pack, learned behavior, forestry, initiative choices, native emotes, and the compact Soulwheel. Several of those systems were rebuilt more than once when real play exposed awkward controls, disappearing cargo, duplicate drops, stale abilities, or behavior that looked clever but did not remain coherent over a longer session. The complete sequence is preserved in [changelog.txt](changelog.txt); this page describes the implemented AETHER-EGG Alpha state of 0.10.0.
+Soulmates began as a reusable item for shaping a personal pet. Repeated in-game passes turned that small idea into persistent Sigils, companion personalities, combat support, work assignments, a real pack, learned behavior, forestry, initiative choices, native emotes, and the compact Soulwheel. Several of those systems were rebuilt more than once when real play exposed awkward controls, disappearing cargo, duplicate drops, stale abilities, or behavior that looked clever but did not remain coherent over a longer session. The complete sequence is preserved in [changelog.txt](changelog.txt); this page describes the implemented AETHER-EGG Alpha state of 0.11.0.
 
 ## Playtesting and feedback
 

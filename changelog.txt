@@ -1,3 +1,16 @@
+Soulmates 0.11.0 - Deliberate Souls
+
+- Added precise world orders from the Work Soulwheel: point at a material cluster or loose item and send the companion directly, with server-side validation in multiplayer.
+- Area mining now builds one bounded work plan instead of rescanning the full radius after every block; visible status and a small progress bar show the assignment moving forward.
+- Low energy now pauses the current assignment without losing its target, route, count, or direct order, then resumes that same work automatically after recovery.
+- Reduced repeated gathering, forestry, and map-reveal scans; forest searches deduplicate tree roots and inspect only useful trunk endpoints.
+- Repeated owner habits now become weighted imitation signals. Strong observations take priority without unrelated gathering drops erasing a recent mining or forestry lesson.
+- Forestry gives quiet trees a temporary rest after repeated unsuccessful shakes and limits fruitless trips instead of hopping indefinitely between targets.
+- Calmed companion travel, work movement, and idle bobbing. Speech is larger, stays near the player, and retains its soft trailing echo.
+- Restored reliable player self-right-click priority for the Player Emote Wheel while preserving vanilla tile, item, NPC, and alternate-use interactions.
+- Expanded local Field Notes with mining plans, recovery pauses and resumes, reinforced imitation, forestry rests, and separate work-attempt counts.
+- Existing Soulbound Sigils remain compatible.
+
 Soulmates 0.10.0 - AETHER-EGG Alpha
 
 - Added optional, local-only AETHER Field Notes with a bounded event journal and compact behavior summary; no data is uploaded and recording is off until the player opts in.

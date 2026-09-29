@@ -1,12 +1,12 @@
 # Soulmates version stages
 
-Soulmates uses pre-1.0 semantic versions to describe maturity honestly. The earlier `9.9.x` numbers were experimental build counters, not a claim that the mod was almost finished. `0.10.0` starts the coherent public line.
+Soulmates uses pre-1.0 semantic versions to describe maturity honestly. The earlier `9.9.x` numbers were experimental build counters, not a claim that the mod was almost finished. `0.10.0` starts the coherent public line; `0.11.0` is its first substantial behavior release.
 
-## 0.10.x - AETHER-EGG Alpha
+## 0.10.0+ - AETHER-EGG Alpha
 
 The companion identity, Soulcore creator, Soulwheels, conversations, combat, work, pack, initiative, and adaptive learning are playable together. Systems may still be rebalanced or rebuilt when longer play sessions expose weak behavior.
 
-- Patch releases (`0.10.1`, `0.10.2`) fix behavior without intentionally changing the feature set.
+- Patch releases (`0.11.1`, `0.11.2`) fix behavior without intentionally changing the feature set.
 - Minor releases (`0.11.0`, `0.12.0`) add or substantially reshape a tested system.
 - Existing Soulbound Sigils should remain compatible. Any future data change must include a migration path.
 
@@ -24,4 +24,4 @@ Long-session and multiplayer testing support calling the core experience stable.
 
 ## Legacy number note
 
-Manual `9.9.x` `.tmod` files compare as numerically newer than `0.10.x`. Players who installed a GitHub build by hand should remove that duplicate before using the Workshop AETHER-EGG line. A normal Workshop subscription replaces its own file automatically.
+Manual `9.9.x` `.tmod` files compare as numerically newer than the `0.10.0+` alpha line. Players who installed a GitHub build by hand should remove that duplicate before using the Workshop AETHER-EGG line. A normal Workshop subscription replaces its own file automatically.
