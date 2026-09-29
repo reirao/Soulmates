@@ -93,6 +93,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 	private int socialNpcTimer;
 	private bool socialNpcGreeted;
 	private AutonomyActivity autonomyActivity;
+	private AutonomyActivity pendingAutonomyActivity;
 	private int autonomyDecisionTimer;
 	private int autonomyActionTimer;
 	private int autonomyTargetItem = -1;
@@ -100,6 +101,12 @@ public sealed partial class SoulboundCompanion : ModNPC
 	private int autonomyWorkCount;
 	private int autonomyDiscoveryCooldown;
 	private ForestAction autonomyForestAction;
+	private int pendingInitiativeTimer;
+	private int pendingTargetItem = -1;
+	private Point pendingTargetTile;
+	private ForestAction pendingForestAction;
+	private CompanionInitiativeKind? deferredInitiativeKind;
+	private int deferredInitiativeTimer;
 	private int learningObservationTimer;
 	private int tendedForestResetTimer;
 	private bool packReconciled;
@@ -113,6 +120,8 @@ public sealed partial class SoulboundCompanion : ModNPC
 	private ref float Command => ref NPC.ai[1];
 	public string CommandName => SoulmatesText.Get(Command == StayCommand ? "Status.Stay" : "Status.Follow");
 	public CompanionJob CurrentJob => activeJob;
+	public bool HasPendingInitiative => pendingAutonomyActivity != AutonomyActivity.None;
+	public CompanionInitiativeKind PendingInitiativeKind => InitiativeKindFor(pendingAutonomyActivity);
 	public string CurrentJobName => activeJob != CompanionJob.None
 		? activeJob switch {
 			CompanionJob.Mine => SoulmatesText.Get("Status.Mining", jobCount),
@@ -120,6 +129,8 @@ public sealed partial class SoulboundCompanion : ModNPC
 			CompanionJob.FindTreasure => SoulmatesText.Get("Status.SensingTreasure"),
 			_ => SoulmatesText.EnumName(activeJob)
 		}
+		: pendingAutonomyActivity != AutonomyActivity.None
+			? SoulmatesText.Get("Status.AwaitingAnswer", SoulmatesText.EnumName(PendingInitiativeKind))
 		: autonomyActivity != AutonomyActivity.None
 			? SoulmatesText.Get($"Status.Autonomy.{autonomyActivity}")
 		: guardianTarget >= 0

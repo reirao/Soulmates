@@ -21,7 +21,7 @@ public sealed class CompanionWheelSystem : ModSystem
 	private enum RootBranch : byte { Commands, Work, Bond, Emotes, Pack, Details }
 	private enum HoverLayer : byte { None, Center, Root, Branch, Native }
 	private enum IconKind : byte { Emote, Item, Text }
-	private enum WheelContext : byte { Companion, Player }
+	private enum WheelContext : byte { Companion, Player, Initiative }
 
 	private readonly record struct WheelIcon(IconKind Kind, int Value = 0, string Text = "");
 	private sealed record NativeCategory(string Key, int Icon, int[] Entries);
@@ -32,7 +32,12 @@ public sealed class CompanionWheelSystem : ModSystem
 	private static readonly RootBranch[] PlayerRoots = [];
 	private static readonly CompanionQuickAction[] CommandActions = [
 		CompanionQuickAction.Follow, CompanionQuickAction.Stay,
-		CompanionQuickAction.Explore, CompanionQuickAction.ToggleAutonomy
+		CompanionQuickAction.Explore, CompanionQuickAction.ToggleAutonomy,
+		CompanionQuickAction.ResetInitiativeRules
+	];
+	private static readonly CompanionInitiativeResponse[] InitiativeResponses = [
+		CompanionInitiativeResponse.Yes, CompanionInitiativeResponse.No,
+		CompanionInitiativeResponse.Always, CompanionInitiativeResponse.Never
 	];
 	private static readonly CompanionQuickAction[] WorkActions = [
 		CompanionQuickAction.FindTreasure, CompanionQuickAction.Mine, CompanionQuickAction.Gather
@@ -121,17 +126,31 @@ public sealed class CompanionWheelSystem : ModSystem
 
 	public bool IsOpen => open;
 
-	public void Open(SoulboundCompanion boundCompanion) => Open(boundCompanion, WheelContext.Companion, null);
+	public void Open(SoulboundCompanion boundCompanion)
+	{
+		if (boundCompanion.HasPendingInitiative)
+			OpenInitiative(boundCompanion);
+		else
+			Open(boundCompanion, WheelContext.Companion, null);
+	}
 	public void OpenEmotes(SoulboundCompanion boundCompanion) => Open(boundCompanion, WheelContext.Player, RootBranch.Emotes);
+	public void OpenInitiative(SoulboundCompanion boundCompanion)
+	{
+		if (open || ModContent.GetInstance<TalkModeSystem>().IsOpen)
+			return;
+		Vector2 companionCenter = boundCompanion.NPC.Center - Main.screenPosition;
+		Open(boundCompanion, WheelContext.Initiative, null, companionCenter);
+	}
 
-	private void Open(SoulboundCompanion boundCompanion, WheelContext wheelContext, RootBranch? initialBranch)
+	private void Open(SoulboundCompanion boundCompanion, WheelContext wheelContext, RootBranch? initialBranch,
+		Vector2? desiredCenter = null)
 	{
 		if (Main.dedServ || Main.gameMenu || Main.LocalPlayer.dead || Main.playerInventory)
 			return;
 		ModContent.GetInstance<TalkModeSystem>().Close();
 		companion = boundCompanion;
 		context = wheelContext;
-		center = ClampCenter(Main.MouseScreen);
+		center = ClampCenter(desiredCenter ?? Main.MouseScreen, WheelMargin(wheelContext));
 		branch = initialBranch;
 		nativeCategory = -1;
 		nativePage = 0;
@@ -163,6 +182,7 @@ public sealed class CompanionWheelSystem : ModSystem
 		if (!open)
 			return;
 		if (Main.gameMenu || Main.LocalPlayer.dead || Main.playerInventory || companion?.NPC.active != true
+			|| context == WheelContext.Initiative && !companion.HasPendingInitiative
 			|| Main.keyState.IsKeyDown(Keys.Escape) && Main.oldKeyState.IsKeyUp(Keys.Escape)) {
 			Close();
 			return;
@@ -174,7 +194,7 @@ public sealed class CompanionWheelSystem : ModSystem
 		leftMouseDown = leftDown;
 		rightMouseDown = rightDown;
 
-		center = ClampCenter(center);
+		center = ClampCenter(center, WheelMargin(context));
 		openTicks++;
 		FindHoveredNode();
 		if (leftPressed) {
@@ -197,6 +217,16 @@ public sealed class CompanionWheelSystem : ModSystem
 		Vector2 mouse = Main.MouseScreen;
 		if (Hit(mouse, center, 27f)) {
 			hoverLayer = HoverLayer.Center;
+			return;
+		}
+		if (context == WheelContext.Initiative) {
+			for (int i = 0; i < InitiativeResponses.Length; i++) {
+				if (!Hit(mouse, InitiativePosition(i), 24f))
+					continue;
+				hoverLayer = HoverLayer.Branch;
+				hoverIndex = i;
+				return;
+			}
 			return;
 		}
 		if (nativeCategory >= 0) {
@@ -234,7 +264,10 @@ public sealed class CompanionWheelSystem : ModSystem
 		switch (hoverLayer) {
 			case HoverLayer.Center: StepBack(); break;
 			case HoverLayer.Root: ActivateRoot(ActiveRoots[hoverIndex]); break;
-			case HoverLayer.Branch: ActivateBranch(hoverIndex); break;
+			case HoverLayer.Branch:
+				if (context == WheelContext.Initiative) ActivateInitiativeResponse(hoverIndex);
+				else ActivateBranch(hoverIndex);
+				break;
 			case HoverLayer.Native: ActivateNative(hoverIndex); break;
 			default:
 				Close();
@@ -317,6 +350,23 @@ public sealed class CompanionWheelSystem : ModSystem
 		}
 	}
 
+	private void ActivateInitiativeResponse(int index)
+	{
+		if (companion?.NPC.active != true || !companion.HasPendingInitiative
+			|| index < 0 || index >= InitiativeResponses.Length)
+			return;
+		SoulboundCompanion target = companion;
+		CompanionInitiativeKind kind = target.PendingInitiativeKind;
+		CompanionInitiativeResponse response = InitiativeResponses[index];
+		Close();
+		if (Main.netMode == NetmodeID.MultiplayerClient)
+			global::Soulmates.Soulmates.SendInitiativeResponse(kind, response);
+		else
+			target.RespondToInitiative(response);
+		SoundEngine.PlaySound(response is CompanionInitiativeResponse.Yes or CompanionInitiativeResponse.Always
+			? SoundID.Chat : SoundID.MenuClose, Main.LocalPlayer.Center);
+	}
+
 	private void ExecuteQuickAction(CompanionQuickAction action)
 	{
 		SoulboundCompanion? target = companion;
@@ -363,7 +413,7 @@ public sealed class CompanionWheelSystem : ModSystem
 			SoundEngine.PlaySound(SoundID.MenuTick);
 			return;
 		}
-		if (context == WheelContext.Player) {
+		if (context is WheelContext.Player or WheelContext.Initiative) {
 			Close();
 			SoundEngine.PlaySound(SoundID.MenuClose with { Volume = 0.42f });
 			return;
@@ -396,6 +446,16 @@ public sealed class CompanionWheelSystem : ModSystem
 		float reveal = MathHelper.Clamp(openTicks / 8f, 0f, 1f);
 		float pulse = 1f + MathF.Sin(Main.GlobalTimeWrappedHourly * 4f) * 0.035f;
 		RootBranch[] roots = ActiveRoots;
+		if (context == WheelContext.Initiative) {
+			for (int i = 0; i < InitiativeResponses.Length; i++) {
+				Vector2 destination = InitiativePosition(i);
+				Vector2 position = Vector2.Lerp(center, destination, reveal);
+				bool hovered = hoverLayer == HoverLayer.Branch && hoverIndex == i;
+				DrawLine(spriteBatch, center, position, accent * 0.38f, hovered ? 3f : 2f);
+				DrawNode(spriteBatch, position, hovered ? 47f * pulse : 41f, accent, hovered, false,
+					InitiativeIcon(InitiativeResponses[i]));
+			}
+		}
 		for (int i = 0; i < roots.Length; i++) {
 			Vector2 position = Vector2.Lerp(center, RootPosition(i), reveal);
 			bool hovered = hoverLayer == HoverLayer.Root && hoverIndex == i;
@@ -432,6 +492,8 @@ public sealed class CompanionWheelSystem : ModSystem
 		DrawHoverLabel(spriteBatch, accent);
 		if (context == WheelContext.Companion)
 			DrawStatus(spriteBatch, accent);
+		else if (context == WheelContext.Initiative)
+			DrawInitiativeStatus(spriteBatch, accent);
 		return true;
 	}
 
@@ -444,6 +506,8 @@ public sealed class CompanionWheelSystem : ModSystem
 			? new WheelIcon(IconKind.Text, Text: "<")
 			: context == WheelContext.Player
 				? new WheelIcon(IconKind.Emote, EmoteID.EmoteHappiness)
+				: context == WheelContext.Initiative
+					? new WheelIcon(IconKind.Emote, EmoteID.EmotionAlert)
 				: new WheelIcon(IconKind.Text, Text: string.IsNullOrWhiteSpace(name) ? "S" : name[..1].ToUpperInvariant());
 		DrawNode(spriteBatch, center, (hovered ? 58f : 53f) * pulse, accent, hovered, !hasParentLayer,
 			icon);
@@ -456,7 +520,8 @@ public sealed class CompanionWheelSystem : ModSystem
 			return;
 		float scale = FitTextScale(label, 300f, 0.72f);
 		Vector2 size = FontAssets.MouseText.Value.MeasureString(label) * scale;
-		Vector2 position = new(center.X - size.X * 0.5f, center.Y + NativeRadius + 27f);
+		float labelY = context == WheelContext.Initiative ? center.Y + BranchRadius + 16f : center.Y + NativeRadius + 27f;
+		Vector2 position = new(center.X - size.X * 0.5f, labelY);
 		Texture2D pixel = TextureAssets.MagicPixel.Value;
 		Rectangle background = new((int)position.X - 8, (int)position.Y - 4, (int)size.X + 16, (int)size.Y + 8);
 		spriteBatch.Draw(pixel, background, new Color(9, 14, 25) * 0.9f);
@@ -475,8 +540,19 @@ public sealed class CompanionWheelSystem : ModSystem
 			Color.Lerp(Color.LightGray, accent, 0.35f), scale);
 	}
 
+	private void DrawInitiativeStatus(SpriteBatch spriteBatch, Color accent)
+	{
+		string status = SoulmatesText.Get("UI.CompanionWheel.InitiativePrompt",
+			SoulmatesText.EnumName(companion!.PendingInitiativeKind));
+		float scale = FitTextScale(status, 280f, 0.55f);
+		Vector2 size = FontAssets.MouseText.Value.MeasureString(status) * scale;
+		Vector2 position = new(center.X - size.X * 0.5f, center.Y - 92f);
+		Utils.DrawBorderString(spriteBatch, status.ToUpperInvariant(), position,
+			Color.Lerp(Color.White, accent, 0.25f), scale);
+	}
+
 	private string HoverLabel() => hoverLayer switch {
-		HoverLayer.Center => nativeCategory < 0 && (context == WheelContext.Player || branch is null)
+		HoverLayer.Center => nativeCategory < 0 && (context != WheelContext.Companion || branch is null)
 			? SoulmatesText.Get("UI.CompanionWheel.Close")
 			: SoulmatesText.Get("UI.CompanionWheel.Back"),
 		HoverLayer.Root when hoverIndex >= 0 && hoverIndex < ActiveRoots.Length => RootLabel(ActiveRoots[hoverIndex]),
@@ -487,6 +563,9 @@ public sealed class CompanionWheelSystem : ModSystem
 
 	private string BranchLabel(int index)
 	{
+		if (context == WheelContext.Initiative)
+			return index >= 0 && index < InitiativeResponses.Length
+				? SoulmatesText.Get($"UI.CompanionWheel.InitiativeResponses.{InitiativeResponses[index]}") : "";
 		if (branch is not RootBranch activeBranch)
 			return "";
 		return activeBranch switch {
@@ -534,7 +613,9 @@ public sealed class CompanionWheelSystem : ModSystem
 		if (activeBranch == RootBranch.Commands && index >= 0 && index < CommandActions.Length)
 			return new WheelIcon(IconKind.Emote, CommandActions[index] switch {
 				CompanionQuickAction.Follow => EmoteID.EmoteRun, CompanionQuickAction.Stay => EmoteID.EmoteSleep,
-				CompanionQuickAction.Explore => EmoteID.EmotionAlert, _ => EmoteID.EmoteWink
+				CompanionQuickAction.Explore => EmoteID.EmotionAlert,
+				CompanionQuickAction.ResetInitiativeRules => EmoteID.EmoteConfused,
+				_ => EmoteID.EmoteWink
 			});
 		if (activeBranch == RootBranch.Work && index >= 0 && index < WorkActions.Length)
 			return new WheelIcon(IconKind.Emote, WorkActions[index] switch {
@@ -551,6 +632,14 @@ public sealed class CompanionWheelSystem : ModSystem
 			return new WheelIcon(IconKind.Emote, NativeCategories[index].Icon);
 		return new WheelIcon(IconKind.Text, Text: "?");
 	}
+
+	private static WheelIcon InitiativeIcon(CompanionInitiativeResponse response) => new(IconKind.Emote,
+		response switch {
+			CompanionInitiativeResponse.Yes => EmoteID.EmoteHappiness,
+			CompanionInitiativeResponse.No => EmoteID.EmoteConfused,
+			CompanionInitiativeResponse.Always => EmoteID.EmoteWink,
+			_ => EmoteID.EmoteScowl
+		});
 
 	private WheelIcon NativeIcon(int index)
 	{
@@ -623,13 +712,21 @@ public sealed class CompanionWheelSystem : ModSystem
 		return center + angle.ToRotationVector2() * NativeRadius;
 	}
 
+	private Vector2 InitiativePosition(int index)
+	{
+		float angle = FanAngle(MathHelper.PiOver2, index, InitiativeResponses.Length, MathHelper.ToRadians(160f));
+		return center + angle.ToRotationVector2() * 108f;
+	}
+
 	private float RootAngle(int index) => -MathHelper.PiOver2 + MathHelper.TwoPi * index / ActiveRoots.Length;
 	private static float FanAngle(float centerAngle, int index, int count, float spread)
 		=> count <= 1 ? centerAngle : centerAngle - spread * 0.5f + spread * index / (count - 1f);
 
-	private static Vector2 ClampCenter(Vector2 desired)
+	private static float WheelMargin(WheelContext wheelContext)
+		=> wheelContext == WheelContext.Initiative ? BranchRadius + 44f : NativeRadius + 54f;
+
+	private static Vector2 ClampCenter(Vector2 desired, float margin)
 	{
-		const float margin = NativeRadius + 54f;
 		float x = Main.screenWidth <= margin * 2f ? Main.screenWidth * 0.5f : Math.Clamp(desired.X, margin, Main.screenWidth - margin);
 		float y = Main.screenHeight <= margin * 2f ? Main.screenHeight * 0.5f : Math.Clamp(desired.Y, margin, Main.screenHeight - margin);
 		return new Vector2(x, y);

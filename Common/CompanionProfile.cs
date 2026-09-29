@@ -37,6 +37,29 @@ public enum LearnedBehavior : byte
 	Exploration
 }
 
+public enum CompanionInitiativeKind : byte
+{
+	Gathering,
+	Mining,
+	Forestry,
+	Treasure
+}
+
+public enum CompanionInitiativePolicy : byte
+{
+	Ask,
+	Always,
+	Never
+}
+
+public enum CompanionInitiativeResponse : byte
+{
+	Yes,
+	No,
+	Always,
+	Never
+}
+
 public enum CompanionEssence : byte
 {
 	Starlight,
@@ -95,6 +118,7 @@ public enum CompanionQuickAction : byte
 	Mine,
 	Gather,
 	ToggleAutonomy,
+	ResetInitiativeRules,
 	Details
 }
 
@@ -236,6 +260,10 @@ public sealed class CompanionProfile
 	public CompanionTrinket Trinket { get; set; }
 	public CompanionJob Routine { get; set; }
 	public bool AutonomyEnabled { get; set; } = true;
+	public CompanionInitiativePolicy GatheringInitiative { get; set; } = CompanionInitiativePolicy.Ask;
+	public CompanionInitiativePolicy MiningInitiative { get; set; } = CompanionInitiativePolicy.Ask;
+	public CompanionInitiativePolicy ForestryInitiative { get; set; } = CompanionInitiativePolicy.Ask;
+	public CompanionInitiativePolicy TreasureInitiative { get; set; } = CompanionInitiativePolicy.Ask;
 	public int Bond { get; set; }
 	public int Mood { get; set; } = 100;
 	public int Energy { get; set; } = 100;
@@ -325,6 +353,10 @@ public sealed class CompanionProfile
 		Trinket = Trinket,
 		Routine = Routine,
 		AutonomyEnabled = AutonomyEnabled,
+		GatheringInitiative = GatheringInitiative,
+		MiningInitiative = MiningInitiative,
+		ForestryInitiative = ForestryInitiative,
+		TreasureInitiative = TreasureInitiative,
 		Bond = Bond,
 		Mood = Mood,
 		Energy = Energy,
@@ -355,6 +387,10 @@ public sealed class CompanionProfile
 		["trinket"] = (byte)Trinket,
 		["routine"] = (byte)Routine,
 		["autonomyEnabled"] = AutonomyEnabled,
+		["gatheringInitiative"] = (byte)GatheringInitiative,
+		["miningInitiative"] = (byte)MiningInitiative,
+		["forestryInitiative"] = (byte)ForestryInitiative,
+		["treasureInitiative"] = (byte)TreasureInitiative,
 		["bond"] = Bond,
 		["mood"] = Mood,
 		["energy"] = Energy,
@@ -387,6 +423,14 @@ public sealed class CompanionProfile
 			Trinket = tag.ContainsKey("trinket") ? (CompanionTrinket)tag.GetByte("trinket") : CompanionTrinket.None,
 			Routine = tag.ContainsKey("routine") ? (CompanionJob)tag.GetByte("routine") : CompanionJob.None,
 			AutonomyEnabled = !tag.ContainsKey("autonomyEnabled") || tag.GetBool("autonomyEnabled"),
+			GatheringInitiative = tag.ContainsKey("gatheringInitiative")
+				? (CompanionInitiativePolicy)tag.GetByte("gatheringInitiative") : CompanionInitiativePolicy.Ask,
+			MiningInitiative = tag.ContainsKey("miningInitiative")
+				? (CompanionInitiativePolicy)tag.GetByte("miningInitiative") : CompanionInitiativePolicy.Ask,
+			ForestryInitiative = tag.ContainsKey("forestryInitiative")
+				? (CompanionInitiativePolicy)tag.GetByte("forestryInitiative") : CompanionInitiativePolicy.Ask,
+			TreasureInitiative = tag.ContainsKey("treasureInitiative")
+				? (CompanionInitiativePolicy)tag.GetByte("treasureInitiative") : CompanionInitiativePolicy.Ask,
 			Bond = tag.GetInt("bond"),
 			Mood = tag.ContainsKey("mood") ? tag.GetInt("mood") : 100,
 			Energy = tag.ContainsKey("energy") ? tag.GetInt("energy") : 100,
@@ -425,6 +469,10 @@ public sealed class CompanionProfile
 		writer.Write((byte)Trinket);
 		writer.Write((byte)Routine);
 		writer.Write(AutonomyEnabled);
+		writer.Write((byte)GatheringInitiative);
+		writer.Write((byte)MiningInitiative);
+		writer.Write((byte)ForestryInitiative);
+		writer.Write((byte)TreasureInitiative);
 		writer.Write(Bond);
 		writer.Write(Mood);
 		writer.Write(Energy);
@@ -463,6 +511,10 @@ public sealed class CompanionProfile
 			Trinket = (CompanionTrinket)reader.ReadByte(),
 			Routine = (CompanionJob)reader.ReadByte(),
 			AutonomyEnabled = reader.ReadBoolean(),
+			GatheringInitiative = (CompanionInitiativePolicy)reader.ReadByte(),
+			MiningInitiative = (CompanionInitiativePolicy)reader.ReadByte(),
+			ForestryInitiative = (CompanionInitiativePolicy)reader.ReadByte(),
+			TreasureInitiative = (CompanionInitiativePolicy)reader.ReadByte(),
 			Bond = reader.ReadInt32(),
 			Mood = reader.ReadInt32(),
 			Energy = reader.ReadInt32(),
@@ -493,6 +545,32 @@ public sealed class CompanionProfile
 		Bond = Math.Clamp(Bond + amount, 0, 100);
 		if ((int)Rank > (int)previous)
 			Remember(CompanionMemoryKind.BondMilestone, detail: Rank.ToString());
+	}
+
+	public CompanionInitiativePolicy GetInitiativePolicy(CompanionInitiativeKind kind) => kind switch {
+		CompanionInitiativeKind.Mining => MiningInitiative,
+		CompanionInitiativeKind.Forestry => ForestryInitiative,
+		CompanionInitiativeKind.Treasure => TreasureInitiative,
+		_ => GatheringInitiative
+	};
+
+	public void SetInitiativePolicy(CompanionInitiativeKind kind, CompanionInitiativePolicy policy)
+	{
+		policy = ValidEnum(policy, CompanionInitiativePolicy.Ask);
+		switch (kind) {
+			case CompanionInitiativeKind.Mining: MiningInitiative = policy; break;
+			case CompanionInitiativeKind.Forestry: ForestryInitiative = policy; break;
+			case CompanionInitiativeKind.Treasure: TreasureInitiative = policy; break;
+			default: GatheringInitiative = policy; break;
+		}
+	}
+
+	public void ResetInitiativePolicies()
+	{
+		GatheringInitiative = CompanionInitiativePolicy.Ask;
+		MiningInitiative = CompanionInitiativePolicy.Ask;
+		ForestryInitiative = CompanionInitiativePolicy.Ask;
+		TreasureInitiative = CompanionInitiativePolicy.Ask;
 	}
 
 	public bool GainExperience(int amount, out int newLevel)
@@ -686,6 +764,10 @@ public sealed class CompanionProfile
 		Voice = ValidEnum(Voice, CompanionVoice.Soft);
 		Trinket = ValidEnum(Trinket, CompanionTrinket.None);
 		Routine = ValidEnum(Routine, CompanionJob.None);
+		GatheringInitiative = ValidEnum(GatheringInitiative, CompanionInitiativePolicy.Ask);
+		MiningInitiative = ValidEnum(MiningInitiative, CompanionInitiativePolicy.Ask);
+		ForestryInitiative = ValidEnum(ForestryInitiative, CompanionInitiativePolicy.Ask);
+		TreasureInitiative = ValidEnum(TreasureInitiative, CompanionInitiativePolicy.Ask);
 		Bond = Math.Clamp(Bond, 0, 100);
 		Mood = Math.Clamp(Mood, 0, 100);
 		Energy = Math.Clamp(Energy, 0, 100);

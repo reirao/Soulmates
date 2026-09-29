@@ -72,6 +72,13 @@ public sealed partial class SoulboundCompanion
 			NPC.netUpdate = true;
 			return new CompanionConversationResult(reply, true);
 		}
+		if (action == CompanionQuickAction.ResetInitiativeRules) {
+			Profile.ResetInitiativePolicies();
+			ClearPendingInitiative(120);
+			SyncProfileToBoundSigil();
+			NPC.netUpdate = true;
+			return new CompanionConversationResult(SoulmatesText.Get("Autonomy.Initiative.RulesReset"), true);
+		}
 
 		(TalkCategory category, int option) request = action switch {
 			CompanionQuickAction.Follow => (TalkCategory.Commands, 0),

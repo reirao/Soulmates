@@ -56,7 +56,8 @@ public sealed partial class SoulboundCompanion
 			_ => Vector2.One
 		};
 		Vector2 scale = formScale * (64f / Math.Max(source.Width, source.Height)) * breath * emoteScale;
-		SpriteEffects effects = facing < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+		bool flipHorizontally = muse == CompanionMuse.Squirrel ? facing > 0 : facing < 0;
+		SpriteEffects effects = flipHorizontally ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 		Color tint = Color.Lerp(Color.White, Profile.EssenceColor, 0.34f);
 		float drawRotation = NPC.rotation + EmoteRotationOffset();
 		DrawJobOrbit(spriteBatch, center);

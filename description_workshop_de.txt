@@ -25,6 +25,7 @@ Soulmates ist ein experimentelles Projekt, das bei Programmierung, Texten, Benut
 [*]Ein kompaktes Companion Soulwheel für Befehle, Arbeit, Bindung, direkten Pack-Zugriff und die vollständige Detailansicht.
 [*]Ein getrenntes Player Emote Wheel mit allen 151 Vanilla-Terraria-Emotes. Kategorien entfalten sich als kompakte Halbmond-Untermenüs statt als weiteres Fenster.
 [*]Dauerhafte Autonomie pro Companion, die jederzeit an- oder ausgeschaltet werden kann.
+[*]Kontextfragen erscheinen als kompakter Terraria-Emote-Halbmond: Antworte für Sammeln, Bergbau, Forstpflege und Schatzsuche getrennt mit Ja, Nein, Immer oder Nie.
 [*]Talentabhängige Initiative: Jeder Companion sammelt nahe nutzbare Drops, Sammler tun dies schneller und in größerer Reichweite, Bergarbeiter helfen in kurzen Etappen und verstauen ihren Abbau, Schatzsucher untersuchen nahe Truhen, Beschützer fangen Gefahren ab und Heiler reagieren auf Verletzungen.
 [*]Dauerhafte Lernneigungen passen sich deinem Sammeln, Bergbau, deiner Forstpflege, deinen Kämpfen und Erkundungen an.
 [*]Der erlernte Forstpflege-Perk lässt Companions Bäume schütteln, natürliche umgestürzte Stämme räumen, Samen sammeln und mitgeführte Eicheln vorsichtig nachpflanzen.
@@ -70,7 +71,7 @@ Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils als Start
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Aktuelle Version[/h2]
-Soulmates 0.9.4.1 verwendet in Singleplayer und Multiplayer einen einheitlichen Frachtweg. Das Pack hält nun einen sinnvollen Vorrat von 99 pro Itemtyp sowie 12 Eicheln, statt ein Material endlos einzusammeln; vorhandene Übermengen gehen sicher an den Spieler zurück. Baumdrops folgen dem normalen sichtbaren Sammelablauf und die Seelenerstellung ist eine atomare Inventaraktion mit klarer Rückmeldung. Bestehende Soulbound Sigils bleiben kompatibel.
+Soulmates 0.9.4.1 verwendet in Singleplayer und Multiplayer einen einheitlichen Frachtweg. Das Pack hält nun einen sinnvollen Vorrat von 99 pro Itemtyp sowie 12 Eicheln, statt ein Material endlos einzusammeln; vorhandene Übermengen gehen sicher an den Spieler zurück. Companions fragen über ein kompaktes Ja / Nein / Immer / Nie-Emote-Rad nach Gelegenheiten und merken sich jede Tätigkeit getrennt. Beim Baumklopfen dient der Untergrund nicht länger als Dropquelle, und die Seelenerstellung bleibt eine atomare Inventaraktion mit klarer Rückmeldung. Bestehende Soulbound Sigils bleiben kompatibel.
 
 [h2]Steuerung[/h2]
 [list]
@@ -86,6 +87,7 @@ Soulmates 0.9.4.1 verwendet in Singleplayer und Multiplayer einen einheitlichen 
 [*]Details im Soulwheel wählen oder standardmäßig V drücken: den vollständigen Talk Mode öffnen.
 [*]Standardmäßig G drücken: Soulwheel direkt bei den Terraria-Emote-Kategorien öffnen.
 [*]Folgen, Bleiben oder Erkunden beendet den aktuellen Gebietsauftrag.
+[*]WIEDER FRAGEN unter Befehle setzt alle gemerkten Immer- und Nie-Entscheidungen zurück.
 [/list]
 
 [h2]Feedback und Quellcode[/h2]

@@ -29,7 +29,9 @@ public sealed class Soulmates : Mod
 		BehaviorObservationRequest,
 		NativeEmoteRequest,
 		CreateCompanionRequest,
-		CreateCompanionResponse
+		CreateCompanionResponse,
+		InitiativePrompt,
+		InitiativeResponseRequest
 	}
 
 	internal static ModKeybind TalkKeybind { get; private set; } = null!;
@@ -149,6 +151,30 @@ public sealed class Soulmates : Mod
 		packet.Send();
 	}
 
+	internal static void SendInitiativePrompt(Player player, SoulboundCompanion companion,
+		CompanionInitiativeKind kind)
+	{
+		if (Main.netMode != NetmodeID.Server)
+			return;
+		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
+		packet.Write((byte)MessageType.InitiativePrompt);
+		packet.Write(companion.Profile.Id.ToString());
+		packet.Write((byte)kind);
+		packet.Send(player.whoAmI);
+	}
+
+	internal static void SendInitiativeResponse(CompanionInitiativeKind kind,
+		CompanionInitiativeResponse response)
+	{
+		if (Main.netMode != NetmodeID.MultiplayerClient)
+			return;
+		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
+		packet.Write((byte)MessageType.InitiativeResponseRequest);
+		packet.Write((byte)kind);
+		packet.Write((byte)response);
+		packet.Send();
+	}
+
 	internal static void SendCompanionSpeech(Player player, SoulboundCompanion companion, string key, string argument = "")
 	{
 		if (Main.netMode != NetmodeID.Server)
@@ -217,6 +243,12 @@ public sealed class Soulmates : Mod
 				break;
 			case MessageType.CreateCompanionResponse:
 				HandleCreateCompanionResponse(reader);
+				break;
+			case MessageType.InitiativePrompt:
+				HandleInitiativePrompt(reader);
+				break;
+			case MessageType.InitiativeResponseRequest:
+				HandleInitiativeResponseRequest(reader, whoAmI);
 				break;
 		}
 	}
@@ -424,6 +456,30 @@ public sealed class Soulmates : Mod
 		if (!Enum.IsDefined(essence))
 			essence = CompanionEssence.Starlight;
 		ModContent.GetInstance<SoulCreatorSystem>().ReceiveNetworkResponse(result, name, essence);
+	}
+
+	private static void HandleInitiativePrompt(BinaryReader reader)
+	{
+		Guid profileId = Guid.TryParse(reader.ReadString(), out Guid parsed) ? parsed : Guid.Empty;
+		CompanionInitiativeKind kind = (CompanionInitiativeKind)reader.ReadByte();
+		if (Main.netMode != NetmodeID.MultiplayerClient || profileId == Guid.Empty || !Enum.IsDefined(kind))
+			return;
+		if (SoulboundCompanion.FindFor(Main.LocalPlayer) is { } companion && companion.Profile.Id == profileId)
+			companion.ReceiveInitiativePrompt(kind);
+	}
+
+	private static void HandleInitiativeResponseRequest(BinaryReader reader, int whoAmI)
+	{
+		CompanionInitiativeKind kind = (CompanionInitiativeKind)reader.ReadByte();
+		CompanionInitiativeResponse response = (CompanionInitiativeResponse)reader.ReadByte();
+		if (Main.netMode != NetmodeID.Server || !Enum.IsDefined(kind) || !Enum.IsDefined(response)
+			|| whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active)
+			return;
+		Player player = Main.player[whoAmI];
+		if (SoulboundCompanion.FindFor(player) is not { } companion || !companion.HasPendingInitiative
+			|| companion.PendingInitiativeKind != kind || !companion.RespondToInitiative(response))
+			return;
+		SendProfileUpdate(player, companion);
 	}
 
 	private void SendCreateCompanionResponse(int playerIndex, CompanionCreationResult result, string name, CompanionEssence essence)

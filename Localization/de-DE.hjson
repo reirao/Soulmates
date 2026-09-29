@@ -80,6 +80,13 @@ Mods: {
 				Exploration: Erkunden
 			}
 
+			CompanionInitiativeKind: {
+				Gathering: Sammeln
+				Mining: Bergbau
+				Forestry: Forstpflege
+				Treasure: Schatzsuche
+			}
+
 			CompanionEssence: {
 				Starlight: Sternenlicht
 				Ember: Glut
@@ -243,6 +250,14 @@ Mods: {
 				Status: "{0} | Energie {1} | Pack {2}/{3}"
 				AutonomyOn: AUTO AN
 				AutonomyOff: AUTO AUS
+				InitiativePrompt: "{0}: DU ENTSCHEIDEST"
+
+				InitiativeResponses: {
+					Yes: JA, MACH DAS
+					No: NEIN, JETZT NICHT
+					Always: IMMER MACHEN
+					Never: NIE WIEDER FRAGEN
+				}
 
 				Categories: {
 					Commands: Befehle
@@ -270,6 +285,7 @@ Mods: {
 					FindTreasure: SCHATZ
 					Mine: BERGBAU
 					Gather: SAMMELN
+					ResetInitiativeRules: WIEDER FRAGEN
 					Details: DETAILS
 				}
 			}
@@ -281,6 +297,7 @@ Mods: {
 			Mining: Gebiet abbauen ({0} geschafft)
 			Gathering: Gebiet sammeln ({0} Gegenstände)
 			SensingTreasure: Schatz aufspüren
+			AwaitingAnswer: FRAGT: {0}
 			Guarding: IM KAMPF
 			Recovering: ENERGIE ERHOLEN
 			Watching: WACHE: {0} Blöcke
@@ -404,6 +421,24 @@ Mods: {
 			Fetched: Mir ist {0} aufgefallen. Ich bewahre es sicher auf.
 			Mined: Ich habe beim Arbeiten {0} Erzblöcke in der Nähe mit abgebaut.
 			Treasure: Etwas Interessantes zum Untersuchen liegt {0}.
+
+			Initiative: {
+				RulesReset: Ich frage wieder nach, wenn ich eine Gelegenheit entdecke.
+
+				Ask: {
+					Gathering: Ich habe etwas Lose herumliegen sehen. Soll ich es einsammeln?
+					Mining: Ich sehe Erz in der Nähe. Soll ich es abbauen?
+					Forestry: Ich habe eine Aufgabe bei den Bäumen entdeckt. Soll ich mich darum kümmern?
+					Treasure: Ich spüre eine Truhe in der Nähe. Soll ich sie untersuchen?
+				}
+
+				Always: {
+					Gathering: Ich habe etwas Lose gesehen. Ich sammle es ein.
+					Mining: Ich sehe Erz in der Nähe. Ich baue es ab.
+					Forestry: Ich habe Arbeit im Wald entdeckt. Ich kümmere mich darum.
+					Treasure: Ich spüre eine Truhe in der Nähe. Ich untersuche sie.
+				}
+			}
 
 			Surprise: {
 				Curious: Ich habe etwas Interessantes gesehen. Vielleicht musste ich es untersuchen.

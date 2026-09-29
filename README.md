@@ -38,6 +38,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Persistent per-companion autonomy, switchable from the action wheel.
 - Talent-driven initiative: every companion retrieves nearby usable drops, Gatherers do so faster and farther, Miners help in short bursts and collect what they mine, Treasure Seekers investigate nearby chests, Guardians intercept danger, and Healers react to injuries.
 - Persistent learning insights adapt to the owner's gathering, mining, forestry, combat, and exploration habits.
+- Contextual initiative prompts let you answer opportunities with Terraria emotes: Yes, No, Always, or Never, remembered separately for gathering, mining, forestry, and treasure hunting.
 - The learned Forester perk lets a companion shake trees, clear natural fallen logs, collect seeds, and carefully replant carried acorns.
 - A companion named **AETHER** is an Omni Soul with every starting talent instinct and learned perk available.
 - Personality-driven autonomous moments add small surprises without overriding combat, Stay, explicit assignments, or low-energy recovery.
@@ -71,7 +72,7 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current release
 
-**Soulmates 0.9.4.1 - Coherent Cargo Hotfix** routes every pack insertion through one rule set in single-player and multiplayer. The pack now keeps a practical reserve of 99 per item type and 12 acorns instead of absorbing one material forever; old excess is returned to the owner without loss. Tree drops use the normal visible gathering flow, and Soul creation is one atomic inventory operation with clear failure feedback. Existing Sigils remain compatible.
+**Soulmates 0.9.4.1 - Coherent Cargo Hotfix** routes every pack insertion through one rule set in single-player and multiplayer. The pack now keeps a practical reserve of 99 per item type and 12 acorns instead of absorbing one material forever; old excess is returned to the owner without loss. Companions now ask about opportunities through a compact Yes / No / Always / Never emote wheel, remember the answer per activity, and can reset those rules from the command wheel. Tree shaking no longer treats supporting terrain as a drop source, and Soul creation remains one atomic inventory operation with clear failure feedback. Existing Sigils remain compatible.
 
 ## Languages
 

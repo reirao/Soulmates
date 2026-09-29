@@ -80,6 +80,13 @@ Mods: {
 				Exploration: Exploring
 			}
 
+			CompanionInitiativeKind: {
+				Gathering: gathering
+				Mining: mining
+				Forestry: forestry
+				Treasure: treasure
+			}
+
 			CompanionEssence: {
 				Starlight: Starlight
 				Ember: Ember
@@ -243,6 +250,14 @@ Mods: {
 				Status: "{0} | Energy {1} | Pack {2}/{3}"
 				AutonomyOn: AUTO ON
 				AutonomyOff: AUTO OFF
+				InitiativePrompt: "{0}: YOUR CALL"
+
+				InitiativeResponses: {
+					Yes: YES, DO IT
+					No: NO, NOT NOW
+					Always: ALWAYS DO THIS
+					Never: NEVER ASK THIS
+				}
 
 				Categories: {
 					Commands: Commands
@@ -270,6 +285,7 @@ Mods: {
 					FindTreasure: TREASURE
 					Mine: MINE
 					Gather: GATHER
+					ResetInitiativeRules: ASK AGAIN
 					Details: DETAILS
 				}
 			}
@@ -281,6 +297,7 @@ Mods: {
 			Mining: Mining area ({0} cleared)
 			Gathering: Gathering area ({0} items)
 			SensingTreasure: Sensing treasure
+			AwaitingAnswer: ASKING: {0}
 			Guarding: IN COMBAT
 			Recovering: RECOVERING ENERGY
 			Watching: WATCH: {0} tiles
@@ -404,6 +421,24 @@ Mods: {
 			Fetched: I noticed {0}. I will keep it safe.
 			Mined: I cleared {0} nearby ore blocks while you worked.
 			Treasure: Something worth investigating is {0}.
+
+			Initiative: {
+				RulesReset: I will ask again when I notice an opportunity.
+
+				Ask: {
+					Gathering: I found something loose nearby. Should I gather it?
+					Mining: I see ore nearby. Should I mine it?
+					Forestry: I found a tree or planting task. Should I tend it?
+					Treasure: I sense a chest nearby. Should I investigate?
+				}
+
+				Always: {
+					Gathering: I found something loose. I am gathering it.
+					Mining: I see ore nearby. I am clearing it.
+					Forestry: I found some forest work. I am tending it.
+					Treasure: I sense a chest nearby. I am investigating.
+				}
+			}
 
 			Surprise: {
 				Curious: I saw something interesting. I may have gone to inspect it.

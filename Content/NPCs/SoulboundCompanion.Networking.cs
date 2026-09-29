@@ -41,6 +41,12 @@ public sealed partial class SoulboundCompanion
 		writer.Write((byte)autonomyForestAction);
 		writer.Write((short)Math.Clamp(autonomyActionTimer, 0, short.MaxValue));
 		writer.Write((byte)Math.Clamp(autonomyWorkCount, 0, byte.MaxValue));
+		writer.Write((byte)pendingAutonomyActivity);
+		writer.Write((short)Math.Clamp(pendingInitiativeTimer, 0, short.MaxValue));
+		writer.Write((short)pendingTargetItem);
+		writer.Write((short)pendingTargetTile.X);
+		writer.Write((short)pendingTargetTile.Y);
+		writer.Write((byte)pendingForestAction);
 	}
 
 	public override void ReceiveExtraAI(BinaryReader reader)
@@ -61,6 +67,11 @@ public sealed partial class SoulboundCompanion
 		autonomyForestAction = (ForestAction)reader.ReadByte();
 		autonomyActionTimer = reader.ReadInt16();
 		autonomyWorkCount = reader.ReadByte();
+		pendingAutonomyActivity = (AutonomyActivity)reader.ReadByte();
+		pendingInitiativeTimer = reader.ReadInt16();
+		pendingTargetItem = reader.ReadInt16();
+		pendingTargetTile = new Point(reader.ReadInt16(), reader.ReadInt16());
+		pendingForestAction = (ForestAction)reader.ReadByte();
 		if (Main.netMode != NetmodeID.MultiplayerClient || !TryGetOwner(out Player owner) || owner.whoAmI != Main.myPlayer)
 			return;
 		foreach (Item item in owner.inventory) {

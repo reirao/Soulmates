@@ -16,17 +16,20 @@ public sealed class SoulmatesPlayer : ModPlayer
 	private bool starterKitClaimed;
 	private int pickupObservationCooldown;
 	private int serverGatheringObservationCooldown;
+	private bool rightMouseDown;
 
 	public int ActiveCompanionWhoAmI { get; set; } = -1;
 
 	public override void Initialize()
 	{
 		ActiveCompanionWhoAmI = -1;
+		rightMouseDown = false;
 	}
 
 	public override void UpdateDead()
 	{
 		ActiveCompanionWhoAmI = -1;
+		rightMouseDown = false;
 	}
 
 	public override void PostUpdate()
@@ -65,10 +68,12 @@ public sealed class SoulmatesPlayer : ModPlayer
 		SoulboundCompanion? companion = SoulboundCompanion.FindFor(Player);
 		CompanionWheelSystem companionWheel = ModContent.GetInstance<CompanionWheelSystem>();
 		TalkModeSystem talkMode = ModContent.GetInstance<TalkModeSystem>();
+		bool rightPressed = Main.mouseRight && !rightMouseDown;
+		rightMouseDown = Main.mouseRight;
 		if (Soulmates.EmoteKeybind.JustPressed && companion is not null && !Main.playerInventory
 			&& !talkMode.IsOpen && !companionWheel.IsOpen)
 			companionWheel.OpenEmotes(companion);
-		if (companion is not null)
+		if (companion is not null && rightPressed)
 			TryOpenSelfSoulwheel(companion, companionWheel, talkMode);
 
 		if (!Soulmates.TalkKeybind.JustPressed || companion is null || companionWheel.IsOpen)
@@ -81,7 +86,7 @@ public sealed class SoulmatesPlayer : ModPlayer
 	private void TryOpenSelfSoulwheel(SoulboundCompanion companion, CompanionWheelSystem companionWheel,
 		TalkModeSystem talkMode)
 	{
-		if (!Main.mouseRight || !Main.mouseRightRelease || Main.playerInventory || Player.mouseInterface
+		if (Main.playerInventory || Player.mouseInterface
 			|| talkMode.IsOpen || companionWheel.IsOpen)
 			return;
 
@@ -103,8 +108,11 @@ public sealed class SoulmatesPlayer : ModPlayer
 	private static bool HasWorldInteractionAt(Point mouseWorld)
 	{
 		Point tilePosition = Main.MouseWorld.ToTileCoordinates();
-		if (!WorldGen.InWorld(tilePosition.X, tilePosition.Y, 1)
-			|| Main.tile[tilePosition.X, tilePosition.Y].HasTile)
+		if (!WorldGen.InWorld(tilePosition.X, tilePosition.Y, 1))
+			return true;
+		Tile tile = Main.tile[tilePosition.X, tilePosition.Y];
+		if (tile.HasTile && tile.TileType < TileID.Sets.HasOutlines.Length
+			&& TileID.Sets.HasOutlines[tile.TileType])
 			return true;
 
 		for (int i = 0; i < Main.maxNPCs; i++) {

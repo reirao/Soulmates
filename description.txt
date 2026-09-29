@@ -2,4 +2,4 @@ Soulmates 0.9.4.1: Shape a companion and speak through contextual Soulwheels.
 
 Use the reusable Soulcore to shape unique companions, including the Omni Soul AETHER, bind each one to a Soulbound Sigil, and bring them along on your Terraria adventures.
 
-Persistent animated companions learn from your behavior, defend and heal, gather and mine, tend forests, carry a synchronized inventory, and recover naturally. The new icon-based Soulwheel combines commands, work, bonding, every vanilla Terraria emote, direct pack access, and details. The Soul Creator now exposes every starting talent as a visible class choice. Existing Sigils remain compatible.
+Persistent animated companions learn from your behavior, defend and heal, gather and mine, tend forests, carry a synchronized inventory, and recover naturally. When they spot a useful opportunity, a compact Terraria-emote wheel lets you answer Yes, No, Always, or Never, remembered separately for each activity. The icon-based Soulwheel combines commands, work, bonding, every vanilla Terraria emote, direct pack access, and details. Existing Sigils remain compatible.
