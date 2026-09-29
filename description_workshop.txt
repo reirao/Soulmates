@@ -44,7 +44,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 [*]Follow, stay, explore, rest, summon, and recall interactions.
 [*]Area assignments: locate nearby chests, clear every early-ore vein in range, and retrieve every loose item in range.
 [*]A persistent memory chronicle for creation, work, protection, healing, trinkets, and bond milestones.
-[*]A persistent companion pack that holds normal and modded items across saves and summons.
+[*]A persistent companion pack that holds normal and modded items across saves and summons, with a practical reserve of 99 per item type and 12 acorns.
 [*]Interactive pack slots with item tooltips, stack withdrawal, selected-hotbar-item storage, and one-command unloading.
 [*]A stronger soul light and local map discovery wherever the companion travels.
 [*]Predictable refusals based on visible mood and energy instead of a random roll.
@@ -70,7 +70,7 @@ New characters receive one Soulcore and three Blank Sigils as a prototype starte
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Current Release[/h2]
-Soulmates 0.9.4.1 gives single-player and multiplayer one coherent cargo path. The 12-acorn forestry reserve now covers every way items enter the pack, existing excess is safely returned to the owner, tree drops use normal visible gathering, and Soul creation is an atomic inventory operation with clear feedback. Existing Soulbound Sigils remain compatible.
+Soulmates 0.9.4.1 gives single-player and multiplayer one coherent cargo path. The pack now keeps a practical reserve of 99 per item type and 12 acorns instead of absorbing one material forever; existing excess is safely returned to the owner. Tree drops use normal visible gathering, and Soul creation is an atomic inventory operation with clear feedback. Existing Soulbound Sigils remain compatible.
 
 [h2]Controls[/h2]
 [list]

@@ -386,6 +386,7 @@ Mods: {
 			SelectedEmpty: Your selected hotbar slot is empty.
 			CannotCarry: That item anchors our bond. I should not carry it inside my pack.
 			Full: My pack is full. ({0}/{1})
+			ItemLimit: I already carry enough {0}. ({1} max)
 			StoredOne: I stored {0} item. ({1}/{2})
 			StoredMany: I stored {0} items. ({1}/{2})
 			ReturnedOne: I returned {0} item. ({1}/{2})

@@ -386,6 +386,7 @@ Mods: {
 			SelectedEmpty: Der ausgewählte Schnellzugriffsplatz ist leer.
 			CannotCarry: Dieser Gegenstand verankert unsere Bindung. Ich sollte ihn nicht in meinem Pack tragen.
 			Full: Mein Pack ist voll. ({0}/{1})
+			ItemLimit: Ich trage bereits genug {0}. (maximal {1})
 			StoredOne: Ich habe {0} Gegenstand verstaut. ({1}/{2})
 			StoredMany: Ich habe {0} Gegenstände verstaut. ({1}/{2})
 			ReturnedOne: Ich habe {0} Gegenstand zurückgegeben. ({1}/{2})

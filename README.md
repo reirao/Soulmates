@@ -56,7 +56,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 - A persistent memory chronicle covering creation, work, protection, healing, equipment, and bond milestones.
 - Craftable Starfinder Bell, Delver Charm, and Hearth Ribbon companion trinkets.
 - Resting companions recover mood and energy over time.
-- Every companion has a persistent 8-stack pack; the Hearth Ribbon expands it to 12.
+- Every companion has a persistent 8-slot pack with a practical carry reserve of 99 per item type and 12 acorns; the Hearth Ribbon expands it to 12 slots.
 - The Pack conversation can inspect cargo, store the selected hotbar item, or unload everything.
 - Pack slots have item tooltips and return a full stack on left-click or one item on right-click.
 - Companions illuminate dark spaces and reveal the nearby world map as they explore.
@@ -71,7 +71,7 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current release
 
-**Soulmates 0.9.4.1 - Coherent Cargo Hotfix** routes every pack insertion through one rule set in single-player and multiplayer. The 12-acorn forestry reserve now covers automatic pickup and manual storage, old excess is returned to the owner without loss, tree drops use the normal visible gathering flow, and Soul creation is one atomic inventory operation with clear failure feedback. Existing Sigils remain compatible.
+**Soulmates 0.9.4.1 - Coherent Cargo Hotfix** routes every pack insertion through one rule set in single-player and multiplayer. The pack now keeps a practical reserve of 99 per item type and 12 acorns instead of absorbing one material forever; old excess is returned to the owner without loss. Tree drops use the normal visible gathering flow, and Soul creation is one atomic inventory operation with clear failure feedback. Existing Sigils remain compatible.
 
 ## Languages
 

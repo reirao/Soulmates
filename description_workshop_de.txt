@@ -44,7 +44,7 @@ Soulmates ist ein experimentelles Projekt, das bei Programmierung, Texten, Benut
 [*]Folgen, Bleiben, Erkunden, Ausruhen, Beschwören und Zurückrufen.
 [*]Gebietsaufgaben: nahe Truhen finden, frühe Erzadern vollständig abbauen und herumliegende Gegenstände einsammeln.
 [*]Eine dauerhafte Erinnerungschronik über Erschaffung, Arbeit, Schutz, Heilung, Trinkets und Bindungsmeilensteine.
-[*]Ein eigenes dauerhaftes Pack für normale und gemoddete Items, das Speichern und Beschwören übersteht.
+[*]Ein eigenes dauerhaftes Pack für normale und gemoddete Items, das Speichern und Beschwören übersteht und einen sinnvollen Vorrat von 99 pro Itemtyp sowie 12 Eicheln hält.
 [*]Interaktive Pack-Slots mit Tooltips, Stack-Entnahme, Einlagern des ausgewählten Hotbar-Items und vollständigem Entladen.
 [*]Stärkeres Seelenlicht und Aufdeckung der Karte, wo immer dein Companion unterwegs ist.
 [*]Vorhersehbare Ablehnungen anhand sichtbarer Stimmung und Energie statt eines Zufallswurfs.
@@ -70,7 +70,7 @@ Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils als Start
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Aktuelle Version[/h2]
-Soulmates 0.9.4.1 verwendet in Singleplayer und Multiplayer einen einheitlichen Frachtweg. Der Forstvorrat von 12 Eicheln gilt nun für jeden Zugang zum Pack, vorhandene Übermengen gehen sicher an den Spieler zurück, Baumdrops folgen dem normalen sichtbaren Sammelablauf und die Seelenerstellung ist eine atomare Inventaraktion mit klarer Rückmeldung. Bestehende Soulbound Sigils bleiben kompatibel.
+Soulmates 0.9.4.1 verwendet in Singleplayer und Multiplayer einen einheitlichen Frachtweg. Das Pack hält nun einen sinnvollen Vorrat von 99 pro Itemtyp sowie 12 Eicheln, statt ein Material endlos einzusammeln; vorhandene Übermengen gehen sicher an den Spieler zurück. Baumdrops folgen dem normalen sichtbaren Sammelablauf und die Seelenerstellung ist eine atomare Inventaraktion mit klarer Rückmeldung. Bestehende Soulbound Sigils bleiben kompatibel.
 
 [h2]Steuerung[/h2]
 [list]

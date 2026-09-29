@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -1561,11 +1562,7 @@ public sealed class SoulboundCompanion : ModNPC
 		float radius = GatheringRadiusTiles * 16f;
 		for (int i = 0; i < Main.maxItems; i++) {
 			Item item = Main.item[i];
-			if (!item.active || item.IsAir || !CanCarry(item) || IsRecoveryPickup(item)
-				|| item.playerIndexTheItemIsReservedFor != 255 && item.playerIndexTheItemIsReservedFor != Owner.whoAmI)
-				continue;
-			if (item.type == ItemID.Acorn
-				&& Profile.ItemCount(ItemID.Acorn) >= CompanionProfile.ForestrySupplyLimit)
+			if (!CanCollectLooseItem(item))
 				continue;
 			if (Vector2.DistanceSquared(jobOrigin, item.Center) < radius * radius)
 				return true;
@@ -2316,6 +2313,9 @@ public sealed class SoulboundCompanion : ModNPC
 			return SoulmatesText.Get("Pack.SelectedEmpty");
 		if (!CanCarry(selected))
 			return SoulmatesText.Get("Pack.CannotCarry");
+		int carryLimit = CompanionProfile.CarryLimitFor(selected.type);
+		if (Profile.ItemCount(selected.type) >= carryLimit)
+			return SoulmatesText.Get("Pack.ItemLimit", selected.Name, carryLimit);
 		int moved = Profile.Store(selected);
 		if (moved <= 0)
 			return SoulmatesText.Get("Pack.Full", Profile.PackLoad, Profile.PackCapacity);
@@ -2385,16 +2385,22 @@ public sealed class SoulboundCompanion : ModNPC
 		if (packReconciled)
 			return;
 		packReconciled = true;
-		int excess = Profile.RemoveExcess(ItemID.Acorn, CompanionProfile.ForestrySupplyLimit);
-		if (excess <= 0)
+		var excessItems = new List<Item>();
+		int[] storedTypes = Profile.Pack.Where(item => item is not null && !item.IsAir)
+			.Select(item => item.type).Distinct().ToArray();
+		foreach (int itemType in storedTypes)
+			excessItems.AddRange(Profile.ExtractExcess(itemType, CompanionProfile.CarryLimitFor(itemType)));
+		if (excessItems.Count == 0)
 			return;
 
-		var returned = new Item();
-		returned.SetDefaults(ItemID.Acorn);
-		returned.stack = excess;
-		Item leftover = Owner.GetItem(Owner.whoAmI, returned, GetItemSettings.InventoryEntityToPlayerInventorySettings);
-		if (!leftover.IsAir)
-			Item.NewItem(Owner.GetSource_Misc("SoulmatesPackRepair"), Owner.Hitbox, leftover);
+		foreach (Item returned in excessItems) {
+			Item leftover = Owner.GetItem(Owner.whoAmI, returned.Clone(), GetItemSettings.InventoryEntityToPlayerInventorySettings);
+			if (leftover.IsAir)
+				continue;
+			int itemIndex = Item.NewItem(Owner.GetSource_Misc("SoulmatesPackRepair"), Owner.Hitbox, leftover);
+			if (Main.netMode == NetmodeID.Server && itemIndex >= 0 && itemIndex < Main.maxItems)
+				NetMessage.SendData(MessageID.SyncItem, -1, -1, null, itemIndex);
+		}
 		SyncPackState();
 		SyncOwnerInventory();
 	}

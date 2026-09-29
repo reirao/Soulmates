@@ -221,6 +221,7 @@ public sealed class CompanionProfile
 	public const int MaximumMemories = 8;
 	public const int MaximumLevel = 20;
 	public const int ForesterUnlockInsight = 24;
+	public const int ItemCarryLimit = 99;
 	public const int ForestrySupplyLimit = 12;
 
 	public Guid Id { get; set; } = Guid.NewGuid();
@@ -605,9 +606,8 @@ public sealed class CompanionProfile
 		if (source.IsAir || source.stack <= 0)
 			return 0;
 
-		int permitted = source.stack;
-		if (source.type == ItemID.Acorn)
-			permitted = Math.Min(permitted, Math.Max(0, ForestrySupplyLimit - ItemCount(ItemID.Acorn)));
+		int permitted = Math.Min(source.stack,
+			Math.Max(0, CarryLimitFor(source.type) - ItemCount(source.type)));
 		if (permitted <= 0)
 			return 0;
 
@@ -631,6 +631,9 @@ public sealed class CompanionProfile
 
 	public bool CanStore(Item source) => GetStorableAmount(source) > 0;
 
+	public static int CarryLimitFor(int itemType)
+		=> itemType == ItemID.Acorn ? ForestrySupplyLimit : ItemCarryLimit;
+
 	public int ItemCount(int itemType)
 	{
 		long total = 0;
@@ -641,21 +644,28 @@ public sealed class CompanionProfile
 		return (int)Math.Min(int.MaxValue, total);
 	}
 
-	public int RemoveExcess(int itemType, int maximum)
+	public List<Item> ExtractExcess(int itemType, int maximum)
 	{
+		NormalizePack();
 		int remaining = Math.Max(0, maximum);
-		int removed = 0;
+		var excess = new List<Item>();
 		for (int i = 0; i < Pack.Count; i++) {
 			Item item = Pack[i];
 			if (item is null || item.IsAir || item.type != itemType)
 				continue;
 			int keep = Math.Min(item.stack, remaining);
-			removed += item.stack - keep;
+			int removed = item.stack - keep;
+			if (removed > 0) {
+				Item returned = item.Clone();
+				returned.stack = removed;
+				returned.favorited = false;
+				excess.Add(returned);
+			}
 			item.stack = keep;
 			remaining -= keep;
 		}
 		NormalizePack();
-		return removed;
+		return excess;
 	}
 
 	public void Normalize()
