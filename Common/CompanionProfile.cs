@@ -577,7 +577,8 @@ public sealed class CompanionProfile
 		Item transfer = source.Clone();
 		transfer.stack = permitted;
 		foreach (Item stored in Pack) {
-			if (stored.stack >= stored.maxStack || !ItemLoader.CanStack(stored, transfer))
+			if (stored.type != transfer.type || stored.stack >= stored.maxStack
+				|| !ItemLoader.CanStack(stored, transfer))
 				continue;
 			ItemLoader.TryStackItems(stored, transfer, out _, infiniteSource: false);
 			if (transfer.IsAir || transfer.stack <= 0)
@@ -617,7 +618,8 @@ public sealed class CompanionProfile
 			if (stored is null || stored.IsAir)
 				continue;
 			occupiedSlots++;
-			if (stored.stack < stored.maxStack && ItemLoader.CanStack(stored, source)) {
+			if (stored.type == source.type && stored.stack < stored.maxStack
+				&& ItemLoader.CanStack(stored, source)) {
 				available += stored.maxStack - stored.stack;
 				if (available >= permitted)
 					return permitted;

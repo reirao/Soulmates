@@ -1,6 +1,7 @@
 Soulmates 0.9.4.1 - Coherent Cargo Hotfix
 
 - Unified every pack insertion behind one capacity and item-limit policy in single-player and multiplayer.
+- Fixed unlike item types merging into the first occupied pack stack during automatic pickup.
 - Added a practical 99-unit reserve per item type so common drops such as Gel cannot grow without bound; acorns remain capped at 12.
 - The 12-acorn forestry reserve now applies to world pickup and manual storage; existing excess is returned safely to the owner on summon.
 - Tree shaking and deadwood clearing no longer perform a second broad pickup sweep; their drops enter the normal visible gathering flow.

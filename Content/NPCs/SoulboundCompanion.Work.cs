@@ -323,14 +323,14 @@ public sealed partial class SoulboundCompanion
 		int available = AvailableCarryAmount(worldItem);
 		if (available <= 0)
 			return 0;
-		int unitsBefore = PackUnitCount();
+		int matchingItemsBefore = Profile.ItemCount(worldItem.type);
 		var packBefore = new List<Item>(Profile.Pack.Count);
 		foreach (Item stored in Profile.Pack)
 			packBefore.Add(stored.Clone());
 		Item transfer = worldItem.Clone();
 		transfer.stack = available;
 		int moved = Math.Clamp(Profile.Store(transfer), 0, available);
-		int confirmed = Math.Clamp(PackUnitCount() - unitsBefore, 0, available);
+		int confirmed = Math.Clamp(Profile.ItemCount(worldItem.type) - matchingItemsBefore, 0, available);
 		if (moved <= 0 || confirmed != moved) {
 			Profile.Pack = packBefore;
 			return 0;
@@ -342,16 +342,6 @@ public sealed partial class SoulboundCompanion
 			worldItem.active = false;
 		}
 		return moved;
-	}
-
-	private int PackUnitCount()
-	{
-		int total = 0;
-		foreach (Item item in Profile.Pack) {
-			if (!item.IsAir)
-				total += item.stack;
-		}
-		return total;
 	}
 
 	private bool HasPackItem(int itemType) => Profile.Pack.Exists(item => !item.IsAir && item.type == itemType && item.stack > 0);
