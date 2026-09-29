@@ -2,6 +2,10 @@
 
 Soulmates macht aus dem wiederverwendbaren Soulcore einen Companion-Editor direkt in Terraria. Forme einen kleinen, einzigartigen Geist, binde ihn an sein eigenes Soulbound Sigil, beschwöre ihn in die Welt und entwickle eure Beziehung durch Fürsorge, Gespräche und gemeinsame Aufgaben.
 
+[img]https://github.com/reirao/Soulmates/releases/download/v0.7.4/00-feature-overview.png[/img]
+
+[url=https://github.com/reirao/Soulmates/releases/tag/v0.7.4][b]Vollständige Screenshot-Galerie und Release-Downloads auf GitHub ansehen.[/b][/url]
+
 [b]Sprachen:[/b] Englisch und Deutsch. Soulmates übernimmt automatisch die in Terraria ausgewählte Sprache.
 
 [h2]Hinweis zur KI-unterstützten Entwicklung[/h2]
