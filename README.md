@@ -38,6 +38,9 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Persistent per-companion autonomy, switchable from the action wheel.
 - Talent-driven initiative: every companion retrieves nearby usable drops, Gatherers do so faster and farther, Miners help in short bursts and collect what they mine, Treasure Seekers investigate nearby chests, Guardians intercept danger, and Healers react to injuries.
 - Persistent learning insights adapt to the owner's gathering, mining, forestry, combat, and exploration habits.
+- All vanilla and modded ore families are recognized; companions remember safe natural materials they watch the owner mine and reuse discovered pickaxes for later mining assignments.
+- Useful pack contents matter in the world: weapons strengthen companion attacks, torches add light, and food or recovery items can be used at an appropriate moment.
+- Near a crafting opportunity, a companion may occasionally suggest a recipe inspired by materials in its pack.
 - Contextual initiative prompts let you answer opportunities with Terraria emotes: Yes, No, Always, or Never, remembered separately for gathering, mining, forestry, and treasure hunting.
 - The learned Forester perk lets a companion shake trees, clear natural fallen logs, collect seeds, and carefully replant carried acorns.
 - A companion named **AETHER** is an Omni Soul with every starting talent instinct and learned perk available.
@@ -53,7 +56,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Five visible bond ranks with growing work radius, role strength, and pack capacity.
 - Every companion continuously defends against nearby threats without spending work energy, while staying leashed to its owner or Stay anchor; Guardians react faster, reach farther, and hit harder, while Healers provide energy-limited support.
 - Energy returns naturally outside work and combat, with faster recovery while waiting; the Care > Rest conversation is an optional boost rather than a required chore.
-- Area assignments: locate nearby chests, clear every early-ore vein in range, and retrieve every loose item in range.
+- Area assignments: locate nearby chests, clear every reachable ore vein and learned material in range, and retrieve every loose item in range.
 - A persistent memory chronicle covering creation, work, protection, healing, equipment, and bond milestones.
 - Craftable Starfinder Bell, Delver Charm, and Hearth Ribbon companion trinkets.
 - Resting companions recover mood and energy over time.

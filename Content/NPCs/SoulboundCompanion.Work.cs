@@ -119,13 +119,17 @@ public sealed partial class SoulboundCompanion
 			return;
 		if (!WorldGen.InWorld(jobTarget.X, jobTarget.Y, 10)
 			|| !Main.tile[jobTarget.X, jobTarget.Y].HasTile
-			|| !IsMineableWorkTile(Main.tile[jobTarget.X, jobTarget.Y].TileType)) {
+			|| !CanMineTile(jobTarget.X, jobTarget.Y, includeLearnedMaterials: true)) {
 			hasJobTarget = false;
 			return;
 		}
+		ushort minedTileType = Main.tile[jobTarget.X, jobTarget.Y].TileType;
+		int pickPower = EffectivePickPower(out int pickItemType);
 		WorldGen.KillTile(jobTarget.X, jobTarget.Y);
 		if (!Main.tile[jobTarget.X, jobTarget.Y].HasTile) {
 			jobCount++;
+			SoulmatesFeedbackSystem.Record("companion_mined_tile", ("tile_type", minedTileType),
+				("pick_power", pickPower), ("pick_item_type", pickItemType), ("autonomous", false));
 			Profile.Energy = Math.Max(0, Profile.Energy - 1);
 			CollectNearbyLooseItems(target, 96f, 6);
 			SyncProfileToBoundSigil();
@@ -256,7 +260,7 @@ public sealed partial class SoulboundCompanion
 				if (!WorldGen.InWorld(x, y, 10))
 					continue;
 				Tile tile = Main.tile[x, y];
-				if (!tile.HasTile || !IsEarlyOre(tile.TileType))
+				if (!tile.HasTile || !CanMineTile(x, y, includeLearnedMaterials: true))
 					continue;
 				var candidate = new Point(x, y);
 				if (failedMiningTargets.Contains(candidate))
@@ -264,6 +268,8 @@ public sealed partial class SoulboundCompanion
 				if (Vector2.DistanceSquared(candidate.ToVector2(), center.ToVector2()) > radius * radius)
 					continue;
 				float score = Vector2.DistanceSquared(candidate.ToWorldCoordinates(), NPC.Center);
+				if (IsOreTile(tile.TileType))
+					score *= 0.35f;
 				if (score >= bestScore)
 					continue;
 				bestScore = score;
@@ -420,11 +426,6 @@ public sealed partial class SoulboundCompanion
 			}
 		}
 	}
-
-	private static bool IsMineableWorkTile(ushort type) => IsEarlyOre(type);
-
-	private static bool IsEarlyOre(ushort type) => type is TileID.Copper or TileID.Tin or TileID.Iron or TileID.Lead
-		or TileID.Silver or TileID.Tungsten or TileID.Gold or TileID.Platinum;
 
 	private static string DescribeDirection(Vector2 offset)
 	{

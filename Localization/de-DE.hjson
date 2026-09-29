@@ -346,6 +346,13 @@ Mods: {
 			PerkUnlocked: "{0} hat den Perk {1} gelernt!"
 		}
 
+		Resourcefulness: {
+			UnknownMaterial: dieses Material
+			LearnedMaterial: Ich erkenne {0} jetzt. Auf Wunsch kann ich es abbauen.
+			UsedItem: Ich habe {0} benutzt. Es schien der richtige Moment zu sein.
+			CraftSuggestion: Mit unseren Funden könnten wir {0} herstellen.
+		}
+
 		Feedback: {
 			Usage: /soulfeedback [open|on|off|status|flush|note|bug] [Text]
 			Description: Steuert die lokalen, freiwilligen AETHER Field Notes und den Bug-Briefkasten.
@@ -375,6 +382,7 @@ Mods: {
 				Observing: Lernen: beobachtet deine Gewohnheiten
 				ObservingProgress: Lernen: beobachtet deine Gewohnheiten  |  {0}
 				AetherLearning: AETHER: alle Talentinstinkte und erlernten Perks sind aktiv
+				Resourcefulness: Bergbauwissen: {0}% Spitzhackenstärke  |  {1} beobachtete Materialien
 				Assignment: Aktiver Auftrag: {0}
 				Controls: Benutzen: beschwören  |  Rechtsklick auf Gefährten: Aktionsrad  |  V: Details  |  Hoch + Rechtsklick: zurückrufen
 				Emotes: Rechtsklick auf dich oder G drücken öffnet das Player-Emote-Rad

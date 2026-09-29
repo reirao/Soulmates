@@ -187,16 +187,20 @@ public sealed partial class SoulboundCompanion
 
 		if (!WorldGen.InWorld(autonomyTargetTile.X, autonomyTargetTile.Y, 10)
 			|| !Main.tile[autonomyTargetTile.X, autonomyTargetTile.Y].HasTile
-			|| !IsEarlyOre(Main.tile[autonomyTargetTile.X, autonomyTargetTile.Y].TileType)) {
+			|| !CanMineTile(autonomyTargetTile.X, autonomyTargetTile.Y, includeLearnedMaterials: false)) {
 			if (!FindAutonomousOre(out autonomyTargetTile))
 				FinishAutonomousMining();
 			NPC.netUpdate = true;
 			return autonomyActivity != AutonomyActivity.None;
 		}
 
+		ushort minedTileType = Main.tile[autonomyTargetTile.X, autonomyTargetTile.Y].TileType;
+		int pickPower = EffectivePickPower(out int pickItemType);
 		WorldGen.KillTile(autonomyTargetTile.X, autonomyTargetTile.Y);
 		if (!Main.tile[autonomyTargetTile.X, autonomyTargetTile.Y].HasTile) {
 			autonomyWorkCount++;
+			SoulmatesFeedbackSystem.Record("companion_mined_tile", ("tile_type", minedTileType),
+				("pick_power", pickPower), ("pick_item_type", pickItemType), ("autonomous", true));
 			Profile.Energy = Math.Max(0, Profile.Energy - 1);
 			CollectNearbyLooseItems(target, 96f, 6);
 			if (Main.netMode == NetmodeID.Server)
@@ -207,7 +211,7 @@ public sealed partial class SoulboundCompanion
 			return false;
 		}
 
-		if (autonomyWorkCount >= 3 || !FindAutonomousOre(out autonomyTargetTile))
+		if (autonomyWorkCount >= AutonomousMiningSweepLimit || !FindAutonomousOre(out autonomyTargetTile))
 			FinishAutonomousMining();
 		NPC.netUpdate = true;
 		return autonomyActivity != AutonomyActivity.None;
@@ -444,7 +448,7 @@ public sealed partial class SoulboundCompanion
 				if (!WorldGen.InWorld(x, y, 10))
 					continue;
 				Tile tile = Main.tile[x, y];
-				if (!tile.HasTile || !IsEarlyOre(tile.TileType))
+				if (!tile.HasTile || !CanMineTile(x, y, includeLearnedMaterials: false))
 					continue;
 				var candidate = new Point(x, y);
 				float score = Vector2.DistanceSquared(candidate.ToWorldCoordinates(), NPC.Center);

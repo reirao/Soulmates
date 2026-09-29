@@ -2,6 +2,6 @@ Soulmates 0.10.0 - AETHER-EGG Alpha: Shape a companion that watches, learns, and
 
 Use the reusable Soulcore to shape unique companions, including the Omni Soul AETHER, bind each one to a Soulbound Sigil, and bring them along on your Terraria adventures.
 
-Persistent animated companions learn five practical instincts from your behavior, defend and heal, gather and mine, tend forests, carry a synchronized inventory, and recover naturally. A dedicated Terraria-emote prompt lets you answer Yes, No, Always, or Never when they discover an opportunity. The icon-based Soulwheel combines commands, work, bonding, every vanilla Terraria emote, direct pack access, and details. Existing Sigils remain compatible.
+Persistent animated companions learn practical instincts from your behavior, defend and heal, gather and mine every ore family, remember natural materials, tend forests, and make careful use of tools, weapons, food, recovery items, and light sources carried in their synchronized pack. They may even suggest things you can craft from nearby opportunities. A dedicated Terraria-emote prompt lets you answer Yes, No, Always, or Never when they discover an opportunity. The icon-based Soulwheel combines commands, work, bonding, every vanilla Terraria emote, direct pack access, and details. Existing Sigils remain compatible.
 
 Optional local AETHER Field Notes can record anonymized playtest events and contextual bug reports. Open the in-game mailbox from the Soulwheel's paper-plane icon or with `/soulfeedback`. It is off by default and never uploads data.

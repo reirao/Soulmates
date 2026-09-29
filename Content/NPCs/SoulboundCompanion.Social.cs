@@ -107,8 +107,14 @@ public sealed partial class SoulboundCompanion
 
 	private void UpdateLearningFromOwner()
 	{
-		if (Main.netMode == NetmodeID.MultiplayerClient || --learningObservationTimer > 0
+		if (Main.netMode == NetmodeID.MultiplayerClient
 			|| Vector2.DistanceSquared(NPC.Center, Owner.Center) > 520f * 520f)
+			return;
+		Item held = Owner.HeldItem;
+		bool ownerUsingItem = Owner.controlUseItem || Owner.itemAnimation > 0;
+		if (ownerUsingItem && held.pick > 0)
+			ObserveMiningEnvironment(held);
+		if (--learningObservationTimer > 0)
 			return;
 
 		learningObservationTimer = 60;
@@ -117,10 +123,9 @@ public sealed partial class SoulboundCompanion
 			ObserveOwnerActivity(LearnedBehavior.Exploration);
 			return;
 		}
-		if (!Owner.controlUseItem && Owner.itemAnimation <= 0)
+		if (!ownerUsingItem)
 			return;
 
-		Item held = Owner.HeldItem;
 		if (held.axe > 0 || held.createTile == TileID.Saplings || held.type == ItemID.Acorn)
 			ObserveOwnerActivity(LearnedBehavior.Forestry);
 		else if (held.pick > 0)

@@ -69,6 +69,8 @@ public sealed partial class SoulboundCompanion
 			int damage = guardian
 				? 8 + Profile.RankIndex * 2 + Math.Min(4, Profile.JobsCompleted / 8)
 				: 4 + Profile.RankIndex + Math.Min(2, Profile.JobsCompleted / 12);
+			int packWeaponBonus = PackWeaponDamageBonus(out int packWeaponType);
+			damage += packWeaponBonus;
 			int projectileOwner = Main.netMode == NetmodeID.Server ? 255 : Owner.whoAmI;
 			int projectileIndex = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, velocity, ModContent.ProjectileType<SoulBolt>(),
 				damage, 1.5f, projectileOwner, target.whoAmI, NPC.whoAmI);
@@ -77,7 +79,8 @@ public sealed partial class SoulboundCompanion
 				Main.projectile[projectileIndex].netUpdate = true;
 			}
 			SoulmatesFeedbackSystem.Record("companion_attack", ("target_type", target.type),
-				("damage", damage), ("guardian_specialist", guardian));
+				("damage", damage), ("guardian_specialist", guardian),
+				("pack_weapon_type", packWeaponType), ("pack_weapon_bonus", packWeaponBonus));
 			NPC.netUpdate = true;
 			attackCooldown = guardian ? Math.Max(55, 82 - Profile.RankIndex * 6) : Math.Max(90, 130 - Profile.RankIndex * 8);
 		}
@@ -115,6 +118,7 @@ public sealed partial class SoulboundCompanion
 		guardianTarget = target;
 		if (target >= 0) {
 			attackCooldown = Math.Min(attackCooldown, 8);
+			AnnouncePackWeapon();
 			SoulmatesFeedbackSystem.Record("combat_target_acquired", ("target_type", Main.npc[target].type),
 				("boss", Main.npc[target].boss));
 		}

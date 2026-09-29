@@ -62,6 +62,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 	private const int AutonomousLootSweepLimit = 12;
 	private const int AutonomousLootTargetTimeout = 480;
 	private const int AutonomousForestSweepLimit = 5;
+	private const int AutonomousMiningSweepLimit = 24;
 	private BrainState brainState;
 	private int stateTimer;
 	private int facing = 1;
@@ -242,6 +243,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 		UpdateSocialState();
 		UpdateLearningFromOwner();
 		UpdateAutonomousSocialBehavior();
+		UpdateResourcefulness();
 		if (attackCooldown > 0)
 			attackCooldown--;
 		if (healingCooldown > 0)

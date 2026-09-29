@@ -253,6 +253,7 @@ public sealed class CompanionProfile
 	public const int ExplorationUnlockInsight = 24;
 	public const int ItemCarryLimit = 99;
 	public const int ForestrySupplyLimit = 12;
+	public const int MaximumLearnedMiningTiles = 48;
 
 	public Guid Id { get; set; } = Guid.NewGuid();
 	public string Name { get; set; } = "Luma";
@@ -282,7 +283,9 @@ public sealed class CompanionProfile
 	public int ForestryInsight { get; set; }
 	public int CombatInsight { get; set; }
 	public int ExplorationInsight { get; set; }
+	public int ObservedPickPower { get; set; } = 35;
 	public string LastMemory { get; set; } = SoulmatesText.Get("Memories.New");
+	public List<int> LearnedMiningTiles { get; set; } = [];
 	public List<Item> Pack { get; set; } = [];
 	public List<CompanionMemory> Memories { get; set; } = [];
 
@@ -377,7 +380,9 @@ public sealed class CompanionProfile
 		ForestryInsight = ForestryInsight,
 		CombatInsight = CombatInsight,
 		ExplorationInsight = ExplorationInsight,
+		ObservedPickPower = ObservedPickPower,
 		LastMemory = LastMemory,
+		LearnedMiningTiles = LearnedMiningTiles.ToList(),
 		Pack = Pack.Where(item => !item.IsAir).Select(item => item.Clone()).ToList(),
 		Memories = Memories.Select(memory => memory.Clone()).ToList()
 	};
@@ -411,7 +416,9 @@ public sealed class CompanionProfile
 		["forestryInsight"] = ForestryInsight,
 		["combatInsight"] = CombatInsight,
 		["explorationInsight"] = ExplorationInsight,
+		["observedPickPower"] = ObservedPickPower,
 		["lastMemory"] = LastMemory,
+		["learnedMiningTiles"] = LearnedMiningTiles.ToList(),
 		["pack"] = Pack.Where(item => !item.IsAir).Select(ItemIO.Save).ToList(),
 		["memories"] = Memories.Select(memory => memory.Save()).ToList()
 	};
@@ -451,9 +458,13 @@ public sealed class CompanionProfile
 			ForestryInsight = tag.ContainsKey("forestryInsight") ? tag.GetInt("forestryInsight") : 0,
 			CombatInsight = tag.ContainsKey("combatInsight") ? tag.GetInt("combatInsight") : 0,
 			ExplorationInsight = tag.ContainsKey("explorationInsight") ? tag.GetInt("explorationInsight") : 0,
+			ObservedPickPower = tag.ContainsKey("observedPickPower") ? tag.GetInt("observedPickPower") : 35,
 			LastMemory = tag.ContainsKey("lastMemory") && tag.GetString("lastMemory") is { Length: > 0 } memory
 				? memory
 				: SoulmatesText.Get("Memories.New"),
+			LearnedMiningTiles = tag.ContainsKey("learnedMiningTiles")
+				? tag.GetList<int>("learnedMiningTiles").ToList()
+				: [],
 			Pack = tag.ContainsKey("pack") ? tag.GetList<TagCompound>("pack").Select(ItemIO.Load).Where(item => !item.IsAir).ToList() : [],
 			Memories = tag.ContainsKey("memories")
 				? tag.GetList<TagCompound>("memories").Select(CompanionMemory.Load).ToList()
@@ -494,6 +505,11 @@ public sealed class CompanionProfile
 		writer.Write((byte)CombatInsight);
 		writer.Write((byte)ExplorationInsight);
 		writer.Write(LastMemory);
+		writer.Write((short)ObservedPickPower);
+		int[] learnedMiningTiles = LearnedMiningTiles.Take(MaximumLearnedMiningTiles).ToArray();
+		writer.Write((byte)learnedMiningTiles.Length);
+		foreach (int tileType in learnedMiningTiles)
+			writer.Write((ushort)tileType);
 		Item[] items = Pack.Where(item => !item.IsAir).Take(MaximumPackSlots).ToArray();
 		writer.Write((byte)items.Length);
 		foreach (Item item in items)
@@ -537,6 +553,10 @@ public sealed class CompanionProfile
 			ExplorationInsight = reader.ReadByte(),
 			LastMemory = reader.ReadString()
 		};
+		profile.ObservedPickPower = reader.ReadInt16();
+		int learnedMiningTileCount = reader.ReadByte();
+		for (int i = 0; i < learnedMiningTileCount; i++)
+			profile.LearnedMiningTiles.Add(reader.ReadUInt16());
 		int count = reader.ReadByte();
 		for (int i = 0; i < count; i++)
 			profile.Pack.Add(ItemIO.Receive(reader, readStack: true, readFavorite: false));
@@ -640,6 +660,18 @@ public sealed class CompanionProfile
 
 	public static string LearnedPerkName(LearnedBehavior behavior)
 		=> SoulmatesText.Get($"Learning.Perks.{behavior}");
+
+	public bool LearnMiningMaterial(int tileType, int pickPower)
+	{
+		ObservedPickPower = Math.Clamp(Math.Max(ObservedPickPower, pickPower), 0, short.MaxValue);
+		if (tileType < 0 || tileType > ushort.MaxValue || LearnedMiningTiles.Contains(tileType)
+			|| LearnedMiningTiles.Count >= MaximumLearnedMiningTiles)
+			return false;
+		LearnedMiningTiles.Add(tileType);
+		return true;
+	}
+
+	public bool KnowsMiningMaterial(int tileType) => LearnedMiningTiles.Contains(tileType);
 
 	public static int ExperienceForLevel(int level)
 	{
@@ -799,10 +831,13 @@ public sealed class CompanionProfile
 		ForestryInsight = Math.Clamp(ForestryInsight, 0, 100);
 		CombatInsight = Math.Clamp(CombatInsight, 0, 100);
 		ExplorationInsight = Math.Clamp(ExplorationInsight, 0, 100);
+		ObservedPickPower = Math.Clamp(ObservedPickPower, 0, short.MaxValue);
 		LastMemory = string.IsNullOrWhiteSpace(LastMemory) ? SoulmatesText.Get("Memories.New") : LastMemory.Trim();
 		if (LastMemory.Length > 240)
 			LastMemory = LastMemory[..240];
 		NormalizePack();
+		LearnedMiningTiles = LearnedMiningTiles.Where(type => type >= 0 && type <= ushort.MaxValue)
+			.Distinct().Take(MaximumLearnedMiningTiles).ToList();
 		Memories = Memories.Where(memory => memory is not null).TakeLast(MaximumMemories).ToList();
 	}
 

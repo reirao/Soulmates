@@ -346,6 +346,13 @@ Mods: {
 			PerkUnlocked: "{0} learned the {1} perk!"
 		}
 
+		Resourcefulness: {
+			UnknownMaterial: this material
+			LearnedMaterial: I recognize {0} now. I can mine it when you ask.
+			UsedItem: I used {0}. It seemed like the right moment.
+			CraftSuggestion: With what we found, we could make {0}.
+		}
+
 		Feedback: {
 			Usage: /soulfeedback [open|on|off|status|flush|note|bug] [text]
 			Description: Controls the local, opt-in AETHER Field Notes and bug inbox.
@@ -375,6 +382,7 @@ Mods: {
 				Observing: Learning: observing your habits
 				ObservingProgress: Learning: observing your habits  |  {0}
 				AetherLearning: AETHER: all talent instincts and learned perks are active
+				Resourcefulness: Mining knowledge: {0}% pick power  |  {1} observed materials
 				Assignment: Active assignment: {0}
 				Controls: Use: summon  |  Right-click companion: action wheel  |  V: details  |  Up + Right-click: recall
 				Emotes: Emotes: right-click yourself or press G for the Player Emote Wheel
