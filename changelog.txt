@@ -1,3 +1,10 @@
+Soulmates 0.9.3 - Context Wheels and Forestry Fix
+
+- Right-clicking the companion now shows only companion commands, work, bonding, pack access, and details.
+- Right-clicking the player or pressing the emote hotkey now opens a separate player wheel containing only Terraria emote categories.
+- Fixed tree shaking being rejected because Terraria's GetTreeBottom returns the supporting ground tile rather than the final trunk tile.
+- Gather and autonomous forestry now validate the supporting tile with Terraria's native tree-type lookup before shaking.
+
 Soulmates 0.9.2 - Reliable Gathering
 
 - Collected world items now push an explicit authoritative pack update to their owner instead of relying only on NPC synchronization.

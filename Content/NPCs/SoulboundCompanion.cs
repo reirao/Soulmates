@@ -741,8 +741,8 @@ public sealed class SoulboundCompanion : ModNPC
 	{
 		if (!WorldGen.InWorld(target.X, target.Y, 10))
 			return false;
-		Tile tile = Main.tile[target.X, target.Y];
-		if (!tile.HasTile || !IsTreeTrunk(tile.TileType))
+		Tile ground = Main.tile[target.X, target.Y];
+		if (!ground.HasTile || WorldGen.GetTreeType(ground.TileType) == Terraria.Enums.TreeTypes.None)
 			return false;
 		if (ShakeTreeMethod is null)
 			return false;

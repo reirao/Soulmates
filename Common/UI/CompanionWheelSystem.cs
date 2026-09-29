@@ -21,11 +21,15 @@ public sealed class CompanionWheelSystem : ModSystem
 	private enum RootBranch : byte { Commands, Work, Bond, Emotes, Pack, Details }
 	private enum HoverLayer : byte { None, Center, Root, Branch, Native }
 	private enum IconKind : byte { Emote, Item, Text }
+	private enum WheelContext : byte { Companion, Player }
 
 	private readonly record struct WheelIcon(IconKind Kind, int Value = 0, string Text = "");
 	private sealed record NativeCategory(string Key, int Icon, int[] Entries);
 
-	private static readonly RootBranch[] Roots = Enum.GetValues<RootBranch>();
+	private static readonly RootBranch[] CompanionRoots = [
+		RootBranch.Commands, RootBranch.Work, RootBranch.Bond, RootBranch.Pack, RootBranch.Details
+	];
+	private static readonly RootBranch[] PlayerRoots = [];
 	private static readonly CompanionQuickAction[] CommandActions = [
 		CompanionQuickAction.Follow, CompanionQuickAction.Stay,
 		CompanionQuickAction.Explore, CompanionQuickAction.ToggleAutonomy
@@ -105,6 +109,7 @@ public sealed class CompanionWheelSystem : ModSystem
 	private int openTicks;
 	private Vector2 center;
 	private SoulboundCompanion? companion;
+	private WheelContext context;
 	private RootBranch? branch;
 	private int nativeCategory = -1;
 	private int nativePage;
@@ -112,18 +117,20 @@ public sealed class CompanionWheelSystem : ModSystem
 	private int hoverIndex = -1;
 	private bool leftMouseDown;
 	private bool rightMouseDown;
+	private RootBranch[] ActiveRoots => context == WheelContext.Companion ? CompanionRoots : PlayerRoots;
 
 	public bool IsOpen => open;
 
-	public void Open(SoulboundCompanion boundCompanion) => Open(boundCompanion, null);
-	public void OpenEmotes(SoulboundCompanion boundCompanion) => Open(boundCompanion, RootBranch.Emotes);
+	public void Open(SoulboundCompanion boundCompanion) => Open(boundCompanion, WheelContext.Companion, null);
+	public void OpenEmotes(SoulboundCompanion boundCompanion) => Open(boundCompanion, WheelContext.Player, RootBranch.Emotes);
 
-	private void Open(SoulboundCompanion boundCompanion, RootBranch? initialBranch)
+	private void Open(SoulboundCompanion boundCompanion, WheelContext wheelContext, RootBranch? initialBranch)
 	{
 		if (Main.dedServ || Main.gameMenu || Main.LocalPlayer.dead || Main.playerInventory)
 			return;
 		ModContent.GetInstance<TalkModeSystem>().Close();
 		companion = boundCompanion;
+		context = wheelContext;
 		center = ClampCenter(Main.MouseScreen);
 		branch = initialBranch;
 		nativeCategory = -1;
@@ -212,7 +219,8 @@ public sealed class CompanionWheelSystem : ModSystem
 				return;
 			}
 		}
-		for (int i = 0; i < Roots.Length; i++) {
+		RootBranch[] roots = ActiveRoots;
+		for (int i = 0; i < roots.Length; i++) {
 			if (!Hit(mouse, RootPosition(i), 27f))
 				continue;
 			hoverLayer = HoverLayer.Root;
@@ -225,7 +233,7 @@ public sealed class CompanionWheelSystem : ModSystem
 	{
 		switch (hoverLayer) {
 			case HoverLayer.Center: StepBack(); break;
-			case HoverLayer.Root: ActivateRoot(Roots[hoverIndex]); break;
+			case HoverLayer.Root: ActivateRoot(ActiveRoots[hoverIndex]); break;
 			case HoverLayer.Branch: ActivateBranch(hoverIndex); break;
 			case HoverLayer.Native: ActivateNative(hoverIndex); break;
 			default:
@@ -355,6 +363,11 @@ public sealed class CompanionWheelSystem : ModSystem
 			SoundEngine.PlaySound(SoundID.MenuTick);
 			return;
 		}
+		if (context == WheelContext.Player) {
+			Close();
+			SoundEngine.PlaySound(SoundID.MenuClose with { Volume = 0.42f });
+			return;
+		}
 		if (branch is not null) {
 			branch = null;
 			SoundEngine.PlaySound(SoundID.MenuTick);
@@ -377,19 +390,24 @@ public sealed class CompanionWheelSystem : ModSystem
 		if (!open || companion?.NPC.active != true)
 			return true;
 		SpriteBatch spriteBatch = Main.spriteBatch;
-		Color accent = companion.Profile.EssenceColor;
+		Color accent = context == WheelContext.Player
+			? new Color(255, 216, 112)
+			: companion.Profile.EssenceColor;
 		float reveal = MathHelper.Clamp(openTicks / 8f, 0f, 1f);
 		float pulse = 1f + MathF.Sin(Main.GlobalTimeWrappedHourly * 4f) * 0.035f;
-		for (int i = 0; i < Roots.Length; i++) {
+		RootBranch[] roots = ActiveRoots;
+		for (int i = 0; i < roots.Length; i++) {
 			Vector2 position = Vector2.Lerp(center, RootPosition(i), reveal);
 			bool hovered = hoverLayer == HoverLayer.Root && hoverIndex == i;
-			bool active = branch == Roots[i];
+			bool active = branch == roots[i];
 			DrawLine(spriteBatch, center, position, accent * (active ? 0.58f : 0.22f), active ? 3f : 2f);
-			DrawNode(spriteBatch, position, hovered ? 52f * pulse : 46f, accent, hovered, active, RootIcon(Roots[i]));
+			DrawNode(spriteBatch, position, hovered ? 52f * pulse : 46f, accent, hovered, active, RootIcon(roots[i]));
 		}
 		if (branch is RootBranch activeBranch && activeBranch is not RootBranch.Pack and not RootBranch.Details) {
 			int count = BranchNodeCount(activeBranch);
-			Vector2 parent = RootPosition(Array.IndexOf(Roots, activeBranch));
+			Vector2 parent = context == WheelContext.Player
+				? center
+				: RootPosition(Array.IndexOf(roots, activeBranch));
 			for (int i = 0; i < count; i++) {
 				Vector2 destination = BranchPosition(activeBranch, i, count);
 				Vector2 position = Vector2.Lerp(parent, destination, reveal);
@@ -412,7 +430,8 @@ public sealed class CompanionWheelSystem : ModSystem
 		}
 		DrawCenter(spriteBatch, accent, pulse);
 		DrawHoverLabel(spriteBatch, accent);
-		DrawStatus(spriteBatch, accent);
+		if (context == WheelContext.Companion)
+			DrawStatus(spriteBatch, accent);
 		return true;
 	}
 
@@ -420,11 +439,14 @@ public sealed class CompanionWheelSystem : ModSystem
 	{
 		bool hovered = hoverLayer == HoverLayer.Center;
 		string name = companion!.Profile.Name;
-		string centerText = branch is null
-			? (string.IsNullOrWhiteSpace(name) ? "S" : name[..1].ToUpperInvariant())
-			: "<";
-		DrawNode(spriteBatch, center, (hovered ? 58f : 53f) * pulse, accent, hovered, branch is null,
-			new WheelIcon(IconKind.Text, Text: centerText));
+		bool hasParentLayer = nativeCategory >= 0 || context == WheelContext.Companion && branch is not null;
+		WheelIcon icon = hasParentLayer
+			? new WheelIcon(IconKind.Text, Text: "<")
+			: context == WheelContext.Player
+				? new WheelIcon(IconKind.Emote, EmoteID.EmoteHappiness)
+				: new WheelIcon(IconKind.Text, Text: string.IsNullOrWhiteSpace(name) ? "S" : name[..1].ToUpperInvariant());
+		DrawNode(spriteBatch, center, (hovered ? 58f : 53f) * pulse, accent, hovered, !hasParentLayer,
+			icon);
 	}
 
 	private void DrawHoverLabel(SpriteBatch spriteBatch, Color accent)
@@ -454,8 +476,10 @@ public sealed class CompanionWheelSystem : ModSystem
 	}
 
 	private string HoverLabel() => hoverLayer switch {
-		HoverLayer.Center => branch is null ? SoulmatesText.Get("UI.CompanionWheel.Close") : SoulmatesText.Get("UI.CompanionWheel.Back"),
-		HoverLayer.Root when hoverIndex >= 0 && hoverIndex < Roots.Length => RootLabel(Roots[hoverIndex]),
+		HoverLayer.Center => nativeCategory < 0 && (context == WheelContext.Player || branch is null)
+			? SoulmatesText.Get("UI.CompanionWheel.Close")
+			: SoulmatesText.Get("UI.CompanionWheel.Back"),
+		HoverLayer.Root when hoverIndex >= 0 && hoverIndex < ActiveRoots.Length => RootLabel(ActiveRoots[hoverIndex]),
 		HoverLayer.Branch => BranchLabel(hoverIndex),
 		HoverLayer.Native => NativeLabel(hoverIndex),
 		_ => branch is RootBranch activeBranch ? RootLabel(activeBranch) : SoulmatesText.Get("UI.CompanionWheel.Center")
@@ -581,20 +605,25 @@ public sealed class CompanionWheelSystem : ModSystem
 
 	private Vector2 BranchPosition(RootBranch activeBranch, int index, int count)
 	{
-		float rootAngle = RootAngle(Array.IndexOf(Roots, activeBranch));
+		float rootAngle = context == WheelContext.Player
+			? -MathHelper.PiOver2
+			: RootAngle(Array.IndexOf(ActiveRoots, activeBranch));
 		float angle = FanAngle(rootAngle, index, count, MathHelper.ToRadians(136f));
 		return center + angle.ToRotationVector2() * BranchRadius;
 	}
 
 	private Vector2 NativePosition(int index, int count)
 	{
-		float categoryAngle = FanAngle(RootAngle(Array.IndexOf(Roots, RootBranch.Emotes)),
+		float rootAngle = context == WheelContext.Player
+			? -MathHelper.PiOver2
+			: RootAngle(Array.IndexOf(ActiveRoots, RootBranch.Emotes));
+		float categoryAngle = FanAngle(rootAngle,
 			nativeCategory, NativeCategories.Length, MathHelper.ToRadians(136f));
 		float angle = FanAngle(categoryAngle, index, count, MathHelper.ToRadians(148f));
 		return center + angle.ToRotationVector2() * NativeRadius;
 	}
 
-	private static float RootAngle(int index) => -MathHelper.PiOver2 + MathHelper.TwoPi * index / Roots.Length;
+	private float RootAngle(int index) => -MathHelper.PiOver2 + MathHelper.TwoPi * index / ActiveRoots.Length;
 	private static float FanAngle(float centerAngle, int index, int count, float spread)
 		=> count <= 1 ? centerAngle : centerAngle - spread * 0.5f + spread * index / (count - 1f);
 

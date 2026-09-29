@@ -69,7 +69,7 @@ New characters receive one Soulcore and three Blank Sigils as a prototype starte
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Current Release[/h2]
-Soulmates 0.9.2 makes gathering reliable: collected stacks are synchronized directly into the visible pack, and Gather now combines loose-item pickup with tree shaking, fallen-log clearing, drop collection, and acorn planting. Successful forestry displays a tree emote. The Soulwheel click hotfix remains included, and existing Soulbound Sigils remain compatible.
+Soulmates 0.9.3 separates the controls into two contextual wheels: right-click the companion for its commands, work, bonding, pack, and details; right-click your character or press the emote hotkey for Terraria emotes. Tree shaking now uses Terraria's actual supporting-ground coordinate and works through both Gather and autonomy. Reliable pack synchronization remains included, and existing Soulbound Sigils remain compatible.
 
 [h2]Controls[/h2]
 [list]

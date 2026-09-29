@@ -69,7 +69,7 @@ Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils als Start
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Aktuelle Version[/h2]
-Soulmates 0.9.2 macht das Sammeln zuverlässig: Aufgenommene Stacks werden direkt in das sichtbare Pack synchronisiert, und Sammeln verbindet nun lose Items mit Bäume-Schütteln, Totholz-Entfernen, Drop-Aufnahme und Eichelpflanzung. Erfolgreiche Forstarbeit zeigt ein Baum-Emote. Der Soulwheel-Klickfix bleibt enthalten; bestehende Soulbound Sigils bleiben kompatibel.
+Soulmates 0.9.3 trennt die Bedienung in zwei kontextbezogene Räder: Rechtsklick auf den Companion zeigt seine Befehle, Arbeit, Bindung, Pack und Details; Rechtsklick auf den eigenen Charakter oder die Emote-Taste zeigt Terrarias Emotes. Das Bäume-Schütteln verwendet nun Terrarias tatsächliche Bodenkoordinate und funktioniert über Sammeln und Autonomie. Die zuverlässige Pack-Synchronisierung bleibt enthalten; bestehende Soulbound Sigils bleiben kompatibel.
 
 [h2]Steuerung[/h2]
 [list]

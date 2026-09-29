@@ -70,7 +70,7 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current release
 
-**Soulmates 0.9.2 - Reliable Gathering** synchronizes every collected stack directly into the visible companion pack. The Gather command now combines loose-item collection with nearby tree shaking, fallen-log clearing, drop collection, and acorn planting; successful forestry is marked by a visible tree emote. The Soulwheel click fix from 0.9.1 remains included, and existing Sigils remain compatible.
+**Soulmates 0.9.3 - Context Wheels and Forestry Fix** separates companion controls from the player's Terraria emotes. Right-click the companion for commands, work, bonding, pack access, and details; right-click your character or press the emote hotkey for the dedicated player-emote wheel. Tree shaking now follows Terraria's actual ground-tile convention, while the reliable pack synchronization from 0.9.2 remains included. Existing Sigils remain compatible.
 
 ## Languages
 
