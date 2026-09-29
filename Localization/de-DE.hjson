@@ -54,6 +54,13 @@ Mods: {
         Gatherer: Sammler
         Healer: Heiler
       }
+      LearnedBehavior: {
+        Gathering: Sammeln
+        Mining: Bergbau
+        Forestry: Forstpflege
+        Combat: Kampf
+        Exploration: Erkunden
+      }
       CompanionEssence: {
         Starlight: Sternenlicht
         Ember: Glut
@@ -167,6 +174,10 @@ Mods: {
 		PackShort: PACK
 		Growth: "LV {0} EP {1}/{2}"
 		GrowthMax: "LV {0} MAX"
+        OmniSoul: OMNI-SEELE
+        AetherLearning: ALLE INSTINKTE | ALLE PERKS
+        Observing: BEOBACHTET DICH
+        Learning: "LERNT {0} {1}/100 {2}"
         Energy: {
           Ready: BEREIT
           Low: NIEDRIG
@@ -206,6 +217,7 @@ Mods: {
         FetchItem: SAMMELT AUF
         AssistMining: HILFT ABBAUEN
         InspectTreasure: UNTERSUCHT
+        TendForest: PFLEGT DEN WALD
       }
     }
     Messages: {
@@ -217,6 +229,7 @@ Mods: {
       TrinketEquipped: "{0} hat {1} ausgerüstet."
       Healed: "{0} hat {1} Leben wiederhergestellt."
       LevelUp: "{0} hat Gefährtenlevel {1} erreicht!"
+      PerkUnlocked: "{0} hat den Perk {1} gelernt!"
     }
     Tooltips: {
       Sigil: {
@@ -227,9 +240,12 @@ Mods: {
         Growth: "Level {0}  |  EP {1}/{2}  |  Siege {3}  |  Gemeinsame Momente {4}"
         Voice: "Stimme: {0}"
         Trinket: "Schmuckstück: {0}  |  Pack: {1}/{2}  |  Aufträge: {3}"
+        Learning: "Lernen: {0} {1}/100  |  Perk: {2}"
+        Observing: "Lernen: beobachtet deine Gewohnheiten"
+        AetherLearning: "AETHER: alle Talentinstinkte und erlernten Perks sind aktiv"
         Assignment: "Aktiver Auftrag: {0}"
         Controls: "Benutzen: beschwören  |  Rechtsklick auf Gefährten: Aktionsrad  |  V: Details  |  Hoch + Rechtsklick: zurückrufen"
-        Emotes: "Emotes: Rechtsklick auf dich oder G halten, zeigen und loslassen"
+        Emotes: "Emotes: Rechtsklick auf dich für Terrarias vollständiges Menü  |  G halten für den Soulmate-Ring"
       }
     }
     Directions: {
@@ -275,6 +291,7 @@ Mods: {
         CreatureEncounter: "Ich erinnere mich daran, was mit {0} geschehen ist."
         ExperienceMilestone: "Ich erinnere mich daran, Gefährtenlevel {0} erreicht zu haben."
         SharedMoment: "Ich erinnere mich an unser gemeinsames {0}."
+        LearnedPerk: "Ich erinnere mich daran, den Perk {0} von dir gelernt zu haben."
       }
     }
     Pack: {
@@ -307,6 +324,11 @@ Mods: {
         Gentle: Ich dachte, dieser Moment könnte ein wenig Wärme gebrauchen.
         Mischievous: Ich habe ein sehr ernstes und ganz bestimmt harmloses Experiment durchgeführt.
       }
+    }
+    Learning: {
+      Forester: Forstpflege
+      Locked: gesperrt
+      ForesterUnlocked: Ich habe beobachtet, wie du mit Holz und wachsenden Dingen umgehst. Jetzt kann ich dir dabei helfen.
     }
     Social: {
       Autonomous: {

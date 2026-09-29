@@ -37,9 +37,12 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Personality-driven idle, wander, inspect, follow, and catch-up behavior.
 - Persistent per-companion autonomy, switchable from the action wheel.
 - Talent-driven initiative: every companion retrieves nearby usable drops, Gatherers do so faster and farther, Miners help in short bursts and collect what they mine, Treasure Seekers investigate nearby chests, Guardians intercept danger, and Healers react to injuries.
+- Persistent learning insights adapt to the owner's gathering, mining, forestry, combat, and exploration habits.
+- The learned Forester perk lets a companion shake trees, clear natural fallen logs, collect seeds, and carefully replant carried acorns.
+- A companion named **AETHER** is an Omni Soul with every starting talent instinct and learned perk available.
 - Personality-driven autonomous moments add small surprises without overriding combat, Stay, explicit assignments, or low-energy recovery.
 - Persistent companion experience with 20 levels earned from combat, healing, work, and shared moments.
-- Hold right-click directly on your own character, point toward an emote, and release to share a social action. The configurable **Companion Emote Wheel** key (`G` by default) remains available as an alternative.
+- Right-click directly on your own character to open Terraria's complete native emote menu, including original vanilla and modded emote graphics. The configurable **Companion Emote Wheel** key (`G` by default) keeps the compact six-action relationship wheel.
 - Native Terraria emote bubbles for shared gestures, with occasional context-aware speech instead of constant text.
 - Quiet social encounters with nearby town NPCs: companions approach, emote, and receive a native NPC response.
 - Personality-specific reactions to normal victories, bosses, and creature deaths.
@@ -67,7 +70,7 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current release
 
-**Soulmates 0.8.0 - Soul Initiative** makes the companion action wheel the compact primary interaction and turns autonomy into a visible, controllable part of each relationship. Every talent now has a distinct helpful instinct, personalities create occasional unscripted moments, and explicit player intent always has priority. Existing Soulbound Sigils enable autonomy by default and remain fully compatible.
+**Soulmates 0.8.0 - Soul Initiative** makes autonomy visible, controllable, and capable of learning from the player. Soulmates reliably collect nearby drops, remember behavioral insights, can unlock careful forest tending, and respond to Terraria's complete native emote catalog. AETHER acts as the singular Omni Soul with every talent instinct and perk. Explicit player intent always has priority, and existing Soulbound Sigils remain compatible.
 
 ## Languages
 

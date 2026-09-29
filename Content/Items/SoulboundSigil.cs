@@ -92,10 +92,13 @@ public sealed class SoulboundSigil : ModItem
 
 	public override void ModifyTooltips(List<TooltipLine> tooltips)
 	{
+		string talent = Profile.IsAether
+			? SoulmatesText.Get("UI.Talk.OmniSoul")
+			: SoulmatesText.EnumName(Profile.Talent);
 		tooltips.Add(new TooltipLine(Mod, "BoundTo", SoulmatesText.Get("Tooltips.Sigil.BoundTo", Profile.Name)) { OverrideColor = Profile.EssenceColor });
 		tooltips.Add(new TooltipLine(Mod, "Appearance", SoulmatesText.Get("Tooltips.Sigil.Appearance", SoulmatesText.EnumName(Profile.Muse),
 			SoulmatesText.EnumName(Profile.Form), SoulmatesText.EnumName(Profile.Aura))));
-		tooltips.Add(new TooltipLine(Mod, "Identity", SoulmatesText.Get("Tooltips.Sigil.Identity", SoulmatesText.EnumName(Profile.Personality), SoulmatesText.EnumName(Profile.Talent))));
+		tooltips.Add(new TooltipLine(Mod, "Identity", SoulmatesText.Get("Tooltips.Sigil.Identity", SoulmatesText.EnumName(Profile.Personality), talent)));
 		tooltips.Add(new TooltipLine(Mod, "Bond", SoulmatesText.Get("Tooltips.Sigil.Stats", SoulmatesText.EnumName(Profile.Rank),
 			Profile.Bond, Profile.Mood, Profile.Energy)));
 		tooltips.Add(new TooltipLine(Mod, "Growth", SoulmatesText.Get("Tooltips.Sigil.Growth", Profile.Level,
@@ -104,6 +107,13 @@ public sealed class SoulboundSigil : ModItem
 		tooltips.Add(new TooltipLine(Mod, "Voice", SoulmatesText.Get("Tooltips.Sigil.Voice", SoulmatesText.EnumName(Profile.Voice))));
 		tooltips.Add(new TooltipLine(Mod, "Trinket", SoulmatesText.Get("Tooltips.Sigil.Trinket", SoulmatesText.EnumName(Profile.Trinket),
 			Profile.PackLoad, Profile.PackCapacity, Profile.JobsCompleted)));
+		string learning = Profile.IsAether
+			? SoulmatesText.Get("Tooltips.Sigil.AetherLearning")
+			: Profile.DominantInsight <= 0
+				? SoulmatesText.Get("Tooltips.Sigil.Observing")
+				: SoulmatesText.Get("Tooltips.Sigil.Learning", SoulmatesText.EnumName(Profile.DominantLearnedBehavior),
+					Profile.DominantInsight, Profile.ForesterUnlocked ? SoulmatesText.Get("Learning.Forester") : SoulmatesText.Get("Learning.Locked"));
+		tooltips.Add(new TooltipLine(Mod, "Learning", learning) { OverrideColor = Color.Lerp(Profile.EssenceColor, Color.White, 0.25f) });
 		if (Profile.Routine != CompanionJob.None)
 			tooltips.Add(new TooltipLine(Mod, "Assignment", SoulmatesText.Get("Tooltips.Sigil.Assignment", SoulmatesText.EnumName(Profile.Routine))));
 		tooltips.Add(new TooltipLine(Mod, "Controls", SoulmatesText.Get("Tooltips.Sigil.Controls")));

@@ -25,10 +25,13 @@ Soulmates ist ein experimentelles Projekt, das bei Programmierung, Texten, Benut
 [*]Ein kompaktes Aktionsrad mit acht Einträgen für Bewegung, Arbeit, Autonomie und die vollständige Detailansicht.
 [*]Dauerhafte Autonomie pro Companion, die jederzeit an- oder ausgeschaltet werden kann.
 [*]Talentabhängige Initiative: Jeder Companion sammelt nahe nutzbare Drops, Sammler tun dies schneller und in größerer Reichweite, Bergarbeiter helfen in kurzen Etappen und verstauen ihren Abbau, Schatzsucher untersuchen nahe Truhen, Beschützer fangen Gefahren ab und Heiler reagieren auf Verletzungen.
+[*]Dauerhafte Lernneigungen passen sich deinem Sammeln, Bergbau, deiner Forstpflege, deinen Kämpfen und Erkundungen an.
+[*]Der erlernte Forstpflege-Perk lässt Companions Bäume schütteln, natürliche umgestürzte Stämme räumen, Samen sammeln und mitgeführte Eicheln vorsichtig nachpflanzen.
+[*]Ein Companion namens AETHER wird als Omni-Seele mit allen Talentinstinkten und erlernten Perks erkannt.
 [*]Persönlichkeitsabhängige autonome Momente sorgen für kleine Überraschungen, ohne Kampf, Warten, direkte Aufträge oder Erholung zu übergehen.
 [*]Dauerhaft gespeicherte Bindung, Stimmung, Energie und Sprechweise.
 [*]20 Companion-Level durch Kämpfe, Heilung, Arbeit und gemeinsame Momente.
-[*]Ein radialer Gestenring mit sechs persönlichkeitsabhängigen Interaktionen und echten Terraria-Emote-Bubbles.
+[*]Rechtsklick auf deinen Charakter öffnet Terrarias vollständiges Emote-Menü mit Originalgrafiken; Soulmates reagieren auf Vanilla- und Mod-Emotes. G hält den kompakten Beziehungsring bereit.
 [*]Ruhigeres autonomes Verhalten mit gelegentlichen Texten und kleinen wortlosen Begegnungen mit Town-NPCs.
 [*]Situationsabhängige Reaktionen auf Stimmung, Wetter, Gefahr, Verletzungen und Aufenthaltsort.
 [*]Unterschiedliche Reaktionen auf normale Siege, Bosse und getötete friedliche Kreaturen.
@@ -66,7 +69,7 @@ Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils als Start
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Aktuelle Version[/h2]
-Soulmates 0.8.0 Soul Initiative macht das kompakte Companion-Aktionsrad zur wichtigsten Interaktion und gibt jedem Talent einen eigenen hilfreichen Instinkt. Autonomie ist dauerhaft, sichtbar, optional, persönlichkeitsabhängig und ordnet sich Kampf, Warten, direkten Aufträgen und Erholung unter. Der vollständige Talk Mode bleibt als Detailansicht erhalten, und bestehende Soulbound Sigils bleiben kompatibel.
+Soulmates 0.8.0 Soul Initiative macht Autonomie sichtbar, optional, persönlichkeitsabhängig und lernfähig. Soulmates sammeln zuverlässig, können Forstpflege lernen, reagieren über Terrarias vollständigen nativen Emote-Katalog und ordnen sich Kampf, Warten, direkten Aufträgen und Erholung unter. AETHER ist die Omni-Seele mit allen Talentinstinkten und Perks. Bestehende Soulbound Sigils bleiben kompatibel.
 
 [h2]Steuerung[/h2]
 [list]

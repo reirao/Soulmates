@@ -26,7 +26,9 @@ public sealed class Soulmates : Mod
 		EmoteRequest,
 		CompanionSpeech,
 		QuickActionRequest,
-		QuickActionResponse
+		QuickActionResponse,
+		BehaviorObservationRequest,
+		NativeEmoteRequest
 	}
 
 	internal static ModKeybind TalkKeybind { get; private set; } = null!;
@@ -118,6 +120,26 @@ public sealed class Soulmates : Mod
 		packet.Send();
 	}
 
+	internal static void SendBehaviorObservation(LearnedBehavior behavior)
+	{
+		if (Main.netMode != NetmodeID.MultiplayerClient)
+			return;
+		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
+		packet.Write((byte)MessageType.BehaviorObservationRequest);
+		packet.Write((byte)behavior);
+		packet.Send();
+	}
+
+	internal static void SendNativeEmoteRequest(int emoteId)
+	{
+		if (Main.netMode != NetmodeID.MultiplayerClient)
+			return;
+		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
+		packet.Write((byte)MessageType.NativeEmoteRequest);
+		packet.Write((short)emoteId);
+		packet.Send();
+	}
+
 	internal static void SendCompanionSpeech(Player player, SoulboundCompanion companion, string key, string argument = "")
 	{
 		if (Main.netMode != NetmodeID.Server)
@@ -177,6 +199,12 @@ public sealed class Soulmates : Mod
 				break;
 			case MessageType.QuickActionResponse:
 				HandleQuickActionResponse(reader);
+				break;
+			case MessageType.BehaviorObservationRequest:
+				HandleBehaviorObservationRequest(reader, whoAmI);
+				break;
+			case MessageType.NativeEmoteRequest:
+				HandleNativeEmoteRequest(reader, whoAmI);
 				break;
 		}
 	}
@@ -332,6 +360,26 @@ public sealed class Soulmates : Mod
 		if (SoulboundCompanion.FindFor(Main.LocalPlayer) is { } companion && companion.Profile.Id == profile.Id)
 			companion.ShowSpeech(reply);
 		SoundEngine.PlaySound(accepted ? SoundID.Chat : SoundID.MenuClose);
+	}
+
+	private static void HandleBehaviorObservationRequest(BinaryReader reader, int whoAmI)
+	{
+		LearnedBehavior behavior = (LearnedBehavior)reader.ReadByte();
+		if (Main.netMode != NetmodeID.Server || behavior != LearnedBehavior.Gathering
+			|| whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active)
+			return;
+		if (SoulboundCompanion.FindFor(Main.player[whoAmI]) is { } companion)
+			companion.ObserveOwnerActivity(behavior);
+	}
+
+	private static void HandleNativeEmoteRequest(BinaryReader reader, int whoAmI)
+	{
+		int emoteId = reader.ReadInt16();
+		if (Main.netMode != NetmodeID.Server || emoteId < 0 || emoteId >= EmoteBubbleLoader.EmoteBubbleCount
+			|| whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active)
+			return;
+		if (SoulboundCompanion.FindFor(Main.player[whoAmI]) is { } companion)
+			companion.ReactToNativeEmote(emoteId);
 	}
 
 	private static void ApplyClientProfile(CompanionProfile profile)

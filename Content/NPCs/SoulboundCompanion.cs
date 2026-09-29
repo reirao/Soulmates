@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Soulmates.Common;
@@ -18,6 +19,9 @@ namespace Soulmates.Content.NPCs;
 
 public sealed class SoulboundCompanion : ModNPC
 {
+	private static readonly MethodInfo ShakeTreeMethod = typeof(WorldGen).GetMethod("ShakeTree",
+		BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+
 	private enum BrainState
 	{
 		Follow,
@@ -34,7 +38,16 @@ public sealed class SoulboundCompanion : ModNPC
 		None,
 		FetchItem,
 		AssistMining,
-		InspectTreasure
+		InspectTreasure,
+		TendForest
+	}
+
+	private enum ForestAction : byte
+	{
+		None,
+		ShakeTree,
+		ClearDeadwood,
+		PlantAcorn
 	}
 
 	private const float FollowCommand = 0f;
@@ -54,6 +67,7 @@ public sealed class SoulboundCompanion : ModNPC
 	private bool hasJobTarget;
 	private int recoveryTimer;
 	private int gatherPause;
+	private int jobTargetItem = -1;
 	private int areaEmptyTimer;
 	private int revealTimer;
 	private int talentCooldown;
@@ -61,6 +75,8 @@ public sealed class SoulboundCompanion : ModNPC
 	private Vector2 jobOrigin;
 	private int socialTimer;
 	private int interactionRewardCooldown;
+	private int nativeEmoteReactionCooldown;
+	private int lastNativeEmote = -1;
 	private int combatReactionCooldown;
 	private int speechTimer;
 	private int emoteTimer;
@@ -76,9 +92,12 @@ public sealed class SoulboundCompanion : ModNPC
 	private Point autonomyTargetTile;
 	private int autonomyWorkCount;
 	private int autonomyDiscoveryCooldown;
+	private ForestAction autonomyForestAction;
+	private int learningObservationTimer;
 	private string speechText = "";
 	private CompanionEmote activeEmote;
 	private readonly HashSet<Point> failedMiningTargets = [];
+	private readonly HashSet<Point> tendedForestTargets = [];
 
 	public CompanionProfile Profile { get; set; } = new();
 	private Player Owner => Main.player[(int)NPC.ai[0]];
@@ -110,12 +129,16 @@ public sealed class SoulboundCompanion : ModNPC
 	private int MiningRadiusTiles => (Profile.Trinket == CompanionTrinket.DelverCharm ? 34 : 26) + Profile.RankIndex * 2;
 	private int GatheringRadiusTiles => (Profile.Trinket == CompanionTrinket.HearthRibbon ? 42 : 30) + Profile.RankIndex * 2;
 	private int TreasureRadiusTiles => (Profile.Trinket == CompanionTrinket.StarfinderBell ? 90 : 55) + Profile.RankIndex * 3;
-	private float DefenseRange => (Profile.Talent == CompanionTalent.Guardian ? GuardianDefenseRange : StandardDefenseRange)
-		+ Profile.RankIndex * (Profile.Talent == CompanionTalent.Guardian ? 24f : 16f);
-	private float DefenseLeash => DefenseRange + (Profile.Talent == CompanionTalent.Guardian ? 112f : 80f);
-	private float PursuitRadius => (Profile.Talent == CompanionTalent.Guardian ? 304f : 208f)
-		+ Profile.RankIndex * (Profile.Talent == CompanionTalent.Guardian ? 16f : 12f);
-	private float PassiveAlertRange => (Profile.Talent == CompanionTalent.Guardian ? 288f : 208f)
+	private bool GuardianSpecialist => Profile.HasTalent(CompanionTalent.Guardian) || Profile.CombatInsight >= 36;
+	private bool EagerGatherer => Profile.HasTalent(CompanionTalent.Gatherer) || Profile.GatheringInsight >= 32;
+	private bool MiningInstinct => Profile.HasTalent(CompanionTalent.Miner) || Profile.MiningInsight >= 20;
+	private bool TreasureInstinct => Profile.HasTalent(CompanionTalent.TreasureSeeker) || Profile.ExplorationInsight >= 24;
+	private float DefenseRange => (GuardianSpecialist ? GuardianDefenseRange : StandardDefenseRange)
+		+ Profile.RankIndex * (GuardianSpecialist ? 24f : 16f);
+	private float DefenseLeash => DefenseRange + (GuardianSpecialist ? 112f : 80f);
+	private float PursuitRadius => (GuardianSpecialist ? 304f : 208f)
+		+ Profile.RankIndex * (GuardianSpecialist ? 16f : 12f);
+	private float PassiveAlertRange => (GuardianSpecialist ? 288f : 208f)
 		+ Profile.RankIndex * 12f;
 
 	public override void SetStaticDefaults()
@@ -173,6 +196,7 @@ public sealed class SoulboundCompanion : ModNPC
 		ResumeAssignment();
 		UpdateAuraDust();
 		UpdateSocialState();
+		UpdateLearningFromOwner();
 		UpdateAutonomousSocialBehavior();
 		if (talentCooldown > 0)
 			talentCooldown--;
@@ -256,10 +280,10 @@ public sealed class SoulboundCompanion : ModNPC
 
 	private bool UpdateTalentBehavior()
 	{
-		if (Profile.Talent == CompanionTalent.Healer)
+		if (Profile.HasTalent(CompanionTalent.Healer))
 			TryHealOwner();
 
-		bool guardian = Profile.Talent == CompanionTalent.Guardian;
+		bool guardian = GuardianSpecialist;
 		Vector2 anchor = Command == StayCommand ? idleTarget : Owner.Center;
 		NPC? target = Main.netMode == NetmodeID.MultiplayerClient
 			? GetSynchronizedDefenseTarget(anchor)
@@ -320,6 +344,8 @@ public sealed class SoulboundCompanion : ModNPC
 			speechText = "";
 		if (interactionRewardCooldown > 0)
 			interactionRewardCooldown--;
+		if (nativeEmoteReactionCooldown > 0)
+			nativeEmoteReactionCooldown--;
 		if (combatReactionCooldown > 0)
 			combatReactionCooldown--;
 		if (townNpcInteractionCooldown > 0)
@@ -374,6 +400,60 @@ public sealed class SoulboundCompanion : ModNPC
 			SpeakLocalized(key);
 	}
 
+	private void UpdateLearningFromOwner()
+	{
+		if (Main.netMode == NetmodeID.MultiplayerClient || --learningObservationTimer > 0
+			|| Vector2.DistanceSquared(NPC.Center, Owner.Center) > 520f * 520f)
+			return;
+
+		learningObservationTimer = 60;
+		if (Owner.chest >= 0) {
+			learningObservationTimer = 180;
+			ObserveOwnerActivity(LearnedBehavior.Exploration);
+			return;
+		}
+		if (!Owner.controlUseItem && Owner.itemAnimation <= 0)
+			return;
+
+		Item held = Owner.HeldItem;
+		if (held.axe > 0 || held.createTile == TileID.Saplings || held.type == ItemID.Acorn)
+			ObserveOwnerActivity(LearnedBehavior.Forestry);
+		else if (held.pick > 0)
+			ObserveOwnerActivity(LearnedBehavior.Mining);
+		else if (held.damage > 0)
+			ObserveOwnerActivity(LearnedBehavior.Combat);
+	}
+
+	public void ObserveOwnerActivity(LearnedBehavior behavior, int amount = 1)
+	{
+		if (Main.netMode == NetmodeID.MultiplayerClient || !Enum.IsDefined(behavior))
+			return;
+		int before = Profile.GetInsight(behavior);
+		bool unlockedForester = Profile.Observe(behavior, amount);
+		int after = Profile.GetInsight(behavior);
+		if (after == before)
+			return;
+
+		SyncProfileToBoundSigil();
+		bool syncMilestone = unlockedForester || after % 5 == 0;
+		string message = "";
+		if (unlockedForester) {
+			Profile.GainExperience(5, out _);
+			StartEmote(CompanionEmote.Cheer, 120);
+			ShowNativeEmote(CompanionEmote.Cheer, 140);
+			SpeakLocalized("Learning.ForesterUnlocked");
+			message = SoulmatesText.Get("Messages.PerkUnlocked", Profile.Name, SoulmatesText.Get("Learning.Forester"));
+		}
+
+		if (!syncMilestone)
+			return;
+		NPC.netUpdate = true;
+		if (Main.netMode == NetmodeID.Server)
+			global::Soulmates.Soulmates.SendProfileUpdate(Owner, this, message);
+		else if (!string.IsNullOrEmpty(message))
+			Main.NewText(message, Profile.EssenceColor);
+	}
+
 	private bool UpdateHelpfulAutonomy()
 	{
 		if (autonomyDiscoveryCooldown > 0 && Main.netMode != NetmodeID.MultiplayerClient)
@@ -390,7 +470,7 @@ public sealed class SoulboundCompanion : ModNPC
 		if (Main.netMode == NetmodeID.MultiplayerClient || --autonomyDecisionTimer > 0)
 			return false;
 
-		bool eagerGatherer = Profile.Talent == CompanionTalent.Gatherer;
+		bool eagerGatherer = EagerGatherer;
 		int minimum = eagerGatherer ? 120
 			: Profile.Personality is CompanionPersonality.Curious or CompanionPersonality.Mischievous ? 200 : 260;
 		int maximum = eagerGatherer ? 260 : 480;
@@ -405,14 +485,21 @@ public sealed class SoulboundCompanion : ModNPC
 			return true;
 		}
 
-		if (Profile.Talent == CompanionTalent.Miner && Owner.HeldItem.pick > 0 && Owner.controlUseItem
+		if (MiningInstinct && Owner.HeldItem.pick > 0 && Owner.controlUseItem
 			&& FindAutonomousOre(out Point ore)) {
 			BeginAutonomousActivity(AutonomyActivity.AssistMining);
 			autonomyTargetTile = ore;
 			return true;
 		}
 
-		if (Profile.Talent == CompanionTalent.TreasureSeeker && autonomyDiscoveryCooldown <= 0
+		if (Profile.ForesterUnlocked && FindAutonomousForestTask(out Point forestTarget, out ForestAction forestAction)) {
+			BeginAutonomousActivity(AutonomyActivity.TendForest);
+			autonomyTargetTile = forestTarget;
+			autonomyForestAction = forestAction;
+			return true;
+		}
+
+		if (TreasureInstinct && autonomyDiscoveryCooldown <= 0
 			&& FindAutonomousChest(out Point chest)) {
 			BeginAutonomousActivity(AutonomyActivity.InspectTreasure);
 			autonomyTargetTile = chest;
@@ -431,6 +518,7 @@ public sealed class SoulboundCompanion : ModNPC
 			AutonomyActivity.FetchItem => UpdateAutonomousFetch(),
 			AutonomyActivity.AssistMining => UpdateAutonomousMining(),
 			AutonomyActivity.InspectTreasure => UpdateAutonomousTreasure(),
+			AutonomyActivity.TendForest => UpdateAutonomousForestry(),
 			_ => false
 		};
 	}
@@ -450,7 +538,7 @@ public sealed class SoulboundCompanion : ModNPC
 			return false;
 		}
 
-		MoveTo(item.Center + new Vector2(0f, -10f), Profile.Talent == CompanionTalent.Gatherer ? 9.5f : 8f, 0.11f);
+		MoveTo(item.Center + new Vector2(0f, -10f), EagerGatherer ? 8.5f : 7.5f, 0.085f);
 		if (Vector2.DistanceSquared(NPC.Center, item.Center) >= 42f * 42f || Main.netMode == NetmodeID.MultiplayerClient)
 			return true;
 
@@ -458,7 +546,7 @@ public sealed class SoulboundCompanion : ModNPC
 		int moved = StoreLooseItem(item);
 		if (moved > 0) {
 			Profile.Energy = Math.Max(0, Profile.Energy - 1);
-			Profile.GainExperience(Profile.Talent == CompanionTalent.Gatherer ? 2 : 1, out _);
+			Profile.GainExperience(EagerGatherer ? 2 : 1, out _);
 			SyncProfileToBoundSigil();
 			if (Main.netMode == NetmodeID.Server)
 				NetMessage.SendData(MessageID.SyncItem, -1, -1, null, autonomyTargetItem);
@@ -471,7 +559,7 @@ public sealed class SoulboundCompanion : ModNPC
 		}
 		else
 			SpeakLocalized("Jobs.PackFull");
-		CancelAutonomousActivity(Profile.Talent == CompanionTalent.Gatherer ? 90 : 180);
+		CancelAutonomousActivity(EagerGatherer ? 90 : 180);
 		return false;
 	}
 
@@ -534,10 +622,96 @@ public sealed class SoulboundCompanion : ModNPC
 		return false;
 	}
 
+	private bool UpdateAutonomousForestry()
+	{
+		Vector2 target = autonomyTargetTile.ToWorldCoordinates();
+		MoveTo(target + new Vector2(0f, -18f), 6.5f, 0.075f);
+		if (Main.netMode == NetmodeID.MultiplayerClient)
+			return true;
+		if (autonomyActionTimer > 600) {
+			tendedForestTargets.Add(autonomyTargetTile);
+			CancelAutonomousActivity(300);
+			return false;
+		}
+		if (Vector2.DistanceSquared(NPC.Center, target) > 68f * 68f || autonomyActionTimer % 30 != 0)
+			return true;
+
+		bool success = autonomyForestAction switch {
+			ForestAction.ShakeTree => ShakeAutonomousTree(),
+			ForestAction.ClearDeadwood => ClearAutonomousDeadwood(),
+			ForestAction.PlantAcorn => PlantAutonomousAcorn(),
+			_ => false
+		};
+		tendedForestTargets.Add(autonomyTargetTile);
+		if (success) {
+			Profile.Energy = Math.Max(0, Profile.Energy - 1);
+			Profile.GainExperience(2, out _);
+			SyncProfileToBoundSigil();
+			StartEmote(CompanionEmote.Cheer, 75);
+			ShowNativeEmote(CompanionEmote.Cheer, 90);
+		}
+		CancelAutonomousActivity(success ? 420 : 260);
+		return false;
+	}
+
+	private bool ShakeAutonomousTree()
+	{
+		if (!WorldGen.InWorld(autonomyTargetTile.X, autonomyTargetTile.Y, 10))
+			return false;
+		Tile tile = Main.tile[autonomyTargetTile.X, autonomyTargetTile.Y];
+		if (!tile.HasTile || !IsTreeTrunk(tile.TileType))
+			return false;
+		if (ShakeTreeMethod is null)
+			return false;
+		try {
+			ShakeTreeMethod.Invoke(null, [autonomyTargetTile.X, autonomyTargetTile.Y]);
+		}
+		catch (TargetInvocationException) {
+			return false;
+		}
+		CollectNearbyLooseItems(autonomyTargetTile.ToWorldCoordinates(), 360f, 8);
+		return true;
+	}
+
+	private bool ClearAutonomousDeadwood()
+	{
+		if (!WorldGen.InWorld(autonomyTargetTile.X, autonomyTargetTile.Y, 10)
+			|| !Main.tile[autonomyTargetTile.X, autonomyTargetTile.Y].HasTile
+			|| Main.tile[autonomyTargetTile.X, autonomyTargetTile.Y].TileType != TileID.FallenLog)
+			return false;
+
+		WorldGen.KillTile(autonomyTargetTile.X, autonomyTargetTile.Y);
+		bool success = !Main.tile[autonomyTargetTile.X, autonomyTargetTile.Y].HasTile;
+		if (success) {
+			CollectNearbyLooseItems(autonomyTargetTile.ToWorldCoordinates(), 160f, 8);
+			if (Main.netMode == NetmodeID.Server)
+				NetMessage.SendData(MessageID.TileManipulation, -1, -1, null, 0,
+					autonomyTargetTile.X, autonomyTargetTile.Y);
+		}
+		return success;
+	}
+
+	private bool PlantAutonomousAcorn()
+	{
+		if (!HasPackItem(ItemID.Acorn) || !CanPlantAcornAt(autonomyTargetTile.X, autonomyTargetTile.Y))
+			return false;
+		bool placed = WorldGen.PlaceTile(autonomyTargetTile.X, autonomyTargetTile.Y, TileID.Saplings,
+			mute: true, forced: false, plr: Owner.whoAmI, style: 0);
+		if (!placed || !Main.tile[autonomyTargetTile.X, autonomyTargetTile.Y].HasTile)
+			return false;
+
+		ConsumePackItem(ItemID.Acorn);
+		WorldGen.SquareTileFrame(autonomyTargetTile.X, autonomyTargetTile.Y);
+		if (Main.netMode == NetmodeID.Server)
+			NetMessage.SendData(MessageID.TileManipulation, -1, -1, null, 1,
+				autonomyTargetTile.X, autonomyTargetTile.Y, TileID.Saplings);
+		return true;
+	}
+
 	private bool FindAutonomousLooseItem(out int result)
 	{
 		result = -1;
-		float radius = (Profile.Talent == CompanionTalent.Gatherer ? 20f : 13f) * 16f;
+		float radius = (EagerGatherer ? 20f : 13f) * 16f;
 		if (Profile.Trinket == CompanionTrinket.HearthRibbon)
 			radius += 80f;
 		float bestScore = float.MaxValue;
@@ -550,7 +724,7 @@ public sealed class SoulboundCompanion : ModNPC
 			if (ownerDistance >= radius * radius)
 				continue;
 			float score = Vector2.DistanceSquared(NPC.Center, item.Center);
-			if (item.type == ItemID.FallenStar && Profile.Talent == CompanionTalent.TreasureSeeker)
+			if (item.type == ItemID.FallenStar && TreasureInstinct)
 				score *= 0.55f;
 			if (score >= bestScore)
 				continue;
@@ -584,6 +758,90 @@ public sealed class SoulboundCompanion : ModNPC
 		return result != Point.Zero;
 	}
 
+	private bool FindAutonomousForestTask(out Point result, out ForestAction action)
+	{
+		result = Point.Zero;
+		action = ForestAction.None;
+		Point center = Owner.Center.ToTileCoordinates();
+		float bestScore = float.MaxValue;
+		bool canPlant = HasPackItem(ItemID.Acorn);
+		const int radius = 18;
+		for (int x = center.X - radius; x <= center.X + radius; x++) {
+			for (int y = center.Y - radius; y <= center.Y + radius; y++) {
+				if (!WorldGen.InWorld(x, y, 10))
+					continue;
+				Tile tile = Main.tile[x, y];
+				Point candidate;
+				ForestAction candidateAction;
+				float priority;
+				if (tile.HasTile && tile.TileType == TileID.FallenLog && tile.WallType == WallID.None) {
+					candidate = new Point(x, y);
+					candidateAction = ForestAction.ClearDeadwood;
+					priority = 0.55f;
+				}
+				else if (tile.HasTile && IsTreeTrunk(tile.TileType)) {
+					WorldGen.GetTreeBottom(x, y, out int treeX, out int treeY);
+					candidate = new Point(treeX, treeY);
+					if (!WorldGen.InWorld(candidate.X, candidate.Y, 10))
+						continue;
+					candidateAction = ForestAction.ShakeTree;
+					priority = 1f;
+				}
+				else if (canPlant && y + 1 < Main.maxTilesY && Main.tile[x, y + 1].HasTile
+					&& IsAcornGround(Main.tile[x, y + 1].TileType) && CanPlantAcornAt(x, y)) {
+					candidate = new Point(x, y);
+					candidateAction = ForestAction.PlantAcorn;
+					priority = 1.35f;
+				}
+				else
+					continue;
+
+				if (candidate == Point.Zero || tendedForestTargets.Contains(candidate))
+					continue;
+				float score = Vector2.DistanceSquared(candidate.ToWorldCoordinates(), NPC.Center) * priority;
+				if (candidateAction == ForestAction.PlantAcorn)
+					score += 12000f;
+				if (score >= bestScore)
+					continue;
+				bestScore = score;
+				result = candidate;
+				action = candidateAction;
+			}
+		}
+		return action != ForestAction.None;
+	}
+
+	private bool CanPlantAcornAt(int x, int y)
+	{
+		if (!WorldGen.InWorld(x, y, 10) || Main.tile[x, y].HasTile || Main.tile[x, y].WallType != WallID.None)
+			return false;
+		Tile ground = Main.tile[x, y + 1];
+		if (!ground.HasTile || !IsAcornGround(ground.TileType))
+			return false;
+
+		for (int scanX = x - 2; scanX <= x + 2; scanX++) {
+			for (int scanY = y - 5; scanY <= y; scanY++) {
+				if (!WorldGen.InWorld(scanX, scanY, 10) || Main.tile[scanX, scanY].HasTile)
+					return false;
+			}
+		}
+		for (int scanX = x - 5; scanX <= x + 5; scanX++) {
+			for (int scanY = y - 8; scanY <= y + 1; scanY++) {
+				if (!WorldGen.InWorld(scanX, scanY, 10))
+					continue;
+				Tile nearby = Main.tile[scanX, scanY];
+				if (nearby.HasTile && (nearby.TileType == TileID.Saplings || IsTreeTrunk(nearby.TileType)))
+					return false;
+			}
+		}
+		return true;
+	}
+
+	private static bool IsTreeTrunk(ushort type) => type < TileID.Sets.IsATreeTrunk.Length && TileID.Sets.IsATreeTrunk[type];
+
+	private static bool IsAcornGround(ushort type) => type is TileID.Grass or TileID.CorruptGrass
+		or TileID.CrimsonGrass or TileID.HallowedGrass or TileID.JungleGrass;
+
 	private bool FindAutonomousChest(out Point result)
 	{
 		result = Point.Zero;
@@ -609,6 +867,7 @@ public sealed class SoulboundCompanion : ModNPC
 		autonomyTargetItem = -1;
 		autonomyTargetTile = Point.Zero;
 		autonomyWorkCount = 0;
+		autonomyForestAction = ForestAction.None;
 		ClearTownNpcInteraction();
 		NPC.netUpdate = true;
 	}
@@ -633,6 +892,7 @@ public sealed class SoulboundCompanion : ModNPC
 		autonomyTargetItem = -1;
 		autonomyTargetTile = Point.Zero;
 		autonomyWorkCount = 0;
+		autonomyForestAction = ForestAction.None;
 		autonomyDecisionTimer = Math.Max(autonomyDecisionTimer, nextDecisionDelay);
 		if (changed)
 			NPC.netUpdate = true;
@@ -1058,8 +1318,9 @@ public sealed class SoulboundCompanion : ModNPC
 			MoveTo(jobOrigin + new Vector2(0f, -52f + IdleBob()), 7f, 0.08f);
 			return;
 		}
-		int itemIndex = FindNearestLooseItem();
-		if (itemIndex < 0) {
+		if (!IsValidGatherTarget(jobTargetItem))
+			jobTargetItem = FindNearestLooseItem();
+		if (jobTargetItem < 0) {
 			areaEmptyTimer++;
 			MoveTo(jobOrigin + new Vector2(0f, -54f + IdleBob()), 5f, 0.06f);
 			if (areaEmptyTimer >= 90)
@@ -1071,8 +1332,8 @@ public sealed class SoulboundCompanion : ModNPC
 		}
 		areaEmptyTimer = 0;
 
-		Item item = Main.item[itemIndex];
-		MoveTo(item.Center, 9f, 0.1f);
+		Item item = Main.item[jobTargetItem];
+		MoveTo(item.Center + new Vector2(0f, -8f), 8f, 0.08f);
 		if (Vector2.DistanceSquared(NPC.Center, item.Center) < 42f * 42f) {
 			if (Main.netMode == NetmodeID.MultiplayerClient)
 				return;
@@ -1087,9 +1348,10 @@ public sealed class SoulboundCompanion : ModNPC
 			}
 			jobCount += moved;
 			if (Main.netMode == NetmodeID.Server)
-				NetMessage.SendData(MessageID.SyncItem, -1, -1, null, itemIndex);
+				NetMessage.SendData(MessageID.SyncItem, -1, -1, null, jobTargetItem);
 			SyncProfileToBoundSigil();
 			NPC.netUpdate = true;
+			jobTargetItem = -1;
 			gatherPause = 30;
 		}
 		if (jobTimer > 7200)
@@ -1149,7 +1411,8 @@ public sealed class SoulboundCompanion : ModNPC
 		float bestDistance = float.MaxValue;
 		for (int i = 0; i < Main.maxItems; i++) {
 			Item item = Main.item[i];
-			if (!item.active || item.IsAir || !CanCarry(item))
+			if (!item.active || item.IsAir || !CanCarry(item) || IsRecoveryPickup(item)
+				|| item.playerIndexTheItemIsReservedFor != 255 && item.playerIndexTheItemIsReservedFor != Owner.whoAmI)
 				continue;
 			if (Vector2.DistanceSquared(jobOrigin, item.Center) >= radius * radius)
 				continue;
@@ -1160,6 +1423,17 @@ public sealed class SoulboundCompanion : ModNPC
 			result = i;
 		}
 		return result;
+	}
+
+	private bool IsValidGatherTarget(int itemIndex)
+	{
+		if (itemIndex < 0 || itemIndex >= Main.maxItems)
+			return false;
+		Item item = Main.item[itemIndex];
+		float radius = GatheringRadiusTiles * 16f;
+		return item.active && !item.IsAir && CanCarry(item) && !IsRecoveryPickup(item)
+			&& (item.playerIndexTheItemIsReservedFor == 255 || item.playerIndexTheItemIsReservedFor == Owner.whoAmI)
+			&& Vector2.DistanceSquared(jobOrigin, item.Center) < radius * radius;
 	}
 
 	private int StoreLooseItem(Item worldItem)
@@ -1180,6 +1454,22 @@ public sealed class SoulboundCompanion : ModNPC
 			worldItem.active = false;
 		}
 		return moved;
+	}
+
+	private bool HasPackItem(int itemType) => Profile.Pack.Exists(item => !item.IsAir && item.type == itemType && item.stack > 0);
+
+	private bool ConsumePackItem(int itemType)
+	{
+		for (int i = 0; i < Profile.Pack.Count; i++) {
+			Item item = Profile.Pack[i];
+			if (item.IsAir || item.type != itemType || item.stack <= 0)
+				continue;
+			item.stack--;
+			if (item.stack <= 0)
+				Profile.Pack.RemoveAt(i);
+			return true;
+		}
+		return false;
 	}
 
 	private int CollectNearbyLooseItems(Vector2 center, float radius, int maximumStacks)
@@ -1280,6 +1570,7 @@ public sealed class SoulboundCompanion : ModNPC
 		jobTimer = 0;
 		jobCount = 0;
 		gatherPause = 0;
+		jobTargetItem = -1;
 		areaEmptyTimer = 0;
 		hasJobTarget = false;
 		jobOrigin = Vector2.Zero;
@@ -1463,6 +1754,7 @@ public sealed class SoulboundCompanion : ModNPC
 		writer.Write((short)autonomyTargetItem);
 		writer.Write((short)autonomyTargetTile.X);
 		writer.Write((short)autonomyTargetTile.Y);
+		writer.Write((byte)autonomyForestAction);
 		writer.Write((short)Math.Clamp(autonomyActionTimer, 0, short.MaxValue));
 		writer.Write((byte)Math.Clamp(autonomyWorkCount, 0, byte.MaxValue));
 	}
@@ -1482,6 +1774,7 @@ public sealed class SoulboundCompanion : ModNPC
 		autonomyActivity = (AutonomyActivity)reader.ReadByte();
 		autonomyTargetItem = reader.ReadInt16();
 		autonomyTargetTile = new Point(reader.ReadInt16(), reader.ReadInt16());
+		autonomyForestAction = (ForestAction)reader.ReadByte();
 		autonomyActionTimer = reader.ReadInt16();
 		autonomyWorkCount = reader.ReadByte();
 		if (Main.netMode != NetmodeID.MultiplayerClient || !TryGetOwner(out Player owner) || owner.whoAmI != Main.myPlayer)
@@ -1629,6 +1922,7 @@ public sealed class SoulboundCompanion : ModNPC
 		jobTimer = 0;
 		jobCount = 0;
 		gatherPause = 0;
+		jobTargetItem = -1;
 		areaEmptyTimer = 0;
 		hasJobTarget = false;
 		jobOrigin = owner.Center;
@@ -1646,6 +1940,7 @@ public sealed class SoulboundCompanion : ModNPC
 		jobTimer = 0;
 		jobCount = 0;
 		gatherPause = 0;
+		jobTargetItem = -1;
 		areaEmptyTimer = 0;
 		hasJobTarget = false;
 		jobOrigin = Vector2.Zero;
@@ -1671,7 +1966,20 @@ public sealed class SoulboundCompanion : ModNPC
 		speechTimer = Math.Clamp(180 + speechText.Length * 2, 210, 360);
 	}
 
-	public void PerformEmote(CompanionEmote emote)
+	public void PerformEmote(CompanionEmote emote) => PerformEmote(emote, -1, applyRestCommand: true);
+
+	public void ReactToNativeEmote(int emoteId)
+	{
+		if (Main.netMode == NetmodeID.MultiplayerClient || emoteId < 0
+			|| emoteId >= EmoteBubbleLoader.EmoteBubbleCount
+			|| nativeEmoteReactionCooldown > 0 && lastNativeEmote == emoteId)
+			return;
+		lastNativeEmote = emoteId;
+		nativeEmoteReactionCooldown = 45;
+		PerformEmote(RelationshipEmoteFor(emoteId), emoteId, applyRestCommand: false);
+	}
+
+	private void PerformEmote(CompanionEmote emote, int nativeEmoteId, bool applyRestCommand)
 	{
 		if (Main.netMode == NetmodeID.MultiplayerClient || !Enum.IsDefined(emote))
 			return;
@@ -1698,10 +2006,13 @@ public sealed class SoulboundCompanion : ModNPC
 			interactionRewardCooldown = 300;
 		}
 
-		if (emote == CompanionEmote.Rest)
+		if (applyRestCommand && emote == CompanionEmote.Rest)
 			SetCommand(stay: true);
 		StartEmote(emote, 150);
-		ShowNativeEmote(emote, 150);
+		if (nativeEmoteId >= 0)
+			ShowNativeEmote(nativeEmoteId, 150);
+		else
+			ShowNativeEmote(emote, 150);
 		if (Main.rand.NextBool(4))
 			SpeakLocalized($"Social.Emotes.{emote}.{Profile.Personality}");
 		SyncProfileToBoundSigil();
@@ -1712,6 +2023,18 @@ public sealed class SoulboundCompanion : ModNPC
 		else if (!string.IsNullOrEmpty(message))
 			Main.NewText(message, Profile.EssenceColor);
 	}
+
+	private static CompanionEmote RelationshipEmoteFor(int emoteId) => emoteId switch {
+		EmoteID.EmotionLove or EmoteID.EmoteKiss or EmoteID.EmoteWink => CompanionEmote.Heart,
+		EmoteID.EmoteHappiness => CompanionEmote.Cheer,
+		EmoteID.EmoteLaugh or EmoteID.EmoteSilly => CompanionEmote.Laugh,
+		EmoteID.EmoteSleep => CompanionEmote.Rest,
+		EmoteID.EmotionCry or EmoteID.EmoteSadness or EmoteID.EmoteFear or EmoteID.EmoteConfused
+			=> CompanionEmote.Comfort,
+		EmoteID.EmotionAnger or EmoteID.EmoteAnger or EmoteID.EmoteFight or EmoteID.EmoteScowl
+			=> CompanionEmote.Cheer,
+		_ => CompanionEmote.Wave
+	};
 
 	public void RecordDefeat(NPC defeated)
 	{
@@ -1734,7 +2057,7 @@ public sealed class SoulboundCompanion : ModNPC
 			Profile.Mood = Math.Clamp(Profile.Mood + moodDelta, 0, 100);
 		}
 		else {
-			if (Profile.Talent == CompanionTalent.Guardian)
+			if (Profile.HasTalent(CompanionTalent.Guardian))
 				Profile.Remember(CompanionMemoryKind.GuardianVictory, detail: defeated.TypeName);
 			Profile.Mood = Math.Min(100, Profile.Mood + 1);
 		}
@@ -1777,7 +2100,13 @@ public sealed class SoulboundCompanion : ModNPC
 			CompanionEmote.Rest => EmoteID.EmoteSleep,
 			_ => EmoteID.EmoteWink
 		};
-		EmoteBubble.NewBubble(emoteId, new WorldUIAnchor(NPC), duration);
+		ShowNativeEmote(emoteId, duration);
+	}
+
+	private void ShowNativeEmote(int emoteId, int duration)
+	{
+		if (emoteId >= 0 && emoteId < EmoteBubbleLoader.EmoteBubbleCount)
+			EmoteBubble.NewBubble(emoteId, new WorldUIAnchor(NPC), duration);
 	}
 
 	private void SpeakLocalized(string key, string argument = "")

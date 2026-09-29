@@ -82,7 +82,7 @@ public sealed class TalkModeState : UIState
 			Left = new StyleDimension(6f, 0f),
 			Top = new StyleDimension(205f, 0f),
 			Width = new StyleDimension(-12f, 1f),
-			Height = new StyleDimension(68f, 0f)
+			Height = new StyleDimension(86f, 0f)
 		});
 
 		TalkCategory[] categories = Enum.GetValues<TalkCategory>();
@@ -298,7 +298,10 @@ internal sealed class CompanionVitalsElement(
 		string growth = profile.Level >= CompanionProfile.MaximumLevel
 			? SoulmatesText.Get("UI.Talk.GrowthMax", profile.Level)
 			: SoulmatesText.Get("UI.Talk.Growth", profile.Level, profile.ExperienceIntoLevel, profile.ExperienceNeededForNextLevel);
-		string identity = $"{SoulmatesText.EnumName(profile.Talent).ToUpperInvariant()} | {growth} | "
+		string talent = profile.IsAether
+			? SoulmatesText.Get("UI.Talk.OmniSoul")
+			: SoulmatesText.EnumName(profile.Talent);
+		string identity = $"{talent.ToUpperInvariant()} | {growth} | "
 			+ SoulmatesText.EnumName(profile.Rank).ToUpperInvariant();
 		Utils.DrawBorderString(spriteBatch, identity, topLeft, Color.LightGray, 0.4f);
 		DrawMeter(spriteBatch, topLeft + new Vector2(0f, 18f), SoulmatesText.Get("UI.Talk.MoodShort"), profile.Mood,
@@ -309,6 +312,14 @@ internal sealed class CompanionVitalsElement(
 		string footer = $"{SoulmatesText.Get("UI.Talk.BondShort")} {profile.Bond} | "
 			+ $"{SoulmatesText.Get("UI.Talk.PackShort")} {profile.PackLoad}/{profile.PackCapacity} | {status}";
 		Utils.DrawBorderString(spriteBatch, footer.ToUpperInvariant(), topLeft + new Vector2(0f, 55f), profile.EssenceColor, 0.43f);
+		string learning = profile.IsAether
+			? SoulmatesText.Get("UI.Talk.AetherLearning")
+			: profile.DominantInsight <= 0
+				? SoulmatesText.Get("UI.Talk.Observing")
+				: SoulmatesText.Get("UI.Talk.Learning", SoulmatesText.EnumName(profile.DominantLearnedBehavior),
+					profile.DominantInsight, profile.ForesterUnlocked ? SoulmatesText.Get("Learning.Forester") : "");
+		Utils.DrawBorderString(spriteBatch, learning.ToUpperInvariant(), topLeft + new Vector2(0f, 72f),
+			Color.Lerp(profile.EssenceColor, Color.White, 0.35f), 0.36f);
 	}
 
 	private static void DrawMeter(SpriteBatch spriteBatch, Vector2 position, string label, int value, Color color)

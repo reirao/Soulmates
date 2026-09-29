@@ -54,6 +54,13 @@ Mods: {
         Gatherer: Gatherer
         Healer: Healer
       }
+      LearnedBehavior: {
+        Gathering: Gathering
+        Mining: Mining
+        Forestry: Forestry
+        Combat: Combat
+        Exploration: Exploring
+      }
       CompanionEssence: {
         Starlight: Starlight
         Ember: Ember
@@ -167,6 +174,10 @@ Mods: {
 		PackShort: PACK
 		Growth: "LV {0} XP {1}/{2}"
 		GrowthMax: "LV {0} MAX"
+        OmniSoul: OMNI SOUL
+        AetherLearning: ALL INSTINCTS | ALL PERKS
+        Observing: OBSERVING YOU
+        Learning: "LEARNS {0} {1}/100 {2}"
         Energy: {
           Ready: READY
           Low: LOW
@@ -206,6 +217,7 @@ Mods: {
         FetchItem: PICKING UP
         AssistMining: HELPING MINE
         InspectTreasure: INVESTIGATING
+        TendForest: TENDING FOREST
       }
     }
     Messages: {
@@ -217,6 +229,7 @@ Mods: {
       TrinketEquipped: "{0} equipped {1}."
       Healed: "{0} restored {1} life."
       LevelUp: "{0} reached companion level {1}!"
+      PerkUnlocked: "{0} learned the {1} perk!"
     }
     Tooltips: {
       Sigil: {
@@ -227,9 +240,12 @@ Mods: {
         Growth: "Level {0}  |  XP {1}/{2}  |  Victories {3}  |  Shared moments {4}"
         Voice: "Voice: {0}"
         Trinket: "Trinket: {0}  |  Pack: {1}/{2}  |  Jobs: {3}"
+        Learning: "Learning: {0} {1}/100  |  Perk: {2}"
+        Observing: "Learning: observing your habits"
+        AetherLearning: "AETHER: all talent instincts and learned perks are active"
         Assignment: "Active assignment: {0}"
         Controls: "Use: summon  |  Right-click companion: action wheel  |  V: details  |  Up + Right-click: recall"
-        Emotes: "Emotes: hold right-click on yourself or hold G, point, and release"
+        Emotes: "Emotes: right-click yourself for Terraria's full menu  |  Hold G for the Soulmate wheel"
       }
     }
     Directions: {
@@ -275,6 +291,7 @@ Mods: {
         CreatureEncounter: "I remember what happened to {0}."
         ExperienceMilestone: "I remember reaching companion level {0}."
         SharedMoment: "I remember when we shared a {0}."
+        LearnedPerk: "I remember learning the {0} perk from you."
       }
     }
     Pack: {
@@ -307,6 +324,11 @@ Mods: {
         Gentle: I thought this moment needed a little warmth.
         Mischievous: I conducted a very serious and definitely harmless experiment.
       }
+    }
+    Learning: {
+      Forester: Forester
+      Locked: locked
+      ForesterUnlocked: I watched how you care for wood and growing things. I can help with that now.
     }
     Social: {
       Autonomous: {

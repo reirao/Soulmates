@@ -6,6 +6,11 @@ Soulmates 0.8.0 - Soul Initiative
 - Gatherers retrieve nearby loose items one stack at a time, Miners assist in short bursts while their owner mines, and Treasure Seekers investigate nearby chests.
 - All autonomous companions now reliably collect nearby usable drops; Gatherers do so faster and across a wider area.
 - Mining assignments and autonomous mining collect resulting drops directly into the companion pack.
+- Gathering now locks one valid world item through approach, storage, and network confirmation instead of changing targets every tick.
+- Soulmates observe gathering, mining, forestry, combat, and exploration habits; these persistent insights gradually shape their autonomous priorities.
+- Repeatedly observing woodcutting and planting unlocks the Forester perk: companions can shake trees, clear natural fallen logs, collect seeds, and carefully replant acorns from their own pack.
+- A companion named AETHER is recognized as an Omni Soul with every starting talent instinct and learned perk active.
+- Right-clicking your own character opens Terraria's full native emote menu with original graphics; Soulmates see any vanilla or modded emote and answer with a native bubble. The G key keeps the compact relationship wheel.
 - Guardians and Healers retain their autonomous combat and recovery roles, giving every starting talent a distinct form of initiative.
 - Personality-driven autonomous moments add quiet, surprising behavior without interrupting combat, explicit assignments, Stay, or low-energy recovery.
 - Added server-authoritative radial actions and autonomous state synchronization for multiplayer.

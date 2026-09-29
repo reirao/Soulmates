@@ -3,15 +3,19 @@ using Soulmates.Content.Items;
 using Soulmates.Content.NPCs;
 using Soulmates.Common.UI;
 using Terraria;
+using Terraria.GameContent.UI.States;
 using Terraria.GameInput;
+using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using Terraria.UI;
 
 namespace Soulmates.Common;
 
 public sealed class SoulmatesPlayer : ModPlayer
 {
 	private bool starterKitClaimed;
+	private int pickupObservationCooldown;
 
 	public int ActiveCompanionWhoAmI { get; set; } = -1;
 
@@ -23,6 +27,25 @@ public sealed class SoulmatesPlayer : ModPlayer
 	public override void UpdateDead()
 	{
 		ActiveCompanionWhoAmI = -1;
+	}
+
+	public override void PostUpdate()
+	{
+		if (pickupObservationCooldown > 0)
+			pickupObservationCooldown--;
+	}
+
+	public override bool OnPickup(Item item)
+	{
+		if (Player.whoAmI != Main.myPlayer || pickupObservationCooldown > 0
+			|| item.type is ItemID.Heart or ItemID.Star)
+			return true;
+		pickupObservationCooldown = 20;
+		if (Main.netMode == NetmodeID.MultiplayerClient)
+			Soulmates.SendBehaviorObservation(LearnedBehavior.Gathering);
+		else
+			SoulboundCompanion.FindFor(Player)?.ObserveOwnerActivity(LearnedBehavior.Gathering);
+		return true;
 	}
 
 	public override void ProcessTriggers(TriggersSet triggersSet)
@@ -39,7 +62,7 @@ public sealed class SoulmatesPlayer : ModPlayer
 			&& !talkMode.IsOpen && !companionWheel.IsOpen)
 			emoteWheel.Open(companion);
 		if (companion is not null)
-			TryOpenSelfEmoteWheel(companion, emoteWheel, talkMode);
+			TryOpenSelfEmoteMenu(companion, emoteWheel, talkMode);
 
 		if (!Soulmates.TalkKeybind.JustPressed || companion is null || companionWheel.IsOpen)
 			return;
@@ -48,7 +71,7 @@ public sealed class SoulmatesPlayer : ModPlayer
 		talkMode.Open(sigil, companion);
 	}
 
-	private void TryOpenSelfEmoteWheel(SoulboundCompanion companion, EmoteWheelSystem emoteWheel,
+	private void TryOpenSelfEmoteMenu(SoulboundCompanion companion, EmoteWheelSystem emoteWheel,
 		TalkModeSystem talkMode)
 	{
 		if (!Main.mouseRight || !Main.mouseRightRelease || Main.playerInventory || Player.mouseInterface
@@ -61,13 +84,29 @@ public sealed class SoulmatesPlayer : ModPlayer
 
 		Rectangle selfInteractionBounds = Player.Hitbox;
 		selfInteractionBounds.Inflate(14, 8);
-		if (!selfInteractionBounds.Contains(mouseWorld))
+		if (!selfInteractionBounds.Contains(mouseWorld) || HasWorldInteractionAt(mouseWorld))
 			return;
 
-		emoteWheel.Open(companion, releaseOnRightMouseUp: true);
+		emoteWheel.Close();
+		IngameFancyUI.OpenUIState(new UIEmotesMenu());
 		Player.mouseInterface = true;
 		Main.blockMouse = true;
 		Main.mouseRightRelease = false;
+	}
+
+	private static bool HasWorldInteractionAt(Point mouseWorld)
+	{
+		Point tilePosition = Main.MouseWorld.ToTileCoordinates();
+		if (!WorldGen.InWorld(tilePosition.X, tilePosition.Y, 1)
+			|| Main.tile[tilePosition.X, tilePosition.Y].HasTile)
+			return true;
+
+		for (int i = 0; i < Main.maxNPCs; i++) {
+			NPC npc = Main.npc[i];
+			if (npc.active && npc.Hitbox.Contains(mouseWorld))
+				return true;
+		}
+		return false;
 	}
 
 	public override void OnEnterWorld()

@@ -27,6 +27,15 @@ public enum CompanionTalent : byte
 	Healer
 }
 
+public enum LearnedBehavior : byte
+{
+	Gathering,
+	Mining,
+	Forestry,
+	Combat,
+	Exploration
+}
+
 public enum CompanionEssence : byte
 {
 	Starlight,
@@ -126,7 +135,8 @@ public enum CompanionMemoryKind : byte
 	BondMilestone,
 	CreatureEncounter,
 	ExperienceMilestone,
-	SharedMoment
+	SharedMoment,
+	LearnedPerk
 }
 
 public sealed class CompanionMemory
@@ -188,6 +198,8 @@ public sealed class CompanionMemory
 		CompanionMemoryKind.ExperienceMilestone => SoulmatesText.Get("Memories.Chronicle.ExperienceMilestone", Amount),
 		CompanionMemoryKind.SharedMoment => SoulmatesText.Get("Memories.Chronicle.SharedMoment",
 			Enum.TryParse(Detail, out CompanionEmote emote) ? SoulmatesText.EnumName(emote) : Detail),
+		CompanionMemoryKind.LearnedPerk => SoulmatesText.Get("Memories.Chronicle.LearnedPerk",
+			SoulmatesText.Get("Learning.Forester")),
 		_ => SoulmatesText.Get("Memories.New")
 	};
 
@@ -207,6 +219,7 @@ public sealed class CompanionProfile
 	public const int MaximumPackSlots = 12;
 	public const int MaximumMemories = 8;
 	public const int MaximumLevel = 20;
+	public const int ForesterUnlockInsight = 24;
 
 	public Guid Id { get; set; } = Guid.NewGuid();
 	public string Name { get; set; } = "Luma";
@@ -227,6 +240,11 @@ public sealed class CompanionProfile
 	public int Experience { get; set; }
 	public int DefeatedEnemies { get; set; }
 	public int Interactions { get; set; }
+	public int GatheringInsight { get; set; }
+	public int MiningInsight { get; set; }
+	public int ForestryInsight { get; set; }
+	public int CombatInsight { get; set; }
+	public int ExplorationInsight { get; set; }
 	public string LastMemory { get; set; } = SoulmatesText.Get("Memories.New");
 	public List<Item> Pack { get; set; } = [];
 	public List<CompanionMemory> Memories { get; set; } = [];
@@ -257,6 +275,30 @@ public sealed class CompanionProfile
 		: Math.Min(MaximumPackSlots, 8 + (Rank >= BondRank.Soulbound ? 1 : 0) + (Rank >= BondRank.Eternal ? 1 : 0));
 	public int PackLoad => Pack.Count(item => !item.IsAir);
 	public string LatestMemory => Memories.Count > 0 ? Memories[^1].Describe() : LastMemory;
+	public bool IsAether => Name.Equals("AETHER", StringComparison.OrdinalIgnoreCase);
+	public bool ForesterUnlocked => IsAether || ForestryInsight >= ForesterUnlockInsight;
+	public LearnedBehavior DominantLearnedBehavior {
+		get {
+			LearnedBehavior result = LearnedBehavior.Gathering;
+			int best = GatheringInsight;
+			if (MiningInsight > best) {
+				result = LearnedBehavior.Mining;
+				best = MiningInsight;
+			}
+			if (ForestryInsight > best) {
+				result = LearnedBehavior.Forestry;
+				best = ForestryInsight;
+			}
+			if (CombatInsight > best) {
+				result = LearnedBehavior.Combat;
+				best = CombatInsight;
+			}
+			if (ExplorationInsight > best)
+				result = LearnedBehavior.Exploration;
+			return result;
+		}
+	}
+	public int DominantInsight => GetInsight(DominantLearnedBehavior);
 
 	public Color EssenceColor => Essence switch {
 		CompanionEssence.Ember => new Color(255, 121, 77),
@@ -286,6 +328,11 @@ public sealed class CompanionProfile
 		Experience = Experience,
 		DefeatedEnemies = DefeatedEnemies,
 		Interactions = Interactions,
+		GatheringInsight = GatheringInsight,
+		MiningInsight = MiningInsight,
+		ForestryInsight = ForestryInsight,
+		CombatInsight = CombatInsight,
+		ExplorationInsight = ExplorationInsight,
 		LastMemory = LastMemory,
 		Pack = Pack.Where(item => !item.IsAir).Select(item => item.Clone()).ToList(),
 		Memories = Memories.Select(memory => memory.Clone()).ToList()
@@ -311,6 +358,11 @@ public sealed class CompanionProfile
 		["experience"] = Experience,
 		["defeatedEnemies"] = DefeatedEnemies,
 		["interactions"] = Interactions,
+		["gatheringInsight"] = GatheringInsight,
+		["miningInsight"] = MiningInsight,
+		["forestryInsight"] = ForestryInsight,
+		["combatInsight"] = CombatInsight,
+		["explorationInsight"] = ExplorationInsight,
 		["lastMemory"] = LastMemory,
 		["pack"] = Pack.Where(item => !item.IsAir).Select(ItemIO.Save).ToList(),
 		["memories"] = Memories.Select(memory => memory.Save()).ToList()
@@ -338,6 +390,11 @@ public sealed class CompanionProfile
 			Experience = tag.ContainsKey("experience") ? tag.GetInt("experience") : 0,
 			DefeatedEnemies = tag.ContainsKey("defeatedEnemies") ? tag.GetInt("defeatedEnemies") : 0,
 			Interactions = tag.ContainsKey("interactions") ? tag.GetInt("interactions") : 0,
+			GatheringInsight = tag.ContainsKey("gatheringInsight") ? tag.GetInt("gatheringInsight") : 0,
+			MiningInsight = tag.ContainsKey("miningInsight") ? tag.GetInt("miningInsight") : 0,
+			ForestryInsight = tag.ContainsKey("forestryInsight") ? tag.GetInt("forestryInsight") : 0,
+			CombatInsight = tag.ContainsKey("combatInsight") ? tag.GetInt("combatInsight") : 0,
+			ExplorationInsight = tag.ContainsKey("explorationInsight") ? tag.GetInt("explorationInsight") : 0,
 			LastMemory = tag.ContainsKey("lastMemory") && tag.GetString("lastMemory") is { Length: > 0 } memory
 				? memory
 				: SoulmatesText.Get("Memories.New"),
@@ -371,6 +428,11 @@ public sealed class CompanionProfile
 		writer.Write(Experience);
 		writer.Write(DefeatedEnemies);
 		writer.Write(Interactions);
+		writer.Write((byte)GatheringInsight);
+		writer.Write((byte)MiningInsight);
+		writer.Write((byte)ForestryInsight);
+		writer.Write((byte)CombatInsight);
+		writer.Write((byte)ExplorationInsight);
 		writer.Write(LastMemory);
 		Item[] items = Pack.Where(item => !item.IsAir).Take(MaximumPackSlots).ToArray();
 		writer.Write((byte)items.Length);
@@ -404,6 +466,11 @@ public sealed class CompanionProfile
 			Experience = reader.ReadInt32(),
 			DefeatedEnemies = reader.ReadInt32(),
 			Interactions = reader.ReadInt32(),
+			GatheringInsight = reader.ReadByte(),
+			MiningInsight = reader.ReadByte(),
+			ForestryInsight = reader.ReadByte(),
+			CombatInsight = reader.ReadByte(),
+			ExplorationInsight = reader.ReadByte(),
 			LastMemory = reader.ReadString()
 		};
 		int count = reader.ReadByte();
@@ -432,6 +499,45 @@ public sealed class CompanionProfile
 		if (newLevel > previousLevel)
 			Remember(CompanionMemoryKind.ExperienceMilestone, newLevel);
 		return newLevel > previousLevel;
+	}
+
+	public bool HasTalent(CompanionTalent talent) => IsAether || Talent == talent;
+
+	public int GetInsight(LearnedBehavior behavior) => behavior switch {
+		LearnedBehavior.Gathering => GatheringInsight,
+		LearnedBehavior.Mining => MiningInsight,
+		LearnedBehavior.Forestry => ForestryInsight,
+		LearnedBehavior.Combat => CombatInsight,
+		_ => ExplorationInsight
+	};
+
+	public bool Observe(LearnedBehavior behavior, int amount = 1)
+	{
+		int previousForestry = ForestryInsight;
+		int value = Math.Clamp(GetInsight(behavior) + Math.Max(0, amount), 0, 100);
+		switch (behavior) {
+			case LearnedBehavior.Gathering:
+				GatheringInsight = value;
+				break;
+			case LearnedBehavior.Mining:
+				MiningInsight = value;
+				break;
+			case LearnedBehavior.Forestry:
+				ForestryInsight = value;
+				break;
+			case LearnedBehavior.Combat:
+				CombatInsight = value;
+				break;
+			case LearnedBehavior.Exploration:
+				ExplorationInsight = value;
+				break;
+		}
+
+		bool unlockedForester = !IsAether && previousForestry < ForesterUnlockInsight
+			&& ForestryInsight >= ForesterUnlockInsight;
+		if (unlockedForester)
+			Remember(CompanionMemoryKind.LearnedPerk, detail: "Forester");
+		return unlockedForester;
 	}
 
 	public static int ExperienceForLevel(int level)
@@ -508,6 +614,11 @@ public sealed class CompanionProfile
 		Experience = Math.Clamp(Experience, 0, ExperienceForLevel(MaximumLevel));
 		DefeatedEnemies = Math.Max(0, DefeatedEnemies);
 		Interactions = Math.Max(0, Interactions);
+		GatheringInsight = Math.Clamp(GatheringInsight, 0, 100);
+		MiningInsight = Math.Clamp(MiningInsight, 0, 100);
+		ForestryInsight = Math.Clamp(ForestryInsight, 0, 100);
+		CombatInsight = Math.Clamp(CombatInsight, 0, 100);
+		ExplorationInsight = Math.Clamp(ExplorationInsight, 0, 100);
 		LastMemory = string.IsNullOrWhiteSpace(LastMemory) ? SoulmatesText.Get("Memories.New") : LastMemory.Trim();
 		if (LastMemory.Length > 240)
 			LastMemory = LastMemory[..240];
