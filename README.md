@@ -40,6 +40,8 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Persistent learning insights adapt to the owner's gathering, mining, forestry, combat, and exploration habits.
 - All vanilla and modded ore families are recognized; companions remember safe natural materials they watch the owner mine and reuse discovered pickaxes for later mining assignments.
 - The Work wheel supports both area assignments and precise cursor orders: point at one ore/material cluster or one loose world item and send the companion there directly.
+- Opening the mining target reveals nearby ore families as their real Terraria item icons; choose one immediately or keep the pickaxe node for a manual world target.
+- Choose a persistent mining approach per companion: Adaptive priorities, a narrow Tunnel to ore or the next opening, ore-only Vein work, or exposed-only Surface work. Unstable sand-like materials are skimmed only from open edges.
 - Useful pack contents matter in the world: weapons strengthen companion attacks, torches add light, and food or recovery items can be used at an appropriate moment.
 - Near a crafting opportunity, a companion may occasionally suggest a recipe inspired by materials in its pack.
 - Contextual initiative prompts let you answer opportunities with Terraria emotes: Yes, No, Always, or Never, remembered separately for gathering, mining, forestry, and treasure hunting.
@@ -69,7 +71,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Work refusals are deterministic and explain whether mood or energy is too low.
 - Active assignments survive recalls and summons, end when the area is clear, and report when the companion needs a new assignment.
 - Press the configurable **Talk to Companion** hotkey (`V` by default) to open Talk Mode without selecting the Sigil.
-- Choose **Details** on the companion action wheel, or press `V`, to open the complete Talk Mode with level, bond, mood, energy, pack, memories, and conversations.
+- Choose **Details** on the companion action wheel, or press `V`, to open the resizable Talk Mode with a real level bar, mining approach, bond, mood, energy, pack, memories, and conversations.
 - Stay is a true world anchor: companions defend that location without drifting back to the player.
 - Play in English or German; Soulmates follows Terraria's selected language automatically.
 - Optional local **AETHER Field Notes** record anonymized gameplay events and compact behavior signals for playtesting; nothing is uploaded. Use `/soulfeedback on` to opt in, `/soulfeedback note <text>` for an observation, and `/soulfeedback bug <what happened>` to save a bug with its recent gameplay context.
@@ -79,13 +81,13 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current release
 
-**Soulmates 0.11.0 - Deliberate Souls** makes the AETHER-EGG Alpha more purposeful. Companions accept precise cursor orders, plan area work once, show progress, pause for natural recovery without forgetting the assignment, and weigh repeated owner habits instead of letting the latest pickup overwrite a stronger lesson. Forestry recognizes quiet trees and avoids fruitless loops. AETHER begins with every talent instinct and learned perk. Existing Sigils remain compatible.
+**Soulmates 0.12.0 - Mining Intent** makes work direction visible and deliberate. Nearby ore families unfold from the mining command with Terraria item icons, while Adaptive, Tunnel, Vein, and Surface approaches decide how area mining proceeds. Tunnel work opens a narrow route toward ore or the next free space, unstable sand-like material is handled only from exposed edges, and Talk Mode now has a resizable status view with a real level bar. Existing Sigils load safely in Adaptive mode.
 
 The maturity gates for Alpha, Beta, release candidate, and 1.0 are defined in [VERSIONING.md](VERSIONING.md). The former `9.9.x` values were experimental build counters and remain in the changelog only as project history.
 
 ## How Soulmates got here
 
-Soulmates began as a reusable item for shaping a personal pet. Repeated in-game passes turned that small idea into persistent Sigils, companion personalities, combat support, work assignments, a real pack, learned behavior, forestry, initiative choices, native emotes, and the compact Soulwheel. Several of those systems were rebuilt more than once when real play exposed awkward controls, disappearing cargo, duplicate drops, stale abilities, or behavior that looked clever but did not remain coherent over a longer session. The complete sequence is preserved in [changelog.txt](changelog.txt); this page describes the implemented AETHER-EGG Alpha state of 0.11.0.
+Soulmates began as a reusable item for shaping a personal pet. Repeated in-game passes turned that small idea into persistent Sigils, companion personalities, combat support, work assignments, a real pack, learned behavior, forestry, initiative choices, native emotes, and the compact Soulwheel. Several of those systems were rebuilt more than once when real play exposed awkward controls, disappearing cargo, duplicate drops, stale abilities, or behavior that looked clever but did not remain coherent over a longer session. The complete sequence is preserved in [changelog.txt](changelog.txt); this page describes the implemented AETHER-EGG Alpha state of 0.12.0.
 
 ## Playtesting and feedback
 

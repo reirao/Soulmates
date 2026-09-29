@@ -128,6 +128,8 @@ public sealed class SoulboundSigil : ModItem
 		tooltips.Add(new TooltipLine(Mod, "Learning", learning) { OverrideColor = Color.Lerp(Profile.EssenceColor, Color.White, 0.25f) });
 		tooltips.Add(new TooltipLine(Mod, "Resourcefulness", SoulmatesText.Get("Tooltips.Sigil.Resourcefulness",
 			Math.Max(35, Profile.ObservedPickPower), Profile.LearnedMiningTiles.Count)));
+		tooltips.Add(new TooltipLine(Mod, "MiningApproach", SoulmatesText.Get("Tooltips.Sigil.MiningApproach",
+			SoulmatesText.Get($"MiningApproaches.Names.{Profile.MiningApproach}"))) { OverrideColor = Profile.EssenceColor });
 		if (Profile.Routine != CompanionJob.None)
 			tooltips.Add(new TooltipLine(Mod, "Assignment", SoulmatesText.Get("Tooltips.Sigil.Assignment", SoulmatesText.EnumName(Profile.Routine))));
 		tooltips.Add(new TooltipLine(Mod, "Controls", SoulmatesText.Get("Tooltips.Sigil.Controls")));

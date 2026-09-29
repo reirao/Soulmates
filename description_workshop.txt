@@ -33,6 +33,8 @@ Soulmates was created with extensive AI assistance across programming, writing, 
 [*]Resting, wandering, exploring, following, catching up, and small surprises depend on personality. Autonomy can be toggled per companion.
 [*]Initiative questions appear as an emote crescent. Choose Yes, No, Always, or Never separately for gathering, mining, forestry, and treasure hunting.
 [*]Choose an area assignment or arm a precise cursor order for one material cluster or loose item. Planned work shows progress and resumes after natural energy recovery.
+[*]Open the mining target to unfold nearby ore families as real Terraria item icons, then choose one directly or use the pickaxe node for a manual world target.
+[*]Set each companion to Adaptive, Tunnel, Vein, or Surface mining. Tunnel mode cuts a narrow route toward ore or the next opening; unstable sand-like material is only skimmed from an exposed edge.
 [*]Every companion retrieves nearby usable drops. Gatherers work farther and faster, Miners clear early ore, Treasure Seekers inspect chests, Guardians intercept danger, and Healers respond to injuries.
 [*]Companions defend without spending work energy and stay near their owner or Stay anchor. Guardians react harder; Healers address meaningful injuries.
 [*]Learned inclinations weigh repeated gathering, mining, forestry, combat, and exploration habits instead of merely copying the latest event.
@@ -43,7 +45,7 @@ Soulmates was created with extensive AI assistance across programming, writing, 
 
 [h2]Grow and Remember[/h2]
 [list]
-[*]Persistent bond, mood, energy, voice, learning inclinations, memories, and 20 levels.
+[*]Persistent bond, mood, energy, voice, learning inclinations, memories, and 20 levels with a visible progress bar in the resizable Talk Mode.
 [*]Combat, healing, work, and shared moments grant experience. Five bond ranks improve role strength, work radius, and pack size.
 [*]Energy regenerates naturally outside work and combat, and faster while waiting. Refusals visibly follow energy and mood instead of random rolls.
 [*]The persistent pack carries normal and modded items across saves and summons: up to 99 per item type and 12 acorns.
@@ -67,8 +69,8 @@ New characters receive one Soulcore and three Blank Sigils. Everything can also 
 [b]Delver Charm:[/b] 5 Iron/Lead Bars, 2 Amethyst, 20 Stone Blocks
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
-[h2]Current Release: 0.11.0 - Deliberate Souls[/h2]
-This AETHER-EGG Alpha update adds precise cursor orders, one-pass area work plans, visible progress, assignments that pause and resume through energy recovery, weighted imitation of the owner's habits, calmer movement, and forestry that recognizes when trees should be left alone. AETHER begins with every talent instinct and learned perk. Existing Sigils remain compatible.
+[h2]Current Release: 0.12.0 - Mining Intent[/h2]
+Nearby ores now unfold from the Work Soulwheel as Terraria item icons. Adaptive, Tunnel, Vein, and Surface approaches determine how each companion mines; Tunnel opens a narrow route toward ore or the next free space, while unstable sand-like material is handled only from exposed edges. Talk Mode now shows real level progress, the active approach, and can be resized with its ruler handle. Existing Sigils load safely in Adaptive mode.
 [b]Legacy install note:[/b] If you manually installed a GitHub `9.9.x` build, remove that duplicate `.tmod` before using the Workshop AETHER-EGG line. Normal Workshop subscriptions replace themselves automatically.
 
 [h2]How Soulmates Got Here[/h2]

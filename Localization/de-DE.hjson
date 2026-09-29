@@ -87,6 +87,13 @@ Mods: {
 				Treasure: Schatzsuche
 			}
 
+			CompanionMiningApproach: {
+				Adaptive: Adaptiv
+				Tunnel: Tunnel
+				Vein: Ader
+				Surface: Oberfläche
+			}
+
 			CompanionEssence: {
 				Starlight: Sternenlicht
 				Ember: Glut
@@ -226,6 +233,10 @@ Mods: {
 				PackShort: PACK
 				Growth: LV {0} EP {1}/{2}
 				GrowthMax: LV {0} MAX
+				LevelProgress: LV {0} · {1}/{2}
+				LevelMax: LV {0} · MAX
+				MiningApproach: "BERGBAU · {0}"
+				Resize: Zum Vergrößern ziehen
 				OmniSoul: OMNI-SEELE
 				AetherLearning: ALLE INSTINKTE | ALLE PERKS
 				Observing: BEOBACHTET DICH
@@ -247,7 +258,7 @@ Mods: {
 				Close: Schließen
 				Previous: Vorherige Seite
 				Next: Nächste Seite
-				Status: "{0} | Energie {1} | Pack {2}/{3}"
+				Status: "{0} | LV {1} | Energie {2} | Pack {3}/{4} | {5}"
 				AutonomyOn: AUTO AN
 				AutonomyOff: AUTO AUS
 				InitiativePrompt: "{0}: DU ENTSCHEIDEST"
@@ -296,8 +307,37 @@ Mods: {
 					GatherArea: GEBIET SAMMELN
 					MineTarget: ZIEL ABBAUEN
 					GatherTarget: ZIEL HOLEN
+					MiningApproach: ABBAUMODUS
+				}
+
+				MiningApproaches: {
+					Adaptive: ADAPTIV · SINNVOLL PRIORISIEREN
+					Tunnel: TUNNEL · BIS ZUM NÄCHSTEN FREIRAUM
+					Vein: ADER · NUR ERZE
+					Surface: OBERFLÄCHE · NUR FREILIEGENDES
+				}
+
+				NearbyOres: {
+					Select: "NÄCHSTES {0} ABBAUEN"
+					Manual: BLOCK IN DER WELT AUSWÄHLEN
 				}
 			}
+
+		MiningApproaches: {
+			Names: {
+				Adaptive: Adaptiv
+				Tunnel: Tunnel
+				Vein: Ader
+				Surface: Oberfläche
+			}
+
+			Selected: {
+				Adaptive: Ich wähle einen sinnvollen Weg und nehme instabilen Boden nur von einer offenen Kante.
+				Tunnel: Ich grabe einen schmalen Weg zu nahem Erz oder hinab bis zum nächsten Freiraum.
+				Vein: Ich lasse gewöhnliches Material stehen und baue nur Erzadern ab.
+				Surface: Ich nehme nur Material, das bereits an einen freien Raum grenzt.
+			}
+		}
 
 			DirectOrder: {
 				MineInvalid: ABBAUBARES ERZ ODER GELERNTES MATERIAL ANKLICKEN  |  RECHTSKLICK BRICHT AB
@@ -414,6 +454,7 @@ Mods: {
 				ObservingProgress: Lernen: beobachtet deine Gewohnheiten  |  {0}
 				AetherLearning: AETHER: alle Talentinstinkte und erlernten Perks sind aktiv
 				Resourcefulness: Bergbauwissen: {0}% Spitzhackenstärke  |  {1} beobachtete Materialien
+				MiningApproach: "Abbaumodus: {0}"
 				Assignment: Aktiver Auftrag: {0}
 				Controls: Benutzen: beschwören  |  Rechtsklick auf Gefährten: Aktionsrad  |  V: Details  |  Hoch + Rechtsklick: zurückrufen
 				Emotes: Rechtsklick auf dich oder G drücken öffnet das Player-Emote-Rad

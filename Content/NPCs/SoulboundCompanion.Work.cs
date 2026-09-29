@@ -39,6 +39,36 @@ public sealed partial class SoulboundCompanion
 			&& Vector2.DistanceSquared(Owner.Center, item.Center) <= MathF.Pow((GatheringRadiusTiles + 8) * 16f, 2f);
 	}
 
+	internal List<(Point Tile, int ItemType)> FindNearbyOreTargets(int maximumTypes = 7)
+	{
+		var nearestByDrop = new Dictionary<int, (Point Tile, float Distance)>();
+		Point center = Owner.Center.ToTileCoordinates();
+		int radius = MiningRadiusTiles + 8;
+		for (int x = center.X - radius; x <= center.X + radius; x++) {
+			for (int y = center.Y - radius; y <= center.Y + radius; y++) {
+				if (!WorldGen.InWorld(x, y, 10))
+					continue;
+				var target = new Point(x, y);
+				if (Vector2.DistanceSquared(target.ToVector2(), center.ToVector2()) > radius * radius)
+					continue;
+				Tile tile = Main.tile[x, y];
+				if (!tile.HasTile || !IsOreTile(tile.TileType) || !CanTargetMining(target))
+					continue;
+				int itemType = TileLoader.GetItemDropFromTypeAndStyle(tile.TileType, 0);
+				if (itemType <= ItemID.None)
+					continue;
+				float distance = Vector2.DistanceSquared(target.ToWorldCoordinates(), Owner.Center);
+				if (!nearestByDrop.TryGetValue(itemType, out var known) || distance < known.Distance)
+					nearestByDrop[itemType] = (target, distance);
+			}
+		}
+		return nearestByDrop
+			.OrderBy(entry => entry.Value.Distance)
+			.Take(Math.Clamp(maximumTypes, 1, 8))
+			.Select(entry => (entry.Value.Tile, entry.Key))
+			.ToList();
+	}
+
 	public CompanionConversationResult PerformDirectOrder(CompanionTargetOrder order, Point tileTarget, int itemTarget)
 	{
 		if (Main.netMode == NetmodeID.MultiplayerClient)
@@ -455,6 +485,7 @@ public sealed partial class SoulboundCompanion
 		plannedMiningCursor = 0;
 		Point center = jobOrigin.ToTileCoordinates();
 		int radius = MiningRadiusTiles;
+		var candidates = new List<Point>();
 		for (int x = center.X - radius; x <= center.X + radius; x++) {
 			for (int y = center.Y - radius; y <= center.Y + radius; y++) {
 				if (!WorldGen.InWorld(x, y, 10))
@@ -463,26 +494,171 @@ public sealed partial class SoulboundCompanion
 				if (Vector2.DistanceSquared(candidate.ToVector2(), center.ToVector2()) > radius * radius)
 					continue;
 				Tile tile = Main.tile[x, y];
-				if (tile.HasTile && CanMineTile(x, y, includeLearnedMaterials: true))
-					plannedMiningTargets.Add(candidate);
+				if (tile.HasTile && CanMineTile(x, y, includeLearnedMaterials: true)
+					&& IsAllowedByMiningApproach(candidate, tile.TileType))
+					candidates.Add(candidate);
 			}
 		}
 
-		plannedMiningTargets.Sort((left, right) => {
+		if (Profile.MiningApproach == CompanionMiningApproach.Tunnel)
+			BuildTunnelMiningPlan(candidates, center, radius);
+		else {
+			plannedMiningTargets.AddRange(candidates);
+			plannedMiningTargets.Sort(CompareMiningTargets);
+		}
+		jobPlannedTotal = jobCount + plannedMiningTargets.Count;
+		miningPlanReady = true;
+		SoulmatesFeedbackSystem.Record("mining_plan_created", ("target_count", plannedMiningTargets.Count),
+			("planned_total", jobPlannedTotal), ("radius_tiles", radius),
+			("approach", Profile.MiningApproach.ToString()));
+		NPC.netUpdate = true;
+	}
+
+	private bool IsAllowedByMiningApproach(Point candidate, ushort tileType)
+	{
+		bool exposed = IsExposedMiningTile(candidate);
+		return Profile.MiningApproach switch {
+			CompanionMiningApproach.Vein => IsOreTile(tileType),
+			CompanionMiningApproach.Surface => exposed,
+			CompanionMiningApproach.Tunnel => !IsGravityMiningMaterial(tileType) || exposed,
+			_ => !IsGravityMiningMaterial(tileType) || exposed
+		};
+	}
+
+	private int CompareMiningTargets(Point left, Point right)
+	{
+		if (Profile.MiningApproach == CompanionMiningApproach.Adaptive) {
 			bool leftOre = IsOreTile(Main.tile[left.X, left.Y].TileType);
 			bool rightOre = IsOreTile(Main.tile[right.X, right.Y].TileType);
 			if (leftOre != rightOre)
 				return leftOre ? -1 : 1;
-			float leftDistance = Vector2.DistanceSquared(left.ToWorldCoordinates(), jobOrigin);
-			float rightDistance = Vector2.DistanceSquared(right.ToWorldCoordinates(), jobOrigin);
-			return leftDistance.CompareTo(rightDistance);
-		});
-		jobPlannedTotal = plannedMiningTargets.Count;
-		miningPlanReady = true;
-		SoulmatesFeedbackSystem.Record("mining_plan_created", ("target_count", jobPlannedTotal),
-			("radius_tiles", radius));
-		NPC.netUpdate = true;
+			bool leftExposed = IsExposedMiningTile(left);
+			bool rightExposed = IsExposedMiningTile(right);
+			if (leftExposed != rightExposed)
+				return leftExposed ? -1 : 1;
+		}
+		float leftDistance = Vector2.DistanceSquared(left.ToWorldCoordinates(), jobOrigin);
+		float rightDistance = Vector2.DistanceSquared(right.ToWorldCoordinates(), jobOrigin);
+		return leftDistance.CompareTo(rightDistance);
 	}
+
+	private void BuildTunnelMiningPlan(List<Point> candidates, Point center, int radius)
+	{
+		if (candidates.Count == 0)
+			return;
+		var available = candidates.ToHashSet();
+		Point? oreTarget = candidates
+			.Where(point => IsOreTile(Main.tile[point.X, point.Y].TileType))
+			.OrderBy(point => Vector2.DistanceSquared(point.ToVector2(), center.ToVector2()))
+			.Select(point => (Point?)point)
+			.FirstOrDefault();
+		Point destination = oreTarget ?? new Point(center.X, center.Y + Math.Min(radius, 24));
+		int dx = Math.Abs(destination.X - center.X);
+		int dy = Math.Abs(destination.Y - center.Y);
+		Point corridorOffset = dx >= dy ? new Point(0, -1) : new Point(1, 0);
+		bool openedWall = false;
+		int openRun = 0;
+
+		foreach (Point step in TraceTileLine(center, destination)) {
+			if (!WorldGen.InWorld(step.X, step.Y, 10))
+				break;
+			Tile tile = Main.tile[step.X, step.Y];
+			if (!tile.HasTile || tile.IsActuated || tile.TileType >= Main.tileSolid.Length
+				|| !Main.tileSolid[tile.TileType]) {
+				if (openedWall && ++openRun >= 2)
+					break;
+				continue;
+			}
+			openRun = 0;
+			if (!available.Contains(step))
+				break;
+			AddMiningPlanTarget(step);
+			openedWall = true;
+
+			Point companionSpace = new(step.X + corridorOffset.X, step.Y + corridorOffset.Y);
+			if (available.Contains(companionSpace)
+				&& !IsGravityMiningMaterial(Main.tile[companionSpace.X, companionSpace.Y].TileType))
+				AddMiningPlanTarget(companionSpace);
+		}
+
+		if (oreTarget is Point ore && plannedMiningTargets.Contains(ore))
+			AppendConnectedOreVein(ore, available, 24);
+		if (plannedMiningTargets.Count == 0) {
+			foreach (Point exposed in candidates.Where(IsExposedMiningTile)
+				.OrderBy(point => Vector2.DistanceSquared(point.ToVector2(), center.ToVector2())).Take(24))
+				AddMiningPlanTarget(exposed);
+		}
+	}
+
+	private void AppendConnectedOreVein(Point origin, HashSet<Point> available, int limit)
+	{
+		ushort tileType = Main.tile[origin.X, origin.Y].TileType;
+		var pending = new Queue<Point>();
+		var visited = new HashSet<Point>();
+		pending.Enqueue(origin);
+		while (pending.Count > 0 && visited.Count < limit) {
+			Point current = pending.Dequeue();
+			if (!visited.Add(current) || !available.Contains(current)
+				|| Main.tile[current.X, current.Y].TileType != tileType)
+				continue;
+			AddMiningPlanTarget(current);
+			pending.Enqueue(new Point(current.X - 1, current.Y));
+			pending.Enqueue(new Point(current.X + 1, current.Y));
+			pending.Enqueue(new Point(current.X, current.Y - 1));
+			pending.Enqueue(new Point(current.X, current.Y + 1));
+		}
+	}
+
+	private void AddMiningPlanTarget(Point target)
+	{
+		if (!plannedMiningTargets.Contains(target))
+			plannedMiningTargets.Add(target);
+	}
+
+	private static IEnumerable<Point> TraceTileLine(Point start, Point end)
+	{
+		int x = start.X;
+		int y = start.Y;
+		int dx = Math.Abs(end.X - start.X);
+		int sx = start.X < end.X ? 1 : -1;
+		int dy = -Math.Abs(end.Y - start.Y);
+		int sy = start.Y < end.Y ? 1 : -1;
+		int error = dx + dy;
+		while (true) {
+			yield return new Point(x, y);
+			if (x == end.X && y == end.Y)
+				yield break;
+			int doubled = error * 2;
+			if (doubled >= dy) {
+				error += dy;
+				x += sx;
+			}
+			if (doubled <= dx) {
+				error += dx;
+				y += sy;
+			}
+		}
+	}
+
+	private static bool IsExposedMiningTile(Point point)
+	{
+		ReadOnlySpan<Point> neighbors = [
+			new Point(point.X - 1, point.Y), new Point(point.X + 1, point.Y),
+			new Point(point.X, point.Y - 1), new Point(point.X, point.Y + 1)
+		];
+		foreach (Point neighbor in neighbors) {
+			if (!WorldGen.InWorld(neighbor.X, neighbor.Y, 10))
+				continue;
+			Tile tile = Main.tile[neighbor.X, neighbor.Y];
+			if (!tile.HasTile || tile.IsActuated || tile.TileType >= Main.tileSolid.Length
+				|| !Main.tileSolid[tile.TileType])
+				return true;
+		}
+		return false;
+	}
+
+	private static bool IsGravityMiningMaterial(ushort type) => type is TileID.Sand or TileID.Ebonsand
+		or TileID.Crimsand or TileID.Pearlsand or TileID.Silt or TileID.Slush;
 
 	private void DiscardMiningTarget(Point target)
 	{

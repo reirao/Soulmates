@@ -60,6 +60,14 @@ public enum CompanionInitiativeResponse : byte
 	Never
 }
 
+public enum CompanionMiningApproach : byte
+{
+	Adaptive,
+	Tunnel,
+	Vein,
+	Surface
+}
+
 public enum CompanionEssence : byte
 {
 	Starlight,
@@ -119,6 +127,10 @@ public enum CompanionQuickAction : byte
 	Gather,
 	ToggleAutonomy,
 	ResetInitiativeRules,
+	MiningAdaptive,
+	MiningTunnel,
+	MiningVein,
+	MiningSurface,
 	Details
 }
 
@@ -272,6 +284,7 @@ public sealed class CompanionProfile
 	public CompanionVoice Voice { get; set; }
 	public CompanionTrinket Trinket { get; set; }
 	public CompanionJob Routine { get; set; }
+	public CompanionMiningApproach MiningApproach { get; set; } = CompanionMiningApproach.Adaptive;
 	public bool AutonomyEnabled { get; set; } = true;
 	public CompanionInitiativePolicy GatheringInitiative { get; set; } = CompanionInitiativePolicy.Ask;
 	public CompanionInitiativePolicy MiningInitiative { get; set; } = CompanionInitiativePolicy.Ask;
@@ -369,6 +382,7 @@ public sealed class CompanionProfile
 		Voice = Voice,
 		Trinket = Trinket,
 		Routine = Routine,
+		MiningApproach = MiningApproach,
 		AutonomyEnabled = AutonomyEnabled,
 		GatheringInitiative = GatheringInitiative,
 		MiningInitiative = MiningInitiative,
@@ -405,6 +419,7 @@ public sealed class CompanionProfile
 		["voice"] = (byte)Voice,
 		["trinket"] = (byte)Trinket,
 		["routine"] = (byte)Routine,
+		["miningApproach"] = (byte)MiningApproach,
 		["autonomyEnabled"] = AutonomyEnabled,
 		["gatheringInitiative"] = (byte)GatheringInitiative,
 		["miningInitiative"] = (byte)MiningInitiative,
@@ -443,6 +458,8 @@ public sealed class CompanionProfile
 			Voice = tag.ContainsKey("voice") ? (CompanionVoice)tag.GetByte("voice") : CompanionVoice.Soft,
 			Trinket = tag.ContainsKey("trinket") ? (CompanionTrinket)tag.GetByte("trinket") : CompanionTrinket.None,
 			Routine = tag.ContainsKey("routine") ? (CompanionJob)tag.GetByte("routine") : CompanionJob.None,
+			MiningApproach = tag.ContainsKey("miningApproach")
+				? (CompanionMiningApproach)tag.GetByte("miningApproach") : CompanionMiningApproach.Adaptive,
 			AutonomyEnabled = !tag.ContainsKey("autonomyEnabled") || tag.GetBool("autonomyEnabled"),
 			GatheringInitiative = tag.ContainsKey("gatheringInitiative")
 				? (CompanionInitiativePolicy)tag.GetByte("gatheringInitiative") : CompanionInitiativePolicy.Ask,
@@ -493,6 +510,7 @@ public sealed class CompanionProfile
 		writer.Write((byte)Voice);
 		writer.Write((byte)Trinket);
 		writer.Write((byte)Routine);
+		writer.Write((byte)MiningApproach);
 		writer.Write(AutonomyEnabled);
 		writer.Write((byte)GatheringInitiative);
 		writer.Write((byte)MiningInitiative);
@@ -540,6 +558,7 @@ public sealed class CompanionProfile
 			Voice = (CompanionVoice)reader.ReadByte(),
 			Trinket = (CompanionTrinket)reader.ReadByte(),
 			Routine = (CompanionJob)reader.ReadByte(),
+			MiningApproach = (CompanionMiningApproach)reader.ReadByte(),
 			AutonomyEnabled = reader.ReadBoolean(),
 			GatheringInitiative = (CompanionInitiativePolicy)reader.ReadByte(),
 			MiningInitiative = (CompanionInitiativePolicy)reader.ReadByte(),
@@ -821,6 +840,7 @@ public sealed class CompanionProfile
 		Voice = ValidEnum(Voice, CompanionVoice.Soft);
 		Trinket = ValidEnum(Trinket, CompanionTrinket.None);
 		Routine = ValidEnum(Routine, CompanionJob.None);
+		MiningApproach = ValidEnum(MiningApproach, CompanionMiningApproach.Adaptive);
 		GatheringInitiative = ValidEnum(GatheringInitiative, CompanionInitiativePolicy.Ask);
 		MiningInitiative = ValidEnum(MiningInitiative, CompanionInitiativePolicy.Ask);
 		ForestryInitiative = ValidEnum(ForestryInitiative, CompanionInitiativePolicy.Ask);

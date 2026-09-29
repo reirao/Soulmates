@@ -87,6 +87,13 @@ Mods: {
 				Treasure: treasure
 			}
 
+			CompanionMiningApproach: {
+				Adaptive: Adaptive
+				Tunnel: Tunnel
+				Vein: Vein
+				Surface: Surface
+			}
+
 			CompanionEssence: {
 				Starlight: Starlight
 				Ember: Ember
@@ -226,6 +233,10 @@ Mods: {
 				PackShort: PACK
 				Growth: LV {0} XP {1}/{2}
 				GrowthMax: LV {0} MAX
+				LevelProgress: LV {0} · {1}/{2}
+				LevelMax: LV {0} · MAX
+				MiningApproach: "MINING · {0}"
+				Resize: Drag to resize
 				OmniSoul: OMNI SOUL
 				AetherLearning: ALL INSTINCTS | ALL PERKS
 				Observing: OBSERVING YOU
@@ -247,7 +258,7 @@ Mods: {
 				Close: Close
 				Previous: Previous page
 				Next: Next page
-				Status: "{0} | Energy {1} | Pack {2}/{3}"
+				Status: "{0} | LV {1} | Energy {2} | Pack {3}/{4} | {5}"
 				AutonomyOn: AUTO ON
 				AutonomyOff: AUTO OFF
 				InitiativePrompt: "{0}: YOUR CALL"
@@ -296,8 +307,37 @@ Mods: {
 					GatherArea: GATHER AREA
 					MineTarget: MINE TARGET
 					GatherTarget: FETCH TARGET
+					MiningApproach: MINING MODE
+				}
+
+				MiningApproaches: {
+					Adaptive: ADAPTIVE · SMART PRIORITIES
+					Tunnel: TUNNEL · DIG TO THE NEXT OPENING
+					Vein: VEIN · ORES ONLY
+					Surface: SURFACE · EXPOSED BLOCKS ONLY
+				}
+
+				NearbyOres: {
+					Select: "MINE NEAREST {0}"
+					Manual: CHOOSE A BLOCK IN THE WORLD
 				}
 			}
+
+		MiningApproaches: {
+			Names: {
+				Adaptive: Adaptive
+				Tunnel: Tunnel
+				Vein: Vein
+				Surface: Surface
+			}
+
+			Selected: {
+				Adaptive: I will choose a sensible route and skim unstable ground from its open edge.
+				Tunnel: I will cut a narrow passage toward nearby ore, or down to the next opening.
+				Vein: I will leave ordinary material alone and clear ore veins only.
+				Surface: I will only take material already exposed to open space.
+			}
+		}
 
 			DirectOrder: {
 				MineInvalid: CLICK A MINEABLE ORE OR LEARNED MATERIAL  |  RIGHT-CLICK CANCELS
@@ -414,6 +454,7 @@ Mods: {
 				ObservingProgress: Learning: observing your habits  |  {0}
 				AetherLearning: AETHER: all talent instincts and learned perks are active
 				Resourcefulness: Mining knowledge: {0}% pick power  |  {1} observed materials
+				MiningApproach: "Mining approach: {0}"
 				Assignment: Active assignment: {0}
 				Controls: Use: summon  |  Right-click companion: action wheel  |  V: details  |  Up + Right-click: recall
 				Emotes: Emotes: right-click yourself or press G for the Player Emote Wheel

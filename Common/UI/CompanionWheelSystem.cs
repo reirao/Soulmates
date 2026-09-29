@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -20,12 +21,13 @@ namespace Soulmates.Common.UI;
 public sealed class CompanionWheelSystem : ModSystem
 {
 	private enum RootBranch : byte { Commands, Work, Bond, Emotes, Pack, Details, Mailbox }
-	private enum HoverLayer : byte { None, Center, Root, Branch, Native }
+	private enum HoverLayer : byte { None, Center, Root, Branch, Native, MiningApproach, OreTarget }
 	private enum IconKind : byte { Emote, Item }
 	private enum WheelContext : byte { Companion, Player }
-	private enum WheelWorkAction : byte { FindTreasure, MineArea, GatherArea, MineTarget, GatherTarget }
+	private enum WheelWorkAction : byte { FindTreasure, MineArea, GatherArea, MineTarget, GatherTarget, MiningApproach }
 
 	private readonly record struct WheelIcon(IconKind Kind, int Value);
+	private readonly record struct NearbyOreChoice(Point Tile, int ItemType);
 	private sealed record NativeCategory(string Key, int Icon, int[] Entries);
 
 	private static readonly RootBranch[] CompanionRoots = [
@@ -39,8 +41,9 @@ public sealed class CompanionWheelSystem : ModSystem
 	];
 	private static readonly WheelWorkAction[] WorkActions = [
 		WheelWorkAction.FindTreasure, WheelWorkAction.MineArea, WheelWorkAction.GatherArea,
-		WheelWorkAction.MineTarget, WheelWorkAction.GatherTarget
+		WheelWorkAction.MineTarget, WheelWorkAction.GatherTarget, WheelWorkAction.MiningApproach
 	];
+	private static readonly CompanionMiningApproach[] MiningApproaches = Enum.GetValues<CompanionMiningApproach>();
 	private static readonly CompanionEmote[] BondEmotes = [
 		CompanionEmote.Wave, CompanionEmote.Heart, CompanionEmote.Cheer,
 		CompanionEmote.Comfort, CompanionEmote.Laugh, CompanionEmote.Rest
@@ -117,6 +120,9 @@ public sealed class CompanionWheelSystem : ModSystem
 	private RootBranch? branch;
 	private int nativeCategory = -1;
 	private int nativePage;
+	private bool miningApproachMenu;
+	private bool nearbyOreMenu;
+	private readonly List<NearbyOreChoice> nearbyOreChoices = [];
 	private HoverLayer hoverLayer;
 	private int hoverIndex = -1;
 	private bool leftMouseDown;
@@ -147,6 +153,9 @@ public sealed class CompanionWheelSystem : ModSystem
 		branch = initialBranch;
 		nativeCategory = -1;
 		nativePage = 0;
+		miningApproachMenu = false;
+		nearbyOreMenu = false;
+		nearbyOreChoices.Clear();
 		hoverLayer = HoverLayer.None;
 		hoverIndex = -1;
 		leftMouseDown = Main.mouseLeft;
@@ -164,6 +173,9 @@ public sealed class CompanionWheelSystem : ModSystem
 		branch = null;
 		nativeCategory = -1;
 		nativePage = 0;
+		miningApproachMenu = false;
+		nearbyOreMenu = false;
+		nearbyOreChoices.Clear();
 		hoverLayer = HoverLayer.None;
 		hoverIndex = -1;
 		leftMouseDown = false;
@@ -221,6 +233,24 @@ public sealed class CompanionWheelSystem : ModSystem
 				return;
 			}
 		}
+		if (miningApproachMenu) {
+			for (int i = 0; i < MiningApproaches.Length; i++) {
+				if (!Hit(mouse, MiningApproachPosition(i), 19f))
+					continue;
+				hoverLayer = HoverLayer.MiningApproach;
+				hoverIndex = i;
+				return;
+			}
+		}
+		if (nearbyOreMenu) {
+			for (int i = 0; i < nearbyOreChoices.Count + 1; i++) {
+				if (!Hit(mouse, OreTargetPosition(i), 19f))
+					continue;
+				hoverLayer = HoverLayer.OreTarget;
+				hoverIndex = i;
+				return;
+			}
+		}
 		if (branch is RootBranch activeBranch && activeBranch is not RootBranch.Pack and not RootBranch.Details) {
 			int count = BranchNodeCount(activeBranch);
 			for (int i = 0; i < count; i++) {
@@ -248,6 +278,8 @@ public sealed class CompanionWheelSystem : ModSystem
 			case HoverLayer.Root: ActivateRoot(ActiveRoots[hoverIndex]); break;
 			case HoverLayer.Branch: ActivateBranch(hoverIndex); break;
 			case HoverLayer.Native: ActivateNative(hoverIndex); break;
+			case HoverLayer.MiningApproach: ActivateMiningApproach(hoverIndex); break;
+			case HoverLayer.OreTarget: ActivateOreTarget(hoverIndex); break;
 			default:
 				Close();
 				SoundEngine.PlaySound(SoundID.MenuClose with { Volume = 0.42f });
@@ -274,6 +306,9 @@ public sealed class CompanionWheelSystem : ModSystem
 		branch = branch == selected ? null : selected;
 		nativeCategory = -1;
 		nativePage = 0;
+		miningApproachMenu = false;
+		nearbyOreMenu = false;
+		nearbyOreChoices.Clear();
 		SoundEngine.PlaySound(SoundID.MenuTick with { Volume = 0.55f, Pitch = 0.18f });
 	}
 
@@ -286,7 +321,16 @@ public sealed class CompanionWheelSystem : ModSystem
 				if (index >= 0 && index < CommandActions.Length) ExecuteQuickAction(CommandActions[index]);
 				break;
 			case RootBranch.Work:
-				if (index >= 0 && index < WorkActions.Length) ExecuteWorkAction(WorkActions[index]);
+				if (index >= 0 && index < WorkActions.Length) {
+					if (WorkActions[index] == WheelWorkAction.MiningApproach) {
+						miningApproachMenu = !miningApproachMenu;
+						nearbyOreMenu = false;
+						nearbyOreChoices.Clear();
+						SoundEngine.PlaySound(SoundID.MenuTick with { Volume = 0.5f, Pitch = 0.25f });
+					}
+					else
+						ExecuteWorkAction(WorkActions[index]);
+				}
 				break;
 			case RootBranch.Bond:
 				if (index >= 0 && index < BondEmotes.Length) ExecuteCompanionEmote(BondEmotes[index]);
@@ -299,6 +343,46 @@ public sealed class CompanionWheelSystem : ModSystem
 				}
 				break;
 		}
+	}
+
+	private void ActivateOreTarget(int index)
+	{
+		if (companion?.NPC.active != true)
+			return;
+		if (index == nearbyOreChoices.Count) {
+			SoulboundCompanion target = companion;
+			Close();
+			ModContent.GetInstance<DirectOrderSystem>().Begin(target, CompanionTargetOrder.Mine);
+			return;
+		}
+		if (index < 0 || index >= nearbyOreChoices.Count)
+			return;
+
+		NearbyOreChoice choice = nearbyOreChoices[index];
+		SoulboundCompanion selected = companion;
+		SoulmatesFeedbackSystem.Record("nearby_ore_selected", ("item_type", choice.ItemType),
+			("tile_x", choice.Tile.X), ("tile_y", choice.Tile.Y));
+		Close();
+		if (Main.netMode == NetmodeID.MultiplayerClient)
+			global::Soulmates.Soulmates.SendDirectOrderRequest(CompanionTargetOrder.Mine, choice.Tile, -1);
+		else {
+			CompanionConversationResult result = selected.PerformDirectOrder(CompanionTargetOrder.Mine, choice.Tile, -1);
+			selected.ShowSpeech(result.Reply);
+			SoundEngine.PlaySound(result.Accepted ? SoundID.Chat : SoundID.MenuClose);
+		}
+	}
+
+	private void ActivateMiningApproach(int index)
+	{
+		if (index < 0 || index >= MiningApproaches.Length)
+			return;
+		CompanionQuickAction action = MiningApproaches[index] switch {
+			CompanionMiningApproach.Tunnel => CompanionQuickAction.MiningTunnel,
+			CompanionMiningApproach.Vein => CompanionQuickAction.MiningVein,
+			CompanionMiningApproach.Surface => CompanionQuickAction.MiningSurface,
+			_ => CompanionQuickAction.MiningAdaptive
+		};
+		ExecuteQuickAction(action);
 	}
 
 	private void ActivateNative(int index)
@@ -337,15 +421,22 @@ public sealed class CompanionWheelSystem : ModSystem
 
 	private void ExecuteWorkAction(WheelWorkAction action)
 	{
-		if (action is WheelWorkAction.MineTarget or WheelWorkAction.GatherTarget) {
+		if (action == WheelWorkAction.MineTarget && companion?.NPC.active == true) {
+			nearbyOreChoices.Clear();
+			nearbyOreChoices.AddRange(companion.FindNearbyOreTargets()
+				.Select(choice => new NearbyOreChoice(choice.Tile, choice.ItemType)));
+			nearbyOreMenu = true;
+			miningApproachMenu = false;
+			SoulmatesFeedbackSystem.Record("nearby_ore_menu_opened", ("choice_count", nearbyOreChoices.Count));
+			SoundEngine.PlaySound(SoundID.MenuTick with { Volume = 0.5f, Pitch = 0.25f });
+			return;
+		}
+		if (action == WheelWorkAction.GatherTarget) {
 			SoulboundCompanion? target = companion;
 			SoulmatesFeedbackSystem.Record("target_mode_opened", ("order", action.ToString()));
 			Close();
 			if (target?.NPC.active == true) {
-				CompanionTargetOrder order = action == WheelWorkAction.MineTarget
-					? CompanionTargetOrder.Mine
-					: CompanionTargetOrder.Gather;
-				ModContent.GetInstance<DirectOrderSystem>().Begin(target, order);
+				ModContent.GetInstance<DirectOrderSystem>().Begin(target, CompanionTargetOrder.Gather);
 			}
 			return;
 		}
@@ -400,6 +491,17 @@ public sealed class CompanionWheelSystem : ModSystem
 
 	private void StepBack()
 	{
+		if (nearbyOreMenu) {
+			nearbyOreMenu = false;
+			nearbyOreChoices.Clear();
+			SoundEngine.PlaySound(SoundID.MenuTick);
+			return;
+		}
+		if (miningApproachMenu) {
+			miningApproachMenu = false;
+			SoundEngine.PlaySound(SoundID.MenuTick);
+			return;
+		}
 		if (nativeCategory >= 0) {
 			nativeCategory = -1;
 			nativePage = 0;
@@ -454,7 +556,11 @@ public sealed class CompanionWheelSystem : ModSystem
 				Vector2 destination = BranchPosition(activeBranch, i, count);
 				Vector2 position = Vector2.Lerp(parent, destination, reveal);
 				bool hovered = hoverLayer == HoverLayer.Branch && hoverIndex == i;
-				bool active = activeBranch == RootBranch.Emotes && nativeCategory == i;
+				bool active = activeBranch == RootBranch.Emotes && nativeCategory == i
+					|| activeBranch == RootBranch.Work && WorkActions[i] == WheelWorkAction.MiningApproach
+						&& miningApproachMenu
+					|| activeBranch == RootBranch.Work && WorkActions[i] == WheelWorkAction.MineTarget
+						&& nearbyOreMenu;
 				DrawNode(spriteBatch, position, hovered ? 41f * pulse : 36f, accent, hovered, active, BranchIcon(activeBranch, i));
 			}
 		}
@@ -468,6 +574,27 @@ public sealed class CompanionWheelSystem : ModSystem
 				DrawNode(spriteBatch, position, hovered ? 36f * pulse : 32f, accent, hovered, false, NativeIcon(i));
 			}
 		}
+		if (miningApproachMenu && branch == RootBranch.Work) {
+			Vector2 parent = BranchPosition(RootBranch.Work,
+				Array.IndexOf(WorkActions, WheelWorkAction.MiningApproach), WorkActions.Length);
+			for (int i = 0; i < MiningApproaches.Length; i++) {
+				Vector2 position = Vector2.Lerp(parent, MiningApproachPosition(i), reveal);
+				bool hovered = hoverLayer == HoverLayer.MiningApproach && hoverIndex == i;
+				bool active = companion.Profile.MiningApproach == MiningApproaches[i];
+				DrawNode(spriteBatch, position, hovered ? 36f * pulse : 32f, accent, hovered, active,
+					MiningApproachIcon(MiningApproaches[i]));
+			}
+		}
+		if (nearbyOreMenu && branch == RootBranch.Work) {
+			Vector2 parent = BranchPosition(RootBranch.Work,
+				Array.IndexOf(WorkActions, WheelWorkAction.MineTarget), WorkActions.Length);
+			for (int i = 0; i < nearbyOreChoices.Count + 1; i++) {
+				Vector2 position = Vector2.Lerp(parent, OreTargetPosition(i), reveal);
+				bool hovered = hoverLayer == HoverLayer.OreTarget && hoverIndex == i;
+				DrawNode(spriteBatch, position, hovered ? 36f * pulse : 32f, accent, hovered, false,
+					OreTargetIcon(i));
+			}
+		}
 		DrawCenter(spriteBatch, accent, pulse);
 		DrawHoverLabel(spriteBatch, accent);
 		if (context == WheelContext.Companion)
@@ -478,7 +605,8 @@ public sealed class CompanionWheelSystem : ModSystem
 	private void DrawCenter(SpriteBatch spriteBatch, Color accent, float pulse)
 	{
 		bool hovered = hoverLayer == HoverLayer.Center;
-		bool hasParentLayer = nativeCategory >= 0 || context == WheelContext.Companion && branch is not null;
+		bool hasParentLayer = nativeCategory >= 0 || miningApproachMenu || nearbyOreMenu
+			|| context == WheelContext.Companion && branch is not null;
 		WheelIcon icon = hasParentLayer
 			? new WheelIcon(IconKind.Item, ItemID.RecallPotion)
 			: context == WheelContext.Player
@@ -503,7 +631,8 @@ public sealed class CompanionWheelSystem : ModSystem
 	{
 		CompanionProfile profile = companion!.Profile;
 		string status = SoulmatesText.Get("UI.CompanionWheel.Status", companion.CurrentJobName,
-			profile.Energy, profile.PackLoad, profile.PackCapacity);
+			profile.Level, profile.Energy, profile.PackLoad, profile.PackCapacity,
+			SoulmatesText.Get($"MiningApproaches.Names.{profile.MiningApproach}"));
 		float scale = FitTextScale(status, 340f, 0.5f);
 		Vector2 size = FontAssets.MouseText.Value.MeasureString(status) * scale;
 		Vector2 position = new(center.X - size.X * 0.5f, center.Y + NativeRadius + 50f);
@@ -512,12 +641,16 @@ public sealed class CompanionWheelSystem : ModSystem
 	}
 
 	private string HoverLabel() => hoverLayer switch {
-		HoverLayer.Center => nativeCategory < 0 && (context == WheelContext.Player || branch is null)
+		HoverLayer.Center => nativeCategory < 0 && !miningApproachMenu && !nearbyOreMenu
+			&& (context == WheelContext.Player || branch is null)
 			? SoulmatesText.Get("UI.CompanionWheel.Close")
 			: SoulmatesText.Get("UI.CompanionWheel.Back"),
 		HoverLayer.Root when hoverIndex >= 0 && hoverIndex < ActiveRoots.Length => RootLabel(ActiveRoots[hoverIndex]),
 		HoverLayer.Branch => BranchLabel(hoverIndex),
 		HoverLayer.Native => NativeLabel(hoverIndex),
+		HoverLayer.MiningApproach when hoverIndex >= 0 && hoverIndex < MiningApproaches.Length
+			=> SoulmatesText.Get($"UI.CompanionWheel.MiningApproaches.{MiningApproaches[hoverIndex]}"),
+		HoverLayer.OreTarget => OreTargetLabel(hoverIndex),
 		_ => branch is RootBranch activeBranch ? RootLabel(activeBranch) : SoulmatesText.Get("UI.CompanionWheel.Center")
 	};
 
@@ -534,6 +667,16 @@ public sealed class CompanionWheelSystem : ModSystem
 				=> SoulmatesText.Get($"UI.CompanionWheel.NativeCategories.{NativeCategories[index].Key}"),
 			_ => ""
 		};
+	}
+
+	private string OreTargetLabel(int index)
+	{
+		if (index == nearbyOreChoices.Count)
+			return SoulmatesText.Get("UI.CompanionWheel.NearbyOres.Manual");
+		if (index < 0 || index >= nearbyOreChoices.Count)
+			return "";
+		return SoulmatesText.Get("UI.CompanionWheel.NearbyOres.Select",
+			Lang.GetItemNameValue(nearbyOreChoices[index].ItemType));
 	}
 
 	private string NativeLabel(int index)
@@ -582,6 +725,7 @@ public sealed class CompanionWheelSystem : ModSystem
 				WheelWorkAction.MineArea => new WheelIcon(IconKind.Emote, EmoteID.ItemPickaxe),
 				WheelWorkAction.GatherArea => new WheelIcon(IconKind.Emote, EmoteID.MiscTree),
 				WheelWorkAction.MineTarget => new WheelIcon(IconKind.Item, ItemID.CopperPickaxe),
+				WheelWorkAction.MiningApproach => new WheelIcon(IconKind.Item, ItemID.MiningPotion),
 				_ => new WheelIcon(IconKind.Item, ItemID.TreasureMagnet)
 			};
 		if (activeBranch == RootBranch.Bond && index >= 0 && index < BondEmotes.Length)
@@ -594,6 +738,17 @@ public sealed class CompanionWheelSystem : ModSystem
 			return new WheelIcon(IconKind.Emote, NativeCategories[index].Icon);
 		return new WheelIcon(IconKind.Emote, EmoteID.EmoteConfused);
 	}
+
+	private static WheelIcon MiningApproachIcon(CompanionMiningApproach approach) => approach switch {
+		CompanionMiningApproach.Tunnel => new WheelIcon(IconKind.Item, ItemID.CopperPickaxe),
+		CompanionMiningApproach.Vein => new WheelIcon(IconKind.Item, ItemID.SpelunkerPotion),
+		CompanionMiningApproach.Surface => new WheelIcon(IconKind.Item, ItemID.SandBlock),
+		_ => new WheelIcon(IconKind.Item, ItemID.MiningPotion)
+	};
+
+	private WheelIcon OreTargetIcon(int index) => index >= 0 && index < nearbyOreChoices.Count
+		? new WheelIcon(IconKind.Item, nearbyOreChoices[index].ItemType)
+		: new WheelIcon(IconKind.Item, ItemID.CopperPickaxe);
 
 	private WheelIcon NativeIcon(int index)
 	{
@@ -664,6 +819,24 @@ public sealed class CompanionWheelSystem : ModSystem
 		float categoryAngle = FanAngle(rootAngle,
 			nativeCategory, NativeCategories.Length, MathHelper.ToRadians(136f));
 		float angle = FanAngle(categoryAngle, index, count, MathHelper.ToRadians(148f));
+		return center + angle.ToRotationVector2() * NativeRadius;
+	}
+
+	private Vector2 MiningApproachPosition(int index)
+	{
+		float rootAngle = RootAngle(Array.IndexOf(ActiveRoots, RootBranch.Work));
+		float branchAngle = FanAngle(rootAngle, Array.IndexOf(WorkActions, WheelWorkAction.MiningApproach),
+			WorkActions.Length, MathHelper.ToRadians(136f));
+		float angle = FanAngle(branchAngle, index, MiningApproaches.Length, MathHelper.ToRadians(112f));
+		return center + angle.ToRotationVector2() * NativeRadius;
+	}
+
+	private Vector2 OreTargetPosition(int index)
+	{
+		float rootAngle = RootAngle(Array.IndexOf(ActiveRoots, RootBranch.Work));
+		float branchAngle = FanAngle(rootAngle, Array.IndexOf(WorkActions, WheelWorkAction.MineTarget),
+			WorkActions.Length, MathHelper.ToRadians(136f));
+		float angle = FanAngle(branchAngle, index, nearbyOreChoices.Count + 1, MathHelper.ToRadians(148f));
 		return center + angle.ToRotationVector2() * NativeRadius;
 	}
 

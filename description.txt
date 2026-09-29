@@ -1,7 +1,7 @@
-Soulmates 0.11.0 - Deliberate Souls: Shape a companion that watches, learns, and grows beside you.
+Soulmates 0.12.0 - Mining Intent: Shape a companion that watches, learns, and grows beside you.
 
 Use the reusable Soulcore to shape unique companions, including the Omni Soul AETHER, bind each one to a Soulbound Sigil, and bring them along on your Terraria adventures.
 
-Persistent animated companions learn weighted instincts from your behavior, defend and heal, gather, mine, tend forests, and use practical pack items. Area work and precise cursor orders coexist: point at a material cluster or loose item and send your companion directly. Work pauses for natural recovery and resumes without losing its plan. A Terraria-emote prompt answers discoveries with Yes, No, Always, or Never. The icon-based Soulwheel combines commands, work, bonding, every vanilla Terraria emote, direct pack access, and details. Existing Sigils remain compatible.
+Persistent animated companions learn weighted instincts from your behavior, defend and heal, gather, mine, tend forests, and use practical pack items. The Work Soulwheel offers area work, precise cursor orders, nearby ore icons, and persistent Adaptive, Tunnel, Vein, or Surface mining. Work pauses for natural recovery and resumes without losing its plan. Talk Mode shows real level progress and can be resized. Existing Sigils remain compatible.
 
 Optional local AETHER Field Notes can record anonymized playtest events and contextual bug reports. Open the in-game mailbox from the Soulwheel's paper-plane icon or with `/soulfeedback`. It is off by default and never uploads data.

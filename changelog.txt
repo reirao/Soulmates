@@ -1,3 +1,15 @@
+Soulmates 0.12.0 - Mining Intent
+
+- Added a contextual ore crescent to the Work Soulwheel: nearby ore families appear as their real Terraria drop icons and can be assigned with one click; the manual world-target pickaxe remains available.
+- Added four persistent mining approaches per companion: Adaptive, Tunnel, Vein, and Surface.
+- Tunnel mode cuts a narrow passage toward nearby ore, or downward until it reaches the next open space, while keeping the existing pick-power and protected-tile checks.
+- Adaptive and Tunnel mining only skim gravity-affected materials such as sand, silt, and slush from an exposed edge instead of excavating unstable buried masses.
+- Changing mining approach replans an active area assignment without discarding completed work or its recovery state.
+- Talk Mode now has a real companion-level progress bar, visible mining approach, and a Terraria-ruler resize handle; its content reflows within safe screen bounds.
+- The Soulwheel status line now keeps level and current mining approach visible beside energy, cargo, and assignment progress.
+- Mining plans and ore selections are included in local Field Notes, and multiplayer selections remain server validated.
+- Existing Soulbound Sigils load as Adaptive and remain compatible.
+
 Soulmates 0.11.0 - Deliberate Souls
 
 - Added precise world orders from the Work Soulwheel: point at a material cluster or loose item and send the companion directly, with server-side validation in multiplayer.

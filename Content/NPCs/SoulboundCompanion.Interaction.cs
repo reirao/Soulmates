@@ -65,6 +65,22 @@ public sealed partial class SoulboundCompanion
 
 	public CompanionConversationResult PerformQuickAction(CompanionQuickAction action)
 	{
+		if (TryGetMiningApproach(action, out CompanionMiningApproach approach)) {
+			Profile.MiningApproach = approach;
+			if (activeJob == CompanionJob.Mine && !directedJob) {
+				miningPlanReady = false;
+				plannedMiningTargets.Clear();
+				plannedMiningCursor = 0;
+				hasJobTarget = false;
+				jobPlannedTotal = jobCount;
+			}
+			SoulmatesFeedbackSystem.Record("mining_approach_changed", ("approach", approach.ToString()),
+				("job_active", activeJob == CompanionJob.Mine));
+			SyncProfileToBoundSigil();
+			NPC.netUpdate = true;
+			return new CompanionConversationResult(
+				SoulmatesText.Get($"MiningApproaches.Selected.{approach}"), true);
+		}
 		if (action == CompanionQuickAction.ToggleAutonomy) {
 			Profile.AutonomyEnabled = !Profile.AutonomyEnabled;
 			if (!Profile.AutonomyEnabled)
@@ -94,6 +110,18 @@ public sealed partial class SoulboundCompanion
 			_ => (TalkCategory.Care, 0)
 		};
 		return Converse(request.category, request.option, 0);
+	}
+
+	private static bool TryGetMiningApproach(CompanionQuickAction action, out CompanionMiningApproach approach)
+	{
+		approach = action switch {
+			CompanionQuickAction.MiningTunnel => CompanionMiningApproach.Tunnel,
+			CompanionQuickAction.MiningVein => CompanionMiningApproach.Vein,
+			CompanionQuickAction.MiningSurface => CompanionMiningApproach.Surface,
+			_ => CompanionMiningApproach.Adaptive
+		};
+		return action is CompanionQuickAction.MiningAdaptive or CompanionQuickAction.MiningTunnel
+			or CompanionQuickAction.MiningVein or CompanionQuickAction.MiningSurface;
 	}
 
 	public CompanionConversationResult Converse(TalkCategory category, int option, int memoryCursor)
