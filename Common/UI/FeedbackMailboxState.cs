@@ -10,6 +10,7 @@ using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.GameInput;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.UI;
 
@@ -40,23 +41,24 @@ public sealed class FeedbackMailboxState : UIState
 		};
 		Append(panel);
 
-		var title = new UIText(SoulmatesText.Get("UI.Mailbox.Title"), 1.05f, true) {
+		var title = new UIText(MailboxText("Title", "AETHER MAILBOX", "AETHER-BRIEFKASTEN"), 1.05f, true) {
 			HAlign = 0.5f,
 			Top = new StyleDimension(8f, 0f)
 		};
 		panel.Append(title);
 
-		var recipient = new UIText(SoulmatesText.Get("UI.Mailbox.Recipient"), 0.68f) {
+		var recipient = new UIText(MailboxText("Recipient", "TO: LOCAL SOULMATES FIELD NOTES",
+			"AN: LOKALE SOULMATES FIELD NOTES"), 0.68f) {
 			Left = new StyleDimension(18f, 0f),
 			Top = new StyleDimension(48f, 0f),
 			TextColor = new Color(166, 191, 220)
 		};
 		panel.Append(recipient);
 
-		feedbackButton = Button(SoulmatesText.Get("UI.Mailbox.Feedback"), 76f, 18f, 156f, new Color(49, 78, 116));
+		feedbackButton = Button(MailboxText("Feedback", "FEEDBACK", "FEEDBACK"), 76f, 18f, 156f, new Color(49, 78, 116));
 		feedbackButton.OnLeftClick += (_, _) => SelectKind(MailKind.Feedback);
 		panel.Append(feedbackButton);
-		bugButton = Button(SoulmatesText.Get("UI.Mailbox.Bug"), 76f, 182f, 156f, new Color(111, 63, 72));
+		bugButton = Button(MailboxText("Bug", "BUG REPORT", "BUGBERICHT"), 76f, 182f, 156f, new Color(111, 63, 72));
 		bugButton.OnLeftClick += (_, _) => SelectKind(MailKind.Bug);
 		panel.Append(bugButton);
 
@@ -93,7 +95,7 @@ public sealed class FeedbackMailboxState : UIState
 		sendButton.OnLeftClick += (_, _) => Send();
 		panel.Append(sendButton);
 
-		var close = Button(SoulmatesText.Get("UI.Common.Close"), 303f, 364f, 178f, new Color(120, 63, 72));
+		var close = Button(CommonText("UI.Common.Close", "CLOSE", "SCHLIESSEN"), 303f, 364f, 178f, new Color(120, 63, 72));
 		close.OnLeftClick += (_, _) => ModContent.GetInstance<FeedbackMailboxSystem>().Close();
 		panel.Append(close);
 		Refresh();
@@ -103,6 +105,8 @@ public sealed class FeedbackMailboxState : UIState
 	{
 		mailKind = MailKind.Feedback;
 		input?.Clear();
+		if (input is not null)
+			input.Focused = true;
 		SetStatus(SoulmatesText.Get("UI.Mailbox.Ready"), Color.LightGray);
 		Refresh();
 	}
@@ -110,6 +114,8 @@ public sealed class FeedbackMailboxState : UIState
 	private void SelectKind(MailKind selected)
 	{
 		mailKind = selected;
+		if (input is not null)
+			input.Focused = true;
 		SetStatus(SoulmatesText.Get("UI.Mailbox.Ready"), Color.LightGray);
 		Refresh();
 		SoundEngine.PlaySound(SoundID.MenuTick);
@@ -200,12 +206,17 @@ public sealed class FeedbackMailboxState : UIState
 		return button;
 	}
 
-	public override void Update(GameTime gameTime)
+	private static string MailboxText(string key, string english, string german)
+		=> CommonText($"UI.Mailbox.{key}", english, german);
+
+	private static string CommonText(string key, string english, string german)
 	{
-		base.Update(gameTime);
-		if (input is not null && Main.mouseLeft && !input.IsMouseHovering)
-			input.Focused = false;
+		string translated = SoulmatesText.Get(key);
+		return translated == $"Mods.Soulmates.{key}"
+			? Language.ActiveCulture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase) ? german : english
+			: translated;
 	}
+
 }
 
 internal sealed class MailboxInputElement(Func<string> placeholder) : UIElement
@@ -230,14 +241,6 @@ internal sealed class MailboxInputElement(Func<string> placeholder) : UIElement
 		base.Update(gameTime);
 		if (IsMouseHovering)
 			Main.LocalPlayer.mouseInterface = true;
-		if (!Focused)
-			return;
-
-		Main.LocalPlayer.mouseInterface = true;
-		PlayerInput.WritingText = true;
-		Main.instance.HandleIME();
-		string next = Main.GetInputText(Text).Replace('\r', ' ').Replace('\n', ' ');
-		Text = next.Length <= MaximumLength ? next : next[..MaximumLength];
 	}
 
 	protected override void DrawSelf(SpriteBatch spriteBatch)
@@ -246,6 +249,13 @@ internal sealed class MailboxInputElement(Func<string> placeholder) : UIElement
 		CalculatedStyle area = GetDimensions();
 		Rectangle box = new((int)area.X, (int)area.Y, (int)area.Width, (int)area.Height);
 		Texture2D pixel = TextureAssets.MagicPixel.Value;
+		if (Focused) {
+			Main.LocalPlayer.mouseInterface = true;
+			PlayerInput.WritingText = true;
+			Main.instance.HandleIME();
+			string next = Main.GetInputText(Text, false).Replace('\r', ' ').Replace('\n', ' ');
+			Text = next.Length <= MaximumLength ? next : next[..MaximumLength];
+		}
 		spriteBatch.Draw(pixel, box, new Color(9, 16, 29) * 0.96f);
 		DrawBorder(spriteBatch, pixel, box, Focused ? new Color(133, 192, 225) : new Color(63, 88, 125));
 
