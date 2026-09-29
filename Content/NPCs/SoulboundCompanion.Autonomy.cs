@@ -28,7 +28,7 @@ public sealed partial class SoulboundCompanion
 			autonomyDiscoveryCooldown--;
 		if (imitationCueTimer > 0 && Main.netMode != NetmodeID.MultiplayerClient
 			&& --imitationCueTimer <= 0)
-			imitationCue = null;
+			imitationSignals.Clear();
 		if (deferredInitiativeTimer > 0 && Main.netMode != NetmodeID.MultiplayerClient
 			&& --deferredInitiativeTimer <= 0)
 			deferredInitiativeKind = null;
@@ -242,8 +242,9 @@ public sealed partial class SoulboundCompanion
 		if (Main.netMode == NetmodeID.MultiplayerClient)
 			return true;
 		if (autonomyActionTimer > 600) {
+			autonomyAttemptCount++;
 			tendedForestTargets.Add(autonomyTargetTile);
-			if (TryRetargetAutonomousForestry())
+			if (CanContinueAutonomousForestry() && TryRetargetAutonomousForestry())
 				return true;
 			FinishAutonomousForestry();
 			return false;
@@ -252,6 +253,7 @@ public sealed partial class SoulboundCompanion
 			return true;
 
 		bool success = PerformForestAction(autonomyTargetTile, autonomyForestAction);
+		autonomyAttemptCount++;
 		SoulmatesFeedbackSystem.Record("forestry_action", ("action", autonomyForestAction.ToString()),
 			("success", success), ("pack_load", Profile.PackLoad));
 		tendedForestTargets.Add(autonomyTargetTile);
@@ -265,10 +267,18 @@ public sealed partial class SoulboundCompanion
 
 		int sweepLimit = Profile.ForesterUnlocked ? AutonomousForestSweepLimit : 1;
 		if (Profile.Energy >= 16 && autonomyWorkCount < sweepLimit
+			&& autonomyAttemptCount < sweepLimit * 2
 			&& TryRetargetAutonomousForestry())
 			return true;
 		FinishAutonomousForestry();
 		return false;
+	}
+
+	private bool CanContinueAutonomousForestry()
+	{
+		int sweepLimit = Profile.ForesterUnlocked ? AutonomousForestSweepLimit : 1;
+		return Profile.Energy >= 16 && autonomyWorkCount < sweepLimit
+			&& autonomyAttemptCount < sweepLimit * 2;
 	}
 
 	private bool TryRetargetAutonomousForestry()
@@ -300,6 +310,8 @@ public sealed partial class SoulboundCompanion
 
 	private bool ShakeTree(Point target)
 	{
+		if (treeShakeCooldown > 0)
+			return false;
 		if (!TryFindTreeTrunk(target, out Point trunk))
 			return false;
 		Tile ground = Main.tile[target.X, target.Y];
@@ -314,10 +326,42 @@ public sealed partial class SoulboundCompanion
 		catch (Exception exception) when (exception is TargetInvocationException or MethodAccessException or ArgumentException) {
 			return false;
 		}
-		if (previousShakes >= 0 && TreeShakeCountField?.GetValue(null) is int currentShakes
-			&& currentShakes <= previousShakes)
+		bool success = previousShakes < 0 || TreeShakeCountField?.GetValue(null) is not int currentShakes
+			|| currentShakes > previousShakes;
+		return RememberTreeShakeResult(success);
+	}
+
+	private bool RememberTreeShakeResult(bool success)
+	{
+		if (success) {
+			failedTreeShakeStreak = 0;
+			return true;
+		}
+
+		failedTreeShakeStreak++;
+		if (failedTreeShakeStreak < 3)
 			return false;
-		return true;
+		failedTreeShakeStreak = 0;
+		treeShakeCooldown = 3600;
+		SoulmatesFeedbackSystem.Record("forestry_shake_rest", ("cooldown_ticks", treeShakeCooldown));
+		ShowNativeEmote(EmoteID.EmoteConfused, 100);
+		if (speechTimer <= 0)
+			SpeakLocalized("Autonomy.ForestQuiet");
+		return false;
+	}
+
+	private void UpdateForestAwareness()
+	{
+		if (Main.netMode == NetmodeID.MultiplayerClient)
+			return;
+		if (treeShakeCooldown > 0)
+			treeShakeCooldown--;
+		if (Main.dayTime && !previousDaytime) {
+			treeShakeCooldown = 0;
+			failedTreeShakeStreak = 0;
+			tendedForestTargets.Clear();
+		}
+		previousDaytime = Main.dayTime;
 	}
 
 	private static bool TryFindTreeTrunk(Point ground, out Point trunk)
@@ -343,39 +387,75 @@ public sealed partial class SoulboundCompanion
 	private bool TryConsiderImitationCue(out bool actionResult)
 	{
 		actionResult = false;
-		if (imitationCue is not LearnedBehavior behavior || imitationCueTimer <= 0)
+		if (imitationSignals.Count == 0 || imitationCueTimer <= 0)
 			return false;
 
-		switch (behavior) {
-			case LearnedBehavior.Gathering:
-				if (!FindAutonomousLooseItem(out int itemIndex))
-					return false;
-				actionResult = ConsiderInitiative(AutonomyActivity.FetchItem, targetItem: itemIndex);
-				break;
-			case LearnedBehavior.Mining:
-				if (!MiningInstinct || !FindAutonomousOre(out Point ore))
-					return false;
-				actionResult = ConsiderInitiative(AutonomyActivity.AssistMining, targetTile: ore);
-				break;
-			case LearnedBehavior.Forestry:
-				if (!Profile.ForesterUnlocked
-					|| !FindForestTask(Owner.Center, out Point forestTarget, out ForestAction forestAction))
-					return false;
-				actionResult = ConsiderInitiative(AutonomyActivity.TendForest, targetTile: forestTarget,
-					forestAction: forestAction);
-				break;
-			case LearnedBehavior.Exploration:
-				if (!TreasureInstinct || autonomyDiscoveryCooldown > 0 || !FindAutonomousChest(out Point chest))
-					return false;
-				actionResult = ConsiderInitiative(AutonomyActivity.InspectTreasure, targetTile: chest);
-				break;
-			default:
-				return false;
+		foreach (KeyValuePair<LearnedBehavior, int> signal in imitationSignals
+			.OrderByDescending(entry => entry.Value)
+			.ThenBy(entry => ImitationPriority(entry.Key)).ToArray()) {
+			LearnedBehavior behavior = signal.Key;
+			bool actionable = behavior switch {
+				LearnedBehavior.Gathering => TryImitateGathering(out actionResult),
+				LearnedBehavior.Mining => TryImitateMining(out actionResult),
+				LearnedBehavior.Forestry => TryImitateForestry(out actionResult),
+				LearnedBehavior.Exploration => TryImitateExploration(out actionResult),
+				_ => false
+			};
+			if (!actionable)
+				continue;
+			imitationSignals.Remove(behavior);
+			if (imitationSignals.Count == 0)
+				imitationCueTimer = 0;
+			return true;
 		}
-		imitationCue = null;
-		imitationCueTimer = 0;
+		return false;
+	}
+
+	private bool TryImitateGathering(out bool actionResult)
+	{
+		actionResult = false;
+		if (!FindAutonomousLooseItem(out int itemIndex))
+			return false;
+		actionResult = ConsiderInitiative(AutonomyActivity.FetchItem, targetItem: itemIndex);
 		return true;
 	}
+
+	private bool TryImitateMining(out bool actionResult)
+	{
+		actionResult = false;
+		if (!MiningInstinct || !FindAutonomousOre(out Point ore))
+			return false;
+		actionResult = ConsiderInitiative(AutonomyActivity.AssistMining, targetTile: ore);
+		return true;
+	}
+
+	private bool TryImitateForestry(out bool actionResult)
+	{
+		actionResult = false;
+		if (!Profile.ForesterUnlocked
+			|| !FindForestTask(Owner.Center, out Point forestTarget, out ForestAction forestAction))
+			return false;
+		actionResult = ConsiderInitiative(AutonomyActivity.TendForest, targetTile: forestTarget,
+			forestAction: forestAction);
+		return true;
+	}
+
+	private bool TryImitateExploration(out bool actionResult)
+	{
+		actionResult = false;
+		if (!TreasureInstinct || autonomyDiscoveryCooldown > 0 || !FindAutonomousChest(out Point chest))
+			return false;
+		actionResult = ConsiderInitiative(AutonomyActivity.InspectTreasure, targetTile: chest);
+		return true;
+	}
+
+	private static int ImitationPriority(LearnedBehavior behavior) => behavior switch {
+		LearnedBehavior.Mining => 0,
+		LearnedBehavior.Forestry => 1,
+		LearnedBehavior.Gathering => 2,
+		LearnedBehavior.Exploration => 3,
+		_ => 4
+	};
 
 	private bool ClearDeadwood(Point target)
 	{
@@ -467,6 +547,7 @@ public sealed partial class SoulboundCompanion
 		action = ForestAction.None;
 		Point center = searchCenter.ToTileCoordinates();
 		float bestScore = float.MaxValue;
+		var consideredTargets = new HashSet<Point>();
 		bool canPlant = Profile.ForesterUnlocked && HasPackItem(ItemID.Acorn);
 		int radius = Profile.ForesterUnlocked ? 28 : 22;
 		for (int x = center.X - radius; x <= center.X + radius; x++) {
@@ -482,7 +563,10 @@ public sealed partial class SoulboundCompanion
 					candidateAction = ForestAction.ClearDeadwood;
 					priority = 0.55f;
 				}
-				else if (tile.HasTile && IsTreeTrunk(tile.TileType)) {
+				else if (treeShakeCooldown <= 0 && tile.HasTile && IsTreeTrunk(tile.TileType)) {
+					if (y + 1 < Main.maxTilesY && Main.tile[x, y + 1].HasTile
+						&& IsTreeTrunk(Main.tile[x, y + 1].TileType))
+						continue;
 					WorldGen.GetTreeBottom(x, y, out int treeX, out int treeY);
 					candidate = new Point(treeX, treeY);
 					if (!WorldGen.InWorld(candidate.X, candidate.Y, 10))
@@ -499,7 +583,8 @@ public sealed partial class SoulboundCompanion
 				else
 					continue;
 
-				if (candidate == Point.Zero || tendedForestTargets.Contains(candidate))
+				if (candidate == Point.Zero || !consideredTargets.Add(candidate)
+					|| tendedForestTargets.Contains(candidate))
 					continue;
 				float score = Vector2.DistanceSquared(candidate.ToWorldCoordinates(), NPC.Center) * priority;
 				if (candidateAction == ForestAction.PlantAcorn)
@@ -655,6 +740,7 @@ public sealed partial class SoulboundCompanion
 		autonomyTargetItem = targetItem;
 		autonomyTargetTile = targetTile;
 		autonomyWorkCount = 0;
+		autonomyAttemptCount = 0;
 		autonomyForestAction = forestAction;
 		ClearTownNpcInteraction();
 		NPC.netUpdate = true;
@@ -711,14 +797,15 @@ public sealed partial class SoulboundCompanion
 		bool changed = autonomyActivity != AutonomyActivity.None || pendingAutonomyActivity != AutonomyActivity.None;
 		if (autonomyActivity != AutonomyActivity.None)
 			SoulmatesFeedbackSystem.Record("autonomy_ended", ("action", autonomyActivity.ToString()),
-				("work_count", autonomyWorkCount));
+				("work_count", autonomyWorkCount), ("attempt_count", autonomyAttemptCount));
 		autonomyActivity = AutonomyActivity.None;
 		autonomyActionTimer = 0;
 		autonomyTargetItem = -1;
 		autonomyTargetTile = Point.Zero;
 		autonomyWorkCount = 0;
+		autonomyAttemptCount = 0;
 		autonomyForestAction = ForestAction.None;
-		imitationCue = null;
+		imitationSignals.Clear();
 		imitationCueTimer = 0;
 		ClearPendingInitiative();
 		autonomyDecisionTimer = Math.Max(autonomyDecisionTimer, nextDecisionDelay);

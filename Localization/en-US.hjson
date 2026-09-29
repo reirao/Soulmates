@@ -498,6 +498,7 @@ Mods: {
 			Fetched: I noticed {0}. I will keep it safe.
 			Mined: I cleared {0} nearby ore blocks while you worked.
 			Treasure: Something worth investigating is {0}.
+			ForestQuiet: The trees are quiet for now. I will leave them be for a while.
 
 			Initiative: {
 				RulesReset: I will ask again when I notice an opportunity.

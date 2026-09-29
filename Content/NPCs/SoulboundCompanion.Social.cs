@@ -180,14 +180,21 @@ public sealed partial class SoulboundCompanion
 	{
 		if (!HasAdaptiveInstinct(behavior))
 			return;
-		SoulmatesFeedbackSystem.Record("imitation_cued", ("behavior", behavior.ToString()));
 		if (behavior == LearnedBehavior.Combat) {
 			attackCooldown = Math.Min(attackCooldown, 8);
 			return;
 		}
-		imitationCue = behavior;
-		imitationCueTimer = 240;
-		autonomyDecisionTimer = Math.Min(autonomyDecisionTimer, 24);
+
+		bool newSignal = !imitationSignals.TryGetValue(behavior, out int strength);
+		strength = Math.Min(5, strength + 1);
+		imitationSignals[behavior] = strength;
+		imitationCueTimer = Math.Max(imitationCueTimer, 240 + strength * 30);
+		autonomyDecisionTimer = Math.Min(autonomyDecisionTimer, Math.Max(8, 28 - strength * 4));
+		if (newSignal)
+			SoulmatesFeedbackSystem.Record("imitation_cued", ("behavior", behavior.ToString()));
+		else if (strength is 2 or 4)
+			SoulmatesFeedbackSystem.Record("imitation_reinforced", ("behavior", behavior.ToString()),
+				("strength", strength));
 	}
 
 	private bool HasAdaptiveInstinct(LearnedBehavior behavior) => Profile.HasLearnedPerk(behavior)

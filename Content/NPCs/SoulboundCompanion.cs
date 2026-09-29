@@ -113,6 +113,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 	private int autonomyTargetItem = -1;
 	private Point autonomyTargetTile;
 	private int autonomyWorkCount;
+	private int autonomyAttemptCount;
 	private int autonomyDiscoveryCooldown;
 	private ForestAction autonomyForestAction;
 	private int pendingInitiativeTimer;
@@ -122,9 +123,12 @@ public sealed partial class SoulboundCompanion : ModNPC
 	private CompanionInitiativeKind? deferredInitiativeKind;
 	private int deferredInitiativeTimer;
 	private int learningObservationTimer;
-	private LearnedBehavior? imitationCue;
+	private readonly Dictionary<LearnedBehavior, int> imitationSignals = [];
 	private int imitationCueTimer;
 	private int tendedForestResetTimer;
+	private int failedTreeShakeStreak;
+	private int treeShakeCooldown;
+	private bool previousDaytime;
 	private bool packReconciled;
 	private string speechText = "";
 	private Vector2 speechAnchorWorld;
@@ -217,6 +221,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 		townNpcInteractionCooldown = Main.rand.Next(1200, 2200);
 		autonomyDecisionTimer = Main.rand.Next(360, 720);
 		tendedForestResetTimer = Main.rand.Next(1800, 3600);
+		previousDaytime = Main.dayTime;
 	}
 
 	public override bool CheckActive() => !TryGetOwner(out Player owner) || owner.dead;
@@ -259,6 +264,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 		NPC.GivenName = Profile.Name;
 		Lighting.AddLight(NPC.Center, Profile.EssenceColor.ToVector3() * 1.15f);
 		RevealSurroundings();
+		UpdateForestAwareness();
 		ResumeAssignment();
 		UpdateAuraDust();
 		UpdateSocialState();

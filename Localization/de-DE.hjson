@@ -498,6 +498,7 @@ Mods: {
 			Fetched: Mir ist {0} aufgefallen. Ich bewahre es sicher auf.
 			Mined: Ich habe beim Arbeiten {0} Erzblöcke in der Nähe mit abgebaut.
 			Treasure: Etwas Interessantes zum Untersuchen liegt {0}.
+			ForestQuiet: Die Bäume sind gerade still. Ich lasse sie eine Weile in Ruhe.
 
 			Initiative: {
 				RulesReset: Ich frage wieder nach, wenn ich eine Gelegenheit entdecke.
