@@ -375,15 +375,17 @@ internal sealed class CompanionVitalsElement(
 		footer = footer.ToUpperInvariant();
 		Utils.DrawBorderString(spriteBatch, footer, topLeft + new Vector2(0f, 49f), profile.EssenceColor,
 			FitScale(footer, 142f, 0.36f));
-		string forester = profile.ForesterUnlocked
-			? SoulmatesText.Get("Learning.Forester")
-			: SoulmatesText.Get("Learning.ForesterProgress", profile.ForestryInsight, CompanionProfile.ForesterUnlockInsight);
+		LearnedBehavior dominantBehavior = profile.DominantLearnedBehavior;
+		string dominantPerk = profile.HasLearnedPerk(dominantBehavior)
+			? CompanionProfile.LearnedPerkName(dominantBehavior)
+			: SoulmatesText.Get("Learning.PerkProgress", CompanionProfile.LearnedPerkName(dominantBehavior),
+				profile.GetInsight(dominantBehavior), CompanionProfile.LearnedPerkUnlockInsight(dominantBehavior));
 		string learning = profile.IsAether
 			? SoulmatesText.Get("UI.Talk.AetherLearning")
 			: profile.DominantInsight <= 0
-				? SoulmatesText.Get("UI.Talk.ObservingProgress", forester)
+				? SoulmatesText.Get("UI.Talk.ObservingProgress", dominantPerk)
 				: SoulmatesText.Get("UI.Talk.Learning", SoulmatesText.EnumName(profile.DominantLearnedBehavior),
-					profile.DominantInsight, forester);
+					profile.DominantInsight, dominantPerk);
 		learning = learning.ToUpperInvariant();
 		Utils.DrawBorderString(spriteBatch, learning, topLeft + new Vector2(0f, 65f),
 			Color.Lerp(profile.EssenceColor, Color.White, 0.35f), FitScale(learning, 142f, 0.31f));

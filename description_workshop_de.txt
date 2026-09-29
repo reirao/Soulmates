@@ -65,9 +65,9 @@ Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils. Alles is
 [b]Delver Charm:[/b] 5 Iron/Lead Bars, 2 Amethyst, 20 Stone Blocks
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
-[h2]Aktuelle Version: 9.9.0.24[/h2]
-[b]Hotfix fuer zwei Instinkte:[/b] AETHER verwendet nun getrennte Rhythmen fuer Heilung und Kampf. Heilen unterdrueckt keine Seelenblitz-Angriffe mehr und ein Angriff verschiebt keine verfuegbare Heilung.
-Die aktuelle Version baut Companion-, Player-Emote- und Initiativräder mit Terrarias Inventarslots, Items und animierten Emotes neu auf. Sie enthält außerdem den vereinheitlichten Frachtweg, dauerhafte Ja-/Nein-/Immer-/Nie-Regeln, den Baumklopf-Untergrundfix, das wiederhergestellte Player-Rechtsklickrad und die korrigierte Blickrichtung des Eichhörnchens. Bestehende Sigils bleiben kompatibel.
+[h2]Aktuelle Version: 0.10.0 - AETHER-EGG Alpha[/h2]
+Dieses gewachsene, aber bewusst noch nicht fertige Fundament gibt Initiativfragen ein eigenes kompaktes Terraria-Emote-Menü, respektiert wieder Vanilla-Rechtsklicks, hält Companions im Kampf zum Ziel ausgerichtet und macht aus fünf beobachteten Gewohnheiten benannte Lerninstinkte, mit denen sie den Spieler gezielt nachahmen. AETHER besitzt von Anfang an alle Talentinstinkte und erlernten Perks. Bestehende Sigils bleiben kompatibel.
+[b]Hinweis zu alten Installationen:[/b] Falls du einen `9.9.x`-Build von GitHub manuell installiert hast, entferne diese doppelte `.tmod`, bevor du die Workshop-Fassung von AETHER-EGG verwendest. Normale Workshop-Abonnements ersetzen ihre eigene Datei automatisch.
 
 [h2]Wie Soulmates hierherkam[/h2]
 Soulmates begann als Item zum Gestalten eines Pets. Wiederholte Ingame-Tests machten daraus dauerhafte Sigils, Persönlichkeiten, Kampfunterstützung, Arbeit, Pack, Lernen, Forstpflege, Initiative und native Emotes. Einige Systeme wurden mehrfach neu gebaut, nachdem echtes Spielen umständliche Bedienung, verschwindende Fracht, doppelte Drops oder zurückbleibende Fähigkeiten zeigte. Der GitHub-Changelog bewahrt diese Geschichte; hier steht nur der umgesetzte Ist-Stand.

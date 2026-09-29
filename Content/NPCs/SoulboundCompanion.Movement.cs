@@ -61,6 +61,11 @@ public sealed partial class SoulboundCompanion
 
 	private void UpdateFacing()
 	{
+		if (TryFaceTrackedTarget()) {
+			NPC.spriteDirection = facing;
+			return;
+		}
+
 		if (facingCooldown > 0)
 			facingCooldown--;
 
@@ -72,6 +77,19 @@ public sealed partial class SoulboundCompanion
 			}
 		}
 		NPC.spriteDirection = facing;
+	}
+
+	private bool TryFaceTrackedTarget()
+	{
+		int targetIndex = guardianTarget >= 0 ? guardianTarget : socialNpcTarget;
+		if (targetIndex < 0 || targetIndex >= Main.maxNPCs)
+			return false;
+		NPC target = Main.npc[targetIndex];
+		if (!target.active || MathF.Abs(target.Center.X - NPC.Center.X) < 2f)
+			return false;
+		facing = target.Center.X < NPC.Center.X ? -1 : 1;
+		facingCooldown = 8;
+		return true;
 	}
 
 	private void UpdateAuraDust()

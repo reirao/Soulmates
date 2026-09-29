@@ -67,16 +67,18 @@ public sealed class SoulmatesPlayer : ModPlayer
 			return;
 		SoulboundCompanion? companion = SoulboundCompanion.FindFor(Player);
 		CompanionWheelSystem companionWheel = ModContent.GetInstance<CompanionWheelSystem>();
+		InitiativePromptSystem initiativePrompt = ModContent.GetInstance<InitiativePromptSystem>();
 		TalkModeSystem talkMode = ModContent.GetInstance<TalkModeSystem>();
 		bool rightPressed = Main.mouseRight && !rightMouseDown;
 		rightMouseDown = Main.mouseRight;
 		if (Soulmates.EmoteKeybind.JustPressed && companion is not null && !Main.playerInventory
-			&& !talkMode.IsOpen && !companionWheel.IsOpen)
+			&& !talkMode.IsOpen && !companionWheel.IsOpen && !initiativePrompt.IsOpen)
 			companionWheel.OpenEmotes(companion);
 		if (companion is not null && rightPressed)
-			TryOpenSelfSoulwheel(companion, companionWheel, talkMode);
+			TryOpenSelfSoulwheel(companion, companionWheel, initiativePrompt, talkMode);
 
-		if (!Soulmates.TalkKeybind.JustPressed || companion is null || companionWheel.IsOpen)
+		if (!Soulmates.TalkKeybind.JustPressed || companion is null || companionWheel.IsOpen
+			|| initiativePrompt.IsOpen)
 			return;
 		if (companion.FindBoundSigil() is not { } sigil)
 			return;
@@ -84,10 +86,12 @@ public sealed class SoulmatesPlayer : ModPlayer
 	}
 
 	private void TryOpenSelfSoulwheel(SoulboundCompanion companion, CompanionWheelSystem companionWheel,
-		TalkModeSystem talkMode)
+		InitiativePromptSystem initiativePrompt, TalkModeSystem talkMode)
 	{
 		if (Main.playerInventory || Player.mouseInterface
-			|| talkMode.IsOpen || companionWheel.IsOpen)
+			|| talkMode.IsOpen || companionWheel.IsOpen || initiativePrompt.IsOpen
+			|| !Main.HoverItem.IsAir || Player.cursorItemIconEnabled
+			|| ItemLoader.AltFunctionUse(Player.HeldItem, Player))
 			return;
 
 		Point mouseWorld = Main.MouseWorld.ToPoint();
@@ -111,8 +115,9 @@ public sealed class SoulmatesPlayer : ModPlayer
 		if (!WorldGen.InWorld(tilePosition.X, tilePosition.Y, 1))
 			return true;
 		Tile tile = Main.tile[tilePosition.X, tilePosition.Y];
-		if (tile.HasTile && tile.TileType < TileID.Sets.HasOutlines.Length
-			&& TileID.Sets.HasOutlines[tile.TileType])
+		// Never steal a right-click from a tile. The player wheel is intentionally
+		// limited to the clear air around the character's body.
+		if (tile.HasTile)
 			return true;
 
 		for (int i = 0; i < Main.maxNPCs; i++) {

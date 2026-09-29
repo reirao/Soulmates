@@ -25,6 +25,9 @@ public sealed partial class SoulboundCompanion
 	{
 		if (autonomyDiscoveryCooldown > 0 && Main.netMode != NetmodeID.MultiplayerClient)
 			autonomyDiscoveryCooldown--;
+		if (imitationCueTimer > 0 && Main.netMode != NetmodeID.MultiplayerClient
+			&& --imitationCueTimer <= 0)
+			imitationCue = null;
 		if (deferredInitiativeTimer > 0 && Main.netMode != NetmodeID.MultiplayerClient
 			&& --deferredInitiativeTimer <= 0)
 			deferredInitiativeKind = null;
@@ -62,6 +65,8 @@ public sealed partial class SoulboundCompanion
 		autonomyDecisionTimer = Main.rand.Next(minimum, maximum);
 		if (Vector2.DistanceSquared(NPC.Center, Owner.Center) > 440f * 440f)
 			return false;
+		if (TryConsiderImitationCue(out bool imitationResult))
+			return imitationResult;
 
 		if (MayConsiderInitiative(CompanionInitiativeKind.Gathering)
 			&& FindAutonomousLooseItem(out int itemIndex))
@@ -328,6 +333,43 @@ public sealed partial class SoulboundCompanion
 		return false;
 	}
 
+	private bool TryConsiderImitationCue(out bool actionResult)
+	{
+		actionResult = false;
+		if (imitationCue is not LearnedBehavior behavior || imitationCueTimer <= 0)
+			return false;
+
+		switch (behavior) {
+			case LearnedBehavior.Gathering:
+				if (!FindAutonomousLooseItem(out int itemIndex))
+					return false;
+				actionResult = ConsiderInitiative(AutonomyActivity.FetchItem, targetItem: itemIndex);
+				break;
+			case LearnedBehavior.Mining:
+				if (!MiningInstinct || !FindAutonomousOre(out Point ore))
+					return false;
+				actionResult = ConsiderInitiative(AutonomyActivity.AssistMining, targetTile: ore);
+				break;
+			case LearnedBehavior.Forestry:
+				if (!Profile.ForesterUnlocked
+					|| !FindForestTask(Owner.Center, out Point forestTarget, out ForestAction forestAction))
+					return false;
+				actionResult = ConsiderInitiative(AutonomyActivity.TendForest, targetTile: forestTarget,
+					forestAction: forestAction);
+				break;
+			case LearnedBehavior.Exploration:
+				if (!TreasureInstinct || autonomyDiscoveryCooldown > 0 || !FindAutonomousChest(out Point chest))
+					return false;
+				actionResult = ConsiderInitiative(AutonomyActivity.InspectTreasure, targetTile: chest);
+				break;
+			default:
+				return false;
+		}
+		imitationCue = null;
+		imitationCueTimer = 0;
+		return true;
+	}
+
 	private bool ClearDeadwood(Point target)
 	{
 		if (!WorldGen.InWorld(target.X, target.Y, 10)
@@ -540,7 +582,7 @@ public sealed partial class SoulboundCompanion
 		if (Main.netMode == NetmodeID.Server)
 			global::Soulmates.Soulmates.SendInitiativePrompt(Owner, this, kind);
 		else
-			ModContent.GetInstance<CompanionWheelSystem>().OpenInitiative(this);
+			ModContent.GetInstance<InitiativePromptSystem>().Open(this);
 		return false;
 	}
 
@@ -554,7 +596,7 @@ public sealed partial class SoulboundCompanion
 			return;
 		pendingAutonomyActivity = ActivityFor(kind);
 		pendingInitiativeTimer = 1200;
-		ModContent.GetInstance<CompanionWheelSystem>().OpenInitiative(this);
+		ModContent.GetInstance<InitiativePromptSystem>().Open(this);
 	}
 
 	public bool RespondToInitiative(CompanionInitiativeResponse response)
@@ -663,6 +705,8 @@ public sealed partial class SoulboundCompanion
 		autonomyTargetTile = Point.Zero;
 		autonomyWorkCount = 0;
 		autonomyForestAction = ForestAction.None;
+		imitationCue = null;
+		imitationCueTimer = 0;
 		ClearPendingInitiative();
 		autonomyDecisionTimer = Math.Max(autonomyDecisionTimer, nextDecisionDelay);
 		if (changed)

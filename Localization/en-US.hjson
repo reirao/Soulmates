@@ -453,7 +453,24 @@ Mods: {
 			Forester: Forester
 			Locked: locked
 			ForesterProgress: Forester {0}/{1}
+			PerkProgress: "{0} {1}/{2}"
 			ForesterUnlocked: I watched how you care for wood and growing things. I can help with that now.
+
+			Perks: {
+				Gathering: Forager
+				Mining: Ore Sense
+				Forestry: Forester
+				Combat: Sentinel
+				Exploration: Trailblazer
+			}
+
+			Unlocked: {
+				Gathering: I learned how you notice useful things. I can gather alongside you now.
+				Mining: I learned the rhythm of your pickaxe. I can recognize workable ore now.
+				Forestry: I watched how you care for wood and growing things. I can help with that now.
+				Combat: I learned how you read danger. I can guard you more deliberately now.
+				Exploration: I learned what draws your attention while exploring. I can investigate with you now.
+			}
 		}
 
 		Social: {

@@ -453,7 +453,24 @@ Mods: {
 			Forester: Forstpflege
 			Locked: gesperrt
 			ForesterProgress: Forstpflege {0}/{1}
+			PerkProgress: "{0} {1}/{2}"
 			ForesterUnlocked: Ich habe beobachtet, wie du mit Holz und wachsenden Dingen umgehst. Jetzt kann ich dir dabei helfen.
+
+			Perks: {
+				Gathering: Spürsinn
+				Mining: Erzgespür
+				Forestry: Forstpflege
+				Combat: Wächterinstinkt
+				Exploration: Pfadfinder
+			}
+
+			Unlocked: {
+				Gathering: Ich habe gelernt, wie du nützliche Dinge bemerkst. Jetzt kann ich an deiner Seite sammeln.
+				Mining: Ich habe den Rhythmus deiner Spitzhacke gelernt. Jetzt erkenne ich abbaubares Erz.
+				Forestry: Ich habe beobachtet, wie du mit Holz und wachsenden Dingen umgehst. Jetzt kann ich dir dabei helfen.
+				Combat: Ich habe gelernt, wie du Gefahren liest. Jetzt kann ich dich gezielter beschützen.
+				Exploration: Ich habe gelernt, was beim Erkunden deine Aufmerksamkeit weckt. Jetzt kann ich mit dir nachsehen.
+			}
 		}
 
 		Social: {

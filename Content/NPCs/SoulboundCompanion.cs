@@ -110,6 +110,8 @@ public sealed partial class SoulboundCompanion : ModNPC
 	private CompanionInitiativeKind? deferredInitiativeKind;
 	private int deferredInitiativeTimer;
 	private int learningObservationTimer;
+	private LearnedBehavior? imitationCue;
+	private int imitationCueTimer;
 	private int tendedForestResetTimer;
 	private bool packReconciled;
 	private string speechText = "";
@@ -153,10 +155,14 @@ public sealed partial class SoulboundCompanion : ModNPC
 	private int MiningRadiusTiles => (Profile.Trinket == CompanionTrinket.DelverCharm ? 34 : 26) + Profile.RankIndex * 2;
 	private int GatheringRadiusTiles => (Profile.Trinket == CompanionTrinket.HearthRibbon ? 42 : 30) + Profile.RankIndex * 2;
 	private int TreasureRadiusTiles => (Profile.Trinket == CompanionTrinket.StarfinderBell ? 90 : 55) + Profile.RankIndex * 3;
-	private bool GuardianSpecialist => Profile.HasTalent(CompanionTalent.Guardian) || Profile.CombatInsight >= 36;
-	private bool EagerGatherer => Profile.HasTalent(CompanionTalent.Gatherer) || Profile.GatheringInsight >= 32;
-	private bool MiningInstinct => Profile.HasTalent(CompanionTalent.Miner) || Profile.MiningInsight >= 20;
-	private bool TreasureInstinct => Profile.HasTalent(CompanionTalent.TreasureSeeker) || Profile.ExplorationInsight >= 24;
+	private bool GuardianSpecialist => Profile.HasTalent(CompanionTalent.Guardian)
+		|| Profile.CombatInsight >= CompanionProfile.CombatUnlockInsight;
+	private bool EagerGatherer => Profile.HasTalent(CompanionTalent.Gatherer)
+		|| Profile.GatheringInsight >= CompanionProfile.GatheringUnlockInsight;
+	private bool MiningInstinct => Profile.HasTalent(CompanionTalent.Miner)
+		|| Profile.MiningInsight >= CompanionProfile.MiningUnlockInsight;
+	private bool TreasureInstinct => Profile.HasTalent(CompanionTalent.TreasureSeeker)
+		|| Profile.ExplorationInsight >= CompanionProfile.ExplorationUnlockInsight;
 	private float DefenseRange => (GuardianSpecialist ? GuardianDefenseRange : StandardDefenseRange)
 		+ Profile.RankIndex * (GuardianSpecialist ? 24f : 16f);
 	private float DefenseLeash => DefenseRange + (GuardianSpecialist ? 112f : 80f);

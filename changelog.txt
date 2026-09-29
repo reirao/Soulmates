@@ -1,3 +1,14 @@
+Soulmates 0.10.0 - AETHER-EGG Alpha
+
+- Rebased the public version line onto an honest pre-1.0 alpha: 0.10 is the grown AETHER-EGG foundation, not a claim of near-final stability.
+- Moved companion initiative questions into their own compact Terraria-emote decision prompt instead of borrowing the Companion or Player Soulwheel.
+- Preserved vanilla right-click priority for world tiles, hovered inventory items, smart-interact targets, and held items with alternate use.
+- Companions now face their tracked enemy throughout strafing and attacks instead of occasionally turning with their flight velocity.
+- Expanded adaptive learning into five named instincts: Forager, Ore Sense, Forester, Sentinel, and Trailblazer.
+- Learned instincts now prefer opportunities that mirror the owner's recent gathering, mining, forestry, combat, and exploration behavior.
+- Every learned instinct announces its unlock, persists through the existing insight values, and appears in Sigil and Talk Mode learning status.
+- AETHER retains every talent instinct and learned perk from the start. Existing Soulbound Sigils remain compatible.
+
 Soulmates 9.9.0.24 - Dual Instinct Hotfix
 
 - Separated combat and healing cooldowns so AETHER can protect and restore the player during the same encounter.

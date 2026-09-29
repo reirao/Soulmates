@@ -65,9 +65,9 @@ New characters receive one Soulcore and three Blank Sigils. Everything can also 
 [b]Delver Charm:[/b] 5 Iron/Lead Bars, 2 Amethyst, 20 Stone Blocks
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
-[h2]Current Release: 9.9.0.24[/h2]
-[b]Dual Instinct Hotfix:[/b] AETHER now keeps independent healing and combat rhythms, so restoring the player no longer suppresses Soul Bolt attacks and fighting no longer postpones an available heal.
-This release rebuilds the Companion, Player Emote, and initiative wheels around Terraria's inventory slots, items, and animated emotes. It also includes the unified cargo path, persistent Yes/No/Always/Never choices, tree-shake terrain fix, restored player right-click wheel, and corrected Squirrel facing. Existing Sigils remain compatible.
+[h2]Current Release: 0.10.0 - AETHER-EGG Alpha[/h2]
+This grown but deliberately pre-1.0 foundation gives initiative questions their own compact Terraria-emote prompt, restores vanilla right-click priority, keeps companions facing their combat target, and turns five observed habits into named adaptive instincts that deliberately imitate the owner. AETHER begins with every talent instinct and learned perk. Existing Sigils remain compatible.
+[b]Legacy install note:[/b] If you manually installed a GitHub `9.9.x` build, remove that duplicate `.tmod` before using the Workshop AETHER-EGG line. Normal Workshop subscriptions replace themselves automatically.
 
 [h2]How Soulmates Got Here[/h2]
 Soulmates began as an item for shaping a pet. Repeated in-game tests turned it into persistent Sigils, personalities, combat support, work, cargo, learning, forestry, initiative, and native emotes. Some systems were rebuilt more than once when real play exposed awkward controls, disappearing cargo, duplicate drops, or stale abilities. The GitHub changelog preserves that history; this page describes only the implemented state.

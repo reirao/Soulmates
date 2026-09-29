@@ -133,20 +133,22 @@ public sealed partial class SoulboundCompanion
 		if (Main.netMode == NetmodeID.MultiplayerClient || !Enum.IsDefined(behavior))
 			return;
 		int before = Profile.GetInsight(behavior);
-		bool unlockedForester = Profile.Observe(behavior, amount);
+		LearnedBehavior? unlockedPerk = Profile.Observe(behavior, amount);
 		int after = Profile.GetInsight(behavior);
+		QueueImitation(behavior);
 		if (after == before)
 			return;
 
 		SyncProfileToBoundSigil();
-		bool syncMilestone = unlockedForester || after % 5 == 0;
+		bool syncMilestone = unlockedPerk is not null || after % 5 == 0;
 		string message = "";
-		if (unlockedForester) {
+		if (unlockedPerk is LearnedBehavior learnedBehavior) {
 			Profile.GainExperience(5, out _);
 			StartEmote(CompanionEmote.Cheer, 120);
 			ShowNativeEmote(CompanionEmote.Cheer, 140);
-			SpeakLocalized("Learning.ForesterUnlocked");
-			message = SoulmatesText.Get("Messages.PerkUnlocked", Profile.Name, SoulmatesText.Get("Learning.Forester"));
+			SpeakLocalized($"Learning.Unlocked.{learnedBehavior}");
+			message = SoulmatesText.Get("Messages.PerkUnlocked", Profile.Name,
+				CompanionProfile.LearnedPerkName(learnedBehavior));
 		}
 
 		if (!syncMilestone)
@@ -157,6 +159,28 @@ public sealed partial class SoulboundCompanion
 		else if (!string.IsNullOrEmpty(message))
 			Main.NewText(message, Profile.EssenceColor);
 	}
+
+	private void QueueImitation(LearnedBehavior behavior)
+	{
+		if (!HasAdaptiveInstinct(behavior))
+			return;
+		if (behavior == LearnedBehavior.Combat) {
+			attackCooldown = Math.Min(attackCooldown, 8);
+			return;
+		}
+		imitationCue = behavior;
+		imitationCueTimer = 240;
+		autonomyDecisionTimer = Math.Min(autonomyDecisionTimer, 24);
+	}
+
+	private bool HasAdaptiveInstinct(LearnedBehavior behavior) => Profile.HasLearnedPerk(behavior)
+		|| (behavior switch {
+			LearnedBehavior.Gathering or LearnedBehavior.Forestry => Profile.HasTalent(CompanionTalent.Gatherer),
+			LearnedBehavior.Mining => Profile.HasTalent(CompanionTalent.Miner),
+			LearnedBehavior.Combat => Profile.HasTalent(CompanionTalent.Guardian),
+			LearnedBehavior.Exploration => Profile.HasTalent(CompanionTalent.TreasureSeeker),
+			_ => false
+		});
 
 	private void PerformAutonomousMoment()
 	{

@@ -224,7 +224,9 @@ public sealed class CompanionMemory
 		CompanionMemoryKind.SharedMoment => SoulmatesText.Get("Memories.Chronicle.SharedMoment",
 			Enum.TryParse(Detail, out CompanionEmote emote) ? SoulmatesText.EnumName(emote) : Detail),
 		CompanionMemoryKind.LearnedPerk => SoulmatesText.Get("Memories.Chronicle.LearnedPerk",
-			SoulmatesText.Get("Learning.Forester")),
+			Enum.TryParse(Detail, out LearnedBehavior learnedBehavior)
+				? CompanionProfile.LearnedPerkName(learnedBehavior)
+				: SoulmatesText.Get("Learning.Forester")),
 		_ => SoulmatesText.Get("Memories.New")
 	};
 
@@ -244,7 +246,11 @@ public sealed class CompanionProfile
 	public const int MaximumPackSlots = 12;
 	public const int MaximumMemories = 8;
 	public const int MaximumLevel = 20;
+	public const int GatheringUnlockInsight = 32;
+	public const int MiningUnlockInsight = 20;
 	public const int ForesterUnlockInsight = 24;
+	public const int CombatUnlockInsight = 36;
+	public const int ExplorationUnlockInsight = 24;
 	public const int ItemCarryLimit = 99;
 	public const int ForestrySupplyLimit = 12;
 
@@ -309,6 +315,8 @@ public sealed class CompanionProfile
 	public bool IsAether => Name.Equals("AETHER", StringComparison.OrdinalIgnoreCase);
 	public bool ForesterUnlocked => IsAether || Talent == CompanionTalent.Gatherer
 		|| ForestryInsight >= ForesterUnlockInsight;
+	public bool HasLearnedPerk(LearnedBehavior behavior)
+		=> IsAether || GetInsight(behavior) >= LearnedPerkUnlockInsight(behavior);
 	public LearnedBehavior DominantLearnedBehavior {
 		get {
 			LearnedBehavior result = LearnedBehavior.Gathering;
@@ -593,9 +601,9 @@ public sealed class CompanionProfile
 		_ => ExplorationInsight
 	};
 
-	public bool Observe(LearnedBehavior behavior, int amount = 1)
+	public LearnedBehavior? Observe(LearnedBehavior behavior, int amount = 1)
 	{
-		int previousForestry = ForestryInsight;
+		int previous = GetInsight(behavior);
 		int value = Math.Clamp(GetInsight(behavior) + Math.Max(0, amount), 0, 100);
 		switch (behavior) {
 			case LearnedBehavior.Gathering:
@@ -615,12 +623,23 @@ public sealed class CompanionProfile
 				break;
 		}
 
-		bool unlockedForester = !IsAether && previousForestry < ForesterUnlockInsight
-			&& ForestryInsight >= ForesterUnlockInsight;
-		if (unlockedForester)
-			Remember(CompanionMemoryKind.LearnedPerk, detail: "Forester");
-		return unlockedForester;
+		int unlockInsight = LearnedPerkUnlockInsight(behavior);
+		bool unlocked = !IsAether && previous < unlockInsight && value >= unlockInsight;
+		if (unlocked)
+			Remember(CompanionMemoryKind.LearnedPerk, detail: behavior.ToString());
+		return unlocked ? behavior : null;
 	}
+
+	public static int LearnedPerkUnlockInsight(LearnedBehavior behavior) => behavior switch {
+		LearnedBehavior.Gathering => GatheringUnlockInsight,
+		LearnedBehavior.Mining => MiningUnlockInsight,
+		LearnedBehavior.Forestry => ForesterUnlockInsight,
+		LearnedBehavior.Combat => CombatUnlockInsight,
+		_ => ExplorationUnlockInsight
+	};
+
+	public static string LearnedPerkName(LearnedBehavior behavior)
+		=> SoulmatesText.Get($"Learning.Perks.{behavior}");
 
 	public static int ExperienceForLevel(int level)
 	{
