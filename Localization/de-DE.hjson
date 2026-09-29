@@ -289,6 +289,21 @@ Mods: {
 					ResetInitiativeRules: WIEDER FRAGEN
 					Details: DETAILS
 				}
+
+				WorkActions: {
+					FindTreasure: SCHATZGEBIET
+					MineArea: GEBIET ABBAUEN
+					GatherArea: GEBIET SAMMELN
+					MineTarget: ZIEL ABBAUEN
+					GatherTarget: ZIEL HOLEN
+				}
+			}
+
+			DirectOrder: {
+				MineInvalid: ABBAUBARES ERZ ODER GELERNTES MATERIAL ANKLICKEN  |  RECHTSKLICK BRICHT AB
+				MineValid: "{0}  |  LINKSKLICK ZUM ABBAUEN"
+				GatherInvalid: LOSES ITEM ANKLICKEN  |  RECHTSKLICK BRICHT AB
+				GatherValid: "{0}  |  LINKSKLICK ZUM HOLEN"
 			}
 
 			Mailbox: {
@@ -351,6 +366,19 @@ Mods: {
 			LearnedMaterial: Ich erkenne {0} jetzt. Auf Wunsch kann ich es abbauen.
 			UsedItem: Ich habe {0} benutzt. Es schien der richtige Moment zu sein.
 			CraftSuggestion: Mit unseren Funden könnten wir {0} herstellen.
+		}
+
+		TargetOrders: {
+			Invalid: Dieses Ziel habe ich nicht verstanden.
+			LowEnergy: Dafür brauche ich erst ein wenig Energie.
+			LowMood: Ich brauche einen Moment vor dem nächsten Auftrag.
+			CannotMine: Dieses Ziel kann ich noch nicht sicher abbauen.
+			CannotGather: Dieses Item kann ich gerade nicht tragen.
+			MineAccepted: "{0}. Ich baue dieses Vorkommen ab."
+			GatherAccepted: Ich bringe dir {0}.
+			Mined: Ich habe {0} Blöcke {1} abgebaut.
+			Gathered: Ich habe {0} {1} eingesammelt.
+			TargetLost: Das Ziel ist nicht mehr da.
 		}
 
 		Feedback: {

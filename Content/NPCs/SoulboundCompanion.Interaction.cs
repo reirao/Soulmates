@@ -163,6 +163,7 @@ public sealed partial class SoulboundCompanion
 		}
 		CancelAutonomousActivity();
 		ClearTownNpcInteraction();
+		ClearDirectedJob();
 		activeJob = job;
 		jobTimer = 0;
 		jobCount = 0;
@@ -194,6 +195,7 @@ public sealed partial class SoulboundCompanion
 		hasJobTarget = false;
 		jobOrigin = Vector2.Zero;
 		failedMiningTargets.Clear();
+		ClearDirectedJob();
 	}
 
 	public void EquipTrinket(CompanionTrinket trinket)
@@ -353,6 +355,7 @@ public sealed partial class SoulboundCompanion
 		hasJobTarget = false;
 		jobOrigin = Vector2.Zero;
 		failedMiningTargets.Clear();
+		ClearDirectedJob();
 		Command = StayCommand;
 		brainState = BrainState.Stay;
 		idleTarget = NPC.Center;

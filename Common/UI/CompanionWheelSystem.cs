@@ -23,6 +23,7 @@ public sealed class CompanionWheelSystem : ModSystem
 	private enum HoverLayer : byte { None, Center, Root, Branch, Native }
 	private enum IconKind : byte { Emote, Item }
 	private enum WheelContext : byte { Companion, Player }
+	private enum WheelWorkAction : byte { FindTreasure, MineArea, GatherArea, MineTarget, GatherTarget }
 
 	private readonly record struct WheelIcon(IconKind Kind, int Value);
 	private sealed record NativeCategory(string Key, int Icon, int[] Entries);
@@ -36,8 +37,9 @@ public sealed class CompanionWheelSystem : ModSystem
 		CompanionQuickAction.Explore, CompanionQuickAction.ToggleAutonomy,
 		CompanionQuickAction.ResetInitiativeRules
 	];
-	private static readonly CompanionQuickAction[] WorkActions = [
-		CompanionQuickAction.FindTreasure, CompanionQuickAction.Mine, CompanionQuickAction.Gather
+	private static readonly WheelWorkAction[] WorkActions = [
+		WheelWorkAction.FindTreasure, WheelWorkAction.MineArea, WheelWorkAction.GatherArea,
+		WheelWorkAction.MineTarget, WheelWorkAction.GatherTarget
 	];
 	private static readonly CompanionEmote[] BondEmotes = [
 		CompanionEmote.Wave, CompanionEmote.Heart, CompanionEmote.Cheer,
@@ -283,7 +285,7 @@ public sealed class CompanionWheelSystem : ModSystem
 				if (index >= 0 && index < CommandActions.Length) ExecuteQuickAction(CommandActions[index]);
 				break;
 			case RootBranch.Work:
-				if (index >= 0 && index < WorkActions.Length) ExecuteQuickAction(WorkActions[index]);
+				if (index >= 0 && index < WorkActions.Length) ExecuteWorkAction(WorkActions[index]);
 				break;
 			case RootBranch.Bond:
 				if (index >= 0 && index < BondEmotes.Length) ExecuteCompanionEmote(BondEmotes[index]);
@@ -330,6 +332,29 @@ public sealed class CompanionWheelSystem : ModSystem
 			nativePage++;
 			SoundEngine.PlaySound(SoundID.MenuTick);
 		}
+	}
+
+	private void ExecuteWorkAction(WheelWorkAction action)
+	{
+		if (action is WheelWorkAction.MineTarget or WheelWorkAction.GatherTarget) {
+			SoulboundCompanion? target = companion;
+			SoulmatesFeedbackSystem.Record("target_mode_opened", ("order", action.ToString()));
+			Close();
+			if (target?.NPC.active == true) {
+				CompanionTargetOrder order = action == WheelWorkAction.MineTarget
+					? CompanionTargetOrder.Mine
+					: CompanionTargetOrder.Gather;
+				ModContent.GetInstance<DirectOrderSystem>().Begin(target, order);
+			}
+			return;
+		}
+
+		CompanionQuickAction quickAction = action switch {
+			WheelWorkAction.FindTreasure => CompanionQuickAction.FindTreasure,
+			WheelWorkAction.MineArea => CompanionQuickAction.Mine,
+			_ => CompanionQuickAction.Gather
+		};
+		ExecuteQuickAction(quickAction);
 	}
 
 	private void ExecuteQuickAction(CompanionQuickAction action)
@@ -501,7 +526,8 @@ public sealed class CompanionWheelSystem : ModSystem
 			return "";
 		return activeBranch switch {
 			RootBranch.Commands when index >= 0 && index < CommandActions.Length => QuickActionLabel(CommandActions[index]),
-			RootBranch.Work when index >= 0 && index < WorkActions.Length => QuickActionLabel(WorkActions[index]),
+			RootBranch.Work when index >= 0 && index < WorkActions.Length
+				=> SoulmatesText.Get($"UI.CompanionWheel.WorkActions.{WorkActions[index]}"),
 			RootBranch.Bond when index >= 0 && index < BondEmotes.Length => SoulmatesText.EnumName(BondEmotes[index]),
 			RootBranch.Emotes when index >= 0 && index < NativeCategories.Length
 				=> SoulmatesText.Get($"UI.CompanionWheel.NativeCategories.{NativeCategories[index].Key}"),
@@ -550,10 +576,13 @@ public sealed class CompanionWheelSystem : ModSystem
 				_ => EmoteID.EmoteWink
 			});
 		if (activeBranch == RootBranch.Work && index >= 0 && index < WorkActions.Length)
-			return new WheelIcon(IconKind.Emote, WorkActions[index] switch {
-				CompanionQuickAction.FindTreasure => EmoteID.ItemGoldpile,
-				CompanionQuickAction.Mine => EmoteID.ItemPickaxe, _ => EmoteID.MiscTree
-			});
+			return WorkActions[index] switch {
+				WheelWorkAction.FindTreasure => new WheelIcon(IconKind.Emote, EmoteID.ItemGoldpile),
+				WheelWorkAction.MineArea => new WheelIcon(IconKind.Emote, EmoteID.ItemPickaxe),
+				WheelWorkAction.GatherArea => new WheelIcon(IconKind.Emote, EmoteID.MiscTree),
+				WheelWorkAction.MineTarget => new WheelIcon(IconKind.Item, ItemID.CopperPickaxe),
+				_ => new WheelIcon(IconKind.Item, ItemID.TreasureMagnet)
+			};
 		if (activeBranch == RootBranch.Bond && index >= 0 && index < BondEmotes.Length)
 			return new WheelIcon(IconKind.Emote, BondEmotes[index] switch {
 				CompanionEmote.Wave => EmoteID.EmoteHappiness, CompanionEmote.Heart => EmoteID.EmotionLove,

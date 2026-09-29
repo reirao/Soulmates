@@ -122,6 +122,12 @@ public enum CompanionQuickAction : byte
 	Details
 }
 
+public enum CompanionTargetOrder : byte
+{
+	Mine,
+	Gather
+}
+
 public enum CompanionTrinket : byte
 {
 	None,

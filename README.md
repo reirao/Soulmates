@@ -39,6 +39,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Talent-driven initiative: every companion retrieves nearby usable drops, Gatherers do so faster and farther, Miners help in short bursts and collect what they mine, Treasure Seekers investigate nearby chests, Guardians intercept danger, and Healers react to injuries.
 - Persistent learning insights adapt to the owner's gathering, mining, forestry, combat, and exploration habits.
 - All vanilla and modded ore families are recognized; companions remember safe natural materials they watch the owner mine and reuse discovered pickaxes for later mining assignments.
+- The Work wheel supports both area assignments and precise cursor orders: point at one ore/material cluster or one loose world item and send the companion there directly.
 - Useful pack contents matter in the world: weapons strengthen companion attacks, torches add light, and food or recovery items can be used at an appropriate moment.
 - Near a crafting opportunity, a companion may occasionally suggest a recipe inspired by materials in its pack.
 - Contextual initiative prompts let you answer opportunities with Terraria emotes: Yes, No, Always, or Never, remembered separately for gathering, mining, forestry, and treasure hunting.
@@ -57,6 +58,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Every companion continuously defends against nearby threats without spending work energy, while staying leashed to its owner or Stay anchor; Guardians react faster, reach farther, and hit harder, while Healers provide energy-limited support.
 - Energy returns naturally outside work and combat, with faster recovery while waiting; the Care > Rest conversation is an optional boost rather than a required chore.
 - Area assignments: locate nearby chests, clear every reachable ore vein and learned material in range, and retrieve every loose item in range.
+- Right-clicking a workbench opens Terraria's inventory and refreshed crafting list as a small quality-of-life interaction.
 - A persistent memory chronicle covering creation, work, protection, healing, equipment, and bond milestones.
 - Craftable Starfinder Bell, Delver Charm, and Hearth Ribbon companion trinkets.
 - Resting companions recover mood and energy over time.

@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Microsoft.Xna.Framework;
 using Soulmates.Common;
 using Soulmates.Common.Dialogue;
 using Soulmates.Common.UI;
@@ -31,7 +32,8 @@ public sealed class Soulmates : Mod
 		CreateCompanionRequest,
 		CreateCompanionResponse,
 		InitiativePrompt,
-		InitiativeResponseRequest
+		InitiativeResponseRequest,
+		DirectOrderRequest
 	}
 
 	internal static ModKeybind TalkKeybind { get; private set; } = null!;
@@ -175,6 +177,19 @@ public sealed class Soulmates : Mod
 		packet.Send();
 	}
 
+	internal static void SendDirectOrderRequest(CompanionTargetOrder order, Point tileTarget, int itemTarget)
+	{
+		if (Main.netMode != NetmodeID.MultiplayerClient)
+			return;
+		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
+		packet.Write((byte)MessageType.DirectOrderRequest);
+		packet.Write((byte)order);
+		packet.Write((short)tileTarget.X);
+		packet.Write((short)tileTarget.Y);
+		packet.Write((short)itemTarget);
+		packet.Send();
+	}
+
 	internal static void SendCompanionSpeech(Player player, SoulboundCompanion companion, string key, string argument = "")
 	{
 		if (Main.netMode != NetmodeID.Server)
@@ -249,6 +264,9 @@ public sealed class Soulmates : Mod
 				break;
 			case MessageType.InitiativeResponseRequest:
 				HandleInitiativeResponseRequest(reader, whoAmI);
+				break;
+			case MessageType.DirectOrderRequest:
+				HandleDirectOrderRequest(reader, whoAmI);
 				break;
 		}
 	}
@@ -480,6 +498,26 @@ public sealed class Soulmates : Mod
 			|| companion.PendingInitiativeKind != kind || !companion.RespondToInitiative(response))
 			return;
 		SendProfileUpdate(player, companion);
+	}
+
+	private void HandleDirectOrderRequest(BinaryReader reader, int whoAmI)
+	{
+		CompanionTargetOrder order = (CompanionTargetOrder)reader.ReadByte();
+		var tileTarget = new Point(reader.ReadInt16(), reader.ReadInt16());
+		int itemTarget = reader.ReadInt16();
+		if (Main.netMode != NetmodeID.Server || !Enum.IsDefined(order)
+			|| whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active)
+			return;
+		if (SoulboundCompanion.FindFor(Main.player[whoAmI]) is not { } companion)
+			return;
+
+		CompanionConversationResult result = companion.PerformDirectOrder(order, tileTarget, itemTarget);
+		ModPacket packet = GetPacket();
+		packet.Write((byte)MessageType.QuickActionResponse);
+		packet.Write(result.Accepted);
+		packet.Write(result.Reply);
+		companion.Profile.Write(packet);
+		packet.Send(whoAmI);
 	}
 
 	private void SendCreateCompanionResponse(int playerIndex, CompanionCreationResult result, string name, CompanionEssence essence)

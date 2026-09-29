@@ -63,6 +63,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 	private const int AutonomousLootTargetTimeout = 480;
 	private const int AutonomousForestSweepLimit = 5;
 	private const int AutonomousMiningSweepLimit = 24;
+	private const int DirectedMiningTargetLimit = 24;
 	private BrainState brainState;
 	private int stateTimer;
 	private int facing = 1;
@@ -74,6 +75,9 @@ public sealed partial class SoulboundCompanion : ModNPC
 	private int jobCount;
 	private Point jobTarget;
 	private bool hasJobTarget;
+	private bool directedJob;
+	private ushort directedMiningTileType;
+	private readonly HashSet<Point> directedMiningTargets = [];
 	private int recoveryTimer;
 	private int gatherPause;
 	private int jobTargetItem = -1;

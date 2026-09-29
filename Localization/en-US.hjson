@@ -289,6 +289,21 @@ Mods: {
 					ResetInitiativeRules: ASK AGAIN
 					Details: DETAILS
 				}
+
+				WorkActions: {
+					FindTreasure: AREA TREASURE
+					MineArea: MINE AREA
+					GatherArea: GATHER AREA
+					MineTarget: MINE TARGET
+					GatherTarget: FETCH TARGET
+				}
+			}
+
+			DirectOrder: {
+				MineInvalid: CLICK A MINEABLE ORE OR LEARNED MATERIAL  |  RIGHT-CLICK CANCELS
+				MineValid: "{0}  |  LEFT-CLICK TO MINE"
+				GatherInvalid: CLICK A LOOSE ITEM  |  RIGHT-CLICK CANCELS
+				GatherValid: "{0}  |  LEFT-CLICK TO FETCH"
 			}
 
 			Mailbox: {
@@ -351,6 +366,19 @@ Mods: {
 			LearnedMaterial: I recognize {0} now. I can mine it when you ask.
 			UsedItem: I used {0}. It seemed like the right moment.
 			CraftSuggestion: With what we found, we could make {0}.
+		}
+
+		TargetOrders: {
+			Invalid: I could not understand that target.
+			LowEnergy: I need a little energy before I can do that.
+			LowMood: I need a moment before taking another order.
+			CannotMine: I cannot safely mine that target yet.
+			CannotGather: I cannot carry that item right now.
+			MineAccepted: "{0}. I will clear that cluster."
+			GatherAccepted: I will bring back {0}.
+			Mined: I cleared {0} blocks of {1}.
+			Gathered: I collected {0} {1}.
+			TargetLost: The target is no longer there.
 		}
 
 		Feedback: {

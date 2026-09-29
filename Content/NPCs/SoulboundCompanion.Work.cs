@@ -22,6 +22,122 @@ namespace Soulmates.Content.NPCs;
 
 public sealed partial class SoulboundCompanion
 {
+	internal bool CanTargetMining(Point target)
+	{
+		if (!WorldGen.InWorld(target.X, target.Y, 10)
+			|| Vector2.DistanceSquared(Owner.Center, target.ToWorldCoordinates()) > MathF.Pow((MiningRadiusTiles + 8) * 16f, 2f))
+			return false;
+		return CanMineTile(target.X, target.Y, includeLearnedMaterials: true);
+	}
+
+	internal bool CanTargetGathering(int itemIndex)
+	{
+		if (itemIndex < 0 || itemIndex >= Main.maxItems)
+			return false;
+		Item item = Main.item[itemIndex];
+		return item.active && !item.IsAir && CanCollectLooseItem(item)
+			&& Vector2.DistanceSquared(Owner.Center, item.Center) <= MathF.Pow((GatheringRadiusTiles + 8) * 16f, 2f);
+	}
+
+	public CompanionConversationResult PerformDirectOrder(CompanionTargetOrder order, Point tileTarget, int itemTarget)
+	{
+		if (Main.netMode == NetmodeID.MultiplayerClient)
+			return new CompanionConversationResult(SoulmatesText.Get("TargetOrders.Invalid"), false);
+		if (Profile.Energy < 5)
+			return new CompanionConversationResult(SoulmatesText.Get("TargetOrders.LowEnergy"), false);
+		if (Profile.Mood < 15)
+			return new CompanionConversationResult(SoulmatesText.Get("TargetOrders.LowMood"), false);
+
+		return order switch {
+			CompanionTargetOrder.Mine => StartDirectedMining(tileTarget),
+			CompanionTargetOrder.Gather => StartDirectedGathering(itemTarget),
+			_ => new CompanionConversationResult(SoulmatesText.Get("TargetOrders.Invalid"), false)
+		};
+	}
+
+	private CompanionConversationResult StartDirectedMining(Point target)
+	{
+		if (!CanTargetMining(target))
+			return new CompanionConversationResult(SoulmatesText.Get("TargetOrders.CannotMine"), false);
+
+		ushort tileType = Main.tile[target.X, target.Y].TileType;
+		BeginJob(CompanionJob.Mine);
+		Profile.Routine = CompanionJob.None;
+		directedJob = true;
+		directedMiningTileType = tileType;
+		BuildDirectedMiningTargets(target, tileType);
+		jobOrigin = target.ToWorldCoordinates();
+		jobTarget = target;
+		hasJobTarget = true;
+		SyncProfileToBoundSigil();
+		NPC.netUpdate = true;
+
+		string materialName = DirectedMaterialName();
+		SoulmatesFeedbackSystem.Record("direct_order_started", ("order", "mine"),
+			("tile_type", tileType), ("target_count", directedMiningTargets.Count));
+		return new CompanionConversationResult(SoulmatesText.Get("TargetOrders.MineAccepted", materialName), true);
+	}
+
+	private CompanionConversationResult StartDirectedGathering(int itemIndex)
+	{
+		if (!CanTargetGathering(itemIndex))
+			return new CompanionConversationResult(SoulmatesText.Get("TargetOrders.CannotGather"), false);
+
+		Item item = Main.item[itemIndex];
+		string itemName = item.Name;
+		BeginJob(CompanionJob.Gather);
+		Profile.Routine = CompanionJob.None;
+		directedJob = true;
+		jobOrigin = item.Center;
+		jobTargetItem = itemIndex;
+		SyncProfileToBoundSigil();
+		NPC.netUpdate = true;
+
+		SoulmatesFeedbackSystem.Record("direct_order_started", ("order", "gather"),
+			("item_type", item.type), ("amount", item.stack));
+		return new CompanionConversationResult(SoulmatesText.Get("TargetOrders.GatherAccepted", itemName), true);
+	}
+
+	private void BuildDirectedMiningTargets(Point origin, ushort tileType)
+	{
+		directedMiningTargets.Clear();
+		var pending = new Queue<Point>();
+		var visited = new HashSet<Point>();
+		pending.Enqueue(origin);
+		while (pending.Count > 0 && directedMiningTargets.Count < DirectedMiningTargetLimit) {
+			Point current = pending.Dequeue();
+			if (!visited.Add(current) || !WorldGen.InWorld(current.X, current.Y, 10)
+				|| Vector2.DistanceSquared(current.ToVector2(), origin.ToVector2()) > 12f * 12f)
+				continue;
+			Tile tile = Main.tile[current.X, current.Y];
+			if (!tile.HasTile || tile.TileType != tileType
+				|| !CanMineTile(current.X, current.Y, includeLearnedMaterials: true))
+				continue;
+			directedMiningTargets.Add(current);
+			for (int x = -1; x <= 1; x++) {
+				for (int y = -1; y <= 1; y++) {
+					if (x != 0 || y != 0)
+						pending.Enqueue(new Point(current.X + x, current.Y + y));
+				}
+			}
+		}
+	}
+
+	private string DirectedMaterialName()
+	{
+		int dropType = TileLoader.GetItemDropFromTypeAndStyle(directedMiningTileType, 0);
+		return dropType > ItemID.None
+			? Lang.GetItemNameValue(dropType)
+			: SoulmatesText.Get("Resourcefulness.UnknownMaterial");
+	}
+
+	private void ClearDirectedJob()
+	{
+		directedJob = false;
+		directedMiningTileType = 0;
+		directedMiningTargets.Clear();
+	}
+
 	private void UpdateJob()
 	{
 		jobTimer++;
@@ -98,7 +214,11 @@ public sealed partial class SoulboundCompanion
 	private void UpdateMiningJob()
 	{
 		if (!hasJobTarget && !FindMiningTarget(out jobTarget)) {
-			string report = failedMiningTargets.Count > 0
+			string report = directedJob
+				? jobCount > 0
+					? SoulmatesText.Get("TargetOrders.Mined", jobCount, DirectedMaterialName())
+					: SoulmatesText.Get("TargetOrders.TargetLost")
+				: failedMiningTargets.Count > 0
 				? SoulmatesText.Get("Jobs.Mining.Protected", jobCount, failedMiningTargets.Count)
 				: jobCount > 0
 					? SoulmatesText.Get("Jobs.Mining.Cleared", jobCount, MiningRadiusTiles)
@@ -120,6 +240,7 @@ public sealed partial class SoulboundCompanion
 		if (!WorldGen.InWorld(jobTarget.X, jobTarget.Y, 10)
 			|| !Main.tile[jobTarget.X, jobTarget.Y].HasTile
 			|| !CanMineTile(jobTarget.X, jobTarget.Y, includeLearnedMaterials: true)) {
+			directedMiningTargets.Remove(jobTarget);
 			hasJobTarget = false;
 			return;
 		}
@@ -139,6 +260,7 @@ public sealed partial class SoulboundCompanion
 		}
 		else
 			failedMiningTargets.Add(jobTarget);
+		directedMiningTargets.Remove(jobTarget);
 		hasJobTarget = false;
 		if (jobTimer > 7200)
 			CompleteJob(SoulmatesText.Get("Jobs.Mining.Timeout", jobCount), success: false);
@@ -155,7 +277,11 @@ public sealed partial class SoulboundCompanion
 			MoveTo(jobOrigin + new Vector2(0f, -52f + IdleBob()), 7f, 0.08f);
 			return;
 		}
-		if (!IsValidGatherTarget(jobTargetItem))
+		if (directedJob && !IsValidGatherTarget(jobTargetItem)) {
+			CompleteJob(SoulmatesText.Get("TargetOrders.TargetLost"), success: false);
+			return;
+		}
+		if (!directedJob && !IsValidGatherTarget(jobTargetItem))
 			jobTargetItem = FindNearestLooseItem();
 		if (jobTargetItem < 0) {
 			if (FindForestTask(jobOrigin, out jobTarget, out gatherForestAction)) {
@@ -188,6 +314,7 @@ public sealed partial class SoulboundCompanion
 				gatherPause = 45;
 				return;
 			}
+			string itemName = item.Name;
 			int moved = StoreLooseItem(item);
 			if (moved <= 0) {
 				CompleteJob(SoulmatesText.Get("Jobs.PackFull"), success: false);
@@ -200,6 +327,11 @@ public sealed partial class SoulboundCompanion
 			SyncPackState();
 			jobTargetItem = -1;
 			gatherPause = 6;
+			if (directedJob) {
+				CompleteJob(SoulmatesText.Get("TargetOrders.Gathered", moved, itemName), success: true,
+					CompanionMemoryKind.GatheringCompleted, moved);
+				return;
+			}
 		}
 		if (jobTimer > 7200)
 			CompleteJob(SoulmatesText.Get("Jobs.Gathering.Timeout", jobCount), success: false);
@@ -251,6 +383,23 @@ public sealed partial class SoulboundCompanion
 
 	private bool FindMiningTarget(out Point result)
 	{
+		if (directedJob) {
+			directedMiningTargets.RemoveWhere(candidate => !WorldGen.InWorld(candidate.X, candidate.Y, 10)
+				|| !Main.tile[candidate.X, candidate.Y].HasTile
+				|| Main.tile[candidate.X, candidate.Y].TileType != directedMiningTileType
+				|| !CanMineTile(candidate.X, candidate.Y, includeLearnedMaterials: true));
+			result = Point.Zero;
+			float nearest = float.MaxValue;
+			foreach (Point candidate in directedMiningTargets) {
+				float distance = Vector2.DistanceSquared(candidate.ToWorldCoordinates(), NPC.Center);
+				if (distance >= nearest)
+					continue;
+				nearest = distance;
+				result = candidate;
+			}
+			return result != Point.Zero;
+		}
+
 		Point center = jobOrigin.ToTileCoordinates();
 		result = Point.Zero;
 		float bestScore = float.MaxValue;
@@ -475,6 +624,7 @@ public sealed partial class SoulboundCompanion
 		hasJobTarget = false;
 		jobOrigin = Vector2.Zero;
 		failedMiningTargets.Clear();
+		ClearDirectedJob();
 		brainState = BrainState.Follow;
 		stateTimer = 1;
 		NPC.netUpdate = true;
