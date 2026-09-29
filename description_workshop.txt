@@ -69,7 +69,7 @@ New characters receive one Soulcore and three Blank Sigils as a prototype starte
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Current Release[/h2]
-Soulmates 0.9.0 Soulwheel replaces the separate action and emote interfaces with one click-driven radial control. Commands, jobs, relationship gestures, all 151 vanilla Terraria emotes, the companion pack, and full details live in small icon categories with crescent sub-wheels. The Soul Creator now exposes all five starting talents as direct visual class choices. Existing Soulbound Sigils remain compatible.
+Soulmates 0.9.1 fixes ignored Soulwheel clicks by giving every category, action, page, and back control independent mouse press tracking. The compact radial interface still combines commands, jobs, relationship gestures, all 151 vanilla Terraria emotes, the companion pack, and full details. Existing Soulbound Sigils remain compatible.
 
 [h2]Controls[/h2]
 [list]

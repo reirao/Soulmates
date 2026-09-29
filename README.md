@@ -70,7 +70,7 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current release
 
-**Soulmates 0.9.0 - Soulwheel** replaces the separate action and emote interfaces with one click-driven radial control. Commands, jobs, relationship gestures, every vanilla Terraria emote, the companion pack, and full details are reached through small icon categories and crescent sub-wheels. The Soul Creator now presents all five starting talents as direct visual class choices. Existing Sigils remain compatible.
+**Soulmates 0.9.1 - Soulwheel Input Hotfix** makes every category, action, page, and back control respond through independent mouse press tracking. The Soulwheel still combines commands, jobs, relationship gestures, every vanilla Terraria emote, the companion pack, and full details in compact crescent sub-wheels. Existing Sigils remain compatible.
 
 ## Languages
 

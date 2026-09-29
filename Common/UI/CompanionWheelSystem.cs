@@ -110,6 +110,8 @@ public sealed class CompanionWheelSystem : ModSystem
 	private int nativePage;
 	private HoverLayer hoverLayer;
 	private int hoverIndex = -1;
+	private bool leftMouseDown;
+	private bool rightMouseDown;
 
 	public bool IsOpen => open;
 
@@ -128,6 +130,8 @@ public sealed class CompanionWheelSystem : ModSystem
 		nativePage = 0;
 		hoverLayer = HoverLayer.None;
 		hoverIndex = -1;
+		leftMouseDown = Main.mouseLeft;
+		rightMouseDown = Main.mouseRight;
 		openTicks = 0;
 		open = true;
 		SoundEngine.PlaySound(SoundID.MenuOpen with { Volume = 0.55f, Pitch = 0.18f });
@@ -143,6 +147,8 @@ public sealed class CompanionWheelSystem : ModSystem
 		nativePage = 0;
 		hoverLayer = HoverLayer.None;
 		hoverIndex = -1;
+		leftMouseDown = false;
+		rightMouseDown = false;
 	}
 
 	public override void UpdateUI(GameTime gameTime)
@@ -154,19 +160,27 @@ public sealed class CompanionWheelSystem : ModSystem
 			Close();
 			return;
 		}
+		bool leftDown = Main.mouseLeft;
+		bool rightDown = Main.mouseRight;
+		bool leftPressed = leftDown && !leftMouseDown;
+		bool rightPressed = rightDown && !rightMouseDown;
+		leftMouseDown = leftDown;
+		rightMouseDown = rightDown;
+
 		center = ClampCenter(center);
 		openTicks++;
-		Main.LocalPlayer.mouseInterface = true;
-		Main.blockMouse = true;
 		FindHoveredNode();
-		if (Main.mouseLeft && Main.mouseLeftRelease) {
+		if (leftPressed) {
 			Main.mouseLeftRelease = false;
 			ActivateHovered();
 		}
-		else if (openTicks > 8 && Main.mouseRight && Main.mouseRightRelease) {
+		else if (openTicks > 8 && rightPressed) {
 			Main.mouseRightRelease = false;
 			StepBack();
 		}
+
+		Main.LocalPlayer.mouseInterface = true;
+		Main.blockMouse = true;
 	}
 
 	private void FindHoveredNode()

@@ -1,3 +1,8 @@
+Soulmates 0.9.1 - Soulwheel Input Hotfix
+
+- Fixed Soulwheel category and action clicks being ignored when tModLoader had already consumed Terraria's shared mouse-release state.
+- Left-click selection and right-click navigation now use independent press-edge tracking across every Soulwheel layer.
+
 Soulmates 0.9.0 - Soulwheel
 
 - Replaced the separate hold-and-release action and relationship wheels with one click-driven radial Soulwheel.

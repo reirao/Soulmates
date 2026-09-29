@@ -69,7 +69,7 @@ Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils als Start
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Aktuelle Version[/h2]
-Soulmates 0.9.0 Soulwheel ersetzt die getrennten Aktions- und Emote-Oberflächen durch eine klickbare Radialsteuerung. Befehle, Arbeit, Beziehungsgesten, alle 151 Vanilla-Emotes, das Companion-Pack und die vollständigen Details liegen in kleinen Symbolkategorien mit halbmondförmigen Unterrädern. Der Soul Creator zeigt nun alle fünf Starttalente als direkt auswählbare Klassen. Bestehende Soulbound Sigils bleiben kompatibel.
+Soulmates 0.9.1 behebt ignorierte Soulwheel-Klicks durch eine eigene Klickerkennung für jede Kategorie, Aktion, Seite und Zurück-Navigation. Die kompakte Radialsteuerung vereint weiterhin Befehle, Arbeit, Beziehungsgesten, alle 151 Vanilla-Emotes, das Companion-Pack und die vollständigen Details. Bestehende Soulbound Sigils bleiben kompatibel.
 
 [h2]Steuerung[/h2]
 [list]

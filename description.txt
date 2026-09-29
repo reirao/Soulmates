@@ -1,4 +1,4 @@
-Soulmates 0.9.0: Shape a companion and speak through the Soulwheel.
+Soulmates 0.9.1: Shape a companion and speak through the Soulwheel.
 
 Use the reusable Soulcore to shape unique companions, including the Omni Soul AETHER, bind each one to a Soulbound Sigil, and bring them along on your Terraria adventures.
 
