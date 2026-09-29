@@ -2,7 +2,7 @@
 
 Soulmates turns the reusable Soulcore into a companion creator inside Terraria. Shape a distinct little spirit, bind it to its own Soulbound Sigil, summon it into the world, and build a relationship through care, conversation, and commands.
 
-[img]https://github.com/reirao/Soulmates/releases/download/v0.7.4/00-feature-overview.png[/img]
+[img]https://raw.githubusercontent.com/reirao/Soulmates/main/media/soulmates-overview.png[/img]
 
 [url=https://github.com/reirao/Soulmates/releases/tag/v0.7.4][b]View the complete screenshot gallery and release downloads on GitHub.[/b][/url]
 
