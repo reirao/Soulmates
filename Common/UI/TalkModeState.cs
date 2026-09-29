@@ -313,12 +313,15 @@ internal sealed class CompanionVitalsElement(
 		string footer = $"{SoulmatesText.Get("UI.Talk.BondShort")} {profile.Bond} | "
 			+ $"{SoulmatesText.Get("UI.Talk.PackShort")} {profile.PackLoad}/{profile.PackCapacity} | {status}";
 		Utils.DrawBorderString(spriteBatch, footer.ToUpperInvariant(), topLeft + new Vector2(0f, 55f), profile.EssenceColor, 0.43f);
+		string forester = profile.ForesterUnlocked
+			? SoulmatesText.Get("Learning.Forester")
+			: SoulmatesText.Get("Learning.ForesterProgress", profile.ForestryInsight, CompanionProfile.ForesterUnlockInsight);
 		string learning = profile.IsAether
 			? SoulmatesText.Get("UI.Talk.AetherLearning")
 			: profile.DominantInsight <= 0
-				? SoulmatesText.Get("UI.Talk.Observing")
+				? SoulmatesText.Get("UI.Talk.ObservingProgress", forester)
 				: SoulmatesText.Get("UI.Talk.Learning", SoulmatesText.EnumName(profile.DominantLearnedBehavior),
-					profile.DominantInsight, profile.ForesterUnlocked ? SoulmatesText.Get("Learning.Forester") : "");
+					profile.DominantInsight, forester);
 		Utils.DrawBorderString(spriteBatch, learning.ToUpperInvariant(), topLeft + new Vector2(0f, 72f),
 			Color.Lerp(profile.EssenceColor, Color.White, 0.35f), 0.36f);
 	}

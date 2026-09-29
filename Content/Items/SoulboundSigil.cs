@@ -109,12 +109,15 @@ public sealed class SoulboundSigil : ModItem
 		tooltips.Add(new TooltipLine(Mod, "Voice", SoulmatesText.Get("Tooltips.Sigil.Voice", SoulmatesText.EnumName(Profile.Voice))));
 		tooltips.Add(new TooltipLine(Mod, "Trinket", SoulmatesText.Get("Tooltips.Sigil.Trinket", SoulmatesText.EnumName(Profile.Trinket),
 			Profile.PackLoad, Profile.PackCapacity, Profile.JobsCompleted)));
+		string forester = Profile.ForesterUnlocked
+			? SoulmatesText.Get("Learning.Forester")
+			: SoulmatesText.Get("Learning.ForesterProgress", Profile.ForestryInsight, CompanionProfile.ForesterUnlockInsight);
 		string learning = Profile.IsAether
 			? SoulmatesText.Get("Tooltips.Sigil.AetherLearning")
 			: Profile.DominantInsight <= 0
-				? SoulmatesText.Get("Tooltips.Sigil.Observing")
+				? SoulmatesText.Get("Tooltips.Sigil.ObservingProgress", forester)
 				: SoulmatesText.Get("Tooltips.Sigil.Learning", SoulmatesText.EnumName(Profile.DominantLearnedBehavior),
-					Profile.DominantInsight, Profile.ForesterUnlocked ? SoulmatesText.Get("Learning.Forester") : SoulmatesText.Get("Learning.Locked"));
+					Profile.DominantInsight, forester);
 		tooltips.Add(new TooltipLine(Mod, "Learning", learning) { OverrideColor = Color.Lerp(Profile.EssenceColor, Color.White, 0.25f) });
 		if (Profile.Routine != CompanionJob.None)
 			tooltips.Add(new TooltipLine(Mod, "Assignment", SoulmatesText.Get("Tooltips.Sigil.Assignment", SoulmatesText.EnumName(Profile.Routine))));

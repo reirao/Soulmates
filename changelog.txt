@@ -1,3 +1,10 @@
+Soulmates 0.8.2 - Visible Forestry
+
+- Every autonomous companion can now shake one nearby tree or clear one fallen log during a decision cycle.
+- Gatherers, AETHER, and companions who learn Forester retain the advanced five-task forestry sweep and acorn planting.
+- Forester progress is now shown explicitly in companion details and Soulbound Sigil tooltips.
+- Existing companions with no forestry insight can immediately perform basic forestry without recreating their Sigil.
+
 Soulmates 0.8.1 - Loot Flow
 
 - Autonomous looting now continues as one coordinated sweep instead of stopping after every item stack.

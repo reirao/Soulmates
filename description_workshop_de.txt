@@ -69,7 +69,7 @@ Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils als Start
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Aktuelle Version[/h2]
-Soulmates 0.8.1 Loot Flow lässt Gefährten nahe Drops in einer zusammenhängenden Sammelrunde aufnehmen, bei verschwundener Beute sofort ein neues Ziel wählen und sauber stoppen, sobald das Gebiet leer, das Pack voll oder die Energie niedrig ist. Forstkundige Gefährten verbinden Baum-Schütteln, das Abbauen gefallener Stämme, das direkte Sammeln von Holz und Samen sowie vorsichtiges Eichelpflanzen zu begrenzten Arbeitsrunden. Pack-Kapazität, Teilstapel, Item-Reservierungen und Multiplayer-Autorität bleiben geschützt. Lernen, natürliche Erholung, native Emotes, die AETHER-Omni-Seele und bestehende Soulbound Sigils bleiben vollständig kompatibel.
+Soulmates 0.8.2 Sichtbare Forstpflege lässt jeden autonomen Gefährten nahe Bäume schütteln und gefallene Stämme räumen. Sammler, AETHER und Gefährten mit erlernter Forstpflege erhalten erweiterte Runden mit bis zu fünf Zielen und können Eicheln pflanzen; der Fortschritt ist in Details und Sigil-Tooltips sichtbar. Koordiniertes Looten, sofortige Neuzielwahl, Pack-Kapazität, Teilstapel, Item-Reservierungen, Multiplayer-Autorität, natürliche Erholung, native Emotes und bestehende Soulbound Sigils bleiben kompatibel.
 
 [h2]Steuerung[/h2]
 [list]

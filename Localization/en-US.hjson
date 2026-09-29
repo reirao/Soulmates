@@ -221,6 +221,7 @@ Mods: {
 				OmniSoul: OMNI SOUL
 				AetherLearning: ALL INSTINCTS | ALL PERKS
 				Observing: OBSERVING YOU
+				ObservingProgress: OBSERVING YOU | {0}
 				Learning: LEARNS {0} {1}/100 {2}
 
 				Energy: {
@@ -292,6 +293,7 @@ Mods: {
 				Trinket: Trinket: {0}  |  Pack: {1}/{2}  |  Jobs: {3}
 				Learning: Learning: {0} {1}/100  |  Perk: {2}
 				Observing: Learning: observing your habits
+				ObservingProgress: Learning: observing your habits  |  {0}
 				AetherLearning: AETHER: all talent instincts and learned perks are active
 				Assignment: Active assignment: {0}
 				Controls: Use: summon  |  Right-click companion: action wheel  |  V: details  |  Up + Right-click: recall
@@ -389,6 +391,7 @@ Mods: {
 		Learning: {
 			Forester: Forester
 			Locked: locked
+			ForesterProgress: Forester {0}/{1}
 			ForesterUnlocked: I watched how you care for wood and growing things. I can help with that now.
 		}
 

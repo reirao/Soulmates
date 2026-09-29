@@ -517,7 +517,7 @@ public sealed class SoulboundCompanion : ModNPC
 			return true;
 		}
 
-		if (Profile.ForesterUnlocked && FindAutonomousForestTask(out Point forestTarget, out ForestAction forestAction)) {
+		if (FindAutonomousForestTask(out Point forestTarget, out ForestAction forestAction)) {
 			BeginAutonomousActivity(AutonomyActivity.TendForest);
 			autonomyTargetTile = forestTarget;
 			autonomyForestAction = forestAction;
@@ -707,7 +707,8 @@ public sealed class SoulboundCompanion : ModNPC
 			NPC.netUpdate = true;
 		}
 
-		if (Profile.Energy >= 16 && autonomyWorkCount < AutonomousForestSweepLimit
+		int sweepLimit = Profile.ForesterUnlocked ? AutonomousForestSweepLimit : 1;
+		if (Profile.Energy >= 16 && autonomyWorkCount < sweepLimit
 			&& TryRetargetAutonomousForestry())
 			return true;
 		FinishAutonomousForestry();
@@ -848,7 +849,7 @@ public sealed class SoulboundCompanion : ModNPC
 		action = ForestAction.None;
 		Point center = Owner.Center.ToTileCoordinates();
 		float bestScore = float.MaxValue;
-		bool canPlant = HasPackItem(ItemID.Acorn);
+		bool canPlant = Profile.ForesterUnlocked && HasPackItem(ItemID.Acorn);
 		const int radius = 18;
 		for (int x = center.X - radius; x <= center.X + radius; x++) {
 			for (int y = center.Y - radius; y <= center.Y + radius; y++) {

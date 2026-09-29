@@ -70,7 +70,7 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current release
 
-**Soulmates 0.8.1 - Loot Flow** turns autonomous pickup into a coordinated sweep: companions chain nearby drops, immediately retarget when an item disappears, and pause only after the area is clear, their pack is full, or their energy runs low. Foresters also chain tree shaking, fallen-log clearing, immediate drop collection, and careful acorn planting into bounded work rounds. Pack capacity, item reservations, and server authority remain enforced. Soul Initiative's learning, natural recovery, native emotes, AETHER Omni Soul, and existing Soulbound Sigil compatibility remain intact.
+**Soulmates 0.8.2 - Visible Forestry** lets every autonomous companion shake nearby trees and clear fallen logs. Gatherers, AETHER, and companions who learn Forester gain advanced multi-target forestry and acorn planting, with progress shown directly in details and Sigil tooltips. Loot Flow's coordinated pickup, immediate retargeting, pack safety, item reservations, and server authority remain intact, as do natural recovery, native emotes, and existing Soulbound Sigil compatibility.
 
 ## Languages
 

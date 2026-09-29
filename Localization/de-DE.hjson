@@ -221,6 +221,7 @@ Mods: {
 				OmniSoul: OMNI-SEELE
 				AetherLearning: ALLE INSTINKTE | ALLE PERKS
 				Observing: BEOBACHTET DICH
+				ObservingProgress: BEOBACHTET DICH | {0}
 				Learning: LERNT {0} {1}/100 {2}
 
 				Energy: {
@@ -292,6 +293,7 @@ Mods: {
 				Trinket: Schmuckstück: {0}  |  Pack: {1}/{2}  |  Aufträge: {3}
 				Learning: Lernen: {0} {1}/100  |  Perk: {2}
 				Observing: Lernen: beobachtet deine Gewohnheiten
+				ObservingProgress: Lernen: beobachtet deine Gewohnheiten  |  {0}
 				AetherLearning: AETHER: alle Talentinstinkte und erlernten Perks sind aktiv
 				Assignment: Aktiver Auftrag: {0}
 				Controls: Benutzen: beschwören  |  Rechtsklick auf Gefährten: Aktionsrad  |  V: Details  |  Hoch + Rechtsklick: zurückrufen
@@ -389,6 +391,7 @@ Mods: {
 		Learning: {
 			Forester: Forstpflege
 			Locked: gesperrt
+			ForesterProgress: Forstpflege {0}/{1}
 			ForesterUnlocked: Ich habe beobachtet, wie du mit Holz und wachsenden Dingen umgehst. Jetzt kann ich dir dabei helfen.
 		}
 

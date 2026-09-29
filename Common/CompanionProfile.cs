@@ -276,7 +276,8 @@ public sealed class CompanionProfile
 	public int PackLoad => Pack.Count(item => !item.IsAir);
 	public string LatestMemory => Memories.Count > 0 ? Memories[^1].Describe() : LastMemory;
 	public bool IsAether => Name.Equals("AETHER", StringComparison.OrdinalIgnoreCase);
-	public bool ForesterUnlocked => IsAether || ForestryInsight >= ForesterUnlockInsight;
+	public bool ForesterUnlocked => IsAether || Talent == CompanionTalent.Gatherer
+		|| ForestryInsight >= ForesterUnlockInsight;
 	public LearnedBehavior DominantLearnedBehavior {
 		get {
 			LearnedBehavior result = LearnedBehavior.Gathering;
