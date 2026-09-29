@@ -1,103 +1,92 @@
 [h1]Create a companion with a soul.[/h1]
 
-Soulmates turns the reusable Soulcore into a companion creator inside Terraria. Shape a distinct little spirit, bind it to its own Soulbound Sigil, summon it into the world, and build a relationship through care, conversation, and commands.
+Soulmates turns the reusable Soulcore into a companion creator inside Terraria. Shape a distinct little spirit, bind it to a Soulbound Sigil, and share care, conversation, work, and adventures.
 
 [img]https://raw.githubusercontent.com/reirao/Soulmates/main/media/soulmates-overview.png[/img]
 
-[url=https://github.com/reirao/Soulmates/releases/latest][b]View the complete screenshot gallery and latest release downloads on GitHub.[/b][/url]
+[url=https://github.com/reirao/Soulmates/releases/latest][b]Screenshots, changelog, and latest release on GitHub[/b][/url]
 
-[b]Languages:[/b] English and German. Soulmates follows Terraria's selected language automatically.
+[b]Languages:[/b] English and German, selected automatically from Terraria's language.
 
 [h2]AI-Assisted Development Disclosure[/h2]
-Soulmates is an experimental project created with extensive AI assistance across programming, writing, interface work, and visual development. The Workshop icon, mod icon, and custom Soulkin sprite were AI-generated and then integrated into the mod. Bunny, Blue Slime, Bird, Squirrel, item, inventory, and emote visuals reuse Terraria assets. The released build was reviewed and tested in-game by the creator.
+Soulmates was created with extensive AI assistance across programming, writing, UI, and visual development. The Workshop art, mod icon, and Soulkin sprite were AI-generated and integrated into the mod. Bunny, Slime, Bird, Squirrel, item, inventory, and emote visuals use Terraria assets. The released build was reviewed and tested in-game by the creator.
 
 [h2]Create Your Soulmate[/h2]
 [list]
-[*]Choose a name, Bestiary muse, body form, essence, aura, personality, and one of five visible starting-talent classes.
-[*]Watch the animated preview change as you shape the companion, including an original eight-frame Soulkin sprite that remains compatible with existing Sigils.
-[*]Create multiple companions; every Soulbound Sigil keeps its own identity and stats.
-[*]Switch freely between Sigils: exactly one companion remains active, and the previous companion's jobs, effects, and projectiles shut down cleanly.
+[*]Choose a name, Bestiary muse, body form, essence, aura, personality, and one of five visible starting classes.
+[*]The animated preview shows your design, including the original eight-frame Soulkin sprite.
+[*]Every Sigil stores its own identity and stats. When switching, exactly one companion stays active and old jobs, effects, and projectiles end cleanly.
 [/list]
 
-[h2]A Companion With Character[/h2]
+[h2]Soulwheel and Conversation[/h2]
 [list]
-[*]Personality-driven idle, wandering, inspecting, following, and catch-up behavior.
-[*]A compact Companion Soulwheel for commands, work, bonding, direct pack access, and the full Details view.
-[*]A separate Player Emote Wheel with all 151 vanilla Terraria emotes. Its categories unfold into compact crescent sub-wheels instead of opening another window.
-[*]Persistent per-companion autonomy that can be switched on or off at any time.
-[*]Contextual initiative questions use a compact Terraria-emote crescent: answer Yes, No, Always, or Never separately for gathering, mining, forestry, and treasure hunting.
-[*]Talent-driven initiative: every companion retrieves nearby usable drops, Gatherers do so faster and farther, Miners help in short bursts and collect what they mine, Treasure Seekers investigate nearby chests, Guardians intercept danger, and Healers react to injuries.
-[*]Persistent learning insights adapt to your gathering, mining, forestry, combat, and exploration habits.
-[*]The learned Forester perk lets companions shake trees, clear natural fallen logs, collect seeds, and carefully replant carried acorns.
-[*]A companion named AETHER is recognized as an Omni Soul with every talent instinct and learned perk active.
-[*]Personality-driven autonomous moments add small surprises without overriding combat, Stay, explicit assignments, or low-energy recovery.
-[*]Persistent bond, mood, energy, and voice style.
-[*]Persistent experience and 20 companion levels earned through combat, healing, work, and shared moments.
-[*]Right-click the companion for commands, work, bonding, pack access, and details. Right-click your character or press G for the separate Terraria-emote wheel with all 151 vanilla graphics; Soulmates answer with native bubbles.
-[*]Quieter autonomous behavior with occasional speech and small wordless exchanges with nearby town NPCs.
-[*]Floating world speech and autonomous conversation shaped by personality, mood, weather, danger, and location.
-[*]Distinct personality reactions to ordinary victories, bosses, and creature deaths.
-[*]Five bond ranks that improve role strength, work radius, and late-rank pack capacity.
-[*]Every companion continuously defends against nearby threats without spending work energy while staying close to its owner or Stay anchor; Guardians react faster, reach farther, and hit harder, while Healers react to meaningful injuries.
-[*]Energy regenerates naturally outside work and combat, and faster while waiting; asking for a rest is an optional boost.
-[*]Talk Mode conversations across Care, Commands, Work, Bond, Voice, and Pack categories.
-[*]Companions can accept a request, react in their own voice, or clearly refuse when tired or unhappy.
-[*]Follow, stay, explore, rest, summon, and recall interactions.
-[*]Area assignments: locate nearby chests, clear every early-ore vein in range, and retrieve every loose item in range.
-[*]A persistent memory chronicle for creation, work, protection, healing, trinkets, and bond milestones.
-[*]A persistent companion pack that holds normal and modded items across saves and summons, with a practical reserve of 99 per item type and 12 acorns.
-[*]Interactive pack slots with item tooltips, stack withdrawal, selected-hotbar-item storage, and one-command unloading.
-[*]A stronger soul light and local map discovery wherever the companion travels.
-[*]Predictable refusals based on visible mood and energy instead of a random roll.
-[*]Assignments stay saved during recalls, finish when the area is clear, and report when a new order is needed.
-[*]A configurable Talk to Companion hotkey, set to V by default.
-[*]The full Talk Mode remains available through Details on the wheel or the configurable V hotkey.
+[*]Right-click the companion for the compact Soulwheel with commands, work, bonding, pack access, and details.
+[*]Right-click your character or press G for a separate Player Emote Wheel with all 151 vanilla emotes. Categories unfold as small crescent sub-wheels.
+[*]Talk Mode keeps Care, Commands, Work, Bond, Voice, and Pack in one compact detail view.
+[*]Companions speak according to personality, mood, weather, danger, and location, react to fights and creature deaths, and share small wordless moments with town NPCs.
+[*]Speech remains readable longer, deliberately trails a departing soul, and fades as a soft echo where it was spoken.
+[/list]
+
+[h2]Autonomy With Character[/h2]
+[list]
+[*]Resting, wandering, exploring, following, catching up, and small surprises depend on personality. Autonomy can be toggled per companion.
+[*]Initiative questions appear as an emote crescent. Choose Yes, No, Always, or Never separately for gathering, mining, forestry, and treasure hunting.
+[*]Every companion retrieves nearby usable drops. Gatherers work farther and faster, Miners clear early ore, Treasure Seekers inspect chests, Guardians intercept danger, and Healers respond to injuries.
+[*]Companions defend without spending work energy and stay near their owner or Stay anchor. Guardians react harder; Healers address meaningful injuries.
+[*]Learned inclinations adapt to your gathering, mining, forestry, combat, and exploration habits.
+[*]The Forester perk shakes trees, clears natural fallen logs, collects seeds, and carefully replants carried acorns.
+[*]A companion named AETHER is an Omni Soul with every talent instinct and learned perk.
+[*]Assignments survive recall, end when an area is clear, and report when a new order is needed.
+[/list]
+
+[h2]Grow and Remember[/h2]
+[list]
+[*]Persistent bond, mood, energy, voice, learning inclinations, memories, and 20 levels.
+[*]Combat, healing, work, and shared moments grant experience. Five bond ranks improve role strength, work radius, and pack size.
+[*]Energy regenerates naturally outside work and combat, and faster while waiting. Refusals visibly follow energy and mood instead of random rolls.
+[*]The persistent pack carries normal and modded items across saves and summons: up to 99 per item type and 12 acorns.
+[*]Pack slots include tooltips and stack withdrawal; store the selected hotbar item or unload everything at once.
+[*]The companion provides soul light and reveals the local map wherever it travels.
 [/list]
 
 [h2]Soul Trinkets[/h2]
 [list]
-[*][b]Starfinder Bell[/b] greatly extends treasure-sensing range.
-[*][b]Delver Charm[/b] expands mining radius and makes ore clearing faster.
-[*][b]Hearth Ribbon[/b] improves gathering range, capacity, and recovery while resting.
+[*][b]Starfinder Bell[/b]: greatly extends treasure sensing.
+[*][b]Delver Charm[/b]: expands mining range and clears ore faster.
+[*][b]Hearth Ribbon[/b]: improves gathering range, capacity, and recovery while waiting.
 [/list]
 
 [h2]Getting Started[/h2]
-New characters receive one Soulcore and three Blank Sigils as a starter kit. Both items can also be crafted at a Work Bench.
+New characters receive one Soulcore and three Blank Sigils. Everything can also be crafted.
 
 [b]Soulcore:[/b] 8 Fallen Stars, 5 Amethyst, 10 Stone Blocks
 [b]Blank Sigil:[/b] 3 Fallen Stars, 1 Amethyst, 5 Silk
-[b]Starfinder Bell:[/b] 5 Fallen Stars, 3 Iron or Lead Bars, 1 Lens
-[b]Delver Charm:[/b] 5 Iron or Lead Bars, 2 Amethyst, 20 Stone Blocks
+[b]Starfinder Bell:[/b] 5 Fallen Stars, 3 Iron/Lead Bars, 1 Lens
+[b]Delver Charm:[/b] 5 Iron/Lead Bars, 2 Amethyst, 20 Stone Blocks
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
-[h2]Current Release[/h2]
-Soulmates 9.9.0.23 rebuilds Companion, Player Emote, and initiative wheels around Terraria's own inventory slots, items, and animated emotes. Talk Mode is now a smaller detail view with symbolic tabs. Companion speech stays readable longer, deliberately trails a moving soul, and fades as a soft echo where it was spoken. This release also includes the coherent cargo path, persistent Yes / No / Always / Never initiative rules, tree-shake terrain fix, restored player right-click wheel, and corrected Squirrel facing. Existing Soulbound Sigils remain compatible.
+[h2]Current Release: 9.9.0.23[/h2]
+This release rebuilds the Companion, Player Emote, and initiative wheels around Terraria's inventory slots, items, and animated emotes. It also includes the unified cargo path, persistent Yes/No/Always/Never choices, tree-shake terrain fix, restored player right-click wheel, and corrected Squirrel facing. Existing Sigils remain compatible.
 
 [h2]How Soulmates Got Here[/h2]
-Soulmates began as a reusable item for shaping a personal pet. Repeated in-game passes turned it into persistent Sigils, personalities, combat support, work assignments, a real pack, learned behavior, forestry, initiative choices, native emotes, and the compact Soulwheel. Some systems were rebuilt more than once when real play exposed awkward controls, disappearing cargo, duplicate drops, stale abilities, or behavior that did not remain coherent over a longer session. The GitHub changelog preserves that history; this description reflects only the implemented state of 9.9.0.23.
+Soulmates began as an item for shaping a pet. Repeated in-game tests turned it into persistent Sigils, personalities, combat support, work, cargo, learning, forestry, initiative, and native emotes. Some systems were rebuilt more than once when real play exposed awkward controls, disappearing cargo, duplicate drops, or stale abilities. The GitHub changelog preserves that history; this page describes only the implemented state.
 
 [h2]Playtesting and Feedback[/h2]
-Every report helps. My playtime is limited and Terraria progression takes time, so some combinations and long-session behavior are discovered slowly. If something behaves strangely, feels unclear, or breaks later in a playthrough, please say what happened and whether it was single-player or multiplayer. And if a companion simply made you smile, I am just as happy to hear that.
+Every report helps. My playtime is limited and Terraria progression takes time, so some combinations and long-session problems emerge slowly. If something is strange, unclear, or breaks later, please say what happened and whether it was single-player or multiplayer. If your companion simply made you smile, I am just as happy to hear that.
 
 [h2]Controls[/h2]
 [list]
-[*]Use Soulcore: open the Soul Creator.
-[*]Use Soulbound Sigil: summon the bound companion.
-[*]Hold Up + right-click active Sigil: recall the companion.
-[*]Use a Soul Trinket while a companion is summoned: equip it.
-[*]Right-click a Soul Trinket: remove the current trinket.
-[*]Talk Mode > Pack: inspect cargo, store the selected hotbar item, or unload everything.
-[*]Pack slots: left-click to take a stack, right-click to take one item.
-[*]Right-click the companion or your own character: open the Soulwheel; left-click icon categories and their crescent actions.
-[*]Choose the bag icon: open the companion pack directly.
-[*]Choose Details on the Soulwheel, or press V by default: open the full Talk Mode.
-[*]Press G by default: open the Player Emote Wheel.
-[*]Choose Follow, Stay, or Explore: cancel the current area assignment.
-[*]Choose ASK AGAIN under Commands: reset all remembered Always and Never initiative choices.
+[*]Use Soulcore: open Creator. Use Sigil: summon companion.
+[*]Hold Up + right-click the active Sigil: recall.
+[*]Right-click companion: Soulwheel. Right-click your character or press G: Player Emote Wheel.
+[*]Bag icon: open pack directly. Details or V: open full Talk Mode.
+[*]Pack slots: left-click takes a stack; right-click takes one item.
+[*]Use Trinket: equip. Right-click Trinket: remove.
+[*]Follow, Stay, or Explore cancels the area assignment.
+[*]ASK AGAIN under Commands resets all Always/Never choices.
 [/list]
 
 [h2]Feedback and Source[/h2]
-Bug reports, observations, kind words, and development history:
-[url=https://github.com/reirao/Soulmates]Soulmates on GitHub[/url]
+[url=https://github.com/reirao/Soulmates]Bug reports, observations, kind words, and development history on GitHub[/url]
 
 Thank you for helping these little souls grow.

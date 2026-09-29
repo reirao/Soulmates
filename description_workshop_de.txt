@@ -1,104 +1,93 @@
 [h1]Erschaffe einen Companion mit Seele.[/h1]
 
-Soulmates macht aus dem wiederverwendbaren Soulcore einen Companion-Editor direkt in Terraria. Forme einen kleinen, einzigartigen Geist, binde ihn an sein eigenes Soulbound Sigil, beschwöre ihn in die Welt und entwickle eure Beziehung durch Fürsorge, Gespräche und gemeinsame Aufgaben.
+Soulmates macht aus dem wiederverwendbaren Soulcore einen Companion-Editor direkt in Terraria. Forme einen eigenen kleinen Geist, binde ihn an ein Soulbound Sigil und erlebe Fürsorge, Gespräche, Arbeit und Abenteuer zusammen.
 
 [img]https://raw.githubusercontent.com/reirao/Soulmates/main/media/soulmates-overview.png[/img]
 
-[url=https://github.com/reirao/Soulmates/releases/latest][b]Vollständige Screenshot-Galerie und Downloads des neuesten Releases auf GitHub ansehen.[/b][/url]
+[url=https://github.com/reirao/Soulmates/releases/latest][b]Screenshots, Changelog und neuestes Release auf GitHub[/b][/url]
 
-[b]Sprachen:[/b] Englisch und Deutsch. Soulmates übernimmt automatisch die in Terraria ausgewählte Sprache.
+[b]Sprachen:[/b] Englisch und Deutsch; automatisch passend zur Terraria-Sprache.
 
 [h2]Hinweis zur KI-unterstützten Entwicklung[/h2]
-Soulmates ist ein experimentelles Projekt, das bei Programmierung, Texten, Benutzeroberfläche und visueller Entwicklung umfassend mit KI-Unterstützung entstanden ist. Workshop-Bild, Mod-Icon und der eigene Soulkin-Sprite wurden KI-generiert und anschließend in die Mod integriert. Hasen-, Blauer-Schleim-, Vogel-, Eichhörnchen-, Item-, Inventar- und Emote-Grafiken verwenden Terraria-Assets. Der veröffentlichte Stand wurde vom Ersteller im Spiel geprüft.
+Soulmates entstand mit umfassender KI-Unterstützung bei Programmierung, Texten, UI und visueller Entwicklung. Workshop-Bild, Mod-Icon und Soulkin-Sprite wurden KI-generiert und integriert. Hasen-, Schleim-, Vogel-, Eichhörnchen-, Item-, Inventar- und Emote-Grafiken verwenden Terraria-Assets. Der veröffentlichte Stand wurde vom Ersteller im Spiel geprüft.
 
 [h2]Erschaffe deinen Soulmate[/h2]
 [list]
 [*]Wähle Name, Bestiary Muse, Körperform, Essenz, Aura, Persönlichkeit und eine von fünf sichtbaren Startklassen.
-[*]Beobachte im animierten Vorschaufenster, wie sich dein Companion verändert, einschließlich des eigenen Soulkin-Sprites mit acht Animationsframes und Kompatibilität zu bestehenden Sigils.
-[*]Erschaffe mehrere Companions; jedes Soulbound Sigil bewahrt seine eigene Identität und seine Werte.
-[*]Wechsle frei zwischen Sigils: Genau ein Companion bleibt aktiv, während Aufgaben, Effekte und Projektile des vorherigen sauber beendet werden.
+[*]Das animierte Vorschaufenster zeigt deinen Entwurf, einschließlich des eigenen Soulkin-Sprites mit acht Frames.
+[*]Jedes Sigil speichert eine eigene Identität und Werte. Beim Wechsel bleibt genau ein Companion aktiv; alte Aufgaben, Effekte und Projektile enden sauber.
 [/list]
 
-[h2]Ein Companion mit Charakter[/h2]
+[h2]Soulwheel und Gespräche[/h2]
 [list]
-[*]Persönlichkeitsabhängiges Ruhen, Umherwandern, Erkunden, Folgen und Aufholen.
-[*]Ein kompaktes Companion Soulwheel für Befehle, Arbeit, Bindung, direkten Pack-Zugriff und die vollständige Detailansicht.
-[*]Ein getrenntes Player Emote Wheel mit allen 151 Vanilla-Terraria-Emotes. Kategorien entfalten sich als kompakte Halbmond-Untermenüs statt als weiteres Fenster.
-[*]Dauerhafte Autonomie pro Companion, die jederzeit an- oder ausgeschaltet werden kann.
-[*]Kontextfragen erscheinen als kompakter Terraria-Emote-Halbmond: Antworte für Sammeln, Bergbau, Forstpflege und Schatzsuche getrennt mit Ja, Nein, Immer oder Nie.
-[*]Talentabhängige Initiative: Jeder Companion sammelt nahe nutzbare Drops, Sammler tun dies schneller und in größerer Reichweite, Bergarbeiter helfen in kurzen Etappen und verstauen ihren Abbau, Schatzsucher untersuchen nahe Truhen, Beschützer fangen Gefahren ab und Heiler reagieren auf Verletzungen.
-[*]Dauerhafte Lernneigungen passen sich deinem Sammeln, Bergbau, deiner Forstpflege, deinen Kämpfen und Erkundungen an.
-[*]Der erlernte Forstpflege-Perk lässt Companions Bäume schütteln, natürliche umgestürzte Stämme räumen, Samen sammeln und mitgeführte Eicheln vorsichtig nachpflanzen.
-[*]Ein Companion namens AETHER wird als Omni-Seele mit allen Talentinstinkten und erlernten Perks erkannt.
-[*]Persönlichkeitsabhängige autonome Momente sorgen für kleine Überraschungen, ohne Kampf, Warten, direkte Aufträge oder Erholung zu übergehen.
-[*]Dauerhaft gespeicherte Bindung, Stimmung, Energie und Sprechweise.
-[*]20 Companion-Level durch Kämpfe, Heilung, Arbeit und gemeinsame Momente.
-[*]Rechtsklick auf den Companion öffnet Befehle, Arbeit, Bindung, Pack und Details. Rechtsklick auf deinen Charakter oder G öffnet das getrennte Terraria-Emote-Rad mit allen 151 Vanilla-Grafiken; Soulmates antworten mit nativen Blasen.
-[*]Ruhigeres autonomes Verhalten mit gelegentlichen Texten und kleinen wortlosen Begegnungen mit Town-NPCs.
-[*]Situationsabhängige Reaktionen auf Stimmung, Wetter, Gefahr, Verletzungen und Aufenthaltsort.
-[*]Unterschiedliche Reaktionen auf normale Siege, Bosse und getötete friedliche Kreaturen.
-[*]Fünf Bindungsränge, die Rollenstärke und Arbeitsradius verbessern; höhere Ränge vergrößern außerdem das Pack.
-[*]Jeder Companion verteidigt dich ohne Arbeitsenergie zu verbrauchen und bleibt dabei in der Nähe seines Besitzers oder Stay-Ankers. Guardians reagieren schneller und stärker; Healers versorgen bedeutsame Verletzungen.
-[*]Energie regeneriert sich außerhalb von Arbeit und Kampf von selbst und beim Warten schneller. Eine Pause zu erbitten ist nur ein zusätzlicher Bonus.
-[*]Talk Mode mit Fürsorge, Befehlen, Arbeit, Bindung, Stimme und Pack.
-[*]Companions können zustimmen, in ihrer eigenen Stimme reagieren oder bei Erschöpfung und schlechter Stimmung nachvollziehbar ablehnen.
-[*]Folgen, Bleiben, Erkunden, Ausruhen, Beschwören und Zurückrufen.
-[*]Gebietsaufgaben: nahe Truhen finden, frühe Erzadern vollständig abbauen und herumliegende Gegenstände einsammeln.
-[*]Eine dauerhafte Erinnerungschronik über Erschaffung, Arbeit, Schutz, Heilung, Trinkets und Bindungsmeilensteine.
-[*]Ein eigenes dauerhaftes Pack für normale und gemoddete Items, das Speichern und Beschwören übersteht und einen sinnvollen Vorrat von 99 pro Itemtyp sowie 12 Eicheln hält.
-[*]Interaktive Pack-Slots mit Tooltips, Stack-Entnahme, Einlagern des ausgewählten Hotbar-Items und vollständigem Entladen.
-[*]Stärkeres Seelenlicht und Aufdeckung der Karte, wo immer dein Companion unterwegs ist.
-[*]Vorhersehbare Ablehnungen anhand sichtbarer Stimmung und Energie statt eines Zufallswurfs.
-[*]Aufgaben bleiben beim Zurückrufen erhalten, enden wenn das Gebiet leer ist und melden, wann ein neuer Auftrag nötig ist.
-[*]Konfigurierbare Taste für Talk Mode, standardmäßig V.
-[*]Der vollständige Talk Mode bleibt über Details im Aktionsrad oder die konfigurierbare V-Taste erreichbar.
+[*]Rechtsklick auf den Companion öffnet das kompakte Soulwheel für Befehle, Arbeit, Bindung, Pack und Details.
+[*]Rechtsklick auf deinen Charakter oder G öffnet ein getrenntes Player Emote Wheel mit allen 151 Vanilla-Emotes. Kategorien fahren als kleine Halbmonde aus.
+[*]Talk Mode bietet Fürsorge, Befehle, Arbeit, Bindung, Stimme und Pack in einer kompakten Detailansicht.
+[*]Companions sprechen passend zu Persönlichkeit, Stimmung, Wetter, Gefahr und Ort, reagieren auf Kämpfe und friedliche Kreaturen und begegnen Town-NPCs auch wortlos.
+[*]Texte bleiben länger lesbar, folgen einer fortfliegenden Seele verzögert und verblassen als sanfter Nachhall am gesprochenen Ort.
+[/list]
+
+[h2]Autonomie mit Charakter[/h2]
+[list]
+[*]Ruhen, Wandern, Erkunden, Folgen, Aufholen und kleine Überraschungen richten sich nach der Persönlichkeit. Autonomie lässt sich pro Companion umschalten.
+[*]Initiativfragen erscheinen als Emote-Halbmond. Entscheide für Sammeln, Bergbau, Forstpflege und Schatzsuche getrennt mit Ja, Nein, Immer oder Nie.
+[*]Jeder Companion sammelt nahe nutzbare Drops. Sammler arbeiten weiter und schneller, Bergarbeiter räumen frühe Erzadern, Schatzsucher untersuchen Truhen, Beschützer fangen Gefahren ab und Heiler reagieren auf Verletzungen.
+[*]Companions verteidigen ohne Arbeitsenergie zu verbrauchen und bleiben beim Besitzer oder Stay-Anker. Guardians reagieren stärker, Healers versorgen wichtige Verletzungen.
+[*]Erlernte Neigungen passen sich deinem Sammeln, Bergbau, Forsten, Kämpfen und Erkunden an.
+[*]Der Forstpflege-Perk schüttelt Bäume, räumt natürliche umgestürzte Stämme, sammelt Samen und pflanzt mitgeführte Eicheln vorsichtig nach.
+[*]Ein Companion namens AETHER ist eine Omni-Seele mit allen Talentinstinkten und erlernten Perks.
+[*]Aufträge bleiben beim Zurückrufen erhalten, enden wenn das Gebiet leer ist und melden, wann ein neuer Auftrag nötig ist.
+[/list]
+
+[h2]Wachsen und Erinnern[/h2]
+[list]
+[*]Dauerhafte Bindung, Stimmung, Energie, Stimme, Lernneigungen, Erinnerungen und 20 Level.
+[*]Erfahrung entsteht durch Kampf, Heilung, Arbeit und gemeinsame Momente. Fünf Bindungsränge verbessern Rollenstärke, Arbeitsradius und Pack.
+[*]Energie regeneriert außerhalb von Arbeit und Kampf selbstständig und beim Warten schneller. Ablehnungen beruhen sichtbar auf Energie und Stimmung, nicht auf Zufall.
+[*]Das dauerhafte Pack trägt normale und gemoddete Items über Speichern und Beschwören hinweg: bis zu 99 pro Itemtyp und 12 Eicheln.
+[*]Pack-Slots haben Tooltips und Stack-Entnahme; das ausgewählte Hotbar-Item kann eingelagert und alles gemeinsam entladen werden.
+[*]Der Companion spendet Seelenlicht und deckt die Karte dort auf, wo er unterwegs ist.
 [/list]
 
 [h2]Soul Trinkets[/h2]
 [list]
-[*][b]Starfinder Bell[/b] vergrößert die Reichweite der Schatzsuche deutlich.
-[*][b]Delver Charm[/b] erweitert den Bergbauradius und beschleunigt das Räumen von Erzadern.
-[*][b]Hearth Ribbon[/b] verbessert Sammelreichweite, Kapazität und Erholung beim Warten.
+[*][b]Starfinder Bell[/b]: deutlich größere Schatzsuche.
+[*][b]Delver Charm[/b]: größerer Bergbauradius und schnelleres Erzräumen.
+[*][b]Hearth Ribbon[/b]: bessere Sammelreichweite, Kapazität und Erholung beim Warten.
 [/list]
 
 [h2]Erste Schritte[/h2]
-Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils als Startausrüstung. Beide Gegenstände können außerdem an einer Werkbank hergestellt werden.
+Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils. Alles ist auch herstellbar.
 
 [b]Soulcore:[/b] 8 Fallen Stars, 5 Amethyst, 10 Stone Blocks
 [b]Blank Sigil:[/b] 3 Fallen Stars, 1 Amethyst, 5 Silk
-[b]Starfinder Bell:[/b] 5 Fallen Stars, 3 Iron oder Lead Bars, 1 Lens
-[b]Delver Charm:[/b] 5 Iron oder Lead Bars, 2 Amethyst, 20 Stone Blocks
+[b]Starfinder Bell:[/b] 5 Fallen Stars, 3 Iron/Lead Bars, 1 Lens
+[b]Delver Charm:[/b] 5 Iron/Lead Bars, 2 Amethyst, 20 Stone Blocks
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
-[h2]Aktuelle Version[/h2]
-Soulmates 9.9.0.23 gestaltet Companion-, Player-Emote- und Initiativräder mit Terrarias eigenen Inventarslots, Items und animierten Emotes neu. Talk Mode ist nun eine kleinere Detailansicht mit symbolischen Tabs. Die Sprache des Companions bleibt länger lesbar, folgt einer fortfliegenden Seele bewusst verzögert und verblasst als sanfter Nachhall am gesprochenen Ort. Diese Version enthält außerdem den einheitlichen Frachtweg, dauerhafte Ja-/Nein-/Immer-/Nie-Initiativregeln, den Baumklopf-Untergrundfix, das wiederhergestellte Player-Rechtsklickrad und die korrigierte Blickrichtung des Eichhörnchens. Bestehende Soulbound Sigils bleiben kompatibel.
+[h2]Aktuelle Version: 9.9.0.23[/h2]
+Die aktuelle Version baut Companion-, Player-Emote- und Initiativräder mit Terrarias Inventarslots, Items und animierten Emotes neu auf. Sie enthält außerdem den vereinheitlichten Frachtweg, dauerhafte Ja-/Nein-/Immer-/Nie-Regeln, den Baumklopf-Untergrundfix, das wiederhergestellte Player-Rechtsklickrad und die korrigierte Blickrichtung des Eichhörnchens. Bestehende Sigils bleiben kompatibel.
 
 [h2]Wie Soulmates hierherkam[/h2]
-Soulmates begann als wiederverwendbares Item, mit dem man ein persönliches Pet gestaltet. Wiederholte Ingame-Tests machten daraus dauerhafte Sigils, Persönlichkeiten, Kampfunterstützung, Arbeitsaufträge, ein echtes Pack, erlerntes Verhalten, Forstpflege, Initiativentscheidungen, native Emotes und das kompakte Soulwheel. Manche Systeme wurden mehrfach neu gebaut, nachdem echtes Spielen umständliche Bedienung, verschwindende Fracht, doppelte Drops, zurückbleibende Fähigkeiten oder Verhalten zeigte, das über längere Sitzungen nicht stimmig blieb. Der Changelog auf GitHub bewahrt diese Geschichte; diese Beschreibung zeigt ausschließlich den umgesetzten Stand von 9.9.0.23.
+Soulmates begann als Item zum Gestalten eines Pets. Wiederholte Ingame-Tests machten daraus dauerhafte Sigils, Persönlichkeiten, Kampfunterstützung, Arbeit, Pack, Lernen, Forstpflege, Initiative und native Emotes. Einige Systeme wurden mehrfach neu gebaut, nachdem echtes Spielen umständliche Bedienung, verschwindende Fracht, doppelte Drops oder zurückbleibende Fähigkeiten zeigte. Der GitHub-Changelog bewahrt diese Geschichte; hier steht nur der umgesetzte Ist-Stand.
 
 [h2]Spieletests und Feedback[/h2]
-Jede Rückmeldung hilft. Meine Spielzeit ist begrenzt und Fortschritt in Terraria braucht Zeit, deshalb werden manche Kombinationen und Langzeitprobleme erst langsam sichtbar. Wenn sich etwas seltsam verhält, unklar wirkt oder später im Spielstand kaputtgeht, schreib bitte dazu, was passiert ist und ob es Singleplayer oder Multiplayer war. Und wenn dich ein Companion einfach zum Lächeln gebracht hat, freue ich mich darüber genauso.
+Jede Rückmeldung hilft. Meine Spielzeit ist begrenzt und Terraria-Fortschritt braucht Zeit, deshalb werden manche Kombinationen und Langzeitprobleme langsam sichtbar. Wenn etwas seltsam, unklar oder später kaputt ist, schreib bitte dazu, was geschah und ob es Singleplayer oder Multiplayer war. Wenn dich dein Companion einfach zum Lächeln bringt, freue ich mich darüber genauso.
 
 [h2]Steuerung[/h2]
 [list]
-[*]Soulcore benutzen: Soul Creator öffnen.
-[*]Soulbound Sigil benutzen: gebundenen Companion beschwören.
-[*]Nach oben halten + Rechtsklick auf das aktive Sigil: Companion zurückrufen.
-[*]Soul Trinket bei aktivem Companion benutzen: Trinket ausrüsten.
-[*]Rechtsklick auf ein Soul Trinket: aktuelles Trinket entfernen.
-[*]Talk Mode > Pack: Ladung ansehen, ausgewähltes Hotbar-Item einlagern oder alles entladen.
-[*]Pack-Slots: Linksklick nimmt einen Stack, Rechtsklick nimmt ein Item.
-[*]Rechtsklick auf den Companion oder den eigenen Charakter: Soulwheel öffnen; Symbolkategorien und halbmondförmige Aktionen mit Linksklick wählen.
-[*]Taschensymbol wählen: Companion-Pack direkt öffnen.
-[*]Details im Soulwheel wählen oder standardmäßig V drücken: den vollständigen Talk Mode öffnen.
-[*]Standardmäßig G drücken: Player-Emote-Rad öffnen.
-[*]Folgen, Bleiben oder Erkunden beendet den aktuellen Gebietsauftrag.
-[*]WIEDER FRAGEN unter Befehle setzt alle gemerkten Immer- und Nie-Entscheidungen zurück.
+[*]Soulcore benutzen: Creator öffnen. Sigil benutzen: Companion beschwören.
+[*]Nach oben + Rechtsklick auf das aktive Sigil: zurückrufen.
+[*]Rechtsklick auf Companion: Soulwheel. Rechtsklick auf eigenen Charakter oder G: Player Emote Wheel.
+[*]Taschensymbol: Pack direkt öffnen. Details oder V: vollständigen Talk Mode öffnen.
+[*]Pack-Slots: Linksklick nimmt einen Stack, Rechtsklick ein Item.
+[*]Trinket benutzen: ausrüsten. Rechtsklick auf Trinket: entfernen.
+[*]Folgen, Bleiben oder Erkunden beendet den Gebietsauftrag.
+[*]WIEDER FRAGEN unter Befehle setzt alle Immer-/Nie-Entscheidungen zurück.
 [/list]
 
 [h2]Feedback und Quellcode[/h2]
-Fehlerberichte, Beobachtungen, nette Worte und Entwicklungsgeschichte:
-[url=https://github.com/reirao/Soulmates]Soulmates auf GitHub[/url]
+[url=https://github.com/reirao/Soulmates]Fehlerberichte, Beobachtungen, nette Worte und Entwicklungsgeschichte auf GitHub[/url]
 
 Danke, dass du diesen kleinen Seelen beim Wachsen hilfst.
 
