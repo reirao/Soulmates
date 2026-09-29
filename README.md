@@ -36,7 +36,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Companion identity and progression data are saved on the Sigil.
 - Personality-driven idle, wander, inspect, follow, and catch-up behavior.
 - Persistent per-companion autonomy, switchable from the action wheel.
-- Talent-driven initiative: Gatherers retrieve nearby drops, Miners help in short bursts while their owner mines, Treasure Seekers investigate nearby chests, Guardians intercept danger, and Healers react to injuries.
+- Talent-driven initiative: every companion retrieves nearby usable drops, Gatherers do so faster and farther, Miners help in short bursts and collect what they mine, Treasure Seekers investigate nearby chests, Guardians intercept danger, and Healers react to injuries.
 - Personality-driven autonomous moments add small surprises without overriding combat, Stay, explicit assignments, or low-energy recovery.
 - Persistent companion experience with 20 levels earned from combat, healing, work, and shared moments.
 - Hold right-click directly on your own character, point toward an emote, and release to share a social action. The configurable **Companion Emote Wheel** key (`G` by default) remains available as an alternative.

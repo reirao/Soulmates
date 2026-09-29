@@ -390,14 +390,15 @@ public sealed class SoulboundCompanion : ModNPC
 		if (Main.netMode == NetmodeID.MultiplayerClient || --autonomyDecisionTimer > 0)
 			return false;
 
-		int minimum = Profile.Personality is CompanionPersonality.Curious or CompanionPersonality.Mischievous ? 260 : 360;
-		int maximum = Profile.Talent == CompanionTalent.Gatherer ? 520 : 760;
+		bool eagerGatherer = Profile.Talent == CompanionTalent.Gatherer;
+		int minimum = eagerGatherer ? 120
+			: Profile.Personality is CompanionPersonality.Curious or CompanionPersonality.Mischievous ? 200 : 260;
+		int maximum = eagerGatherer ? 260 : 480;
 		autonomyDecisionTimer = Main.rand.Next(minimum, maximum);
 		if (Vector2.DistanceSquared(NPC.Center, Owner.Center) > 440f * 440f)
 			return false;
 
-		bool eagerGatherer = Profile.Talent == CompanionTalent.Gatherer;
-		if ((eagerGatherer || Main.rand.NextBool(3)) && Profile.PackLoad < Profile.PackCapacity
+		if (Profile.PackLoad < Profile.PackCapacity
 			&& FindAutonomousLooseItem(out int itemIndex)) {
 			BeginAutonomousActivity(AutonomyActivity.FetchItem);
 			autonomyTargetItem = itemIndex;
@@ -461,13 +462,16 @@ public sealed class SoulboundCompanion : ModNPC
 			SyncProfileToBoundSigil();
 			if (Main.netMode == NetmodeID.Server)
 				NetMessage.SendData(MessageID.SyncItem, -1, -1, null, autonomyTargetItem);
-			StartEmote(CompanionEmote.Cheer, 90);
-			ShowNativeEmote(CompanionEmote.Cheer, 110);
-			SpeakLocalized("Autonomy.Fetched", itemName);
+			if (Main.rand.NextBool(3)) {
+				StartEmote(CompanionEmote.Cheer, 90);
+				ShowNativeEmote(CompanionEmote.Cheer, 110);
+			}
+			if (Main.rand.NextBool(4))
+				SpeakLocalized("Autonomy.Fetched", itemName);
 		}
 		else
 			SpeakLocalized("Jobs.PackFull");
-		CancelAutonomousActivity(360);
+		CancelAutonomousActivity(Profile.Talent == CompanionTalent.Gatherer ? 90 : 180);
 		return false;
 	}
 
@@ -497,6 +501,7 @@ public sealed class SoulboundCompanion : ModNPC
 		if (!Main.tile[autonomyTargetTile.X, autonomyTargetTile.Y].HasTile) {
 			autonomyWorkCount++;
 			Profile.Energy = Math.Max(0, Profile.Energy - 1);
+			CollectNearbyLooseItems(target, 96f, 6);
 			if (Main.netMode == NetmodeID.Server)
 				NetMessage.SendData(MessageID.TileManipulation, -1, -1, null, 0, autonomyTargetTile.X, autonomyTargetTile.Y);
 		}
@@ -532,10 +537,10 @@ public sealed class SoulboundCompanion : ModNPC
 	private bool FindAutonomousLooseItem(out int result)
 	{
 		result = -1;
-		float radius = (Profile.Talent == CompanionTalent.Gatherer ? 20f : 11f) * 16f;
+		float radius = (Profile.Talent == CompanionTalent.Gatherer ? 20f : 13f) * 16f;
 		if (Profile.Trinket == CompanionTrinket.HearthRibbon)
 			radius += 80f;
-		float bestScore = radius * radius;
+		float bestScore = float.MaxValue;
 		for (int i = 0; i < Main.maxItems; i++) {
 			Item item = Main.item[i];
 			if (!item.active || item.IsAir || !CanCarry(item) || IsRecoveryPickup(item)
@@ -1035,6 +1040,7 @@ public sealed class SoulboundCompanion : ModNPC
 		WorldGen.KillTile(jobTarget.X, jobTarget.Y);
 		if (!Main.tile[jobTarget.X, jobTarget.Y].HasTile) {
 			jobCount++;
+			CollectNearbyLooseItems(target, 96f, 6);
 			if (Main.netMode == NetmodeID.Server)
 				NetMessage.SendData(MessageID.TileManipulation, -1, -1, null, 0, jobTarget.X, jobTarget.Y);
 		}
@@ -1174,6 +1180,40 @@ public sealed class SoulboundCompanion : ModNPC
 			worldItem.active = false;
 		}
 		return moved;
+	}
+
+	private int CollectNearbyLooseItems(Vector2 center, float radius, int maximumStacks)
+	{
+		if (Main.netMode == NetmodeID.MultiplayerClient || Profile.PackLoad >= Profile.PackCapacity)
+			return 0;
+
+		int movedTotal = 0;
+		int movedStacks = 0;
+		float radiusSquared = radius * radius;
+		for (int i = 0; i < Main.maxItems && movedStacks < maximumStacks; i++) {
+			Item item = Main.item[i];
+			if (!item.active || item.IsAir || !CanCarry(item) || IsRecoveryPickup(item)
+				|| item.playerIndexTheItemIsReservedFor != 255 && item.playerIndexTheItemIsReservedFor != Owner.whoAmI
+				|| Vector2.DistanceSquared(center, item.Center) > radiusSquared)
+				continue;
+
+			int moved = StoreLooseItem(item);
+			if (moved <= 0)
+				continue;
+
+			movedTotal += moved;
+			movedStacks++;
+			if (Main.netMode == NetmodeID.Server)
+				NetMessage.SendData(MessageID.SyncItem, -1, -1, null, i);
+			if (Profile.PackLoad >= Profile.PackCapacity)
+				break;
+		}
+
+		if (movedTotal > 0) {
+			SyncProfileToBoundSigil();
+			NPC.netUpdate = true;
+		}
+		return movedTotal;
 	}
 
 	private void RevealSurroundings()

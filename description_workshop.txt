@@ -24,7 +24,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 [*]Personality-driven idle, wandering, inspecting, following, and catch-up behavior.
 [*]A compact eight-action companion wheel for movement, work, autonomy, and the full Details view.
 [*]Persistent per-companion autonomy that can be switched on or off at any time.
-[*]Talent-driven initiative: Gatherers retrieve nearby drops, Miners help in short bursts while you mine, Treasure Seekers investigate nearby chests, Guardians intercept danger, and Healers react to injuries.
+[*]Talent-driven initiative: every companion retrieves nearby usable drops, Gatherers do so faster and farther, Miners help in short bursts and collect what they mine, Treasure Seekers investigate nearby chests, Guardians intercept danger, and Healers react to injuries.
 [*]Personality-driven autonomous moments add small surprises without overriding combat, Stay, explicit assignments, or low-energy recovery.
 [*]Persistent bond, mood, energy, and voice style.
 [*]Persistent experience and 20 companion levels earned through combat, healing, work, and shared moments.

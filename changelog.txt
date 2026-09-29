@@ -4,6 +4,8 @@ Soulmates 0.8.0 - Soul Initiative
 - The full Talk Mode remains available through Details or the configurable V hotkey and now uses a smaller layout.
 - Added persistent per-companion autonomy that can be toggled directly from the radial menu.
 - Gatherers retrieve nearby loose items one stack at a time, Miners assist in short bursts while their owner mines, and Treasure Seekers investigate nearby chests.
+- All autonomous companions now reliably collect nearby usable drops; Gatherers do so faster and across a wider area.
+- Mining assignments and autonomous mining collect resulting drops directly into the companion pack.
 - Guardians and Healers retain their autonomous combat and recovery roles, giving every starting talent a distinct form of initiative.
 - Personality-driven autonomous moments add quiet, surprising behavior without interrupting combat, explicit assignments, Stay, or low-energy recovery.
 - Added server-authoritative radial actions and autonomous state synchronization for multiplayer.

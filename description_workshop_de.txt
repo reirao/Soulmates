@@ -24,7 +24,7 @@ Soulmates ist ein experimentelles Projekt, das bei Programmierung, Texten, Benut
 [*]Persönlichkeitsabhängiges Ruhen, Umherwandern, Erkunden, Folgen und Aufholen.
 [*]Ein kompaktes Aktionsrad mit acht Einträgen für Bewegung, Arbeit, Autonomie und die vollständige Detailansicht.
 [*]Dauerhafte Autonomie pro Companion, die jederzeit an- oder ausgeschaltet werden kann.
-[*]Talentabhängige Initiative: Sammler holen nahe Drops, Bergarbeiter helfen in kurzen Etappen beim Abbau, Schatzsucher untersuchen nahe Truhen, Beschützer fangen Gefahren ab und Heiler reagieren auf Verletzungen.
+[*]Talentabhängige Initiative: Jeder Companion sammelt nahe nutzbare Drops, Sammler tun dies schneller und in größerer Reichweite, Bergarbeiter helfen in kurzen Etappen und verstauen ihren Abbau, Schatzsucher untersuchen nahe Truhen, Beschützer fangen Gefahren ab und Heiler reagieren auf Verletzungen.
 [*]Persönlichkeitsabhängige autonome Momente sorgen für kleine Überraschungen, ohne Kampf, Warten, direkte Aufträge oder Erholung zu übergehen.
 [*]Dauerhaft gespeicherte Bindung, Stimmung, Energie und Sprechweise.
 [*]20 Companion-Level durch Kämpfe, Heilung, Arbeit und gemeinsame Momente.
