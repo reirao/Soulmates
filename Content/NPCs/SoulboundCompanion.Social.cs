@@ -23,10 +23,22 @@ public sealed partial class SoulboundCompanion
 {
 	private void UpdateSocialState()
 	{
-		if (speechTimer > 0)
+		if (speechTimer > 0) {
 			speechTimer--;
-		else
+			if (speechAnchorWorld == Vector2.Zero) {
+				speechAnchorWorld = NPC.Center;
+				speechTrailWorld = NPC.Center;
+			}
+			Vector2 previousAnchor = speechAnchorWorld;
+			speechAnchorWorld = Vector2.Lerp(speechAnchorWorld, NPC.Center, 0.045f);
+			speechTrailWorld = Vector2.Lerp(speechTrailWorld, previousAnchor, 0.11f);
+		}
+		else {
 			speechText = "";
+			speechDuration = 0;
+			speechAnchorWorld = Vector2.Zero;
+			speechTrailWorld = Vector2.Zero;
+		}
 		if (interactionRewardCooldown > 0)
 			interactionRewardCooldown--;
 		if (nativeEmoteReactionCooldown > 0)

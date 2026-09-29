@@ -9,7 +9,7 @@ Soulmates macht aus dem wiederverwendbaren Soulcore einen Companion-Editor direk
 [b]Sprachen:[/b] Englisch und Deutsch. Soulmates übernimmt automatisch die in Terraria ausgewählte Sprache.
 
 [h2]Hinweis zur KI-unterstützten Entwicklung[/h2]
-Soulmates ist ein experimentelles Projekt, das bei Programmierung, Texten, Benutzeroberfläche und visueller Entwicklung umfassend mit KI-Unterstützung entstanden ist. Workshop-Bild, Mod-Icon und der eigene Soulkin-Sprite wurden KI-generiert und anschließend in die Mod integriert. Die derzeitigen Hasen-, Blauer-Schleim-, Vogel-, Eichhörnchen-, Item- und Inventargrafiken verwenden Terraria-Assets als Platzhalter. Neue Funktionen werden vor der Veröffentlichung vom Ersteller im Spiel geprüft.
+Soulmates ist ein experimentelles Projekt, das bei Programmierung, Texten, Benutzeroberfläche und visueller Entwicklung umfassend mit KI-Unterstützung entstanden ist. Workshop-Bild, Mod-Icon und der eigene Soulkin-Sprite wurden KI-generiert und anschließend in die Mod integriert. Hasen-, Blauer-Schleim-, Vogel-, Eichhörnchen-, Item-, Inventar- und Emote-Grafiken verwenden Terraria-Assets. Der veröffentlichte Stand wurde vom Ersteller im Spiel geprüft.
 
 [h2]Erschaffe deinen Soulmate[/h2]
 [list]
@@ -37,7 +37,7 @@ Soulmates ist ein experimentelles Projekt, das bei Programmierung, Texten, Benut
 [*]Ruhigeres autonomes Verhalten mit gelegentlichen Texten und kleinen wortlosen Begegnungen mit Town-NPCs.
 [*]Situationsabhängige Reaktionen auf Stimmung, Wetter, Gefahr, Verletzungen und Aufenthaltsort.
 [*]Unterschiedliche Reaktionen auf normale Siege, Bosse und getötete friedliche Kreaturen.
-[*]Fünf Bindungsränge, die Rollenstärke, Arbeitsradius und später die Pack-Kapazität verbessern.
+[*]Fünf Bindungsränge, die Rollenstärke und Arbeitsradius verbessern; höhere Ränge vergrößern außerdem das Pack.
 [*]Jeder Companion verteidigt dich ohne Arbeitsenergie zu verbrauchen und bleibt dabei in der Nähe seines Besitzers oder Stay-Ankers. Guardians reagieren schneller und stärker; Healers versorgen bedeutsame Verletzungen.
 [*]Energie regeneriert sich außerhalb von Arbeit und Kampf von selbst und beim Warten schneller. Eine Pause zu erbitten ist nur ein zusätzlicher Bonus.
 [*]Talk Mode mit Fürsorge, Befehlen, Arbeit, Bindung, Stimme und Pack.
@@ -71,7 +71,13 @@ Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils als Start
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Aktuelle Version[/h2]
-Soulmates 0.9.4.1 verwendet in Singleplayer und Multiplayer einen einheitlichen Frachtweg. Das Pack hält nun einen sinnvollen Vorrat von 99 pro Itemtyp sowie 12 Eicheln, statt ein Material endlos einzusammeln; vorhandene Übermengen gehen sicher an den Spieler zurück. Companions fragen über ein kompaktes Ja / Nein / Immer / Nie-Emote-Rad nach Gelegenheiten und merken sich jede Tätigkeit getrennt. Beim Baumklopfen dient der Untergrund nicht länger als Dropquelle, und die Seelenerstellung bleibt eine atomare Inventaraktion mit klarer Rückmeldung. Bestehende Soulbound Sigils bleiben kompatibel.
+Soulmates 9.9.0.23 gestaltet Companion-, Player-Emote- und Initiativräder mit Terrarias eigenen Inventarslots, Items und animierten Emotes neu. Talk Mode ist nun eine kleinere Detailansicht mit symbolischen Tabs. Die Sprache des Companions bleibt länger lesbar, folgt einer fortfliegenden Seele bewusst verzögert und verblasst als sanfter Nachhall am gesprochenen Ort. Diese Version enthält außerdem den einheitlichen Frachtweg, dauerhafte Ja-/Nein-/Immer-/Nie-Initiativregeln, den Baumklopf-Untergrundfix, das wiederhergestellte Player-Rechtsklickrad und die korrigierte Blickrichtung des Eichhörnchens. Bestehende Soulbound Sigils bleiben kompatibel.
+
+[h2]Wie Soulmates hierherkam[/h2]
+Soulmates begann als wiederverwendbares Item, mit dem man ein persönliches Pet gestaltet. Wiederholte Ingame-Tests machten daraus dauerhafte Sigils, Persönlichkeiten, Kampfunterstützung, Arbeitsaufträge, ein echtes Pack, erlerntes Verhalten, Forstpflege, Initiativentscheidungen, native Emotes und das kompakte Soulwheel. Manche Systeme wurden mehrfach neu gebaut, nachdem echtes Spielen umständliche Bedienung, verschwindende Fracht, doppelte Drops, zurückbleibende Fähigkeiten oder Verhalten zeigte, das über längere Sitzungen nicht stimmig blieb. Der Changelog auf GitHub bewahrt diese Geschichte; diese Beschreibung zeigt ausschließlich den umgesetzten Stand von 9.9.0.23.
+
+[h2]Spieletests und Feedback[/h2]
+Jede Rückmeldung hilft. Meine Spielzeit ist begrenzt und Fortschritt in Terraria braucht Zeit, deshalb werden manche Kombinationen und Langzeitprobleme erst langsam sichtbar. Wenn sich etwas seltsam verhält, unklar wirkt oder später im Spielstand kaputtgeht, schreib bitte dazu, was passiert ist und ob es Singleplayer oder Multiplayer war. Und wenn dich ein Companion einfach zum Lächeln gebracht hat, freue ich mich darüber genauso.
 
 [h2]Steuerung[/h2]
 [list]
@@ -85,13 +91,13 @@ Soulmates 0.9.4.1 verwendet in Singleplayer und Multiplayer einen einheitlichen 
 [*]Rechtsklick auf den Companion oder den eigenen Charakter: Soulwheel öffnen; Symbolkategorien und halbmondförmige Aktionen mit Linksklick wählen.
 [*]Taschensymbol wählen: Companion-Pack direkt öffnen.
 [*]Details im Soulwheel wählen oder standardmäßig V drücken: den vollständigen Talk Mode öffnen.
-[*]Standardmäßig G drücken: Soulwheel direkt bei den Terraria-Emote-Kategorien öffnen.
+[*]Standardmäßig G drücken: Player-Emote-Rad öffnen.
 [*]Folgen, Bleiben oder Erkunden beendet den aktuellen Gebietsauftrag.
 [*]WIEDER FRAGEN unter Befehle setzt alle gemerkten Immer- und Nie-Entscheidungen zurück.
 [/list]
 
 [h2]Feedback und Quellcode[/h2]
-Fehlerberichte und Entwicklungsupdates:
+Fehlerberichte, Beobachtungen, nette Worte und Entwicklungsgeschichte:
 [url=https://github.com/reirao/Soulmates]Soulmates auf GitHub[/url]
 
 Danke, dass du diesen kleinen Seelen beim Wachsen hilfst.

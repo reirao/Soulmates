@@ -1,3 +1,14 @@
+Soulmates 9.9.0.23 - Native Soulwheel
+
+- Rebuilt Companion, Player Emote, and initiative wheels around Terraria's own inventory slots, item art, and animated emote graphics.
+- Removed connector lines, doubled custom frames, letter buttons, and text arrows for a cleaner in-world radial interface.
+- Reworked Talk Mode into a smaller detail view with six symbolic Terraria-emote tabs and a compact icon close control.
+- Companion world speech now remains readable longer, follows movement with deliberate lag, and leaves a soft fading echo when the speaker flies away.
+- Reviewed English and German interface text, controls, release notes, and public descriptions against the implemented build; removed roadmap language and stale prototype wording.
+- Restored the packaged small mod icon so Soulmates loads without a missing-icon warning.
+- Includes the coherent cargo, initiative consent, tree-shake terrain, player right-click, and Squirrel-facing fixes completed in 0.9.4.1.
+- Existing Soulbound Sigils remain compatible.
+
 Soulmates 0.9.4.1 - Coherent Cargo Hotfix
 
 - Unified every pack insertion behind one capacity and item-limit policy in single-player and multiplayer.

@@ -20,10 +20,10 @@ public sealed class CompanionWheelSystem : ModSystem
 {
 	private enum RootBranch : byte { Commands, Work, Bond, Emotes, Pack, Details }
 	private enum HoverLayer : byte { None, Center, Root, Branch, Native }
-	private enum IconKind : byte { Emote, Item, Text }
+	private enum IconKind : byte { Emote, Item }
 	private enum WheelContext : byte { Companion, Player, Initiative }
 
-	private readonly record struct WheelIcon(IconKind Kind, int Value = 0, string Text = "");
+	private readonly record struct WheelIcon(IconKind Kind, int Value);
 	private sealed record NativeCategory(string Key, int Icon, int[] Entries);
 
 	private static readonly RootBranch[] CompanionRoots = [
@@ -107,9 +107,9 @@ public sealed class CompanionWheelSystem : ModSystem
 	];
 
 	private const int NativePageSize = 7;
-	private const float RootRadius = 76f;
-	private const float BranchRadius = 139f;
-	private const float NativeRadius = 207f;
+	private const float RootRadius = 72f;
+	private const float BranchRadius = 124f;
+	private const float NativeRadius = 178f;
 	private bool open;
 	private int openTicks;
 	private Vector2 center;
@@ -215,13 +215,13 @@ public sealed class CompanionWheelSystem : ModSystem
 		hoverLayer = HoverLayer.None;
 		hoverIndex = -1;
 		Vector2 mouse = Main.MouseScreen;
-		if (Hit(mouse, center, 27f)) {
+		if (Hit(mouse, center, 25f)) {
 			hoverLayer = HoverLayer.Center;
 			return;
 		}
 		if (context == WheelContext.Initiative) {
 			for (int i = 0; i < InitiativeResponses.Length; i++) {
-				if (!Hit(mouse, InitiativePosition(i), 24f))
+				if (!Hit(mouse, InitiativePosition(i), 22f))
 					continue;
 				hoverLayer = HoverLayer.Branch;
 				hoverIndex = i;
@@ -232,7 +232,7 @@ public sealed class CompanionWheelSystem : ModSystem
 		if (nativeCategory >= 0) {
 			int count = NativeNodeCount();
 			for (int i = 0; i < count; i++) {
-				if (!Hit(mouse, NativePosition(i, count), 22f))
+				if (!Hit(mouse, NativePosition(i, count), 19f))
 					continue;
 				hoverLayer = HoverLayer.Native;
 				hoverIndex = i;
@@ -242,7 +242,7 @@ public sealed class CompanionWheelSystem : ModSystem
 		if (branch is RootBranch activeBranch && activeBranch is not RootBranch.Pack and not RootBranch.Details) {
 			int count = BranchNodeCount(activeBranch);
 			for (int i = 0; i < count; i++) {
-				if (!Hit(mouse, BranchPosition(activeBranch, i, count), 24f))
+				if (!Hit(mouse, BranchPosition(activeBranch, i, count), 21f))
 					continue;
 				hoverLayer = HoverLayer.Branch;
 				hoverIndex = i;
@@ -251,7 +251,7 @@ public sealed class CompanionWheelSystem : ModSystem
 		}
 		RootBranch[] roots = ActiveRoots;
 		for (int i = 0; i < roots.Length; i++) {
-			if (!Hit(mouse, RootPosition(i), 27f))
+			if (!Hit(mouse, RootPosition(i), 24f))
 				continue;
 			hoverLayer = HoverLayer.Root;
 			hoverIndex = i;
@@ -451,8 +451,7 @@ public sealed class CompanionWheelSystem : ModSystem
 				Vector2 destination = InitiativePosition(i);
 				Vector2 position = Vector2.Lerp(center, destination, reveal);
 				bool hovered = hoverLayer == HoverLayer.Branch && hoverIndex == i;
-				DrawLine(spriteBatch, center, position, accent * 0.38f, hovered ? 3f : 2f);
-				DrawNode(spriteBatch, position, hovered ? 47f * pulse : 41f, accent, hovered, false,
+				DrawNode(spriteBatch, position, hovered ? 43f * pulse : 38f, accent, hovered, false,
 					InitiativeIcon(InitiativeResponses[i]));
 			}
 		}
@@ -460,8 +459,7 @@ public sealed class CompanionWheelSystem : ModSystem
 			Vector2 position = Vector2.Lerp(center, RootPosition(i), reveal);
 			bool hovered = hoverLayer == HoverLayer.Root && hoverIndex == i;
 			bool active = branch == roots[i];
-			DrawLine(spriteBatch, center, position, accent * (active ? 0.58f : 0.22f), active ? 3f : 2f);
-			DrawNode(spriteBatch, position, hovered ? 52f * pulse : 46f, accent, hovered, active, RootIcon(roots[i]));
+			DrawNode(spriteBatch, position, hovered ? 46f * pulse : 41f, accent, hovered, active, RootIcon(roots[i]));
 		}
 		if (branch is RootBranch activeBranch && activeBranch is not RootBranch.Pack and not RootBranch.Details) {
 			int count = BranchNodeCount(activeBranch);
@@ -473,8 +471,7 @@ public sealed class CompanionWheelSystem : ModSystem
 				Vector2 position = Vector2.Lerp(parent, destination, reveal);
 				bool hovered = hoverLayer == HoverLayer.Branch && hoverIndex == i;
 				bool active = activeBranch == RootBranch.Emotes && nativeCategory == i;
-				DrawLine(spriteBatch, parent, position, accent * (active ? 0.72f : 0.35f), active ? 3f : 2f);
-				DrawNode(spriteBatch, position, hovered ? 46f * pulse : 40f, accent, hovered, active, BranchIcon(activeBranch, i));
+				DrawNode(spriteBatch, position, hovered ? 41f * pulse : 36f, accent, hovered, active, BranchIcon(activeBranch, i));
 			}
 		}
 		if (nativeCategory >= 0 && branch == RootBranch.Emotes) {
@@ -484,8 +481,7 @@ public sealed class CompanionWheelSystem : ModSystem
 				Vector2 destination = NativePosition(i, count);
 				Vector2 position = Vector2.Lerp(parent, destination, reveal);
 				bool hovered = hoverLayer == HoverLayer.Native && hoverIndex == i;
-				DrawLine(spriteBatch, parent, position, accent * 0.35f, hovered ? 3f : 2f);
-				DrawNode(spriteBatch, position, hovered ? 40f * pulse : 35f, accent, hovered, false, NativeIcon(i));
+				DrawNode(spriteBatch, position, hovered ? 36f * pulse : 32f, accent, hovered, false, NativeIcon(i));
 			}
 		}
 		DrawCenter(spriteBatch, accent, pulse);
@@ -500,16 +496,15 @@ public sealed class CompanionWheelSystem : ModSystem
 	private void DrawCenter(SpriteBatch spriteBatch, Color accent, float pulse)
 	{
 		bool hovered = hoverLayer == HoverLayer.Center;
-		string name = companion!.Profile.Name;
 		bool hasParentLayer = nativeCategory >= 0 || context == WheelContext.Companion && branch is not null;
 		WheelIcon icon = hasParentLayer
-			? new WheelIcon(IconKind.Text, Text: "<")
+			? new WheelIcon(IconKind.Item, ItemID.RecallPotion)
 			: context == WheelContext.Player
 				? new WheelIcon(IconKind.Emote, EmoteID.EmoteHappiness)
 				: context == WheelContext.Initiative
 					? new WheelIcon(IconKind.Emote, EmoteID.EmotionAlert)
-				: new WheelIcon(IconKind.Text, Text: string.IsNullOrWhiteSpace(name) ? "S" : name[..1].ToUpperInvariant());
-		DrawNode(spriteBatch, center, (hovered ? 58f : 53f) * pulse, accent, hovered, !hasParentLayer,
+				: new WheelIcon(IconKind.Emote, EmoteID.EmotionLove);
+		DrawNode(spriteBatch, center, (hovered ? 51f : 46f) * pulse, accent, hovered, !hasParentLayer,
 			icon);
 	}
 
@@ -522,9 +517,6 @@ public sealed class CompanionWheelSystem : ModSystem
 		Vector2 size = FontAssets.MouseText.Value.MeasureString(label) * scale;
 		float labelY = context == WheelContext.Initiative ? center.Y + BranchRadius + 16f : center.Y + NativeRadius + 27f;
 		Vector2 position = new(center.X - size.X * 0.5f, labelY);
-		Texture2D pixel = TextureAssets.MagicPixel.Value;
-		Rectangle background = new((int)position.X - 8, (int)position.Y - 4, (int)size.X + 16, (int)size.Y + 8);
-		spriteBatch.Draw(pixel, background, new Color(9, 14, 25) * 0.9f);
 		Utils.DrawBorderString(spriteBatch, label, position, Color.Lerp(Color.White, accent, 0.15f), scale);
 	}
 
@@ -630,7 +622,7 @@ public sealed class CompanionWheelSystem : ModSystem
 			});
 		if (activeBranch == RootBranch.Emotes && index >= 0 && index < NativeCategories.Length)
 			return new WheelIcon(IconKind.Emote, NativeCategories[index].Icon);
-		return new WheelIcon(IconKind.Text, Text: "?");
+		return new WheelIcon(IconKind.Emote, EmoteID.EmoteConfused);
 	}
 
 	private static WheelIcon InitiativeIcon(CompanionInitiativeResponse response) => new(IconKind.Emote,
@@ -649,7 +641,7 @@ public sealed class CompanionWheelSystem : ModSystem
 		bool hasNext = nativePage + 1 < NativePageCount(category);
 		int cursor = index;
 		if (hasPrevious) {
-			if (cursor == 0) return new WheelIcon(IconKind.Text, Text: "<");
+			if (cursor == 0) return new WheelIcon(IconKind.Item, ItemID.RecallPotion);
 			cursor--;
 		}
 		if (cursor < entriesOnPage) {
@@ -657,7 +649,8 @@ public sealed class CompanionWheelSystem : ModSystem
 			return new WheelIcon(IconKind.Emote, category.Entries[emoteIndex]);
 		}
 		return hasNext && cursor == entriesOnPage
-			? new WheelIcon(IconKind.Text, Text: ">") : new WheelIcon(IconKind.Text, Text: "");
+			? new WheelIcon(IconKind.Item, ItemID.TeleportationPotion)
+			: new WheelIcon(IconKind.Emote, EmoteID.EmoteConfused);
 	}
 
 	private static string RootLabel(RootBranch root) => SoulmatesText.Get($"UI.CompanionWheel.Categories.{root}");
@@ -723,7 +716,7 @@ public sealed class CompanionWheelSystem : ModSystem
 		=> count <= 1 ? centerAngle : centerAngle - spread * 0.5f + spread * index / (count - 1f);
 
 	private static float WheelMargin(WheelContext wheelContext)
-		=> wheelContext == WheelContext.Initiative ? BranchRadius + 44f : NativeRadius + 54f;
+		=> wheelContext == WheelContext.Initiative ? BranchRadius + 40f : NativeRadius + 48f;
 
 	private static Vector2 ClampCenter(Vector2 desired, float margin)
 	{
@@ -738,13 +731,12 @@ public sealed class CompanionWheelSystem : ModSystem
 		bool hovered, bool active, WheelIcon icon)
 	{
 		Texture2D slot = TextureAssets.InventoryBack.Value;
-		Color outer = hovered ? Color.White : active ? Color.Lerp(accent, Color.White, 0.25f) : accent * 0.72f;
-		Color inner = hovered ? Color.Lerp(new Color(34, 44, 67), accent, 0.58f)
-			: active ? Color.Lerp(new Color(24, 32, 51), accent, 0.42f) : new Color(20, 28, 45);
+		Color slotColor = hovered
+			? Color.White
+			: active ? Color.Lerp(Color.White, accent, 0.34f) : Color.White * 0.9f;
 		Vector2 origin = slot.Size() * 0.5f;
-		spriteBatch.Draw(slot, position, null, outer, 0f, origin, (size + 7f) / slot.Width, SpriteEffects.None, 0f);
-		spriteBatch.Draw(slot, position, null, inner, 0f, origin, size / slot.Width, SpriteEffects.None, 0f);
-		DrawIcon(spriteBatch, position, size * 0.58f, icon, hovered ? Color.White : Color.Lerp(Color.White, accent, 0.12f));
+		spriteBatch.Draw(slot, position, null, slotColor, 0f, origin, size / slot.Width, SpriteEffects.None, 0f);
+		DrawIcon(spriteBatch, position, size * 0.64f, icon, Color.White);
 	}
 
 	private static void DrawIcon(SpriteBatch spriteBatch, Vector2 position, float maximumSize, WheelIcon icon, Color color)
@@ -752,11 +744,6 @@ public sealed class CompanionWheelSystem : ModSystem
 		switch (icon.Kind) {
 			case IconKind.Emote: DrawEmoteIcon(spriteBatch, position, maximumSize, icon.Value, color); break;
 			case IconKind.Item: DrawItemIcon(spriteBatch, position, maximumSize, icon.Value, color); break;
-			case IconKind.Text:
-				float scale = FitTextScale(icon.Text, maximumSize, 0.9f);
-				Vector2 size = FontAssets.MouseText.Value.MeasureString(icon.Text) * scale;
-				Utils.DrawBorderString(spriteBatch, icon.Text, position - size * 0.5f, color, scale);
-				break;
 		}
 	}
 
@@ -781,15 +768,6 @@ public sealed class CompanionWheelSystem : ModSystem
 		Rectangle source = Main.itemAnimations[itemType]?.GetFrame(texture) ?? texture.Bounds;
 		float scale = Math.Min(maximumSize / source.Width, maximumSize / source.Height);
 		spriteBatch.Draw(texture, position, source, color, 0f, source.Size() * 0.5f, scale, SpriteEffects.None, 0f);
-	}
-
-	private static void DrawLine(SpriteBatch spriteBatch, Vector2 start, Vector2 end, Color color, float width)
-	{
-		Texture2D pixel = TextureAssets.MagicPixel.Value;
-		Vector2 edge = end - start;
-		Vector2 origin = new(0f, pixel.Height * 0.5f);
-		Vector2 scale = new(edge.Length() / pixel.Width, width / pixel.Height);
-		spriteBatch.Draw(pixel, start, null, color, edge.ToRotation(), origin, scale, SpriteEffects.None, 0f);
 	}
 
 	private static float FitTextScale(string text, float maximumWidth, float preferredScale)

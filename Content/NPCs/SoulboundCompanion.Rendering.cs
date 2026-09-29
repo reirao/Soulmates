@@ -67,7 +67,7 @@ public sealed partial class SoulboundCompanion
 			spriteBatch.Draw(texture, center + glowOffset, source, Profile.EssenceColor * 0.18f, drawRotation, origin, scale, effects, 0f);
 		}
 		spriteBatch.Draw(texture, center, source, tint, drawRotation, origin, scale, effects, 0f);
-		DrawSpeechBubble(spriteBatch, center);
+		DrawSpeechBubble(spriteBatch, screenPos);
 		return false;
 	}
 
@@ -98,9 +98,23 @@ public sealed partial class SoulboundCompanion
 		};
 	}
 
-	private void DrawSpeechBubble(SpriteBatch spriteBatch, Vector2 companionCenter)
+	private void DrawSpeechBubble(SpriteBatch spriteBatch, Vector2 screenPos)
 	{
 		if (speechTimer <= 0 || string.IsNullOrWhiteSpace(speechText))
+			return;
+		float elapsed = Math.Max(0, speechDuration - speechTimer);
+		float opacity = Math.Min(MathHelper.Clamp(elapsed / 12f, 0f, 1f),
+			MathHelper.Clamp(speechTimer / 120f, 0f, 1f));
+		Vector2 anchor = (speechAnchorWorld == Vector2.Zero ? NPC.Center : speechAnchorWorld) - screenPos;
+		Vector2 trail = (speechTrailWorld == Vector2.Zero ? NPC.Center : speechTrailWorld) - screenPos;
+		if (Vector2.DistanceSquared(anchor, trail) > 16f)
+			DrawSpeechBubbleAt(spriteBatch, trail, opacity * 0.18f);
+		DrawSpeechBubbleAt(spriteBatch, anchor, opacity);
+	}
+
+	private void DrawSpeechBubbleAt(SpriteBatch spriteBatch, Vector2 companionCenter, float opacity)
+	{
+		if (opacity <= 0.01f)
 			return;
 		float zoom = Math.Max(1f, Main.GameViewMatrix.Zoom.X);
 		float textScale = 0.68f / zoom;
@@ -136,12 +150,13 @@ public sealed partial class SoulboundCompanion
 		Rectangle background = new((int)(bubbleCenter.X - width * 0.5f - paddingX), (int)(bubbleCenter.Y - height * 0.5f - paddingY),
 			(int)(width + paddingX * 2f), (int)(height + paddingY * 2f));
 		Texture2D pixel = TextureAssets.MagicPixel.Value;
-		spriteBatch.Draw(pixel, background, new Color(11, 17, 29) * 0.9f);
-		spriteBatch.Draw(pixel, new Rectangle(background.X, background.Y, background.Width, 2), Profile.EssenceColor * 0.9f);
+		spriteBatch.Draw(pixel, background, new Color(11, 17, 29) * (0.9f * opacity));
+		spriteBatch.Draw(pixel, new Rectangle(background.X, background.Y, background.Width, 2),
+			Profile.EssenceColor * (0.9f * opacity));
 		for (int i = 0; i < lines.Count; i++) {
 			Vector2 size = FontAssets.MouseText.Value.MeasureString(lines[i]) * textScale;
 			Vector2 position = new(bubbleCenter.X - size.X * 0.5f, background.Y + 6f / zoom + i * lineHeight);
-			Utils.DrawBorderString(spriteBatch, lines[i], position, Color.White, textScale);
+			Utils.DrawBorderString(spriteBatch, lines[i], position, Color.White * opacity, textScale);
 		}
 	}
 

@@ -20,12 +20,12 @@ Soulmates is a tModLoader mod about creating companions that feel personal. The 
 
 ## AI-assisted development disclosure
 
-Soulmates is an experimental project created with extensive AI assistance across programming, writing, interface work, and visual development. The Workshop icon, mod icon, and custom Soulkin sprite were AI-generated and then integrated into the mod. The current Bunny, Blue Slime, Bird, Squirrel, item, and inventory visuals reuse Terraria assets as placeholders. Features are reviewed and tested in-game by the creator before release.
+Soulmates is an experimental project created with extensive AI assistance across programming, writing, interface work, and visual development. The Workshop icon, mod icon, and custom Soulkin sprite were AI-generated and then integrated into the mod. Bunny, Blue Slime, Bird, Squirrel, item, inventory, and emote visuals reuse Terraria assets. The released build was reviewed and tested in-game by the creator.
 
 ## Features
 
 - Craft a reusable Soulcore and Blank Sigils.
-- Receive one Soulcore and three Blank Sigils once per character as a prototype starter kit.
+- Receive one Soulcore and three Blank Sigils once per character as a starter kit.
 - Create multiple unique companions from fully localized presets.
 - Shape a companion through an animated live preview with an original eight-frame Soulkin sprite, including compatibility for existing Sigils.
 - Choose a name, form, essence color, aura, personality, and one of five visible starting-talent classes.
@@ -44,7 +44,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Personality-driven autonomous moments add small surprises without overriding combat, Stay, explicit assignments, or low-energy recovery.
 - Persistent companion experience with 20 levels earned from combat, healing, work, and shared moments.
 - Use the compact Companion Soulwheel for commands, work, bonding, direct pack access, and details.
-- Right-click your own character, or press the configurable **Companion Emote Wheel** key (`G` by default), to open the separate Player Emote Wheel with all 151 vanilla Terraria emotes. Categories unfold into crescent sub-wheels instead of another window.
+- Right-click your own character, or press the configurable **Player Emote Wheel** key (`G` by default), to open the separate wheel with all 151 vanilla Terraria emotes. Categories unfold into crescent sub-wheels instead of another window.
 - Native Terraria emote bubbles for shared gestures, with occasional context-aware speech instead of constant text.
 - Quiet social encounters with nearby town NPCs: companions approach, emote, and receive a native NPC response.
 - Personality-specific reactions to normal victories, bosses, and creature deaths.
@@ -72,7 +72,17 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current release
 
-**Soulmates 0.9.4.1 - Coherent Cargo Hotfix** routes every pack insertion through one rule set in single-player and multiplayer. The pack now keeps a practical reserve of 99 per item type and 12 acorns instead of absorbing one material forever; old excess is returned to the owner without loss. Companions now ask about opportunities through a compact Yes / No / Always / Never emote wheel, remember the answer per activity, and can reset those rules from the command wheel. Tree shaking no longer treats supporting terrain as a drop source, and Soul creation remains one atomic inventory operation with clear failure feedback. Existing Sigils remain compatible.
+**Soulmates 9.9.0.23 - Native Soulwheel** rebuilds Companion, Player Emote, and initiative wheels around Terraria's own inventory slots, items, and animated emotes. Talk Mode is now a smaller detail view with symbolic tabs, while companion speech stays readable longer and leaves a soft fading echo behind a moving soul. The release also includes the coherent cargo, initiative consent, tree-shake terrain, player right-click, and Squirrel-facing fixes completed in 0.9.4.1. Existing Sigils remain compatible.
+
+## How Soulmates got here
+
+Soulmates began as a reusable item for shaping a personal pet. Repeated in-game passes turned that small idea into persistent Sigils, companion personalities, combat support, work assignments, a real pack, learned behavior, forestry, initiative choices, native emotes, and the compact Soulwheel. Several of those systems were rebuilt more than once when real play exposed awkward controls, disappearing cargo, duplicate drops, stale abilities, or behavior that looked clever but did not remain coherent over a longer session. The complete sequence is preserved in [changelog.txt](changelog.txt); this page describes only the implemented state of 9.9.0.23.
+
+## Playtesting and feedback
+
+Every report helps. The creator has limited time to play and Terraria progression takes time, so some combinations and long-session behavior are necessarily discovered slowly. If something behaves strangely, feels unclear, or breaks later in a playthrough, please describe what happened and whether it was single-player or multiplayer. And if a companion simply made you smile, we are just as happy to hear that.
+
+Please share findings through the [Steam Workshop page](https://steamcommunity.com/sharedfiles/filedetails/?id=3807130821) or [GitHub issues](https://github.com/reirao/Soulmates/issues).
 
 ## Languages
 
@@ -89,20 +99,13 @@ English is used as the fallback when Terraria is set to another language.
 
 The project targets the current tModLoader 1.4.4 stable release. In the normal ModSources folder the project automatically uses `tModLoader.targets`. For development elsewhere, set `TML_PATH` to a tModLoader installation containing `tMLMod.targets`.
 
-## Prototype recipes
+## Recipes
 
 - **Soulcore:** 8 Fallen Stars, 5 Amethyst, and 10 Stone Blocks at a Work Bench.
 - **Blank Sigil:** 3 Fallen Stars, 1 Amethyst, and 5 Silk at a Work Bench.
 - **Starfinder Bell:** 5 Fallen Stars, 3 Iron or Lead Bars, and 1 Lens at an Anvil.
 - **Delver Charm:** 5 Iron or Lead Bars, 2 Amethyst, and 20 Stone Blocks at an Anvil. Expands mining radius and speed.
 - **Hearth Ribbon:** 5 Silk, 2 Daybloom, and 2 Fallen Stars at a Work Bench.
-
-## Roadmap
-
-- More original animated forms and layered companion bodies.
-- More trinkets and meaningful equipment tradeoffs.
-- Advanced jobs for later ores and specialized materials.
-- Evolving traits, contextual dialogue, gifts, preferences, and personal quests.
 
 ## License
 

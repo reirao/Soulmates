@@ -95,7 +95,10 @@ public sealed partial class SoulboundCompanion
 		activeJob = CompanionJob.None;
 		CancelAutonomousActivity();
 		speechTimer = 0;
+		speechDuration = 0;
 		speechText = "";
+		speechAnchorWorld = Vector2.Zero;
+		speechTrailWorld = Vector2.Zero;
 	}
 
 	private static bool IsOwnedCompanion(int index, Player player)

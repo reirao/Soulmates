@@ -86,6 +86,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 	private int nativeEmoteReactionCooldown;
 	private int combatReactionCooldown;
 	private int speechTimer;
+	private int speechDuration;
 	private int emoteTimer;
 	private int chatterSequence;
 	private int townNpcInteractionCooldown;
@@ -111,6 +112,8 @@ public sealed partial class SoulboundCompanion : ModNPC
 	private int tendedForestResetTimer;
 	private bool packReconciled;
 	private string speechText = "";
+	private Vector2 speechAnchorWorld;
+	private Vector2 speechTrailWorld;
 	private CompanionEmote activeEmote;
 	private readonly HashSet<Point> failedMiningTargets = [];
 	private readonly HashSet<Point> tendedForestTargets = [];

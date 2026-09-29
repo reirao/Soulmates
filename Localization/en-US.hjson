@@ -52,7 +52,7 @@ Mods: {
 
 		Keybinds: {
 			TalkToCompanion.DisplayName: Talk to Companion
-			CompanionEmotes.DisplayName: Companion Emote Wheel
+			CompanionEmotes.DisplayName: Player Emote Wheel
 		}
 
 		Enums: {
@@ -180,7 +180,7 @@ Mods: {
 				Title: SOUL CREATOR
 				Randomize: RANDOMIZE
 				RequiresSigil: Requires 1 Blank Sigil
-				Create: CREATE SOULMATE
+				Create: BIND SOUL
 				Field: "{0}: {1}"
 				NeedSigil: You need a Blank Sigil.
 				ConsumeFailed: The Blank Sigil could not be consumed.
@@ -206,7 +206,7 @@ Mods: {
 			}
 
 			Talk: {
-				Title: "{0} // TALK"
+				Title: "{0} · TALK"
 				Greeting: "{0} looks at you expectantly."
 				ChooseWords: CHOOSE YOUR WORDS
 				Pack: COMPANION PACK
@@ -294,13 +294,13 @@ Mods: {
 		Status: {
 			Stay: Stay
 			Follow: Follow
-			Mining: Mining area ({0} cleared)
-			Gathering: Gathering area ({0} items)
+			Mining: MINING · {0} CLEARED
+			Gathering: GATHERING · {0} ITEMS
 			SensingTreasure: Sensing treasure
 			AwaitingAnswer: ASKING: {0}
 			Guarding: IN COMBAT
 			Recovering: RECOVERING ENERGY
-			Watching: WATCH: {0} tiles
+			Watching: OBSERVING · {0} TILES
 			Assignment: "{0} assignment"
 			Ready: Ready
 
@@ -339,7 +339,7 @@ Mods: {
 				AetherLearning: AETHER: all talent instincts and learned perks are active
 				Assignment: Active assignment: {0}
 				Controls: Use: summon  |  Right-click companion: action wheel  |  V: details  |  Up + Right-click: recall
-				Emotes: Emotes: right-click yourself for Terraria's full menu  |  Hold G for the Soulmate wheel
+				Emotes: Emotes: right-click yourself or press G for the Player Emote Wheel
 			}
 		}
 
@@ -559,7 +559,7 @@ Mods: {
 				}
 
 				Victory: {
-					Curious: Now I know one more way danger moves.
+					Curious: Now I understand how that danger moved.
 					Loyal: You are safe. That is enough.
 					Brave: Threat ended. Stay behind me.
 					Gentle: It is over. Let us keep moving.

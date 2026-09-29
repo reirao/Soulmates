@@ -208,7 +208,10 @@ public sealed partial class SoulboundCompanion
 		speechText = string.IsNullOrWhiteSpace(text) ? "..." : text.Trim();
 		if (speechText.Length > 180)
 			speechText = speechText[..180];
-		speechTimer = Math.Clamp(180 + speechText.Length * 2, 210, 360);
+		speechDuration = Math.Clamp(420 + speechText.Length * 3, 540, 780);
+		speechTimer = speechDuration;
+		speechAnchorWorld = NPC.Center;
+		speechTrailWorld = NPC.Center;
 	}
 
 	public void PerformEmote(CompanionEmote emote) => PerformEmote(emote, -1, applyRestCommand: true);

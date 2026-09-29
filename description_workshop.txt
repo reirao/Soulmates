@@ -9,7 +9,7 @@ Soulmates turns the reusable Soulcore into a companion creator inside Terraria. 
 [b]Languages:[/b] English and German. Soulmates follows Terraria's selected language automatically.
 
 [h2]AI-Assisted Development Disclosure[/h2]
-Soulmates is an experimental project created with extensive AI assistance across programming, writing, interface work, and visual development. The Workshop icon, mod icon, and custom Soulkin sprite were AI-generated and then integrated into the mod. The current Bunny, Blue Slime, Bird, Squirrel, item, and inventory visuals reuse Terraria assets as placeholders. Features are reviewed and tested in-game by the creator before release.
+Soulmates is an experimental project created with extensive AI assistance across programming, writing, interface work, and visual development. The Workshop icon, mod icon, and custom Soulkin sprite were AI-generated and then integrated into the mod. Bunny, Blue Slime, Bird, Squirrel, item, inventory, and emote visuals reuse Terraria assets. The released build was reviewed and tested in-game by the creator.
 
 [h2]Create Your Soulmate[/h2]
 [list]
@@ -62,7 +62,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 [/list]
 
 [h2]Getting Started[/h2]
-New characters receive one Soulcore and three Blank Sigils as a prototype starter kit. Both items can also be crafted at a Work Bench.
+New characters receive one Soulcore and three Blank Sigils as a starter kit. Both items can also be crafted at a Work Bench.
 
 [b]Soulcore:[/b] 8 Fallen Stars, 5 Amethyst, 10 Stone Blocks
 [b]Blank Sigil:[/b] 3 Fallen Stars, 1 Amethyst, 5 Silk
@@ -71,7 +71,13 @@ New characters receive one Soulcore and three Blank Sigils as a prototype starte
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
 [h2]Current Release[/h2]
-Soulmates 0.9.4.1 gives single-player and multiplayer one coherent cargo path. The pack now keeps a practical reserve of 99 per item type and 12 acorns instead of absorbing one material forever; existing excess is safely returned to the owner. Companions ask about opportunities through a compact Yes / No / Always / Never emote wheel and remember each activity separately. Tree shaking no longer uses supporting terrain as a drop source, and Soul creation remains an atomic inventory operation with clear feedback. Existing Soulbound Sigils remain compatible.
+Soulmates 9.9.0.23 rebuilds Companion, Player Emote, and initiative wheels around Terraria's own inventory slots, items, and animated emotes. Talk Mode is now a smaller detail view with symbolic tabs. Companion speech stays readable longer, deliberately trails a moving soul, and fades as a soft echo where it was spoken. This release also includes the coherent cargo path, persistent Yes / No / Always / Never initiative rules, tree-shake terrain fix, restored player right-click wheel, and corrected Squirrel facing. Existing Soulbound Sigils remain compatible.
+
+[h2]How Soulmates Got Here[/h2]
+Soulmates began as a reusable item for shaping a personal pet. Repeated in-game passes turned it into persistent Sigils, personalities, combat support, work assignments, a real pack, learned behavior, forestry, initiative choices, native emotes, and the compact Soulwheel. Some systems were rebuilt more than once when real play exposed awkward controls, disappearing cargo, duplicate drops, stale abilities, or behavior that did not remain coherent over a longer session. The GitHub changelog preserves that history; this description reflects only the implemented state of 9.9.0.23.
+
+[h2]Playtesting and Feedback[/h2]
+Every report helps. My playtime is limited and Terraria progression takes time, so some combinations and long-session behavior are discovered slowly. If something behaves strangely, feels unclear, or breaks later in a playthrough, please say what happened and whether it was single-player or multiplayer. And if a companion simply made you smile, I am just as happy to hear that.
 
 [h2]Controls[/h2]
 [list]
@@ -85,13 +91,13 @@ Soulmates 0.9.4.1 gives single-player and multiplayer one coherent cargo path. T
 [*]Right-click the companion or your own character: open the Soulwheel; left-click icon categories and their crescent actions.
 [*]Choose the bag icon: open the companion pack directly.
 [*]Choose Details on the Soulwheel, or press V by default: open the full Talk Mode.
-[*]Press G by default: open the Soulwheel directly on its Terraria-emote categories.
+[*]Press G by default: open the Player Emote Wheel.
 [*]Choose Follow, Stay, or Explore: cancel the current area assignment.
 [*]Choose ASK AGAIN under Commands: reset all remembered Always and Never initiative choices.
 [/list]
 
 [h2]Feedback and Source[/h2]
-Bug reports and development updates:
+Bug reports, observations, kind words, and development history:
 [url=https://github.com/reirao/Soulmates]Soulmates on GitHub[/url]
 
 Thank you for helping these little souls grow.

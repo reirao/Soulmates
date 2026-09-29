@@ -52,7 +52,7 @@ Mods: {
 
 		Keybinds: {
 			TalkToCompanion.DisplayName: Mit Gefährten sprechen
-			CompanionEmotes.DisplayName: Gefährten-Emote-Rad
+			CompanionEmotes.DisplayName: Player-Emote-Rad
 		}
 
 		Enums: {
@@ -149,7 +149,7 @@ Mods: {
 			}
 
 			CompanionJob: {
-				None: Keiner
+				None: Kein Auftrag
 				FindTreasure: Schatzsuche
 				Mine: Bergbau
 				Gather: Sammeln
@@ -180,7 +180,7 @@ Mods: {
 				Title: SEELENSCHÖPFER
 				Randomize: ZUFÄLLIG
 				RequiresSigil: Benötigt 1 Leeres Siegel
-				Create: SEELENGEFÄHRTEN ERSCHAFFEN
+				Create: SEELE BINDEN
 				Field: "{0}: {1}"
 				NeedSigil: Du benötigst ein Leeres Siegel.
 				ConsumeFailed: Das Leere Siegel konnte nicht verbraucht werden.
@@ -206,7 +206,7 @@ Mods: {
 			}
 
 			Talk: {
-				Title: "{0} // SPRECHEN"
+				Title: "{0} · GESPRÄCH"
 				Greeting: "{0} blickt dich erwartungsvoll an."
 				ChooseWords: WÄHLE DEINE WORTE
 				Pack: GEFÄHRTEN-PACK
@@ -294,13 +294,13 @@ Mods: {
 		Status: {
 			Stay: Warten
 			Follow: Folgen
-			Mining: Gebiet abbauen ({0} geschafft)
-			Gathering: Gebiet sammeln ({0} Gegenstände)
+			Mining: BERGBAU · {0} ABGEBAUT
+			Gathering: SAMMELN · {0} FUNDSTÜCKE
 			SensingTreasure: Schatz aufspüren
 			AwaitingAnswer: FRAGT: {0}
 			Guarding: IM KAMPF
 			Recovering: ENERGIE ERHOLEN
-			Watching: WACHE: {0} Blöcke
+			Watching: BEOBACHTET · {0} BLÖCKE
 			Assignment: Auftrag: {0}
 			Ready: Bereit
 
@@ -339,7 +339,7 @@ Mods: {
 				AetherLearning: AETHER: alle Talentinstinkte und erlernten Perks sind aktiv
 				Assignment: Aktiver Auftrag: {0}
 				Controls: Benutzen: beschwören  |  Rechtsklick auf Gefährten: Aktionsrad  |  V: Details  |  Hoch + Rechtsklick: zurückrufen
-				Emotes: Emotes: Rechtsklick auf dich für Terrarias vollständiges Menü  |  G halten für den Soulmate-Ring
+				Emotes: Rechtsklick auf dich oder G drücken öffnet das Player-Emote-Rad
 			}
 		}
 
@@ -426,7 +426,7 @@ Mods: {
 				RulesReset: Ich frage wieder nach, wenn ich eine Gelegenheit entdecke.
 
 				Ask: {
-					Gathering: Ich habe etwas Lose herumliegen sehen. Soll ich es einsammeln?
+					Gathering: Ich habe etwas lose herumliegen sehen. Soll ich es einsammeln?
 					Mining: Ich sehe Erz in der Nähe. Soll ich es abbauen?
 					Forestry: Ich habe eine Aufgabe bei den Bäumen entdeckt. Soll ich mich darum kümmern?
 					Treasure: Ich spüre eine Truhe in der Nähe. Soll ich sie untersuchen?
@@ -559,7 +559,7 @@ Mods: {
 				}
 
 				Victory: {
-					Curious: Jetzt kenne ich eine weitere Art, wie Gefahr sich bewegt.
+					Curious: Jetzt verstehe ich, wie sich diese Gefahr bewegt hat.
 					Loyal: Du bist sicher. Das genügt.
 					Brave: Gefahr beendet. Bleib hinter mir.
 					Gentle: Es ist vorbei. Gehen wir weiter.
