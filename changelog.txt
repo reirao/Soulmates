@@ -1,3 +1,10 @@
+Soulmates 9.9.0.24 - Dual Instinct Hotfix
+
+- Separated combat and healing cooldowns so AETHER can protect and restore the player during the same encounter.
+- Acquiring a new threat now accelerates only the next attack and no longer delays healing.
+- Healing no longer suppresses Soul Bolt attacks for several seconds; combat no longer postpones an available heal.
+- Existing Soulbound Sigils remain compatible.
+
 Soulmates 9.9.0.23 - Native Soulwheel
 
 - Rebuilt Companion, Player Emote, and initiative wheels around Terraria's own inventory slots, item art, and animated emote graphics.

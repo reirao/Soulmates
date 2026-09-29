@@ -62,7 +62,7 @@ public sealed partial class SoulboundCompanion
 		}
 
 		float attackRange = guardian ? 520f : 400f;
-		if (Main.netMode != NetmodeID.MultiplayerClient && talentCooldown <= 0
+		if (Main.netMode != NetmodeID.MultiplayerClient && attackCooldown <= 0
 			&& Vector2.DistanceSquared(NPC.Center, target.Center) < attackRange * attackRange) {
 			Vector2 velocity = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX) * (guardian ? 9f : 7.5f);
 			int damage = guardian
@@ -76,7 +76,7 @@ public sealed partial class SoulboundCompanion
 				Main.projectile[projectileIndex].netUpdate = true;
 			}
 			NPC.netUpdate = true;
-			talentCooldown = guardian ? Math.Max(55, 82 - Profile.RankIndex * 6) : Math.Max(90, 130 - Profile.RankIndex * 8);
+			attackCooldown = guardian ? Math.Max(55, 82 - Profile.RankIndex * 6) : Math.Max(90, 130 - Profile.RankIndex * 8);
 		}
 		return true;
 	}
@@ -111,7 +111,7 @@ public sealed partial class SoulboundCompanion
 			return;
 		guardianTarget = target;
 		if (target >= 0)
-			talentCooldown = Math.Min(talentCooldown, 8);
+			attackCooldown = Math.Min(attackCooldown, 8);
 		if (Main.netMode != NetmodeID.MultiplayerClient)
 			NPC.netUpdate = true;
 	}
@@ -136,7 +136,7 @@ public sealed partial class SoulboundCompanion
 	{
 		if (Main.netMode == NetmodeID.MultiplayerClient)
 			return;
-		if (talentCooldown > 0 || Profile.Energy < 5 || Owner.statLife >= Owner.statLifeMax2)
+		if (healingCooldown > 0 || Profile.Energy < 5 || Owner.statLife >= Owner.statLifeMax2)
 			return;
 
 		int missingLife = Owner.statLifeMax2 - Owner.statLife;
@@ -150,7 +150,7 @@ public sealed partial class SoulboundCompanion
 		Profile.Energy = Math.Max(0, Profile.Energy - 4);
 		Profile.Remember(CompanionMemoryKind.HealerAid, amount);
 		bool leveledUp = Profile.GainExperience(2, out int newLevel);
-		talentCooldown = Math.Max(360, 660 - Profile.RankIndex * 60);
+		healingCooldown = Math.Max(360, 660 - Profile.RankIndex * 60);
 		SyncProfileToBoundSigil();
 		for (int i = 0; i < 12; i++) {
 			Dust dust = Dust.NewDustPerfect(Owner.Center + Main.rand.NextVector2Circular(26f, 38f), DustID.HealingPlus,

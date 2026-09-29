@@ -72,11 +72,11 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current release
 
-**Soulmates 9.9.0.23 - Native Soulwheel** rebuilds Companion, Player Emote, and initiative wheels around Terraria's own inventory slots, items, and animated emotes. Talk Mode is now a smaller detail view with symbolic tabs, while companion speech stays readable longer and leaves a soft fading echo behind a moving soul. The release also includes the coherent cargo, initiative consent, tree-shake terrain, player right-click, and Squirrel-facing fixes completed in 0.9.4.1. Existing Sigils remain compatible.
+**Soulmates 9.9.0.24 - Dual Instinct Hotfix** lets AETHER heal and fight independently during the same encounter. It includes the native Soulwheel interface, compact Talk Mode, readable trailing speech, coherent cargo, initiative consent, forestry fixes, player right-click wheel, and corrected Squirrel facing from 9.9.0.23. Existing Sigils remain compatible.
 
 ## How Soulmates got here
 
-Soulmates began as a reusable item for shaping a personal pet. Repeated in-game passes turned that small idea into persistent Sigils, companion personalities, combat support, work assignments, a real pack, learned behavior, forestry, initiative choices, native emotes, and the compact Soulwheel. Several of those systems were rebuilt more than once when real play exposed awkward controls, disappearing cargo, duplicate drops, stale abilities, or behavior that looked clever but did not remain coherent over a longer session. The complete sequence is preserved in [changelog.txt](changelog.txt); this page describes only the implemented state of 9.9.0.23.
+Soulmates began as a reusable item for shaping a personal pet. Repeated in-game passes turned that small idea into persistent Sigils, companion personalities, combat support, work assignments, a real pack, learned behavior, forestry, initiative choices, native emotes, and the compact Soulwheel. Several of those systems were rebuilt more than once when real play exposed awkward controls, disappearing cargo, duplicate drops, stale abilities, or behavior that looked clever but did not remain coherent over a longer session. The complete sequence is preserved in [changelog.txt](changelog.txt); this page describes only the implemented state of 9.9.0.24.
 
 ## Playtesting and feedback
 

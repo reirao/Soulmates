@@ -5,4 +5,4 @@ hideCode = false
 hideResources = false
 includeSource = true
 buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*, .git\*, work\*, outputs\*, media\*, media/*, media/**, *.webp
-version = 9.9.0.23
+version = 9.9.0.24

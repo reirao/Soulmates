@@ -65,7 +65,8 @@ Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils. Alles is
 [b]Delver Charm:[/b] 5 Iron/Lead Bars, 2 Amethyst, 20 Stone Blocks
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
-[h2]Aktuelle Version: 9.9.0.23[/h2]
+[h2]Aktuelle Version: 9.9.0.24[/h2]
+[b]Hotfix fuer zwei Instinkte:[/b] AETHER verwendet nun getrennte Rhythmen fuer Heilung und Kampf. Heilen unterdrueckt keine Seelenblitz-Angriffe mehr und ein Angriff verschiebt keine verfuegbare Heilung.
 Die aktuelle Version baut Companion-, Player-Emote- und Initiativräder mit Terrarias Inventarslots, Items und animierten Emotes neu auf. Sie enthält außerdem den vereinheitlichten Frachtweg, dauerhafte Ja-/Nein-/Immer-/Nie-Regeln, den Baumklopf-Untergrundfix, das wiederhergestellte Player-Rechtsklickrad und die korrigierte Blickrichtung des Eichhörnchens. Bestehende Sigils bleiben kompatibel.
 
 [h2]Wie Soulmates hierherkam[/h2]

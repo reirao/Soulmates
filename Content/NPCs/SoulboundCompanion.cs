@@ -78,7 +78,8 @@ public sealed partial class SoulboundCompanion : ModNPC
 	private ForestAction gatherForestAction;
 	private int areaEmptyTimer;
 	private int revealTimer;
-	private int talentCooldown;
+	private int attackCooldown;
+	private int healingCooldown;
 	private int guardianTarget = -1;
 	private Vector2 jobOrigin;
 	private int socialTimer;
@@ -227,8 +228,10 @@ public sealed partial class SoulboundCompanion : ModNPC
 		UpdateSocialState();
 		UpdateLearningFromOwner();
 		UpdateAutonomousSocialBehavior();
-		if (talentCooldown > 0)
-			talentCooldown--;
+		if (attackCooldown > 0)
+			attackCooldown--;
+		if (healingCooldown > 0)
+			healingCooldown--;
 		if (UpdateTalentBehavior()) {
 			recoveryTimer = 0;
 			NPC.rotation = MathHelper.Lerp(NPC.rotation, NPC.velocity.X * 0.025f, 0.08f);
