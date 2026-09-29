@@ -23,6 +23,7 @@ Soulmates was created with extensive AI assistance across programming, writing, 
 [*]Right-click the companion for the compact Soulwheel with commands, work, bonding, pack access, and details.
 [*]Right-click your character or press G for a separate Player Emote Wheel with all 151 vanilla emotes. Categories unfold as small crescent sub-wheels.
 [*]Talk Mode keeps Care, Commands, Work, Bond, Voice, and Pack in one compact detail view.
+[*]The paper-plane icon opens the local AETHER Mailbox for feedback and contextual bug reports without leaving Terraria.
 [*]Companions speak according to personality, mood, weather, danger, and location, react to fights and creature deaths, and share small wordless moments with town NPCs.
 [*]Speech remains readable longer, deliberately trails a departing soul, and fades as a soft echo where it was spoken.
 [/list]
@@ -74,6 +75,8 @@ Soulmates began as an item for shaping a pet. Repeated in-game tests turned it i
 
 [h2]Playtesting and Feedback[/h2]
 Every report helps. My playtime is limited and Terraria progression takes time, so some combinations and long-session problems emerge slowly. If something is strange, unclear, or breaks later, please say what happened and whether it was single-player or multiplayer. If your companion simply made you smile, I am just as happy to hear that.
+
+Optional Field Notes are local, off by default, and never upload data.
 
 [h2]Controls[/h2]
 [list]

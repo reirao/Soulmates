@@ -7,6 +7,7 @@ using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Soulmates.Common;
+using Soulmates.Common.Feedback;
 using Soulmates.Common.Dialogue;
 using Soulmates.Common.UI;
 using Soulmates.Content.Items;
@@ -125,6 +126,13 @@ public sealed partial class SoulboundCompanion : ModNPC
 	private Player Owner => Main.player[(int)NPC.ai[0]];
 	private ref float Command => ref NPC.ai[1];
 	public string CommandName => SoulmatesText.Get(Command == StayCommand ? "Status.Stay" : "Status.Follow");
+	internal string FeedbackCommand => Command == StayCommand ? "stay" : "follow";
+	internal string FeedbackActivity => activeJob != CompanionJob.None ? $"job_{activeJob}"
+		: pendingAutonomyActivity != AutonomyActivity.None ? $"awaiting_{InitiativeKindFor(pendingAutonomyActivity)}"
+		: autonomyActivity != AutonomyActivity.None ? $"autonomy_{autonomyActivity}"
+		: guardianTarget >= 0 ? "guarding"
+		: socialNpcTarget >= 0 ? "socializing"
+		: brainState.ToString();
 	public CompanionJob CurrentJob => activeJob;
 	public bool HasPendingInitiative => pendingAutonomyActivity != AutonomyActivity.None;
 	public CompanionInitiativeKind PendingInitiativeKind => InitiativeKindFor(pendingAutonomyActivity);

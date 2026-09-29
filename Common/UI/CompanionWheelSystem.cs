@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Soulmates.Common.Dialogue;
 using Soulmates.Content.NPCs;
+using Soulmates.Common.Feedback;
 using Terraria;
 using Terraria.Audio;
 using Terraria.GameContent;
@@ -18,7 +19,7 @@ namespace Soulmates.Common.UI;
 
 public sealed class CompanionWheelSystem : ModSystem
 {
-	private enum RootBranch : byte { Commands, Work, Bond, Emotes, Pack, Details }
+	private enum RootBranch : byte { Commands, Work, Bond, Emotes, Pack, Details, Mailbox }
 	private enum HoverLayer : byte { None, Center, Root, Branch, Native }
 	private enum IconKind : byte { Emote, Item }
 	private enum WheelContext : byte { Companion, Player }
@@ -27,7 +28,7 @@ public sealed class CompanionWheelSystem : ModSystem
 	private sealed record NativeCategory(string Key, int Icon, int[] Entries);
 
 	private static readonly RootBranch[] CompanionRoots = [
-		RootBranch.Commands, RootBranch.Work, RootBranch.Bond, RootBranch.Pack, RootBranch.Details
+		RootBranch.Commands, RootBranch.Work, RootBranch.Bond, RootBranch.Pack, RootBranch.Details, RootBranch.Mailbox
 	];
 	private static readonly RootBranch[] PlayerRoots = [];
 	private static readonly CompanionQuickAction[] CommandActions = [
@@ -136,6 +137,7 @@ public sealed class CompanionWheelSystem : ModSystem
 		if (Main.dedServ || Main.gameMenu || Main.LocalPlayer.dead || Main.playerInventory)
 			return;
 		ModContent.GetInstance<TalkModeSystem>().Close();
+		ModContent.GetInstance<FeedbackMailboxSystem>().Close();
 		companion = boundCompanion;
 		context = wheelContext;
 		center = ClampCenter(Main.MouseScreen);
@@ -260,6 +262,12 @@ public sealed class CompanionWheelSystem : ModSystem
 			OpenDetails(TalkCategory.Care);
 			return;
 		}
+		if (selected == RootBranch.Mailbox) {
+			Close();
+			ModContent.GetInstance<FeedbackMailboxSystem>().Open();
+			SoundEngine.PlaySound(SoundID.MenuOpen with { Volume = 0.6f });
+			return;
+		}
 		branch = branch == selected ? null : selected;
 		nativeCategory = -1;
 		nativePage = 0;
@@ -327,6 +335,7 @@ public sealed class CompanionWheelSystem : ModSystem
 	private void ExecuteQuickAction(CompanionQuickAction action)
 	{
 		SoulboundCompanion? target = companion;
+		SoulmatesFeedbackSystem.Record("quick_action", ("action", action.ToString()));
 		Close();
 		if (target?.NPC.active != true)
 			return;
@@ -342,6 +351,7 @@ public sealed class CompanionWheelSystem : ModSystem
 	private void ExecuteCompanionEmote(CompanionEmote emote)
 	{
 		SoulboundCompanion? target = companion;
+		SoulmatesFeedbackSystem.Record("companion_emote", ("action", emote.ToString()));
 		Close();
 		if (target?.NPC.active != true)
 			return;
@@ -526,6 +536,7 @@ public sealed class CompanionWheelSystem : ModSystem
 		RootBranch.Bond => new WheelIcon(IconKind.Emote, EmoteID.EmotionLove),
 		RootBranch.Emotes => new WheelIcon(IconKind.Emote, EmoteID.EmoteHappiness),
 		RootBranch.Pack => new WheelIcon(IconKind.Item, ItemID.PiggyBank),
+		RootBranch.Mailbox => new WheelIcon(IconKind.Item, ItemID.PaperAirplaneA),
 		_ => new WheelIcon(IconKind.Item, ItemID.Book)
 	};
 

@@ -7,6 +7,7 @@ using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Soulmates.Common;
+using Soulmates.Common.Feedback;
 using Soulmates.Common.Dialogue;
 using Soulmates.Common.UI;
 using Soulmates.Content.Items;
@@ -31,11 +32,14 @@ public sealed partial class SoulboundCompanion
 		int carryLimit = CompanionProfile.CarryLimitFor(selected.type);
 		if (Profile.ItemCount(selected.type) >= carryLimit)
 			return SoulmatesText.Get("Pack.ItemLimit", selected.Name, carryLimit);
+		int itemType = selected.type;
 		int moved = Profile.Store(selected);
 		if (moved <= 0)
 			return SoulmatesText.Get("Pack.Full", Profile.PackLoad, Profile.PackCapacity);
 		SyncProfileToBoundSigil();
 		NPC.netUpdate = true;
+		SoulmatesFeedbackSystem.Record("pack_stored", ("item_type", itemType), ("amount", moved),
+			("pack_load", Profile.PackLoad));
 		return SoulmatesText.Get(moved == 1 ? "Pack.StoredOne" : "Pack.StoredMany", moved, Profile.PackLoad, Profile.PackCapacity);
 	}
 
@@ -54,6 +58,7 @@ public sealed partial class SoulboundCompanion
 		}
 		SyncProfileToBoundSigil();
 		NPC.netUpdate = true;
+		SoulmatesFeedbackSystem.Record("pack_unloaded", ("amount", moved), ("pack_load", Profile.PackLoad));
 		return moved > 0
 			? SoulmatesText.Get(moved == 1 ? "Pack.ReturnedOne" : "Pack.ReturnedMany", moved, Profile.PackLoad, Profile.PackCapacity)
 			: Profile.PackLoad == 0 ? SoulmatesText.Get("Pack.AlreadyEmpty") : SoulmatesText.Get("Pack.InventoryFull");
@@ -65,6 +70,7 @@ public sealed partial class SoulboundCompanion
 			return SoulmatesText.Get("Pack.SlotEmpty");
 
 		Item stored = Profile.Pack[index];
+		int itemType = stored.type;
 		int requested = singleItem ? 1 : stored.stack;
 		Item transfer = stored.Clone();
 		transfer.stack = requested;
@@ -79,6 +85,8 @@ public sealed partial class SoulboundCompanion
 		SyncProfileToBoundSigil();
 		SyncOwnerInventory();
 		NPC.netUpdate = true;
+		SoulmatesFeedbackSystem.Record("pack_withdrawn", ("item_type", itemType), ("amount", moved),
+			("pack_load", Profile.PackLoad));
 		return SoulmatesText.Get(moved == 1 ? "Pack.WithdrewOne" : "Pack.WithdrewMany", moved, Profile.PackLoad, Profile.PackCapacity);
 	}
 

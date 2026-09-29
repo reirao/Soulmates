@@ -1,7 +1,10 @@
 #nullable enable
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Soulmates.Content.Items;
 using Soulmates.Content.NPCs;
+using Soulmates.Common.Feedback;
 using Soulmates.Common.UI;
 using Terraria;
 using Terraria.GameInput;
@@ -16,7 +19,10 @@ public sealed class SoulmatesPlayer : ModPlayer
 	private bool starterKitClaimed;
 	private int pickupObservationCooldown;
 	private int serverGatheringObservationCooldown;
+	private int feedbackActivityCooldown;
 	private bool rightMouseDown;
+	private Guid feedbackProfileId;
+	private readonly Dictionary<int, int> feedbackPackCounts = [];
 
 	public int ActiveCompanionWhoAmI { get; set; } = -1;
 
@@ -24,12 +30,16 @@ public sealed class SoulmatesPlayer : ModPlayer
 	{
 		ActiveCompanionWhoAmI = -1;
 		rightMouseDown = false;
+		feedbackProfileId = Guid.Empty;
+		feedbackPackCounts.Clear();
 	}
 
 	public override void UpdateDead()
 	{
 		ActiveCompanionWhoAmI = -1;
 		rightMouseDown = false;
+		feedbackProfileId = Guid.Empty;
+		feedbackPackCounts.Clear();
 	}
 
 	public override void PostUpdate()
@@ -38,6 +48,75 @@ public sealed class SoulmatesPlayer : ModPlayer
 			pickupObservationCooldown--;
 		if (serverGatheringObservationCooldown > 0)
 			serverGatheringObservationCooldown--;
+		if (Player.whoAmI == Main.myPlayer) {
+			SoulboundCompanion? companion = SoulboundCompanion.FindFor(Player);
+			SoulmatesFeedbackSystem.Tick(Player, companion);
+			TrackFeedbackPack(companion);
+			TrackFeedbackActivity(companion);
+		}
+	}
+
+	private void TrackFeedbackPack(SoulboundCompanion? companion)
+	{
+		if (!SoulmatesFeedbackSystem.SessionActive || companion is null) {
+			feedbackProfileId = Guid.Empty;
+			feedbackPackCounts.Clear();
+			return;
+		}
+
+		var current = new Dictionary<int, int>();
+		foreach (Item item in companion.Profile.Pack) {
+			if (item.IsAir || item.stack <= 0)
+				continue;
+			current.TryGetValue(item.type, out int amount);
+			current[item.type] = amount + item.stack;
+		}
+		if (feedbackProfileId != companion.Profile.Id) {
+			feedbackProfileId = companion.Profile.Id;
+			feedbackPackCounts.Clear();
+			foreach ((int type, int amount) in current)
+				feedbackPackCounts[type] = amount;
+			SoulmatesFeedbackSystem.Record("pack_observed_initial", ("pack_load", companion.Profile.PackLoad),
+				("distinct_types", current.Count));
+			return;
+		}
+
+		var allTypes = new HashSet<int>(feedbackPackCounts.Keys);
+		allTypes.UnionWith(current.Keys);
+		foreach (int itemType in allTypes) {
+			feedbackPackCounts.TryGetValue(itemType, out int before);
+			current.TryGetValue(itemType, out int after);
+			if (before == after)
+				continue;
+			SoulmatesFeedbackSystem.Record("pack_observed_delta", ("item_type", itemType),
+				("delta", after - before), ("type_total_after", after), ("pack_load", companion.Profile.PackLoad));
+		}
+		feedbackPackCounts.Clear();
+		foreach ((int type, int amount) in current)
+			feedbackPackCounts[type] = amount;
+	}
+
+	private void TrackFeedbackActivity(SoulboundCompanion? companion)
+	{
+		if (!SoulmatesFeedbackSystem.SessionActive || companion is null || --feedbackActivityCooldown > 0)
+			return;
+		feedbackActivityCooldown = 60;
+		LearnedBehavior? behavior = null;
+		if (Player.chest >= 0) {
+			behavior = LearnedBehavior.Exploration;
+			feedbackActivityCooldown = 180;
+		}
+		else if (Player.controlUseItem || Player.itemAnimation > 0) {
+			Item held = Player.HeldItem;
+			if (held.axe > 0 || held.createTile == TileID.Saplings || held.type == ItemID.Acorn)
+				behavior = LearnedBehavior.Forestry;
+			else if (held.pick > 0)
+				behavior = LearnedBehavior.Mining;
+			else if (held.damage > 0)
+				behavior = LearnedBehavior.Combat;
+		}
+		if (behavior is LearnedBehavior observed)
+			SoulmatesFeedbackSystem.Record("player_activity", ("behavior", observed.ToString()));
 	}
 
 	internal bool TryAcceptGatheringObservation()
@@ -50,8 +129,10 @@ public sealed class SoulmatesPlayer : ModPlayer
 
 	public override bool OnPickup(Item item)
 	{
-		if (Player.whoAmI != Main.myPlayer || pickupObservationCooldown > 0
-			|| item.type is ItemID.Heart or ItemID.Star)
+		if (Player.whoAmI != Main.myPlayer || item.type is ItemID.Heart or ItemID.Star)
+			return true;
+		SoulmatesFeedbackSystem.Record("player_pickup", ("item_type", item.type), ("amount", item.stack));
+		if (pickupObservationCooldown > 0)
 			return true;
 		pickupObservationCooldown = 20;
 		if (Main.netMode == NetmodeID.MultiplayerClient)
@@ -69,16 +150,17 @@ public sealed class SoulmatesPlayer : ModPlayer
 		CompanionWheelSystem companionWheel = ModContent.GetInstance<CompanionWheelSystem>();
 		InitiativePromptSystem initiativePrompt = ModContent.GetInstance<InitiativePromptSystem>();
 		TalkModeSystem talkMode = ModContent.GetInstance<TalkModeSystem>();
+		FeedbackMailboxSystem mailbox = ModContent.GetInstance<FeedbackMailboxSystem>();
 		bool rightPressed = Main.mouseRight && !rightMouseDown;
 		rightMouseDown = Main.mouseRight;
 		if (Soulmates.EmoteKeybind.JustPressed && companion is not null && !Main.playerInventory
-			&& !talkMode.IsOpen && !companionWheel.IsOpen && !initiativePrompt.IsOpen)
+			&& !talkMode.IsOpen && !companionWheel.IsOpen && !initiativePrompt.IsOpen && !mailbox.IsOpen)
 			companionWheel.OpenEmotes(companion);
 		if (companion is not null && rightPressed)
 			TryOpenSelfSoulwheel(companion, companionWheel, initiativePrompt, talkMode);
 
 		if (!Soulmates.TalkKeybind.JustPressed || companion is null || companionWheel.IsOpen
-			|| initiativePrompt.IsOpen)
+			|| initiativePrompt.IsOpen || mailbox.IsOpen)
 			return;
 		if (companion.FindBoundSigil() is not { } sigil)
 			return;
@@ -130,6 +212,8 @@ public sealed class SoulmatesPlayer : ModPlayer
 
 	public override void OnEnterWorld()
 	{
+		if (Player.whoAmI == Main.myPlayer)
+			SoulmatesFeedbackSystem.BeginSession(Player);
 		if (starterKitClaimed || Player.whoAmI != Main.myPlayer)
 			return;
 

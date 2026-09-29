@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Soulmates.Common;
+using Soulmates.Common.Feedback;
 using Soulmates.Common.UI;
 using Soulmates.Content.NPCs;
 using Terraria;
@@ -54,6 +55,7 @@ public sealed class SoulboundSigil : ModItem
 			if (player.whoAmI != Main.myPlayer)
 				return true;
 			if (companion is not null) {
+				SoulmatesFeedbackSystem.Record("companion_recalled");
 				if (Main.netMode == NetmodeID.MultiplayerClient)
 					Soulmates.SendRecallRequest();
 				else
@@ -62,6 +64,9 @@ public sealed class SoulboundSigil : ModItem
 			}
 			return true;
 		}
+		if (player.whoAmI == Main.myPlayer)
+			SoulmatesFeedbackSystem.Record("companion_summoned", ("muse", Profile.Muse.ToString()),
+				("personality", Profile.Personality.ToString()), ("talent", Profile.Talent.ToString()));
 
 		if (Main.netMode == NetmodeID.MultiplayerClient) {
 			if (player.whoAmI == Main.myPlayer) {

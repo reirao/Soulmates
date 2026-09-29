@@ -7,6 +7,7 @@ using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Soulmates.Common;
+using Soulmates.Common.Feedback;
 using Soulmates.Common.Dialogue;
 using Soulmates.Common.UI;
 using Soulmates.Content.Items;
@@ -247,6 +248,8 @@ public sealed partial class SoulboundCompanion
 			return true;
 
 		bool success = PerformForestAction(autonomyTargetTile, autonomyForestAction);
+		SoulmatesFeedbackSystem.Record("forestry_action", ("action", autonomyForestAction.ToString()),
+			("success", success), ("pack_load", Profile.PackLoad));
 		tendedForestTargets.Add(autonomyTargetTile);
 		if (success) {
 			autonomyWorkCount++;
@@ -566,6 +569,7 @@ public sealed partial class SoulboundCompanion
 
 		ShowNativeEmote(InitiativeEmote(kind), 120);
 		if (policy == CompanionInitiativePolicy.Always) {
+			SoulmatesFeedbackSystem.Record("initiative_auto_accept", ("action", kind.ToString()));
 			SpeakLocalized($"Autonomy.Initiative.Always.{kind}");
 			BeginAutonomousActivity(activity, targetItem, targetTile, forestAction);
 			return true;
@@ -639,6 +643,8 @@ public sealed partial class SoulboundCompanion
 	private void BeginAutonomousActivity(AutonomyActivity activity, int targetItem = -1,
 		Point targetTile = default, ForestAction forestAction = ForestAction.None)
 	{
+		SoulmatesFeedbackSystem.Record("autonomy_started", ("action", activity.ToString()),
+			("forest_action", forestAction.ToString()));
 		ClearPendingInitiative();
 		autonomyActivity = activity;
 		autonomyActionTimer = 0;
@@ -699,6 +705,9 @@ public sealed partial class SoulboundCompanion
 	private void CancelAutonomousActivity(int nextDecisionDelay = 240)
 	{
 		bool changed = autonomyActivity != AutonomyActivity.None || pendingAutonomyActivity != AutonomyActivity.None;
+		if (autonomyActivity != AutonomyActivity.None)
+			SoulmatesFeedbackSystem.Record("autonomy_ended", ("action", autonomyActivity.ToString()),
+				("work_count", autonomyWorkCount));
 		autonomyActivity = AutonomyActivity.None;
 		autonomyActionTimer = 0;
 		autonomyTargetItem = -1;

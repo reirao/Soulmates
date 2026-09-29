@@ -7,6 +7,7 @@ using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Soulmates.Common;
+using Soulmates.Common.Feedback;
 using Soulmates.Common.Dialogue;
 using Soulmates.Common.UI;
 using Soulmates.Content.Items;
@@ -41,6 +42,7 @@ public sealed partial class SoulboundCompanion
 		if (stay)
 			idleTarget = NPC.Center;
 		NPC.netUpdate = true;
+		SoulmatesFeedbackSystem.Record("command_state", ("action", stay ? "stay" : "follow"));
 	}
 
 	public void AskToExplore()
@@ -55,6 +57,8 @@ public sealed partial class SoulboundCompanion
 
 	public void StartJob(CompanionJob job)
 	{
+		SoulmatesFeedbackSystem.Record("job_started", ("job", job.ToString()),
+			("energy", Profile.Energy), ("pack_load", Profile.PackLoad));
 		Profile.Routine = job;
 		BeginJob(job);
 	}

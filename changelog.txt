@@ -1,5 +1,10 @@
 Soulmates 0.10.0 - AETHER-EGG Alpha
 
+- Added optional, local-only AETHER Field Notes with a bounded event journal and compact behavior summary; no data is uploaded and recording is off until the player opts in.
+- Added an in-game AETHER Mailbox, opened from the Companion Soulwheel's paper-plane icon or `/soulfeedback`, with separate Feedback and Bug Report letters.
+- Added `/soulfeedback bug <what happened>` to preserve a bug report together with recent event types and the latest anonymized companion context in `bug-inbox.jsonl`.
+- Automatic pack collection now records requested, confirmed, remaining, and rejected transaction amounts so disappearing or multiplying cargo can be diagnosed from the local journal.
+- Added `/soulfeedback note`, `status`, `flush`, and `off` controls so playtesters remain in control of their own notes.
 - Rebased the public version line onto an honest pre-1.0 alpha: 0.10 is the grown AETHER-EGG foundation, not a claim of near-final stability.
 - Moved companion initiative questions into their own compact Terraria-emote decision prompt instead of borrowing the Companion or Player Soulwheel.
 - Preserved vanilla right-click priority for world tiles, hovered inventory items, smart-interact targets, and held items with alternate use.

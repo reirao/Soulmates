@@ -266,6 +266,7 @@ Mods: {
 					Emotes: Terraria-Emotes
 					Pack: Gefährten-Pack
 					Details: Details
+					Mailbox: Field Notes
 				}
 
 				NativeCategories: {
@@ -288,6 +289,27 @@ Mods: {
 					ResetInitiativeRules: WIEDER FRAGEN
 					Details: DETAILS
 				}
+			}
+
+			Mailbox: {
+				Title: AETHER-BRIEFKASTEN
+				Recipient: AN: LOKALE SOULMATES FIELD NOTES
+				Feedback: FEEDBACK
+				Bug: BUGBERICHT
+				RecordingOn: FIELD NOTES AN
+				RecordingOff: FIELD NOTES AUS
+				FeedbackContext: Deine Nachricht wird lokal für die nächste Soulmates-Auswertung gespeichert.
+				BugContext: Die letzten Ereignisarten und der letzte anonyme Gefährtenzustand werden angehängt.
+				FeedbackPlaceholder: Was fühlte sich gut, seltsam, unklar oder ausbaufähig an?
+				BugPlaceholder: Was ist passiert, und was hättest du stattdessen erwartet?
+				Send: LOKAL ABSENDEN
+				EnableAndSend: AKTIVIEREN & LOKAL SENDEN
+				Ready: Nichts verlässt diesen Computer.
+				Enabled: Lokale Field Notes aktiviert.
+				Disabled: Lokale Field Notes deaktiviert; vorhandene Briefe bleiben erhalten.
+				Empty: Schreib zuerst eine kurze Nachricht.
+				FeedbackSaved: Feedback im lokalen Briefkasten abgelegt.
+				BugSaved: Bugbericht mit dem letzten Spielkontext gespeichert.
 			}
 		}
 
@@ -322,6 +344,22 @@ Mods: {
 			Healed: "{0} hat {1} Leben wiederhergestellt."
 			LevelUp: "{0} hat Gefährtenlevel {1} erreicht!"
 			PerkUnlocked: "{0} hat den Perk {1} gelernt!"
+		}
+
+		Feedback: {
+			Usage: /soulfeedback [open|on|off|status|flush|note|bug] [Text]
+			Description: Steuert die lokalen, freiwilligen AETHER Field Notes und den Bug-Briefkasten.
+			Enabled: AETHER Field Notes aktiviert. Lokale Dateien: {0}
+			Disabled: AETHER Field Notes deaktiviert. Vorhandene lokale Notizen bleiben erhalten.
+			StatusOn: AETHER Field Notes sind AN. Lokale Dateien: {0}
+			StatusOff: AETHER Field Notes sind AUS. Mit /soulfeedback on freiwillig aktivieren. Ordner: {0}
+			Flushed: Field Notes gespeichert. Ordner: {0}
+			Error: Field Notes konnten nicht geschrieben werden: {0}
+			NoteDisabled: Field Notes sind aus. Zuerst /soulfeedback on verwenden.
+			NoteMissing: Nach dem Befehl eine Notiz angeben: /soulfeedback note <Text>
+			NoteSaved: Notiz zu dieser Sitzung hinzugefügt.
+			BugMissing: Nach dem Befehl das Problem beschreiben: /soulfeedback bug <was passiert ist>
+			BugSaved: Bugbericht mit dem letzten Spielkontext im lokalen Briefkasten abgelegt.
 		}
 
 		Tooltips: {

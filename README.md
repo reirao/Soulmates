@@ -67,6 +67,8 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Choose **Details** on the companion action wheel, or press `V`, to open the complete Talk Mode with level, bond, mood, energy, pack, memories, and conversations.
 - Stay is a true world anchor: companions defend that location without drifting back to the player.
 - Play in English or German; Soulmates follows Terraria's selected language automatically.
+- Optional local **AETHER Field Notes** record anonymized gameplay events and compact behavior signals for playtesting; nothing is uploaded. Use `/soulfeedback on` to opt in, `/soulfeedback note <text>` for an observation, and `/soulfeedback bug <what happened>` to save a bug with its recent gameplay context.
+- Open the in-game **AETHER Mailbox** from the paper-plane icon on the Companion Soulwheel, or with `/soulfeedback`, to send ordinary feedback or a contextual bug report without leaving Terraria.
 
 The current release supports single-player and server-authoritative multiplayer companions. Summoning, recalling, conversations, jobs, pack actions, and trinkets are validated by the server and synchronized back to the owning player.
 
@@ -85,6 +87,8 @@ Soulmates began as a reusable item for shaping a personal pet. Repeated in-game 
 Every report helps. The creator has limited time to play and Terraria progression takes time, so some combinations and long-session behavior are necessarily discovered slowly. If something behaves strangely, feels unclear, or breaks later in a playthrough, please describe what happened and whether it was single-player or multiplayer. And if a companion simply made you smile, we are just as happy to hear that.
 
 Please share findings through the [Steam Workshop page](https://steamcommunity.com/sharedfiles/filedetails/?id=3807130821) or [GitHub issues](https://github.com/reirao/Soulmates/issues).
+
+For local playtests, open the paper-plane icon on the Companion Soulwheel or enter `/soulfeedback` for the in-game **AETHER Mailbox**. It can enable the opt-in Field Notes, send a normal note, or preserve a bug report with recent context. Files are stored under tModLoader's save folder in `SoulmatesFeedback`: a bounded JSONL session journal, `latest-summary.json`, and `bug-inbox.jsonl`. The journal deliberately excludes account, player, character, world, chat, and exact position names, and never uploads anything. Use `/soulfeedback off` to stop future recording; existing notes remain yours until you remove them.
 
 ## Languages
 

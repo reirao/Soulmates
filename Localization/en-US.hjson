@@ -266,6 +266,7 @@ Mods: {
 					Emotes: Terraria Emotes
 					Pack: Companion Pack
 					Details: Details
+					Mailbox: Field Notes
 				}
 
 				NativeCategories: {
@@ -288,6 +289,27 @@ Mods: {
 					ResetInitiativeRules: ASK AGAIN
 					Details: DETAILS
 				}
+			}
+
+			Mailbox: {
+				Title: AETHER MAILBOX
+				Recipient: TO: LOCAL SOULMATES FIELD NOTES
+				Feedback: FEEDBACK
+				Bug: BUG REPORT
+				RecordingOn: FIELD NOTES ON
+				RecordingOff: FIELD NOTES OFF
+				FeedbackContext: Your note is saved locally for the next Soulmates review.
+				BugContext: Recent event types and the latest anonymous companion state will be attached.
+				FeedbackPlaceholder: What felt good, strange, unclear, or worth developing?
+				BugPlaceholder: What happened, and what did you expect instead?
+				Send: SEND LOCALLY
+				EnableAndSend: ENABLE & SEND LOCALLY
+				Ready: Nothing leaves this computer.
+				Enabled: Local Field Notes enabled.
+				Disabled: Local Field Notes disabled; existing letters were kept.
+				Empty: Write a short message first.
+				FeedbackSaved: Feedback placed in the local mailbox.
+				BugSaved: Bug report saved with recent gameplay context.
 			}
 		}
 
@@ -322,6 +344,22 @@ Mods: {
 			Healed: "{0} restored {1} life."
 			LevelUp: "{0} reached companion level {1}!"
 			PerkUnlocked: "{0} learned the {1} perk!"
+		}
+
+		Feedback: {
+			Usage: /soulfeedback [open|on|off|status|flush|note|bug] [text]
+			Description: Controls the local, opt-in AETHER Field Notes and bug inbox.
+			Enabled: AETHER Field Notes enabled. Local files: {0}
+			Disabled: AETHER Field Notes disabled. Existing local notes were kept.
+			StatusOn: AETHER Field Notes are ON. Local files: {0}
+			StatusOff: AETHER Field Notes are OFF. Use /soulfeedback on to opt in. Folder: {0}
+			Flushed: Field Notes saved. Folder: {0}
+			Error: Field Notes could not be written: {0}
+			NoteDisabled: Field Notes are off. Use /soulfeedback on first.
+			NoteMissing: Add a note after the command: /soulfeedback note <text>
+			NoteSaved: Note added to this session.
+			BugMissing: Describe the problem after the command: /soulfeedback bug <what happened>
+			BugSaved: Bug report added to the local inbox with recent gameplay context.
 		}
 
 		Tooltips: {

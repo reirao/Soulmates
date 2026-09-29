@@ -7,6 +7,7 @@ using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Soulmates.Common;
+using Soulmates.Common.Feedback;
 using Soulmates.Common.Dialogue;
 using Soulmates.Common.UI;
 using Soulmates.Content.Items;
@@ -132,6 +133,8 @@ public sealed partial class SoulboundCompanion
 	{
 		if (Main.netMode == NetmodeID.MultiplayerClient || !Enum.IsDefined(behavior))
 			return;
+		SoulmatesFeedbackSystem.Record("behavior_observed", ("behavior", behavior.ToString()),
+			("amount", amount));
 		int before = Profile.GetInsight(behavior);
 		LearnedBehavior? unlockedPerk = Profile.Observe(behavior, amount);
 		int after = Profile.GetInsight(behavior);
@@ -143,6 +146,7 @@ public sealed partial class SoulboundCompanion
 		bool syncMilestone = unlockedPerk is not null || after % 5 == 0;
 		string message = "";
 		if (unlockedPerk is LearnedBehavior learnedBehavior) {
+			SoulmatesFeedbackSystem.Record("learned_perk_unlocked", ("behavior", learnedBehavior.ToString()));
 			Profile.GainExperience(5, out _);
 			StartEmote(CompanionEmote.Cheer, 120);
 			ShowNativeEmote(CompanionEmote.Cheer, 140);
@@ -164,6 +168,7 @@ public sealed partial class SoulboundCompanion
 	{
 		if (!HasAdaptiveInstinct(behavior))
 			return;
+		SoulmatesFeedbackSystem.Record("imitation_cued", ("behavior", behavior.ToString()));
 		if (behavior == LearnedBehavior.Combat) {
 			attackCooldown = Math.Min(attackCooldown, 8);
 			return;

@@ -23,6 +23,7 @@ Soulmates entstand mit umfassender KI-Unterstützung bei Programmierung, Texten,
 [*]Rechtsklick auf den Companion öffnet das kompakte Soulwheel für Befehle, Arbeit, Bindung, Pack und Details.
 [*]Rechtsklick auf deinen Charakter oder G öffnet ein getrenntes Player Emote Wheel mit allen 151 Vanilla-Emotes. Kategorien fahren als kleine Halbmonde aus.
 [*]Talk Mode bietet Fürsorge, Befehle, Arbeit, Bindung, Stimme und Pack in einer kompakten Detailansicht.
+[*]Das Papierflieger-Symbol öffnet den lokalen AETHER-Briefkasten für Feedback und Bugberichte direkt in Terraria.
 [*]Companions sprechen passend zu Persönlichkeit, Stimmung, Wetter, Gefahr und Ort, reagieren auf Kämpfe und friedliche Kreaturen und begegnen Town-NPCs auch wortlos.
 [*]Texte bleiben länger lesbar, folgen einer fortfliegenden Seele verzögert und verblassen als sanfter Nachhall am gesprochenen Ort.
 [/list]
@@ -74,6 +75,8 @@ Soulmates begann als Item zum Gestalten eines Pets. Wiederholte Ingame-Tests mac
 
 [h2]Spieletests und Feedback[/h2]
 Jede Rückmeldung hilft. Meine Spielzeit ist begrenzt und Terraria-Fortschritt braucht Zeit, deshalb werden manche Kombinationen und Langzeitprobleme langsam sichtbar. Wenn etwas seltsam, unklar oder später kaputt ist, schreib bitte dazu, was geschah und ob es Singleplayer oder Multiplayer war. Wenn dich dein Companion einfach zum Lächeln bringt, freue ich mich darüber genauso.
+
+Optionale Field Notes bleiben lokal, sind zunächst aus und laden niemals Daten hoch.
 
 [h2]Steuerung[/h2]
 [list]

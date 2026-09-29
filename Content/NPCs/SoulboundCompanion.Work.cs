@@ -7,6 +7,7 @@ using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Soulmates.Common;
+using Soulmates.Common.Feedback;
 using Soulmates.Common.Dialogue;
 using Soulmates.Common.UI;
 using Soulmates.Content.Items;
@@ -209,6 +210,8 @@ public sealed partial class SoulboundCompanion
 
 		ForestAction action = gatherForestAction;
 		bool success = PerformForestAction(jobTarget, action);
+		SoulmatesFeedbackSystem.Record("forestry_action", ("action", action.ToString()),
+			("success", success), ("pack_load", Profile.PackLoad));
 		tendedForestTargets.Add(jobTarget);
 		gatherForestAction = ForestAction.None;
 		hasJobTarget = false;
@@ -320,6 +323,8 @@ public sealed partial class SoulboundCompanion
 		if (!worldItem.active || worldItem.IsAir || worldItem.stack <= 0)
 			return 0;
 
+		int itemType = worldItem.type;
+		int worldStackBefore = worldItem.stack;
 		int available = AvailableCarryAmount(worldItem);
 		if (available <= 0)
 			return 0;
@@ -332,6 +337,9 @@ public sealed partial class SoulboundCompanion
 		int moved = Math.Clamp(Profile.Store(transfer), 0, available);
 		int confirmed = Math.Clamp(Profile.ItemCount(worldItem.type) - matchingItemsBefore, 0, available);
 		if (moved <= 0 || confirmed != moved) {
+			SoulmatesFeedbackSystem.Record("pack_transaction_rejected", ("item_type", itemType),
+				("available", available), ("reported_moved", moved), ("confirmed_moved", confirmed),
+				("world_stack_before", worldStackBefore), ("pack_load", Profile.PackLoad));
 			Profile.Pack = packBefore;
 			return 0;
 		}
@@ -341,6 +349,9 @@ public sealed partial class SoulboundCompanion
 			worldItem.TurnToAir();
 			worldItem.active = false;
 		}
+		SoulmatesFeedbackSystem.Record("pack_auto_collect", ("item_type", itemType), ("amount", moved),
+			("world_stack_before", worldStackBefore), ("world_stack_after", Math.Max(0, worldStackBefore - moved)),
+			("type_total_after", Profile.ItemCount(itemType)), ("pack_load", Profile.PackLoad));
 		return moved;
 	}
 
@@ -430,6 +441,9 @@ public sealed partial class SoulboundCompanion
 
 	private void CompleteJob(string memory, bool success, CompanionMemoryKind? memoryKind = null, int memoryAmount = 0)
 	{
+		SoulmatesFeedbackSystem.Record("job_completed", ("job", activeJob.ToString()),
+			("success", success), ("work_count", jobCount), ("memory_amount", memoryAmount),
+			("pack_load", Profile.PackLoad));
 		Profile.LastMemory = memory;
 		bool leveledUp = false;
 		int newLevel = Profile.Level;

@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Soulmates.Content.NPCs;
+using Soulmates.Common.Feedback;
 using Terraria;
 using Terraria.Audio;
 using Terraria.GameContent;
@@ -41,6 +42,7 @@ public sealed class InitiativePromptSystem : ModSystem
 
 		ModContent.GetInstance<CompanionWheelSystem>().Close();
 		ModContent.GetInstance<TalkModeSystem>().Close();
+		ModContent.GetInstance<FeedbackMailboxSystem>().Close();
 		companion = boundCompanion;
 		center = ClampCenter(boundCompanion.NPC.Center - Main.screenPosition);
 		hoverIndex = -1;
@@ -48,6 +50,7 @@ public sealed class InitiativePromptSystem : ModSystem
 		rightMouseDown = Main.mouseRight;
 		openTicks = 0;
 		open = true;
+		SoulmatesFeedbackSystem.Record("initiative_prompt", ("action", boundCompanion.PendingInitiativeKind.ToString()));
 		SoundEngine.PlaySound(SoundID.MenuOpen with { Volume = 0.55f, Pitch = 0.22f });
 	}
 
@@ -107,6 +110,8 @@ public sealed class InitiativePromptSystem : ModSystem
 		}
 
 		CompanionInitiativeKind kind = target.PendingInitiativeKind;
+		SoulmatesFeedbackSystem.Record("initiative_response", ("action", kind.ToString()),
+			("response", response.ToString()));
 		Close();
 		if (Main.netMode == NetmodeID.MultiplayerClient)
 			global::Soulmates.Soulmates.SendInitiativeResponse(kind, response);

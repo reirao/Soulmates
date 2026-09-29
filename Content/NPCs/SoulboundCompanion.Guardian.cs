@@ -7,6 +7,7 @@ using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Soulmates.Common;
+using Soulmates.Common.Feedback;
 using Soulmates.Common.Dialogue;
 using Soulmates.Common.UI;
 using Soulmates.Content.Items;
@@ -75,6 +76,8 @@ public sealed partial class SoulboundCompanion
 				Main.projectile[projectileIndex].npcProj = true;
 				Main.projectile[projectileIndex].netUpdate = true;
 			}
+			SoulmatesFeedbackSystem.Record("companion_attack", ("target_type", target.type),
+				("damage", damage), ("guardian_specialist", guardian));
 			NPC.netUpdate = true;
 			attackCooldown = guardian ? Math.Max(55, 82 - Profile.RankIndex * 6) : Math.Max(90, 130 - Profile.RankIndex * 8);
 		}
@@ -110,8 +113,11 @@ public sealed partial class SoulboundCompanion
 		if (guardianTarget == target)
 			return;
 		guardianTarget = target;
-		if (target >= 0)
+		if (target >= 0) {
 			attackCooldown = Math.Min(attackCooldown, 8);
+			SoulmatesFeedbackSystem.Record("combat_target_acquired", ("target_type", Main.npc[target].type),
+				("boss", Main.npc[target].boss));
+		}
 		if (Main.netMode != NetmodeID.MultiplayerClient)
 			NPC.netUpdate = true;
 	}
@@ -149,6 +155,8 @@ public sealed partial class SoulboundCompanion
 		Owner.HealEffect(amount, broadcast: true);
 		Profile.Energy = Math.Max(0, Profile.Energy - 4);
 		Profile.Remember(CompanionMemoryKind.HealerAid, amount);
+		SoulmatesFeedbackSystem.Record("companion_heal", ("amount", amount),
+			("life_percent_after", Owner.statLifeMax2 <= 0 ? 0 : Owner.statLife * 100 / Owner.statLifeMax2));
 		bool leveledUp = Profile.GainExperience(2, out int newLevel);
 		healingCooldown = Math.Max(360, 660 - Profile.RankIndex * 60);
 		SyncProfileToBoundSigil();

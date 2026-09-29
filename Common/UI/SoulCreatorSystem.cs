@@ -31,6 +31,7 @@ public sealed class SoulCreatorSystem : ModSystem
 			return;
 		ModContent.GetInstance<TalkModeSystem>().Close();
 		ModContent.GetInstance<CompanionWheelSystem>().Close();
+		ModContent.GetInstance<FeedbackMailboxSystem>().Close();
 		CreatorState.ResetDraft();
 		creatorInterface.SetState(CreatorState);
 		Main.playerInventory = false;

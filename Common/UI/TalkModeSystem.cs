@@ -34,6 +34,7 @@ public sealed class TalkModeSystem : ModSystem
 			return;
 		ModContent.GetInstance<SoulCreatorSystem>().Close();
 		ModContent.GetInstance<CompanionWheelSystem>().Close();
+		ModContent.GetInstance<FeedbackMailboxSystem>().Close();
 		talkState.Bind(sigil, companion, initialCategory);
 		talkInterface.SetState(talkState);
 		Main.playerInventory = false;
