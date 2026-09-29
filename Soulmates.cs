@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text;
 using Soulmates.Common;
 using Soulmates.Common.Dialogue;
 using Soulmates.Common.UI;
@@ -19,7 +20,6 @@ public sealed class Soulmates : Mod
 		TalkRequest,
 		TalkResponse,
 		RecallRequest,
-		SummonRequest,
 		TrinketRequest,
 		PackWithdrawRequest,
 		ProfileUpdate,
@@ -28,7 +28,9 @@ public sealed class Soulmates : Mod
 		QuickActionRequest,
 		QuickActionResponse,
 		BehaviorObservationRequest,
-		NativeEmoteRequest
+		NativeEmoteRequest,
+		CreateCompanionRequest,
+		CreateCompanionResponse
 	}
 
 	internal static ModKeybind TalkKeybind { get; private set; } = null!;
@@ -66,16 +68,6 @@ public sealed class Soulmates : Mod
 			return;
 		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
 		packet.Write((byte)MessageType.RecallRequest);
-		packet.Send();
-	}
-
-	internal static void SendSummonRequest(Guid profileId)
-	{
-		if (Main.netMode != NetmodeID.MultiplayerClient)
-			return;
-		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
-		packet.Write((byte)MessageType.SummonRequest);
-		packet.Write(profileId.ToString());
 		packet.Send();
 	}
 
@@ -136,7 +128,23 @@ public sealed class Soulmates : Mod
 			return;
 		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
 		packet.Write((byte)MessageType.NativeEmoteRequest);
-		packet.Write((short)emoteId);
+		packet.Write(emoteId);
+		packet.Send();
+	}
+
+	internal static void SendCreateCompanionRequest(CompanionProfile profile)
+	{
+		if (Main.netMode != NetmodeID.MultiplayerClient)
+			return;
+		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
+		packet.Write((byte)MessageType.CreateCompanionRequest);
+		packet.Write(profile.Name);
+		packet.Write((byte)profile.Muse);
+		packet.Write((byte)profile.Form);
+		packet.Write((byte)profile.Essence);
+		packet.Write((byte)profile.Aura);
+		packet.Write((byte)profile.Personality);
+		packet.Write((byte)profile.Talent);
 		packet.Send();
 	}
 
@@ -176,9 +184,6 @@ public sealed class Soulmates : Mod
 			case MessageType.RecallRequest:
 				HandleRecallRequest(whoAmI);
 				break;
-			case MessageType.SummonRequest:
-				HandleSummonRequest(reader, whoAmI);
-				break;
 			case MessageType.TrinketRequest:
 				HandleTrinketRequest(reader, whoAmI);
 				break;
@@ -205,6 +210,12 @@ public sealed class Soulmates : Mod
 				break;
 			case MessageType.NativeEmoteRequest:
 				HandleNativeEmoteRequest(reader, whoAmI);
+				break;
+			case MessageType.CreateCompanionRequest:
+				HandleCreateCompanionRequest(reader, whoAmI);
+				break;
+			case MessageType.CreateCompanionResponse:
+				HandleCreateCompanionResponse(reader);
 				break;
 		}
 	}
@@ -243,24 +254,10 @@ public sealed class Soulmates : Mod
 
 	private static void HandleRecallRequest(int whoAmI)
 	{
-		if (Main.netMode != NetmodeID.Server || whoAmI < 0 || whoAmI >= Main.maxPlayers)
+		if (Main.netMode != NetmodeID.Server || whoAmI < 0 || whoAmI >= Main.maxPlayers
+			|| !Main.player[whoAmI].active)
 			return;
 		SoulboundCompanion.RecallAllFor(Main.player[whoAmI]);
-	}
-
-	private static void HandleSummonRequest(BinaryReader reader, int whoAmI)
-	{
-		Guid profileId = Guid.TryParse(reader.ReadString(), out Guid parsed) ? parsed : Guid.Empty;
-		if (Main.netMode != NetmodeID.Server || profileId == Guid.Empty
-			|| whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active)
-			return;
-		Player player = Main.player[whoAmI];
-		foreach (Item item in player.inventory) {
-			if (item.ModItem is SoulboundSigil sigil && sigil.Profile.Id == profileId) {
-				sigil.SummonCompanion(player);
-				break;
-			}
-		}
 	}
 
 	private static void HandleTrinketRequest(BinaryReader reader, int whoAmI)
@@ -368,13 +365,16 @@ public sealed class Soulmates : Mod
 		if (Main.netMode != NetmodeID.Server || behavior != LearnedBehavior.Gathering
 			|| whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active)
 			return;
-		if (SoulboundCompanion.FindFor(Main.player[whoAmI]) is { } companion)
+		Player player = Main.player[whoAmI];
+		if (!player.GetModPlayer<SoulmatesPlayer>().TryAcceptGatheringObservation())
+			return;
+		if (SoulboundCompanion.FindFor(player) is { } companion)
 			companion.ObserveOwnerActivity(behavior);
 	}
 
 	private static void HandleNativeEmoteRequest(BinaryReader reader, int whoAmI)
 	{
-		int emoteId = reader.ReadInt16();
+		int emoteId = reader.ReadInt32();
 		if (Main.netMode != NetmodeID.Server || emoteId < 0 || emoteId >= EmoteBubbleLoader.EmoteBubbleCount
 			|| whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active)
 			return;
@@ -382,10 +382,97 @@ public sealed class Soulmates : Mod
 			companion.ReactToNativeEmote(emoteId);
 	}
 
+	private void HandleCreateCompanionRequest(BinaryReader reader, int whoAmI)
+	{
+		string name = NormalizeCompanionName(reader.ReadString());
+		CompanionMuse muse = (CompanionMuse)reader.ReadByte();
+		CompanionForm form = (CompanionForm)reader.ReadByte();
+		CompanionEssence essence = (CompanionEssence)reader.ReadByte();
+		CompanionAura aura = (CompanionAura)reader.ReadByte();
+		CompanionPersonality personality = (CompanionPersonality)reader.ReadByte();
+		CompanionTalent talent = (CompanionTalent)reader.ReadByte();
+		if (Main.netMode != NetmodeID.Server || whoAmI < 0 || whoAmI >= Main.maxPlayers
+			|| !Main.player[whoAmI].active || !Enum.IsDefined(muse) || !Enum.IsDefined(form)
+			|| !Enum.IsDefined(essence) || !Enum.IsDefined(aura) || !Enum.IsDefined(personality)
+			|| !Enum.IsDefined(talent)) {
+			SendCreateCompanionResponse(whoAmI, false, name, CompanionEssence.Starlight);
+			return;
+		}
+
+		Player player = Main.player[whoAmI];
+		var item = new Item();
+		item.SetDefaults(ModContent.ItemType<SoulboundSigil>());
+		if (item.ModItem is not SoulboundSigil sigil || !player.ConsumeItem(ModContent.ItemType<BlankSigil>())) {
+			SendCreateCompanionResponse(whoAmI, false, name, essence);
+			return;
+		}
+
+		var profile = new CompanionProfile {
+			Id = Guid.NewGuid(),
+			Name = name,
+			Muse = muse,
+			Form = form,
+			Essence = essence,
+			Aura = aura,
+			Personality = personality,
+			Talent = talent
+		};
+		profile.Normalize();
+		profile.Remember(CompanionMemoryKind.Awakened);
+		sigil.Profile = profile;
+		Item leftover = player.GetItem(player.whoAmI, item, GetItemSettings.InventoryEntityToPlayerInventorySettings);
+		if (!leftover.IsAir)
+			Item.NewItem(player.GetSource_Misc("SoulCreator"), player.Hitbox, leftover);
+		SyncPlayerInventory(player);
+		SendCreateCompanionResponse(whoAmI, true, profile.Name, profile.Essence);
+	}
+
+	private static void HandleCreateCompanionResponse(BinaryReader reader)
+	{
+		bool accepted = reader.ReadBoolean();
+		string name = reader.ReadString();
+		CompanionEssence essence = (CompanionEssence)reader.ReadByte();
+		if (Main.netMode != NetmodeID.MultiplayerClient)
+			return;
+		if (!Enum.IsDefined(essence))
+			essence = CompanionEssence.Starlight;
+		ModContent.GetInstance<SoulCreatorSystem>().ReceiveNetworkResponse(accepted, name, essence);
+	}
+
+	private void SendCreateCompanionResponse(int playerIndex, bool accepted, string name, CompanionEssence essence)
+	{
+		if (Main.netMode != NetmodeID.Server || playerIndex < 0 || playerIndex >= Main.maxPlayers)
+			return;
+		ModPacket packet = GetPacket();
+		packet.Write((byte)MessageType.CreateCompanionResponse);
+		packet.Write(accepted);
+		packet.Write(name);
+		packet.Write((byte)essence);
+		packet.Send(playerIndex);
+	}
+
+	private static string NormalizeCompanionName(string name)
+	{
+		var result = new StringBuilder(24);
+		foreach (char character in (name ?? "").Trim()) {
+			if (!char.IsControl(character) && result.Length < 24)
+				result.Append(character);
+		}
+		return result.Length > 0 ? result.ToString() : "Luma";
+	}
+
+	private static void SyncPlayerInventory(Player player)
+	{
+		if (Main.netMode != NetmodeID.Server)
+			return;
+		for (int slot = 0; slot < player.inventory.Length; slot++)
+			NetMessage.SendData(MessageID.SyncEquipment, player.whoAmI, -1, null, player.whoAmI, slot);
+	}
+
 	private static void ApplyClientProfile(CompanionProfile profile)
 	{
 		Player player = Main.LocalPlayer;
-		if (SoulboundCompanion.FindFor(player) is { } companion)
+		if (SoulboundCompanion.FindFor(player) is { } companion && companion.Profile.Id == profile.Id)
 			companion.Profile = profile.Clone();
 		foreach (Item item in player.inventory) {
 			if (item.ModItem is SoulboundSigil sigil && sigil.Profile.Id == profile.Id) {

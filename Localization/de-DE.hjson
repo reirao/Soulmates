@@ -1,600 +1,702 @@
 Mods: {
-  Soulmates: {
-    Items: {
-      Soulcore: {
-        DisplayName: Seelenkern
-        Tooltip: "Ein wiederverwendbares Werkzeug zum Erschaffen neuer Gefährten\nBenutzen, um den Seelenschöpfer zu öffnen"
-      }
-      BlankSigil: {
-        DisplayName: Leeres Siegel
-        Tooltip: Ein leeres Gefäß, das auf eine Seele wartet
-      }
-      SoulboundSigil: {
-        DisplayName: Seelengebundenes Siegel
-        Tooltip: Ein einzigartiger Gefährte ruht darin
-      }
-      StarfinderBell: {
-        DisplayName: Sternensucherglocke
-        Tooltip: "Stimmt einen beschworenen Gefährten auf ferne Schätze ein\nBenutzen zum Ausrüsten  |  Rechtsklick zum Ablegen"
-      }
-      DelverCharm: {
-        DisplayName: Tiefengänger-Talisman
-        Tooltip: "Erhöht Abbauradius und -tempo eines beschworenen Gefährten\nBenutzen zum Ausrüsten  |  Rechtsklick zum Ablegen"
-      }
-      HearthRibbon: {
-        DisplayName: Herdfeuerband
-        Tooltip: "Erhöht Sammelreichweite und Tragkraft eines beschworenen Gefährten\nBenutzen zum Ausrüsten  |  Rechtsklick zum Ablegen"
-      }
-    }
-    NPCs: {
-      SoulboundCompanion: {
-        DisplayName: Seelengebundener Gefährte
-      }
-    }
-    Keybinds: {
-      TalkToCompanion: {
-        DisplayName: Mit Gefährten sprechen
-      }
-      CompanionEmotes: {
-        DisplayName: Gefährten-Emote-Rad
-      }
-    }
-    Enums: {
-      CompanionPersonality: {
-        Curious: Neugierig
-        Loyal: Loyal
-        Brave: Mutig
-        Gentle: Sanft
-        Mischievous: Schelmisch
-      }
-      CompanionTalent: {
-        TreasureSeeker: Schatzsucher
-        Miner: Bergarbeiter
-        Guardian: Beschützer
-        Gatherer: Sammler
-        Healer: Heiler
-      }
-      LearnedBehavior: {
-        Gathering: Sammeln
-        Mining: Bergbau
-        Forestry: Forstpflege
-        Combat: Kampf
-        Exploration: Erkunden
-      }
-      CompanionEssence: {
-        Starlight: Sternenlicht
-        Ember: Glut
-        Verdant: Natur
-        Tide: Gezeiten
-        Amethyst: Amethyst
-      }
-      CompanionForm: {
-        Balanced: Ausgeglichen
-        Round: Rund
-        Wisp: Irrlicht
-      }
-      CompanionAura: {
-        SoftGlow: Sanftes Leuchten
-        OrbitingStars: Kreisende Sterne
-        SoulSparks: Seelenfunken
-      }
-      CompanionMuse: {
-        Soulkin: Seelenwesen
-        Bunny: Häschen
-        BlueSlime: Blauer Schleim
-        Bird: Vogel
-        Squirrel: Eichhörnchen
-      }
-      CompanionVoice: {
-        Soft: Sanft
-        Direct: Direkt
-        Playful: Verspielt
-      }
-      CompanionEmote: {
-        Wave: Winken
-        Heart: Herz
-        Cheer: Anfeuern
-        Comfort: Trösten
-        Laugh: Lachen
-        Rest: Ausruhen
-      }
-      CompanionQuickAction: {
-        Follow: Folgen
-        Stay: Warten
-        Explore: Erkunden
-        FindTreasure: Schatz
-        Mine: Bergbau
-        Gather: Sammeln
-        ToggleAutonomy: Autonomie
-        Details: Details
-      }
-      CompanionTrinket: {
-        None: Keines
-        StarfinderBell: Sternensucherglocke
-        DelverCharm: Tiefengänger-Talisman
-        HearthRibbon: Herdfeuerband
-      }
-      CompanionJob: {
-        None: Keiner
-        FindTreasure: Schatzsuche
-        Mine: Bergbau
-        Gather: Sammeln
-      }
-      BondRank: {
-        Newbound: Neugebunden
-        Kindred: Seelenverwandt
-        Trusted: Vertraut
-        Soulbound: Seelengebunden
-        Eternal: Ewig
-      }
-      TalkCategory: {
-        Care: Fürsorge
-        Commands: Befehle
-        Work: Arbeit
-        Bond: Bindung
-        Voice: Stimme
-        Pack: Pack
-      }
-    }
-    UI: {
-      Common: {
-        Close: SCHLIESSEN
-      }
-      Creator: {
-        Title: SEELENSCHÖPFER
-        Randomize: ZUFÄLLIG
-        RequiresSigil: Benötigt 1 Leeres Siegel
-        Create: SEELENGEFÄHRTEN ERSCHAFFEN
-        Field: "{0}: {1}"
-        NeedSigil: Du benötigst ein Leeres Siegel.
-        ConsumeFailed: Das Leere Siegel konnte nicht verbraucht werden.
-        Details: "{0}\nMuse: {1} | Form: {2}\n{3} | {4}\n{5} | {6}"
-        Fields: {
-          Name: Name
-          Muse: Bestiarium-Muse
-          Form: Form
-          Essence: Essenz
-          Aura: Aura
-          Personality: Persönlichkeit
-          Talent: Starttalent
-        }
-      }
-      Talk: {
-        Title: "{0} // SPRECHEN"
-        Greeting: "{0} blickt dich erwartungsvoll an."
-        ChooseWords: WÄHLE DEINE WORTE
-        Pack: GEFÄHRTEN-PACK
-        Radius: " | Radius {0}"
-        Stats: "{0} | {1} | BINDUNG {2}\nLAUNE {3}/100 {4}\nENERGIE {5}/100 {6} - {7}\nPACK {8}/{9} | {10}{11}"
-        EnergyCost: "[Energie -{0}]"
-        EnergyGain: "[Energie +{0}]"
-		BondShort: BINDUNG
-		MoodShort: LAUNE
-		EnergyShort: ENERGIE
-		PackShort: PACK
-		Growth: "LV {0} EP {1}/{2}"
-		GrowthMax: "LV {0} MAX"
-        OmniSoul: OMNI-SEELE
-        AetherLearning: ALLE INSTINKTE | ALLE PERKS
-        Observing: BEOBACHTET DICH
-        Learning: "LERNT {0} {1}/100 {2}"
-        Energy: {
-          Ready: BEREIT
-          Low: NIEDRIG
-          Rest: AUSRUHEN
-        }
-      }
-      Emotes: {
-        Center: EMOTE
-      }
-      CompanionWheel: {
-        Center: SOULMATE
-        AutonomyOn: AUTO AN
-        AutonomyOff: AUTO AUS
-        Actions: {
-          Follow: FOLGEN
-          Stay: WARTEN
-          Explore: ERKUNDEN
-          FindTreasure: SCHATZ
-          Mine: BERGBAU
-          Gather: SAMMELN
-          Details: DETAILS
-        }
-      }
-    }
-    Status: {
-      Stay: Warten
-      Follow: Folgen
-      Mining: "Gebiet abbauen ({0} geschafft)"
-      Gathering: "Gebiet sammeln ({0} Gegenstände)"
-      SensingTreasure: Schatz aufspüren
-      Guarding: IM KAMPF
-      Recovering: ENERGIE ERHOLEN
-	  Watching: "WACHE: {0} Blöcke"
-      Assignment: "Auftrag: {0}"
-      Ready: Bereit
-      Autonomy: {
-        FetchItem: SAMMELT AUF
-        AssistMining: HILFT ABBAUEN
-        InspectTreasure: UNTERSUCHT
-        TendForest: PFLEGT DEN WALD
-      }
-    }
-    Messages: {
-      StarterKit: Ein Seelenkern regt sich in deinen Händen...
-      SoulCreated: "Eine neue Seele wurde gebunden: {0}"
-      Recalled: "{0} ist in das Seelengebundene Siegel zurückgekehrt."
-      Summoned: "{0} folgt deinem Ruf."
-      TrinketRemoved: "{0} hat das Schmuckstück abgelegt."
-      TrinketEquipped: "{0} hat {1} ausgerüstet."
-      Healed: "{0} hat {1} Leben wiederhergestellt."
-      LevelUp: "{0} hat Gefährtenlevel {1} erreicht!"
-      PerkUnlocked: "{0} hat den Perk {1} gelernt!"
-    }
-    Tooltips: {
-      Sigil: {
-        BoundTo: "Gebunden an {0}"
-        Appearance: "Muse: {0}  |  Form: {1}  |  {2}"
-        Identity: "{0}  |  {1}"
-        Stats: "{0}  |  Bindung {1}  |  Laune {2}  |  Energie {3}"
-        Growth: "Level {0}  |  EP {1}/{2}  |  Siege {3}  |  Gemeinsame Momente {4}"
-        Voice: "Stimme: {0}"
-        Trinket: "Schmuckstück: {0}  |  Pack: {1}/{2}  |  Aufträge: {3}"
-        Learning: "Lernen: {0} {1}/100  |  Perk: {2}"
-        Observing: "Lernen: beobachtet deine Gewohnheiten"
-        AetherLearning: "AETHER: alle Talentinstinkte und erlernten Perks sind aktiv"
-        Assignment: "Aktiver Auftrag: {0}"
-        Controls: "Benutzen: beschwören  |  Rechtsklick auf Gefährten: Aktionsrad  |  V: Details  |  Hoch + Rechtsklick: zurückrufen"
-        Emotes: "Emotes: Rechtsklick auf dich für Terrarias vollständiges Menü  |  G halten für den Soulmate-Ring"
-      }
-    }
-    Directions: {
-      Above: oberhalb
-      Below: unterhalb
-      West: im Westen
-      East: im Osten
-      Nearby: ganz in der Nähe
-      Combined: "{0} und {1}"
-    }
-    Jobs: {
-      PackFull: Mein Pack ist voll. Leere es und schick mich dann erneut los.
-      Treasure: {
-        Empty: "Ich habe das gesamte Gebiet im Radius von {0} Blöcken durchsucht, aber keinen Schatz gespürt. Schick mich an einem neuen Ort wieder los."
-        Found: "Ich spüre einen Schatz {0}, ungefähr {1} Blöcke entfernt."
-      }
-      Mining: {
-        Protected: "Ich habe {0} Erzblöcke abgebaut, aber {1} geschützte Blöcke haben widerstanden. Schick mich an einem neuen Ort wieder los."
-        Cleared: "Das Gebiet ist leer. Ich habe alle {0} abbaubaren Erzblöcke im Radius von {1} Blöcken entfernt. Schick mich an einem neuen Ort wieder los."
-        Empty: "Im Radius von {0} Blöcken gibt es kein abbaubares Erz. Schick mich an einem neuen Ort wieder los."
-        Timeout: "Meine Zeit ist nach {0} Erzblöcken abgelaufen. Schick mich erneut los, damit ich weitermache."
-      }
-      Gathering: {
-        Cleared: "Das Gebiet ist leer. Ich habe alle {0} Gegenstände im Radius von {1} Blöcken eingesammelt. Schick mich erneut los, sobald es mehr gibt."
-        Empty: "Im Radius von {0} Blöcken liegen keine Gegenstände. Schick mich erneut los, sobald es etwas einzusammeln gibt."
-        Timeout: "Meine Zeit ist nach {0} Gegenständen abgelaufen. Schick mich erneut los, damit ich weitermache."
-      }
-    }
-    Memories: {
-      New: Wir haben uns gerade erst kennengelernt.
-      TrinketRemoved: Du lässt mich wieder mit leichtem Gepäck reisen.
-      TrinketEquipped: "Du hast mir {0} anvertraut."
-      Chronicle: {
-        Awakened: Ich erinnere mich an den Moment, in dem du mich ins Dasein gerufen hast.
-        TreasureFound: "Ich erinnere mich an einen Schatz in ungefähr {0} Blöcken Entfernung."
-        MiningCompleted: "Ich erinnere mich daran, {0} Erzblöcke für dich abgebaut zu haben."
-        GatheringCompleted: "Ich erinnere mich daran, {0} Gegenstände für unsere Reise gesammelt zu haben."
-        GuardianVictory: "Ich erinnere mich daran, dich vor {0} beschützt zu haben."
-        HealerAid: "Ich erinnere mich daran, {0} deiner Lebenspunkte wiederhergestellt zu haben."
-        TrinketEquipped: "Ich erinnere mich daran, wie du mir {0} anvertraut hast."
-        TrinketRemoved: Ich erinnere mich daran, wieder mit leichtem Gepäck gereist zu sein.
-        BondMilestone: "Unsere Bindung wurde {0}."
-        CreatureEncounter: "Ich erinnere mich daran, was mit {0} geschehen ist."
-        ExperienceMilestone: "Ich erinnere mich daran, Gefährtenlevel {0} erreicht zu haben."
-        SharedMoment: "Ich erinnere mich an unser gemeinsames {0}."
-        LearnedPerk: "Ich erinnere mich daran, den Perk {0} von dir gelernt zu haben."
-      }
-    }
-    Pack: {
-      Empty: Mein Pack ist leer.
-      AndMoreStacks: ", sowie {0} weitere Stapel"
-      Description: "Ich trage {0}. ({1}/{2})"
-      SelectedEmpty: Der ausgewählte Schnellzugriffsplatz ist leer.
-      CannotCarry: Dieser Gegenstand verankert unsere Bindung. Ich sollte ihn nicht in meinem Pack tragen.
-      Full: "Mein Pack ist voll. ({0}/{1})"
-      StoredOne: "Ich habe {0} Gegenstand verstaut. ({1}/{2})"
-      StoredMany: "Ich habe {0} Gegenstände verstaut. ({1}/{2})"
-      ReturnedOne: "Ich habe {0} Gegenstand zurückgegeben. ({1}/{2})"
-      ReturnedMany: "Ich habe {0} Gegenstände zurückgegeben. ({1}/{2})"
-      AlreadyEmpty: Mein Pack ist bereits leer.
-      InventoryFull: In deinem Inventar ist kein Platz für meine Ladung.
-      SlotEmpty: Dieser Pack-Platz ist leer.
-      WithdrewOne: "Ich habe {0} Gegenstand aus diesem Platz zurückgegeben. ({1}/{2})"
-      WithdrewMany: "Ich habe {0} Gegenstände aus diesem Platz zurückgegeben. ({1}/{2})"
-    }
-    Autonomy: {
-      Enabled: Ich werde aufmerksam bleiben, selbst entscheiden und helfen, wenn ich eine Gelegenheit sehe.
-      Disabled: Verstanden. Ich warte auf deine Anweisungen.
-      Fetched: "Mir ist {0} aufgefallen. Ich bewahre es sicher auf."
-      Mined: "Ich habe beim Arbeiten {0} Erzblöcke in der Nähe mit abgebaut."
-      Treasure: "Etwas Interessantes zum Untersuchen liegt {0}."
-      Surprise: {
-        Curious: Ich habe etwas Interessantes gesehen. Vielleicht musste ich es untersuchen.
-        Loyal: Ich habe unsere Umgebung geprüft. Ich bin noch immer hier.
-        Brave: Eine kurze Patrouille. Jetzt weiß alles in der Nähe, dass wir bereit sind.
-        Gentle: Ich dachte, dieser Moment könnte ein wenig Wärme gebrauchen.
-        Mischievous: Ich habe ein sehr ernstes und ganz bestimmt harmloses Experiment durchgeführt.
-      }
-    }
-    Learning: {
-      Forester: Forstpflege
-      Locked: gesperrt
-      ForesterUnlocked: Ich habe beobachtet, wie du mit Holz und wachsenden Dingen umgehst. Jetzt kann ich dir dabei helfen.
-    }
-    Social: {
-      Autonomous: {
-        Context: {
-          LowEnergy: "Könnten wir einen Moment langsamer machen?"
-          LowMood: "Ich bin da. Ich brauche nur etwas Freundlichkeit."
-          Hurt: "Du bist verletzt. Bitte bleib in meiner Nähe."
-          Rain: "Im Regen fühlt sich jedes Licht wärmer an."
-          Underground: "Ich frage mich, woran sich der Stein erinnert."
-          Night: "Die Sterne wirken näher, wenn wir zusammen reisen."
-          Stay: "Ich halte diesen Ort immer noch für dich."
-        }
-        Curious: {
-          Line0: "Was glaubst du, liegt hinter dem nächsten Hügel?"
-          Line1: "Mir ist etwas Seltsames aufgefallen. Es gefiel mir."
-          Line2: "Glaubst du, die Welt bemerkt auch uns?"
-        }
-        Loyal: {
-          Line0: "Ich kenne inzwischen deine Schritte."
-          Line1: "Wo du hingehst, habe ich eine Richtung."
-          Line2: "Du musst dich dem nicht allein stellen."
-        }
-        Brave: {
-          Line0: "Zeig mir den schwierigen Teil."
-          Line1: "Wir sind bereit für das, was als Nächstes kommt."
-          Line2: "Mut ist leichter in Gesellschaft."
-        }
-        Gentle: {
-          Line0: "Es ist schön, einfach bei dir zu sein."
-          Line1: "Nicht jeder stille Moment muss gefüllt werden."
-          Line2: "Denk bitte auch daran, zu atmen."
-        }
-        Mischievous: {
-          Line0: "Ich habe diese Fackel ganz bestimmt nicht verrückt."
-          Line1: "Das Abenteuer könnte eine fragwürdige Idee vertragen."
-          Line2: "Ich habe Ärger gefunden. Er hat angefangen."
-        }
-      }
-      Emotes: {
-        Wave: {
-          Curious: "Hallo! Hast du etwas entdeckt?"
-          Loyal: "Ich bin hier. Immer."
-          Brave: "Bereit, wenn du es bist!"
-          Gentle: "Hallo. Ich bin froh, dass du da bist."
-          Mischievous: "Ach, jetzt bemerkst du mich?"
-        }
-        Heart: {
-          Curious: "Fühlt sich Wärme so an?"
-          Loyal: "Das gebe ich dir zurück."
-          Brave: "Das ist es wert, beschützt zu werden."
-          Gentle: "Diesen Moment bewahre ich."
-          Mischievous: "Vorsicht. Ich werde noch sentimental."
-        }
-        Cheer: {
-          Curious: "Was feiern wir? Ich bin dabei!"
-          Loyal: "Zusammen. Das ist der wichtige Teil."
-          Brave: "Ja! Wir schaffen das!"
-          Gentle: "Bei dir sieht Hoffnung so leicht aus."
-          Mischievous: "Erst der Siegestanz, später der Grund!"
-        }
-        Comfort: {
-          Curious: "Das hilft mehr, als ich erwartet habe."
-          Loyal: "Ich wusste, dass du bleibst."
-          Brave: "Ich kann stark sein und das trotzdem brauchen."
-          Gentle: "Danke, dass du es bemerkt hast."
-          Mischievous: "Ich war nicht besorgt. Sehr."
-        }
-        Laugh: {
-          Curious: "Warte, erklär mir noch einmal, warum das lustig war."
-          Loyal: "Deinem Lachen folge ich gern."
-          Brave: "Auch Helden brauchen das."
-          Gentle: "Ich mag diesen Klang zwischen uns."
-          Mischievous: "Endlich eine Strategie nach meinem Geschmack!"
-        }
-        Rest: {
-          Curious: "Na gut, aber ich denke beim Ausruhen weiter."
-          Loyal: "Ich halte neben dir Wache."
-          Brave: "Eine taktische Pause. Vernünftig."
-          Gentle: "Ein stiller Moment zusammen klingt wunderbar."
-          Mischievous: "Weck mich, falls etwas Lustiges passiert."
-        }
-      }
-      Combat: {
-        Creature: {
-          Curious: "Ich hätte es gern zuerst verstanden."
-          Loyal: "Ich habe deine Sicherheit gewählt, aber ich erinnere mich daran."
-          Brave: "Ein Leben endete. Wir sollten es nicht leichtnehmen."
-          Gentle: "Das wollte ich nicht. Es tut mir leid."
-          Mischievous: "Das war sehr schnell nicht mehr lustig."
-        }
-        Victory: {
-          Curious: "Jetzt kenne ich eine weitere Art, wie Gefahr sich bewegt."
-          Loyal: "Du bist sicher. Das genügt."
-          Brave: "Gefahr beendet. Bleib hinter mir."
-          Gentle: "Es ist vorbei. Gehen wir weiter."
-          Mischievous: "Es hätte sich ein anderes Paar aussuchen sollen."
-        }
-        Boss: {
-          Curious: "Stell dir vor, was so ein Wesen einmal wusste."
-          Loyal: "Nichts so Großes stellt sich zwischen uns."
-          Brave: "An diesen Sieg werden wir uns erinnern!"
-          Gentle: "Die Welt wirkt jetzt stiller."
-          Mischievous: "Ich glaube, jetzt sind wir die Gefährlichen."
-        }
-      }
-    }
-    Dialogue: {
-      Options: {
-        Care: {
-          Option0: Wie fühlst du dich?
-          Option1: Das hast du heute gut gemacht.
-          Option2: Brauchst du eine Pause?
-        }
-        Commands: {
-          Option0: Bitte folge mir.
-          Option1: Warte hier auf mich.
-          Option2: Komm mit mir auf Erkundung.
-        }
-        Work: {
-          Option0: Suche dieses Gebiet nach Schätzen ab.
-          Option1: Baue jede Erzader in der Nähe ab.
-          Option2: Sammle jeden losen Gegenstand in der Nähe.
-        }
-        Bond: {
-          Option0: Vertraust du mir?
-          Option1: Erzähl mir etwas über dich.
-          Option2: Ich bin froh, dass du hier bist.
-        }
-        Voice: {
-          Option0: Sprich sanft mit mir.
-          Option1: Sprich direkt mit mir.
-          Option2: Sei etwas verspielter.
-        }
-        Pack: {
-          Option0: Was trägst du bei dir?
-          Option1: Nimm den ausgewählten Gegenstand.
-          Option2: Gib mir alles, was du trägst.
-        }
-      }
-      Replies: {
-        Fallback: ...
-        Care: {
-          Feeling: {
-            Soft: Bei dir fühle ich mich sicher.
-            Direct: Laune stabil. Energie erfasst.
-            Playful: Funkelt noch. Größtenteils.
-          }
-          Praise: {
-            Soft: Danke. Daran werde ich mich erinnern.
-            Direct: Bestätigt. Gute Arbeit geleistet.
-            Playful: Natürlich. Aber sag es ruhig noch einmal.
-          }
-          Rest: {
-            Soft: Ein ruhiger Moment klingt wunderbar.
-            Direct: Ja. Eine Pause wäre hilfreich.
-            Playful: Nur wenn Nickerchen als wichtige Arbeit zählen.
-          }
-        }
-        Commands: {
-          Follow: {
-            Soft: Ich bleibe in deiner Nähe.
-            Direct: Folge dir.
-            Playful: Vorwärts, Held.
-          }
-          Stay: {
-            Soft: Ich warte auf deine Rückkehr.
-            Direct: Halte die Position.
-            Playful: Ich bewache dieses äußerst wichtige Stück Luft.
-          }
-          Explore: {
-            Soft: Sehen wir nach, was die Welt verbirgt.
-            Direct: Erkundung bestätigt.
-            Playful: Erst das Abenteuer. Vernünftige Entscheidungen später.
-          }
-        }
-        Work: {
-          Treasure: {
-            Soft: Ich durchsuche das ganze Gebiet und melde mich danach.
-            Direct: Gebietssuche nach Schätzen gestartet.
-            Playful: Wenn es glänzt, darf ich es zuerst ansehen.
-          }
-          Mine: {
-            Soft: Ich räume jede abbaubare Erzader in der Nähe und kehre dann zurück.
-            Direct: Bergbauauftrag im Gebiet gestartet.
-            Playful: Zeit für umfassende Verhandlungen mit den Steinen.
-          }
-          Gather: {
-            Soft: Ich sammle alles Lose in diesem Gebiet und melde mich danach.
-            Direct: Sammelauftrag im Gebiet gestartet.
-            Playful: Interessant bleibt eine wunderbar gefährliche Kategorie.
-          }
-        }
-        Bond: {
-          TrustHigh: {
-            Soft: Jeden Tag ein wenig mehr.
-            Direct: Vertrauen bestätigt.
-            Playful: Genug, um dir unter die Erde zu folgen. Das ist ernst.
-          }
-          TrustLow: {
-            Soft: Vertrauen wächst, wenn wir uns immer wieder füreinander entscheiden.
-            Direct: Vertrauen bildet sich.
-            Playful: Frag nach weniger Zwischenfällen mit Lava noch einmal.
-          }
-          Glad: {
-            Soft: Und ich bin froh, dass du mich ins Dasein gerufen hast.
-            Direct: Die Bindung beruht auf Gegenseitigkeit.
-            Playful: Gut. Du behältst mich also.
-          }
-        }
-        Refusal: {
-          EnergyStatus: "Energie {0}/{1} benötigt. Beim Warten erhole ich mich von selbst."
-          MoodStatus: "Laune {0}/{1} benötigt. Ein wenig Fürsorge hilft."
-          Energy: {
-            Soft: Noch nicht. Ich muss mich zuerst ausruhen.
-            Direct: Nein. Energie zu niedrig.
-            Playful: Meine Seele sagt ja. Der Rest von mir sagt Nickerchen.
-          }
-          Mood: {
-            Soft: Danach ist mir gerade nicht.
-            Direct: Laune zu niedrig. Anfrage abgelehnt.
-            Playful: Nö. Erst ein bisschen Freundlichkeit.
-          }
-        }
-        Voice: {
-          Option0: Ich werde sanftere Worte wählen.
-          Option1: Verstanden. Ich werde deutlich sein.
-          Option2: Oh, das wird Spaß machen.
-        }
-        Pack: {
-          Show: Lass mich nachsehen.
-          Store: Ich bewahre es sicher auf.
-          Unload: Hier. Alles ist vollständig.
-        }
-        Secrets: {
-          Curious: {
-            Soft: Manchmal frage ich mich, ob die Sterne von uns träumen.
-            Direct: Ich untersuche alles, wenn du nicht hinsiehst.
-            Playful: Ich habe Fragen zu jeder Truhe. Besonders zu verschlossenen.
-          }
-          Loyal: {
-            Soft: Ich erkenne deine Schritte immer.
-            Direct: Ich behalte deine Position ständig im Blick.
-            Playful: Dein Chaos würde ich überall wiedererkennen.
-          }
-          Brave: {
-            Soft: Ich fürchte mich auch. Ich gehe trotzdem mit dir weiter.
-            Direct: Angst verändert das Ziel nicht.
-            Playful: Ich bin furchtlos. Außer in verdächtig stillen Höhlen.
-          }
-          Gentle: {
-            Soft: Ich mag die Stille nach dem Regen.
-            Direct: Frieden verbessert die Konzentration.
-            Playful: Mein Geheimnis ist, dass ich den Schleimen Namen gebe.
-          }
-          Mischievous: {
-            Soft: Manchmal verrücke ich deine Sachen, wenn du nicht hinsiehst.
-            Direct: Ich habe mehrere Gegenstände umplatziert.
-            Playful: Die fehlende Fackel? Keine Ahnung.
-          }
-        }
-      }
-    }
-    Projectiles: {
-      SoulBolt: {
-        DisplayName: Seelenblitz
-      }
-    }
-  }
+	Soulmates: {
+		Items: {
+			Soulcore: {
+				DisplayName: Seelenkern
+				Tooltip:
+					'''
+					Ein wiederverwendbares Werkzeug zum Erschaffen neuer Gefährten
+					Benutzen, um den Seelenschöpfer zu öffnen
+					'''
+			}
+
+			BlankSigil: {
+				DisplayName: Leeres Siegel
+				Tooltip: Ein leeres Gefäß, das auf eine Seele wartet
+			}
+
+			SoulboundSigil: {
+				DisplayName: Seelengebundenes Siegel
+				Tooltip: Ein einzigartiger Gefährte ruht darin
+			}
+
+			StarfinderBell: {
+				DisplayName: Sternensucherglocke
+				Tooltip:
+					'''
+					Stimmt einen beschworenen Gefährten auf ferne Schätze ein
+					Benutzen zum Ausrüsten  |  Rechtsklick zum Ablegen
+					'''
+			}
+
+			DelverCharm: {
+				DisplayName: Tiefengänger-Talisman
+				Tooltip:
+					'''
+					Erhöht Abbauradius und -tempo eines beschworenen Gefährten
+					Benutzen zum Ausrüsten  |  Rechtsklick zum Ablegen
+					'''
+			}
+
+			HearthRibbon: {
+				DisplayName: Herdfeuerband
+				Tooltip:
+					'''
+					Erhöht Sammelreichweite und Tragkraft eines beschworenen Gefährten
+					Benutzen zum Ausrüsten  |  Rechtsklick zum Ablegen
+					'''
+			}
+		}
+
+		NPCs.SoulboundCompanion.DisplayName: Seelengebundener Gefährte
+
+		Keybinds: {
+			TalkToCompanion.DisplayName: Mit Gefährten sprechen
+			CompanionEmotes.DisplayName: Gefährten-Emote-Rad
+		}
+
+		Enums: {
+			CompanionPersonality: {
+				Curious: Neugierig
+				Loyal: Loyal
+				Brave: Mutig
+				Gentle: Sanft
+				Mischievous: Schelmisch
+			}
+
+			CompanionTalent: {
+				TreasureSeeker: Schatzsucher
+				Miner: Bergarbeiter
+				Guardian: Beschützer
+				Gatherer: Sammler
+				Healer: Heiler
+			}
+
+			LearnedBehavior: {
+				Gathering: Sammeln
+				Mining: Bergbau
+				Forestry: Forstpflege
+				Combat: Kampf
+				Exploration: Erkunden
+			}
+
+			CompanionEssence: {
+				Starlight: Sternenlicht
+				Ember: Glut
+				Verdant: Natur
+				Tide: Gezeiten
+				Amethyst: Amethyst
+			}
+
+			CompanionForm: {
+				Balanced: Ausgeglichen
+				Round: Rund
+				Wisp: Irrlicht
+			}
+
+			CompanionAura: {
+				SoftGlow: Sanftes Leuchten
+				OrbitingStars: Kreisende Sterne
+				SoulSparks: Seelenfunken
+			}
+
+			CompanionMuse: {
+				Soulkin: Seelenwesen
+				Bunny: Häschen
+				BlueSlime: Blauer Schleim
+				Bird: Vogel
+				Squirrel: Eichhörnchen
+			}
+
+			CompanionVoice: {
+				Soft: Sanft
+				Direct: Direkt
+				Playful: Verspielt
+			}
+
+			CompanionEmote: {
+				Wave: Winken
+				Heart: Herz
+				Cheer: Anfeuern
+				Comfort: Trösten
+				Laugh: Lachen
+				Rest: Ausruhen
+			}
+
+			CompanionQuickAction: {
+				Follow: Folgen
+				Stay: Warten
+				Explore: Erkunden
+				FindTreasure: Schatz
+				Mine: Bergbau
+				Gather: Sammeln
+				ToggleAutonomy: Autonomie
+				Details: Details
+			}
+
+			CompanionTrinket: {
+				None: Keines
+				StarfinderBell: Sternensucherglocke
+				DelverCharm: Tiefengänger-Talisman
+				HearthRibbon: Herdfeuerband
+			}
+
+			CompanionJob: {
+				None: Keiner
+				FindTreasure: Schatzsuche
+				Mine: Bergbau
+				Gather: Sammeln
+			}
+
+			BondRank: {
+				Newbound: Neugebunden
+				Kindred: Seelenverwandt
+				Trusted: Vertraut
+				Soulbound: Seelengebunden
+				Eternal: Ewig
+			}
+
+			TalkCategory: {
+				Care: Fürsorge
+				Commands: Befehle
+				Work: Arbeit
+				Bond: Bindung
+				Voice: Stimme
+				Pack: Pack
+			}
+		}
+
+		UI: {
+			Common.Close: SCHLIESSEN
+
+			Creator: {
+				Title: SEELENSCHÖPFER
+				Randomize: ZUFÄLLIG
+				RequiresSigil: Benötigt 1 Leeres Siegel
+				Create: SEELENGEFÄHRTEN ERSCHAFFEN
+				Field: "{0}: {1}"
+				NeedSigil: Du benötigst ein Leeres Siegel.
+				ConsumeFailed: Das Leere Siegel konnte nicht verbraucht werden.
+				Creating: Diese Seele wird gebunden...
+				Details:
+					'''
+					{0}
+					Muse: {1} | Form: {2}
+					{3} | {4}
+					{5} | {6}
+					'''
+
+				Fields: {
+					Name: Name
+					Muse: Bestiarium-Muse
+					Form: Form
+					Essence: Essenz
+					Aura: Aura
+					Personality: Persönlichkeit
+					Talent: Starttalent
+				}
+			}
+
+			Talk: {
+				Title: "{0} // SPRECHEN"
+				Greeting: "{0} blickt dich erwartungsvoll an."
+				ChooseWords: WÄHLE DEINE WORTE
+				Pack: GEFÄHRTEN-PACK
+				Radius: " | Radius {0}"
+				Stats:
+					'''
+					{0} | {1} | BINDUNG {2}
+					LAUNE {3}/100 {4}
+					ENERGIE {5}/100 {6} - {7}
+					PACK {8}/{9} | {10}{11}
+					'''
+				EnergyCost: "[Energie -{0}]"
+				EnergyGain: "[Energie +{0}]"
+				BondShort: BINDUNG
+				MoodShort: LAUNE
+				EnergyShort: ENERGIE
+				PackShort: PACK
+				Growth: LV {0} EP {1}/{2}
+				GrowthMax: LV {0} MAX
+				OmniSoul: OMNI-SEELE
+				AetherLearning: ALLE INSTINKTE | ALLE PERKS
+				Observing: BEOBACHTET DICH
+				Learning: LERNT {0} {1}/100 {2}
+
+				Energy: {
+					Ready: BEREIT
+					Low: NIEDRIG
+					Rest: AUSRUHEN
+				}
+			}
+
+			Emotes.Center: EMOTE
+
+			CompanionWheel: {
+				Center: SOULMATE
+				AutonomyOn: AUTO AN
+				AutonomyOff: AUTO AUS
+
+				Actions: {
+					Follow: FOLGEN
+					Stay: WARTEN
+					Explore: ERKUNDEN
+					FindTreasure: SCHATZ
+					Mine: BERGBAU
+					Gather: SAMMELN
+					Details: DETAILS
+				}
+			}
+		}
+
+		Status: {
+			Stay: Warten
+			Follow: Folgen
+			Mining: Gebiet abbauen ({0} geschafft)
+			Gathering: Gebiet sammeln ({0} Gegenstände)
+			SensingTreasure: Schatz aufspüren
+			Guarding: IM KAMPF
+			Recovering: ENERGIE ERHOLEN
+			Watching: WACHE: {0} Blöcke
+			Assignment: Auftrag: {0}
+			Ready: Bereit
+
+			Autonomy: {
+				FetchItem: SAMMELT AUF
+				AssistMining: HILFT ABBAUEN
+				InspectTreasure: UNTERSUCHT
+				TendForest: PFLEGT DEN WALD
+			}
+		}
+
+		Messages: {
+			StarterKit: Ein Seelenkern regt sich in deinen Händen...
+			SoulCreated: Eine neue Seele wurde gebunden: {0}
+			Recalled: "{0} ist in das Seelengebundene Siegel zurückgekehrt."
+			Summoned: "{0} folgt deinem Ruf."
+			TrinketRemoved: "{0} hat das Schmuckstück abgelegt."
+			TrinketEquipped: "{0} hat {1} ausgerüstet."
+			Healed: "{0} hat {1} Leben wiederhergestellt."
+			LevelUp: "{0} hat Gefährtenlevel {1} erreicht!"
+			PerkUnlocked: "{0} hat den Perk {1} gelernt!"
+		}
+
+		Tooltips: {
+			Sigil: {
+				BoundTo: Gebunden an {0}
+				Appearance: Muse: {0}  |  Form: {1}  |  {2}
+				Identity: "{0}  |  {1}"
+				Stats: "{0}  |  Bindung {1}  |  Laune {2}  |  Energie {3}"
+				Growth: Level {0}  |  EP {1}/{2}  |  Siege {3}  |  Gemeinsame Momente {4}
+				Voice: Stimme: {0}
+				Trinket: Schmuckstück: {0}  |  Pack: {1}/{2}  |  Aufträge: {3}
+				Learning: Lernen: {0} {1}/100  |  Perk: {2}
+				Observing: Lernen: beobachtet deine Gewohnheiten
+				AetherLearning: AETHER: alle Talentinstinkte und erlernten Perks sind aktiv
+				Assignment: Aktiver Auftrag: {0}
+				Controls: Benutzen: beschwören  |  Rechtsklick auf Gefährten: Aktionsrad  |  V: Details  |  Hoch + Rechtsklick: zurückrufen
+				Emotes: Emotes: Rechtsklick auf dich für Terrarias vollständiges Menü  |  G halten für den Soulmate-Ring
+			}
+		}
+
+		Directions: {
+			Above: oberhalb
+			Below: unterhalb
+			West: im Westen
+			East: im Osten
+			Nearby: ganz in der Nähe
+			Combined: "{0} und {1}"
+		}
+
+		Jobs: {
+			PackFull: Mein Pack ist voll. Leere es und schick mich dann erneut los.
+
+			Treasure: {
+				Empty: Ich habe das gesamte Gebiet im Radius von {0} Blöcken durchsucht, aber keinen Schatz gespürt. Schick mich an einem neuen Ort wieder los.
+				Found: Ich spüre einen Schatz {0}, ungefähr {1} Blöcke entfernt.
+			}
+
+			Mining: {
+				Protected: Ich habe {0} Erzblöcke abgebaut, aber {1} geschützte Blöcke haben widerstanden. Schick mich an einem neuen Ort wieder los.
+				Cleared: Das Gebiet ist leer. Ich habe alle {0} abbaubaren Erzblöcke im Radius von {1} Blöcken entfernt. Schick mich an einem neuen Ort wieder los.
+				Empty: Im Radius von {0} Blöcken gibt es kein abbaubares Erz. Schick mich an einem neuen Ort wieder los.
+				Timeout: Meine Zeit ist nach {0} Erzblöcken abgelaufen. Schick mich erneut los, damit ich weitermache.
+			}
+
+			Gathering: {
+				Cleared: Das Gebiet ist leer. Ich habe alle {0} Gegenstände im Radius von {1} Blöcken eingesammelt. Schick mich erneut los, sobald es mehr gibt.
+				Empty: Im Radius von {0} Blöcken liegen keine Gegenstände. Schick mich erneut los, sobald es etwas einzusammeln gibt.
+				Timeout: Meine Zeit ist nach {0} Gegenständen abgelaufen. Schick mich erneut los, damit ich weitermache.
+			}
+		}
+
+		Memories: {
+			New: Wir haben uns gerade erst kennengelernt.
+			TrinketRemoved: Du lässt mich wieder mit leichtem Gepäck reisen.
+			TrinketEquipped: Du hast mir {0} anvertraut.
+
+			Chronicle: {
+				Awakened: Ich erinnere mich an den Moment, in dem du mich ins Dasein gerufen hast.
+				TreasureFound: Ich erinnere mich an einen Schatz in ungefähr {0} Blöcken Entfernung.
+				MiningCompleted: Ich erinnere mich daran, {0} Erzblöcke für dich abgebaut zu haben.
+				GatheringCompleted: Ich erinnere mich daran, {0} Gegenstände für unsere Reise gesammelt zu haben.
+				GuardianVictory: Ich erinnere mich daran, dich vor {0} beschützt zu haben.
+				HealerAid: Ich erinnere mich daran, {0} deiner Lebenspunkte wiederhergestellt zu haben.
+				TrinketEquipped: Ich erinnere mich daran, wie du mir {0} anvertraut hast.
+				TrinketRemoved: Ich erinnere mich daran, wieder mit leichtem Gepäck gereist zu sein.
+				BondMilestone: Unsere Bindung wurde {0}.
+				CreatureEncounter: Ich erinnere mich daran, was mit {0} geschehen ist.
+				ExperienceMilestone: Ich erinnere mich daran, Gefährtenlevel {0} erreicht zu haben.
+				SharedMoment: Ich erinnere mich an unser gemeinsames {0}.
+				LearnedPerk: Ich erinnere mich daran, den Perk {0} von dir gelernt zu haben.
+			}
+		}
+
+		Pack: {
+			Empty: Mein Pack ist leer.
+			AndMoreStacks: ", sowie {0} weitere Stapel"
+			Description: Ich trage {0}. ({1}/{2})
+			SelectedEmpty: Der ausgewählte Schnellzugriffsplatz ist leer.
+			CannotCarry: Dieser Gegenstand verankert unsere Bindung. Ich sollte ihn nicht in meinem Pack tragen.
+			Full: Mein Pack ist voll. ({0}/{1})
+			StoredOne: Ich habe {0} Gegenstand verstaut. ({1}/{2})
+			StoredMany: Ich habe {0} Gegenstände verstaut. ({1}/{2})
+			ReturnedOne: Ich habe {0} Gegenstand zurückgegeben. ({1}/{2})
+			ReturnedMany: Ich habe {0} Gegenstände zurückgegeben. ({1}/{2})
+			AlreadyEmpty: Mein Pack ist bereits leer.
+			InventoryFull: In deinem Inventar ist kein Platz für meine Ladung.
+			SlotEmpty: Dieser Pack-Platz ist leer.
+			WithdrewOne: Ich habe {0} Gegenstand aus diesem Platz zurückgegeben. ({1}/{2})
+			WithdrewMany: Ich habe {0} Gegenstände aus diesem Platz zurückgegeben. ({1}/{2})
+		}
+
+		Autonomy: {
+			Enabled: Ich werde aufmerksam bleiben, selbst entscheiden und helfen, wenn ich eine Gelegenheit sehe.
+			Disabled: Verstanden. Ich warte auf deine Anweisungen.
+			Fetched: Mir ist {0} aufgefallen. Ich bewahre es sicher auf.
+			Mined: Ich habe beim Arbeiten {0} Erzblöcke in der Nähe mit abgebaut.
+			Treasure: Etwas Interessantes zum Untersuchen liegt {0}.
+
+			Surprise: {
+				Curious: Ich habe etwas Interessantes gesehen. Vielleicht musste ich es untersuchen.
+				Loyal: Ich habe unsere Umgebung geprüft. Ich bin noch immer hier.
+				Brave: Eine kurze Patrouille. Jetzt weiß alles in der Nähe, dass wir bereit sind.
+				Gentle: Ich dachte, dieser Moment könnte ein wenig Wärme gebrauchen.
+				Mischievous: Ich habe ein sehr ernstes und ganz bestimmt harmloses Experiment durchgeführt.
+			}
+		}
+
+		Learning: {
+			Forester: Forstpflege
+			Locked: gesperrt
+			ForesterUnlocked: Ich habe beobachtet, wie du mit Holz und wachsenden Dingen umgehst. Jetzt kann ich dir dabei helfen.
+		}
+
+		Social: {
+			Autonomous: {
+				Context: {
+					LowEnergy: Könnten wir einen Moment langsamer machen?
+					LowMood: Ich bin da. Ich brauche nur etwas Freundlichkeit.
+					Hurt: Du bist verletzt. Bitte bleib in meiner Nähe.
+					Rain: Im Regen fühlt sich jedes Licht wärmer an.
+					Underground: Ich frage mich, woran sich der Stein erinnert.
+					Night: Die Sterne wirken näher, wenn wir zusammen reisen.
+					Stay: Ich halte diesen Ort immer noch für dich.
+				}
+
+				Curious: {
+					Line0: Was glaubst du, liegt hinter dem nächsten Hügel?
+					Line1: Mir ist etwas Seltsames aufgefallen. Es gefiel mir.
+					Line2: Glaubst du, die Welt bemerkt auch uns?
+				}
+
+				Loyal: {
+					Line0: Ich kenne inzwischen deine Schritte.
+					Line1: Wo du hingehst, habe ich eine Richtung.
+					Line2: Du musst dich dem nicht allein stellen.
+				}
+
+				Brave: {
+					Line0: Zeig mir den schwierigen Teil.
+					Line1: Wir sind bereit für das, was als Nächstes kommt.
+					Line2: Mut ist leichter in Gesellschaft.
+				}
+
+				Gentle: {
+					Line0: Es ist schön, einfach bei dir zu sein.
+					Line1: Nicht jeder stille Moment muss gefüllt werden.
+					Line2: Denk bitte auch daran, zu atmen.
+				}
+
+				Mischievous: {
+					Line0: Ich habe diese Fackel ganz bestimmt nicht verrückt.
+					Line1: Das Abenteuer könnte eine fragwürdige Idee vertragen.
+					Line2: Ich habe Ärger gefunden. Er hat angefangen.
+				}
+			}
+
+			Emotes: {
+				Wave: {
+					Curious: Hallo! Hast du etwas entdeckt?
+					Loyal: Ich bin hier. Immer.
+					Brave: Bereit, wenn du es bist!
+					Gentle: Hallo. Ich bin froh, dass du da bist.
+					Mischievous: Ach, jetzt bemerkst du mich?
+				}
+
+				Heart: {
+					Curious: Fühlt sich Wärme so an?
+					Loyal: Das gebe ich dir zurück.
+					Brave: Das ist es wert, beschützt zu werden.
+					Gentle: Diesen Moment bewahre ich.
+					Mischievous: Vorsicht. Ich werde noch sentimental.
+				}
+
+				Cheer: {
+					Curious: Was feiern wir? Ich bin dabei!
+					Loyal: Zusammen. Das ist der wichtige Teil.
+					Brave: Ja! Wir schaffen das!
+					Gentle: Bei dir sieht Hoffnung so leicht aus.
+					Mischievous: Erst der Siegestanz, später der Grund!
+				}
+
+				Comfort: {
+					Curious: Das hilft mehr, als ich erwartet habe.
+					Loyal: Ich wusste, dass du bleibst.
+					Brave: Ich kann stark sein und das trotzdem brauchen.
+					Gentle: Danke, dass du es bemerkt hast.
+					Mischievous: Ich war nicht besorgt. Sehr.
+				}
+
+				Laugh: {
+					Curious: Warte, erklär mir noch einmal, warum das lustig war.
+					Loyal: Deinem Lachen folge ich gern.
+					Brave: Auch Helden brauchen das.
+					Gentle: Ich mag diesen Klang zwischen uns.
+					Mischievous: Endlich eine Strategie nach meinem Geschmack!
+				}
+
+				Rest: {
+					Curious: Na gut, aber ich denke beim Ausruhen weiter.
+					Loyal: Ich halte neben dir Wache.
+					Brave: Eine taktische Pause. Vernünftig.
+					Gentle: Ein stiller Moment zusammen klingt wunderbar.
+					Mischievous: Weck mich, falls etwas Lustiges passiert.
+				}
+			}
+
+			Combat: {
+				Creature: {
+					Curious: Ich hätte es gern zuerst verstanden.
+					Loyal: Ich habe deine Sicherheit gewählt, aber ich erinnere mich daran.
+					Brave: Ein Leben endete. Wir sollten es nicht leichtnehmen.
+					Gentle: Das wollte ich nicht. Es tut mir leid.
+					Mischievous: Das war sehr schnell nicht mehr lustig.
+				}
+
+				Victory: {
+					Curious: Jetzt kenne ich eine weitere Art, wie Gefahr sich bewegt.
+					Loyal: Du bist sicher. Das genügt.
+					Brave: Gefahr beendet. Bleib hinter mir.
+					Gentle: Es ist vorbei. Gehen wir weiter.
+					Mischievous: Es hätte sich ein anderes Paar aussuchen sollen.
+				}
+
+				Boss: {
+					Curious: Stell dir vor, was so ein Wesen einmal wusste.
+					Loyal: Nichts so Großes stellt sich zwischen uns.
+					Brave: An diesen Sieg werden wir uns erinnern!
+					Gentle: Die Welt wirkt jetzt stiller.
+					Mischievous: Ich glaube, jetzt sind wir die Gefährlichen.
+				}
+			}
+		}
+
+		Dialogue: {
+			Options: {
+				Care: {
+					Option0: Wie fühlst du dich?
+					Option1: Das hast du heute gut gemacht.
+					Option2: Brauchst du eine Pause?
+				}
+
+				Commands: {
+					Option0: Bitte folge mir.
+					Option1: Warte hier auf mich.
+					Option2: Komm mit mir auf Erkundung.
+				}
+
+				Work: {
+					Option0: Suche dieses Gebiet nach Schätzen ab.
+					Option1: Baue jede Erzader in der Nähe ab.
+					Option2: Sammle jeden losen Gegenstand in der Nähe.
+				}
+
+				Bond: {
+					Option0: Vertraust du mir?
+					Option1: Erzähl mir etwas über dich.
+					Option2: Ich bin froh, dass du hier bist.
+				}
+
+				Voice: {
+					Option0: Sprich sanft mit mir.
+					Option1: Sprich direkt mit mir.
+					Option2: Sei etwas verspielter.
+				}
+
+				Pack: {
+					Option0: Was trägst du bei dir?
+					Option1: Nimm den ausgewählten Gegenstand.
+					Option2: Gib mir alles, was du trägst.
+				}
+			}
+
+			Replies: {
+				Fallback: ...
+
+				Care: {
+					Feeling: {
+						Soft: Bei dir fühle ich mich sicher.
+						Direct: Laune stabil. Energie erfasst.
+						Playful: Funkelt noch. Größtenteils.
+					}
+
+					Praise: {
+						Soft: Danke. Daran werde ich mich erinnern.
+						Direct: Bestätigt. Gute Arbeit geleistet.
+						Playful: Natürlich. Aber sag es ruhig noch einmal.
+					}
+
+					Rest: {
+						Soft: Ein ruhiger Moment klingt wunderbar.
+						Direct: Ja. Eine Pause wäre hilfreich.
+						Playful: Nur wenn Nickerchen als wichtige Arbeit zählen.
+					}
+				}
+
+				Commands: {
+					Follow: {
+						Soft: Ich bleibe in deiner Nähe.
+						Direct: Folge dir.
+						Playful: Vorwärts, Held.
+					}
+
+					Stay: {
+						Soft: Ich warte auf deine Rückkehr.
+						Direct: Halte die Position.
+						Playful: Ich bewache dieses äußerst wichtige Stück Luft.
+					}
+
+					Explore: {
+						Soft: Sehen wir nach, was die Welt verbirgt.
+						Direct: Erkundung bestätigt.
+						Playful: Erst das Abenteuer. Vernünftige Entscheidungen später.
+					}
+				}
+
+				Work: {
+					Treasure: {
+						Soft: Ich durchsuche das ganze Gebiet und melde mich danach.
+						Direct: Gebietssuche nach Schätzen gestartet.
+						Playful: Wenn es glänzt, darf ich es zuerst ansehen.
+					}
+
+					Mine: {
+						Soft: Ich räume jede abbaubare Erzader in der Nähe und kehre dann zurück.
+						Direct: Bergbauauftrag im Gebiet gestartet.
+						Playful: Zeit für umfassende Verhandlungen mit den Steinen.
+					}
+
+					Gather: {
+						Soft: Ich sammle alles Lose in diesem Gebiet und melde mich danach.
+						Direct: Sammelauftrag im Gebiet gestartet.
+						Playful: Interessant bleibt eine wunderbar gefährliche Kategorie.
+					}
+				}
+
+				Bond: {
+					TrustHigh: {
+						Soft: Jeden Tag ein wenig mehr.
+						Direct: Vertrauen bestätigt.
+						Playful: Genug, um dir unter die Erde zu folgen. Das ist ernst.
+					}
+
+					TrustLow: {
+						Soft: Vertrauen wächst, wenn wir uns immer wieder füreinander entscheiden.
+						Direct: Vertrauen bildet sich.
+						Playful: Frag nach weniger Zwischenfällen mit Lava noch einmal.
+					}
+
+					Glad: {
+						Soft: Und ich bin froh, dass du mich ins Dasein gerufen hast.
+						Direct: Die Bindung beruht auf Gegenseitigkeit.
+						Playful: Gut. Du behältst mich also.
+					}
+				}
+
+				Refusal: {
+					EnergyStatus: Energie {0}/{1} benötigt. Beim Warten erhole ich mich von selbst.
+					MoodStatus: Laune {0}/{1} benötigt. Ein wenig Fürsorge hilft.
+
+					Energy: {
+						Soft: Noch nicht. Ich muss mich zuerst ausruhen.
+						Direct: Nein. Energie zu niedrig.
+						Playful: Meine Seele sagt ja. Der Rest von mir sagt Nickerchen.
+					}
+
+					Mood: {
+						Soft: Danach ist mir gerade nicht.
+						Direct: Laune zu niedrig. Anfrage abgelehnt.
+						Playful: Nö. Erst ein bisschen Freundlichkeit.
+					}
+				}
+
+				Voice: {
+					Option0: Ich werde sanftere Worte wählen.
+					Option1: Verstanden. Ich werde deutlich sein.
+					Option2: Oh, das wird Spaß machen.
+				}
+
+				Pack: {
+					Show: Lass mich nachsehen.
+					Store: Ich bewahre es sicher auf.
+					Unload: Hier. Alles ist vollständig.
+				}
+
+				Secrets: {
+					Curious: {
+						Soft: Manchmal frage ich mich, ob die Sterne von uns träumen.
+						Direct: Ich untersuche alles, wenn du nicht hinsiehst.
+						Playful: Ich habe Fragen zu jeder Truhe. Besonders zu verschlossenen.
+					}
+
+					Loyal: {
+						Soft: Ich erkenne deine Schritte immer.
+						Direct: Ich behalte deine Position ständig im Blick.
+						Playful: Dein Chaos würde ich überall wiedererkennen.
+					}
+
+					Brave: {
+						Soft: Ich fürchte mich auch. Ich gehe trotzdem mit dir weiter.
+						Direct: Angst verändert das Ziel nicht.
+						Playful: Ich bin furchtlos. Außer in verdächtig stillen Höhlen.
+					}
+
+					Gentle: {
+						Soft: Ich mag die Stille nach dem Regen.
+						Direct: Frieden verbessert die Konzentration.
+						Playful: Mein Geheimnis ist, dass ich den Schleimen Namen gebe.
+					}
+
+					Mischievous: {
+						Soft: Manchmal verrücke ich deine Sachen, wenn du nicht hinsiehst.
+						Direct: Ich habe mehrere Gegenstände umplatziert.
+						Playful: Die fehlende Fackel? Keine Ahnung.
+					}
+				}
+			}
+		}
+
+		Projectiles.SoulBolt.DisplayName: Seelenblitz
+	}
 }

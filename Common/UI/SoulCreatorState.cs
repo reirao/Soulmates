@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
@@ -15,12 +16,13 @@ namespace Soulmates.Common.UI;
 
 public sealed class SoulCreatorState : UIState
 {
-	private static readonly string[] Names = ["Luma", "Nova", "Moss", "Cinder", "Echo", "Pip", "Rune", "Mira"];
+	private static readonly string[] Names = ["Luma", "Nova", "Moss", "Cinder", "Echo", "Pip", "Rune", "Mira", "AETHER"];
 	private readonly CompanionProfile draft = new();
 	private readonly List<Action> refreshButtons = [];
 	private int nameIndex;
 	private UIText? details;
 	private UIText? status;
+	private bool creationPending;
 
 	public override void OnInitialize()
 	{
@@ -79,7 +81,9 @@ public sealed class SoulCreatorState : UIState
 		AddCycleButton(panel, "UI.Creator.Fields.Essence", 165f, left, width, () => SoulmatesText.EnumName(draft.Essence), () => draft.Essence = Next(draft.Essence));
 		AddCycleButton(panel, "UI.Creator.Fields.Aura", 204f, left, width, () => SoulmatesText.EnumName(draft.Aura), () => draft.Aura = Next(draft.Aura));
 		AddCycleButton(panel, "UI.Creator.Fields.Personality", 243f, left, width, () => SoulmatesText.EnumName(draft.Personality), () => draft.Personality = Next(draft.Personality));
-		AddCycleButton(panel, "UI.Creator.Fields.Talent", 282f, left, width, () => SoulmatesText.EnumName(draft.Talent), () => draft.Talent = Next(draft.Talent));
+		AddCycleButton(panel, "UI.Creator.Fields.Talent", 282f, left, width,
+			() => draft.IsAether ? SoulmatesText.Get("UI.Talk.OmniSoul") : SoulmatesText.EnumName(draft.Talent),
+			() => draft.Talent = Next(draft.Talent));
 
 		var randomize = Button("", 324f, left, width, new Color(82, 74, 116));
 		refreshButtons.Add(() => randomize.SetText(SoulmatesText.Get("UI.Creator.Randomize")));
@@ -121,11 +125,23 @@ public sealed class SoulCreatorState : UIState
 		draft.Bond = 0;
 		draft.Mood = 100;
 		draft.Energy = 100;
+		draft.Voice = CompanionVoice.Soft;
+		draft.Trinket = CompanionTrinket.None;
 		draft.Routine = CompanionJob.None;
+		draft.AutonomyEnabled = true;
 		draft.JobsCompleted = 0;
+		draft.Experience = 0;
+		draft.DefeatedEnemies = 0;
+		draft.Interactions = 0;
+		draft.GatheringInsight = 0;
+		draft.MiningInsight = 0;
+		draft.ForestryInsight = 0;
+		draft.CombatInsight = 0;
+		draft.ExplorationInsight = 0;
 		draft.LastMemory = SoulmatesText.Get("Memories.New");
 		draft.Pack.Clear();
 		draft.Memories.Clear();
+		creationPending = false;
 		SoundEngine.PlaySound(SoundID.MenuTick);
 		Refresh();
 	}
@@ -166,11 +182,20 @@ public sealed class SoulCreatorState : UIState
 
 	private void CreateCompanion()
 	{
+		if (creationPending)
+			return;
 		Player player = Main.LocalPlayer;
 		int blankType = ModContent.ItemType<BlankSigil>();
 		if (!player.HasItem(blankType)) {
 			SetStatus(SoulmatesText.Get("UI.Creator.NeedSigil"), Color.IndianRed);
 			SoundEngine.PlaySound(SoundID.MenuClose);
+			return;
+		}
+
+		if (Main.netMode == NetmodeID.MultiplayerClient) {
+			creationPending = true;
+			SetStatus(SoulmatesText.Get("UI.Creator.Creating"), draft.EssenceColor);
+			global::Soulmates.Soulmates.SendCreateCompanionRequest(draft);
 			return;
 		}
 
@@ -193,14 +218,30 @@ public sealed class SoulCreatorState : UIState
 		ModContent.GetInstance<SoulCreatorSystem>().Close();
 	}
 
+	internal void ReceiveNetworkResponse(bool accepted, string companionName, CompanionEssence essence)
+	{
+		creationPending = false;
+		if (!accepted) {
+			SetStatus(SoulmatesText.Get("UI.Creator.ConsumeFailed"), Color.IndianRed);
+			SoundEngine.PlaySound(SoundID.MenuClose);
+			return;
+		}
+
+		SoundEngine.PlaySound(SoundID.Item4);
+		Color color = new CompanionProfile { Essence = essence }.EssenceColor;
+		Main.NewText(SoulmatesText.Get("Messages.SoulCreated", companionName), color);
+		ModContent.GetInstance<SoulCreatorSystem>().Close();
+	}
+
 	private void Refresh()
 	{
 		if (details is null)
 			return;
 		foreach (Action refreshButton in refreshButtons)
 			refreshButton();
+		string talent = draft.IsAether ? SoulmatesText.Get("UI.Talk.OmniSoul") : SoulmatesText.EnumName(draft.Talent);
 		details.SetText(SoulmatesText.Get("UI.Creator.Details", draft.Name, SoulmatesText.EnumName(draft.Muse), SoulmatesText.EnumName(draft.Form),
-			SoulmatesText.EnumName(draft.Essence), SoulmatesText.EnumName(draft.Aura), SoulmatesText.EnumName(draft.Personality), SoulmatesText.EnumName(draft.Talent)));
+			SoulmatesText.EnumName(draft.Essence), SoulmatesText.EnumName(draft.Aura), SoulmatesText.EnumName(draft.Personality), talent));
 		details.TextColor = draft.EssenceColor;
 		SetStatus(SoulmatesText.Get("UI.Creator.RequiresSigil"), Color.LightGray);
 	}

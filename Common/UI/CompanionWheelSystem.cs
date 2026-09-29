@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
@@ -154,7 +155,7 @@ public sealed class CompanionWheelSystem : ModSystem
 			DrawDiamond(spriteBatch, pixel, node, size, fill);
 
 			string label = Label(Entries[i], companion.Profile).ToUpperInvariant();
-			float scale = label.Length > 8 ? 0.44f : 0.51f;
+			float scale = FitTextScale(label, 38f, 0.51f);
 			Vector2 textSize = FontAssets.MouseText.Value.MeasureString(label) * scale;
 			Utils.DrawBorderString(spriteBatch, label, node - textSize * 0.5f,
 				active ? Color.White : Color.LightGray, scale);
@@ -165,13 +166,13 @@ public sealed class CompanionWheelSystem : ModSystem
 		string centerLabel = selected >= 0
 			? Label(Entries[selected], companion.Profile).ToUpperInvariant()
 			: SoulmatesText.Get("UI.CompanionWheel.Center");
-		float centerScale = centerLabel.Length > 9 ? 0.48f : 0.57f;
+		float centerScale = FitTextScale(centerLabel, 43f, 0.57f);
 		Vector2 centerSize = FontAssets.MouseText.Value.MeasureString(centerLabel) * centerScale;
 		Utils.DrawBorderString(spriteBatch, centerLabel, center - centerSize * 0.5f,
 			selected >= 0 ? Color.White : accent, centerScale);
 
 		string status = companion.CurrentJobName.ToUpperInvariant();
-		float statusScale = 0.48f;
+		float statusScale = FitTextScale(status, 250f, 0.48f);
 		Vector2 statusSize = FontAssets.MouseText.Value.MeasureString(status) * statusScale;
 		Vector2 statusPosition = center + new Vector2(-statusSize.X * 0.5f, WheelRadius + 41f);
 		Utils.DrawBorderString(spriteBatch, status, statusPosition, Color.Lerp(Color.LightGray, accent, 0.35f), statusScale);
@@ -193,5 +194,11 @@ public sealed class CompanionWheelSystem : ModSystem
 		Vector2 origin = new(pixel.Width * 0.5f, pixel.Height * 0.5f);
 		Vector2 scale = new(side / pixel.Width, side / pixel.Height);
 		spriteBatch.Draw(pixel, center, null, color, MathHelper.PiOver4, origin, scale, SpriteEffects.None, 0f);
+	}
+
+	private static float FitTextScale(string text, float maximumWidth, float preferredScale)
+	{
+		float width = FontAssets.MouseText.Value.MeasureString(text).X;
+		return width <= 0f ? preferredScale : Math.Min(preferredScale, maximumWidth / width);
 	}
 }

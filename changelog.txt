@@ -7,15 +7,18 @@ Soulmates 0.8.0 - Soul Initiative
 - All autonomous companions now reliably collect nearby usable drops; Gatherers do so faster and across a wider area.
 - Mining assignments and autonomous mining collect resulting drops directly into the companion pack.
 - Gathering now locks one valid world item through approach, storage, and network confirmation instead of changing targets every tick.
+- Full packs can still accept compatible partial stacks, and blocked gathering assignments now report capacity accurately without duplicating items.
 - Soulmates observe gathering, mining, forestry, combat, and exploration habits; these persistent insights gradually shape their autonomous priorities.
 - Repeatedly observing woodcutting and planting unlocks the Forester perk: companions can shake trees, clear natural fallen logs, collect seeds, and carefully replant acorns from their own pack.
-- A companion named AETHER is recognized as an Omni Soul with every starting talent instinct and learned perk active.
+- AETHER is now selectable in the Soul Creator and acts as an Omni Soul with every starting talent instinct and learned perk active.
 - Right-clicking your own character opens Terraria's full native emote menu with original graphics; Soulmates see any vanilla or modded emote and answer with a native bubble. The G key keeps the compact relationship wheel.
 - Guardians and Healers retain their autonomous combat and recovery roles, giving every starting talent a distinct form of initiative.
 - Personality-driven autonomous moments add quiet, surprising behavior without interrupting combat, explicit assignments, Stay, or low-energy recovery.
-- Added server-authoritative radial actions and autonomous state synchronization for multiplayer.
+- Work assignments now pause at low energy or mood, recover at a real Stay position, and resume automatically when the companion is ready.
+- Added server-authoritative Soul creation, radial actions, rate-limited learning observations, and safer state synchronization for multiplayer.
+- Bounded forestry memory, stale-response protection, autonomy leashing, object-safe self right-clicks, and dynamically fitted radial labels improve long-session stability and UI clarity.
 - Existing Soulbound Sigils gain autonomy by default and remain fully compatible.
-- Excluded repository gallery media from the packaged mod to reduce download size.
+- Excluded repository gallery media and the unsupported legacy small icon from the packaged mod to reduce download size and remove packaging warnings.
 
 Soulmates 0.7.4 - Careful Cargo
 

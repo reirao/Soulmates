@@ -591,6 +591,21 @@ public sealed class CompanionProfile
 		return originalStack - (source.IsAir ? 0 : source.stack);
 	}
 
+	public bool CanStore(Item source)
+	{
+		if (source.IsAir || source.stack <= 0)
+			return false;
+		int occupiedSlots = 0;
+		foreach (Item stored in Pack) {
+			if (stored is null || stored.IsAir)
+				continue;
+			occupiedSlots++;
+			if (stored.stack < stored.maxStack && ItemLoader.CanStack(stored, source))
+				return true;
+		}
+		return occupiedSlots < PackCapacity;
+	}
+
 	public void Normalize()
 	{
 		if (Id == Guid.Empty)

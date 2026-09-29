@@ -1,3 +1,4 @@
+#nullable enable
 using Microsoft.Xna.Framework;
 using Soulmates.Content.Items;
 using Soulmates.Content.NPCs;
@@ -16,6 +17,7 @@ public sealed class SoulmatesPlayer : ModPlayer
 {
 	private bool starterKitClaimed;
 	private int pickupObservationCooldown;
+	private int serverGatheringObservationCooldown;
 
 	public int ActiveCompanionWhoAmI { get; set; } = -1;
 
@@ -33,6 +35,16 @@ public sealed class SoulmatesPlayer : ModPlayer
 	{
 		if (pickupObservationCooldown > 0)
 			pickupObservationCooldown--;
+		if (serverGatheringObservationCooldown > 0)
+			serverGatheringObservationCooldown--;
+	}
+
+	internal bool TryAcceptGatheringObservation()
+	{
+		if (serverGatheringObservationCooldown > 0)
+			return false;
+		serverGatheringObservationCooldown = 20;
+		return true;
 	}
 
 	public override bool OnPickup(Item item)
@@ -62,7 +74,7 @@ public sealed class SoulmatesPlayer : ModPlayer
 			&& !talkMode.IsOpen && !companionWheel.IsOpen)
 			emoteWheel.Open(companion);
 		if (companion is not null)
-			TryOpenSelfEmoteMenu(companion, emoteWheel, talkMode);
+			TryOpenSelfEmoteMenu(companion, emoteWheel, companionWheel, talkMode);
 
 		if (!Soulmates.TalkKeybind.JustPressed || companion is null || companionWheel.IsOpen)
 			return;
@@ -72,10 +84,10 @@ public sealed class SoulmatesPlayer : ModPlayer
 	}
 
 	private void TryOpenSelfEmoteMenu(SoulboundCompanion companion, EmoteWheelSystem emoteWheel,
-		TalkModeSystem talkMode)
+		CompanionWheelSystem companionWheel, TalkModeSystem talkMode)
 	{
 		if (!Main.mouseRight || !Main.mouseRightRelease || Main.playerInventory || Player.mouseInterface
-			|| talkMode.IsOpen || emoteWheel.IsOpen)
+			|| talkMode.IsOpen || emoteWheel.IsOpen || companionWheel.IsOpen)
 			return;
 
 		Point mouseWorld = Main.MouseWorld.ToPoint();

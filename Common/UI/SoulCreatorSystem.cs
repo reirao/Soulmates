@@ -1,3 +1,4 @@
+#nullable enable
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Terraria;
@@ -35,6 +36,9 @@ public sealed class SoulCreatorSystem : ModSystem
 	}
 
 	public void Close() => creatorInterface?.SetState(null);
+
+	internal void ReceiveNetworkResponse(bool accepted, string companionName, CompanionEssence essence)
+		=> CreatorState?.ReceiveNetworkResponse(accepted, companionName, essence);
 
 	public override void UpdateUI(GameTime gameTime)
 	{

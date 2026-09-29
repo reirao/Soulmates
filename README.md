@@ -70,7 +70,7 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current release
 
-**Soulmates 0.8.0 - Soul Initiative** makes autonomy visible, controllable, and capable of learning from the player. Soulmates reliably collect nearby drops, remember behavioral insights, can unlock careful forest tending, and respond to Terraria's complete native emote catalog. AETHER acts as the singular Omni Soul with every talent instinct and perk. Explicit player intent always has priority, and existing Soulbound Sigils remain compatible.
+**Soulmates 0.8.0 - Soul Initiative** makes autonomy visible, controllable, and capable of learning from the player. Soulmates reliably collect nearby drops and compatible partial stacks, remember behavioral insights, can unlock careful forest tending, recover and resume interrupted work, and respond to Terraria's complete native emote catalog. AETHER is selectable as the special Omni Soul with every talent instinct and perk. Explicit player intent always has priority, multiplayer creation and actions are server-authoritative, and existing Soulbound Sigils remain compatible.
 
 ## Languages
 

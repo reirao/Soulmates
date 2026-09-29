@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
@@ -138,8 +139,9 @@ public sealed class EmoteWheelSystem : ModSystem
 			DrawDiamond(spriteBatch, pixel, node, size, fill);
 
 			string label = SoulmatesText.EnumName(Entries[i]).ToUpperInvariant();
-			Vector2 textSize = FontAssets.MouseText.Value.MeasureString(label) * 0.58f;
-			Utils.DrawBorderString(spriteBatch, label, node - textSize * 0.5f, active ? Color.White : Color.LightGray, 0.58f);
+			float labelScale = FitTextScale(label, 35f, 0.58f);
+			Vector2 textSize = FontAssets.MouseText.Value.MeasureString(label) * labelScale;
+			Utils.DrawBorderString(spriteBatch, label, node - textSize * 0.5f, active ? Color.White : Color.LightGray, labelScale);
 		}
 
 		DrawDiamond(spriteBatch, pixel, center, 50f * pulse, accent * 0.7f);
@@ -147,9 +149,10 @@ public sealed class EmoteWheelSystem : ModSystem
 		string centerText = selected >= 0
 			? SoulmatesText.EnumName(Entries[selected]).ToUpperInvariant()
 			: SoulmatesText.Get("UI.Emotes.Center");
-		Vector2 centerSize = FontAssets.MouseText.Value.MeasureString(centerText) * 0.62f;
+		float centerScale = FitTextScale(centerText, 34f, 0.62f);
+		Vector2 centerSize = FontAssets.MouseText.Value.MeasureString(centerText) * centerScale;
 		Utils.DrawBorderString(spriteBatch, centerText, center - centerSize * 0.5f,
-			selected >= 0 ? Color.White : accent, 0.62f);
+			selected >= 0 ? Color.White : accent, centerScale);
 		return true;
 	}
 
@@ -167,5 +170,11 @@ public sealed class EmoteWheelSystem : ModSystem
 		Vector2 origin = new(0f, pixel.Height * 0.5f);
 		Vector2 scale = new(edge.Length() / pixel.Width, width / pixel.Height);
 		spriteBatch.Draw(pixel, start, null, color, edge.ToRotation(), origin, scale, SpriteEffects.None, 0f);
+	}
+
+	private static float FitTextScale(string text, float maximumWidth, float preferredScale)
+	{
+		float width = FontAssets.MouseText.Value.MeasureString(text).X;
+		return width <= 0f ? preferredScale : Math.Min(preferredScale, maximumWidth / width);
 	}
 }

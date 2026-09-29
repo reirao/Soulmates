@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -63,8 +64,9 @@ public sealed class SoulboundSigil : ModItem
 		}
 
 		if (Main.netMode == NetmodeID.MultiplayerClient) {
-			if (player.whoAmI == Main.myPlayer)
+			if (player.whoAmI == Main.myPlayer) {
 				Main.NewText(SoulmatesText.Get("Messages.Summoned", Profile.Name), Profile.EssenceColor);
+			}
 			return true;
 		}
 
