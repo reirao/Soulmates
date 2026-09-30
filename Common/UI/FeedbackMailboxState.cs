@@ -10,7 +10,6 @@ using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.GameInput;
 using Terraria.ID;
-using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.UI;
 
@@ -28,6 +27,9 @@ public sealed class FeedbackMailboxState : UIState
 	private UITextPanel<string>? bugButton;
 	private UITextPanel<string>? recordingButton;
 	private UITextPanel<string>? sendButton;
+	private UITextPanel<string>? closeButton;
+	private UIText? title;
+	private UIText? recipient;
 
 	public override void OnInitialize()
 	{
@@ -40,25 +42,25 @@ public sealed class FeedbackMailboxState : UIState
 			BorderColor = new Color(118, 154, 206)
 		};
 		Append(panel);
+		panel.SetPadding(0f);
 
-		var title = new UIText(MailboxText("Title", "AETHER MAILBOX", "AETHER-BRIEFKASTEN"), 1.05f, true) {
+		title = new UIText(SoulmatesText.Get("UI.Mailbox.Title"), 1.05f, true) {
 			HAlign = 0.5f,
 			Top = new StyleDimension(8f, 0f)
 		};
 		panel.Append(title);
 
-		var recipient = new UIText(MailboxText("Recipient", "TO: LOCAL SOULMATES FIELD NOTES",
-			"AN: LOKALE SOULMATES FIELD NOTES"), 0.68f) {
+		recipient = new UIText(SoulmatesText.Get("UI.Mailbox.Recipient"), 0.68f) {
 			Left = new StyleDimension(18f, 0f),
 			Top = new StyleDimension(48f, 0f),
 			TextColor = new Color(166, 191, 220)
 		};
 		panel.Append(recipient);
 
-		feedbackButton = Button(MailboxText("Feedback", "FEEDBACK", "FEEDBACK"), 76f, 18f, 156f, new Color(49, 78, 116));
+		feedbackButton = Button(SoulmatesText.Get("UI.Mailbox.Feedback"), 76f, 18f, 156f, new Color(49, 78, 116));
 		feedbackButton.OnLeftClick += (_, _) => SelectKind(MailKind.Feedback);
 		panel.Append(feedbackButton);
-		bugButton = Button(MailboxText("Bug", "BUG REPORT", "BUGBERICHT"), 76f, 182f, 156f, new Color(111, 63, 72));
+		bugButton = Button(SoulmatesText.Get("UI.Mailbox.Bug"), 76f, 182f, 156f, new Color(111, 63, 72));
 		bugButton.OnLeftClick += (_, _) => SelectKind(MailKind.Bug);
 		panel.Append(bugButton);
 
@@ -95,9 +97,9 @@ public sealed class FeedbackMailboxState : UIState
 		sendButton.OnLeftClick += (_, _) => Send();
 		panel.Append(sendButton);
 
-		var close = Button(CommonText("UI.Common.Close", "CLOSE", "SCHLIESSEN"), 303f, 364f, 178f, new Color(120, 63, 72));
-		close.OnLeftClick += (_, _) => ModContent.GetInstance<FeedbackMailboxSystem>().Close();
-		panel.Append(close);
+		closeButton = Button(SoulmatesText.Get("UI.Common.Close"), 303f, 364f, 178f, new Color(120, 63, 72));
+		closeButton.OnLeftClick += (_, _) => ModContent.GetInstance<FeedbackMailboxSystem>().Close();
+		panel.Append(closeButton);
 		Refresh();
 	}
 
@@ -173,6 +175,11 @@ public sealed class FeedbackMailboxState : UIState
 	{
 		if (context is null || feedbackButton is null || bugButton is null || recordingButton is null || sendButton is null)
 			return;
+		title?.SetText(SoulmatesText.Get("UI.Mailbox.Title"));
+		recipient?.SetText(SoulmatesText.Get("UI.Mailbox.Recipient"));
+		feedbackButton.SetText(SoulmatesText.Get("UI.Mailbox.Feedback"));
+		bugButton.SetText(SoulmatesText.Get("UI.Mailbox.Bug"));
+		closeButton?.SetText(SoulmatesText.Get("UI.Common.Close"));
 		feedbackButton.BackgroundColor = mailKind == MailKind.Feedback ? new Color(69, 109, 157) : new Color(42, 60, 88);
 		bugButton.BackgroundColor = mailKind == MailKind.Bug ? new Color(151, 76, 82) : new Color(78, 50, 61);
 		context.SetText(SoulmatesText.Get(mailKind == MailKind.Bug
@@ -204,17 +211,6 @@ public sealed class FeedbackMailboxState : UIState
 			BorderColor = color * 1.3f
 		};
 		return button;
-	}
-
-	private static string MailboxText(string key, string english, string german)
-		=> CommonText($"UI.Mailbox.{key}", english, german);
-
-	private static string CommonText(string key, string english, string german)
-	{
-		string translated = SoulmatesText.Get(key);
-		return translated == $"Mods.Soulmates.{key}"
-			? Language.ActiveCulture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase) ? german : english
-			: translated;
 	}
 
 }

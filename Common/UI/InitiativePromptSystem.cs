@@ -43,8 +43,10 @@ public sealed class InitiativePromptSystem : ModSystem
 		ModContent.GetInstance<CompanionWheelSystem>().Close();
 		ModContent.GetInstance<TalkModeSystem>().Close();
 		ModContent.GetInstance<FeedbackMailboxSystem>().Close();
+		ModContent.GetInstance<SoulCreatorSystem>().Close();
+		ModContent.GetInstance<DirectOrderSystem>().Cancel();
 		companion = boundCompanion;
-		center = ClampCenter(boundCompanion.NPC.Center - Main.screenPosition);
+		center = ClampCenter(SoulmatesUISpace.FromWorld(boundCompanion.NPC.Center));
 		hoverIndex = -1;
 		leftMouseDown = Main.mouseLeft;
 		rightMouseDown = Main.mouseRight;
@@ -76,10 +78,10 @@ public sealed class InitiativePromptSystem : ModSystem
 			return;
 		}
 
-		Vector2 desired = ClampCenter(companion.NPC.Center - Main.screenPosition);
+		Vector2 desired = ClampCenter(SoulmatesUISpace.FromWorld(companion.NPC.Center));
 		center = Vector2.Lerp(center, desired, 0.18f);
 		openTicks++;
-		hoverIndex = FindHoveredResponse(Main.MouseScreen);
+		hoverIndex = FindHoveredResponse(SoulmatesUISpace.Mouse);
 
 		bool leftDown = Main.mouseLeft;
 		bool rightDown = Main.mouseRight;
@@ -205,10 +207,11 @@ public sealed class InitiativePromptSystem : ModSystem
 		const float horizontalMargin = ResponseRadius + 48f;
 		const float topMargin = 96f;
 		const float bottomMargin = ResponseRadius + 56f;
-		float x = Main.screenWidth <= horizontalMargin * 2f
-			? Main.screenWidth * 0.5f : Math.Clamp(desired.X, horizontalMargin, Main.screenWidth - horizontalMargin);
-		float y = Main.screenHeight <= topMargin + bottomMargin
-			? Main.screenHeight * 0.5f : Math.Clamp(desired.Y, topMargin, Main.screenHeight - bottomMargin);
+		Vector2 viewport = SoulmatesUISpace.Viewport;
+		float x = viewport.X <= horizontalMargin * 2f
+			? viewport.X * 0.5f : Math.Clamp(desired.X, horizontalMargin, viewport.X - horizontalMargin);
+		float y = viewport.Y <= topMargin + bottomMargin
+			? viewport.Y * 0.5f : Math.Clamp(desired.Y, topMargin, viewport.Y - bottomMargin);
 		return new Vector2(x, y);
 	}
 

@@ -79,7 +79,7 @@ public sealed partial class SoulboundCompanion
 			SyncProfileToBoundSigil();
 			NPC.netUpdate = true;
 			return new CompanionConversationResult(
-				SoulmatesText.Get($"MiningApproaches.Selected.{approach}"), true);
+				SoulmatesText.Get($"UI.MiningApproaches.Selected.{approach}"), true);
 		}
 		if (action == CompanionQuickAction.ToggleAutonomy) {
 			Profile.AutonomyEnabled = !Profile.AutonomyEnabled;
@@ -256,6 +256,7 @@ public sealed partial class SoulboundCompanion
 		speechTimer = speechDuration;
 		speechAnchorWorld = SpeechAnchorTarget();
 		speechTrailWorld = NPC.Center;
+		speechSide = TryGetOwner(out Player owner) && NPC.Center.X < owner.Center.X ? -1f : 1f;
 	}
 
 	public void PerformEmote(CompanionEmote emote) => PerformEmote(emote, -1, applyRestCommand: true);
@@ -417,10 +418,20 @@ public sealed partial class SoulboundCompanion
 
 	private void SpeakLocalized(string key, string argument = "")
 	{
+		if (!ShowLocalizedSpeech(key, argument))
+			return;
 		if (Main.netMode == NetmodeID.Server)
 			global::Soulmates.Soulmates.SendCompanionSpeech(Owner, this, key, argument);
-		else
-			ShowSpeech(string.IsNullOrEmpty(argument) ? SoulmatesText.Get(key) : SoulmatesText.Get(key, argument));
+	}
+
+	public bool ShowLocalizedSpeech(string key, string argument = "")
+	{
+		bool ambient = key.StartsWith("Social.", StringComparison.Ordinal)
+			|| key.StartsWith("Autonomy.Surprise.", StringComparison.Ordinal);
+		if (ambient && speechTimer > 180)
+			return false;
+		ShowSpeech(string.IsNullOrEmpty(argument) ? SoulmatesText.Get(key) : SoulmatesText.Get(key, argument));
+		return true;
 	}
 
 }

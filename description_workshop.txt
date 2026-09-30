@@ -25,7 +25,7 @@ Soulmates was created with extensive AI assistance across programming, writing, 
 [*]Talk Mode keeps Care, Commands, Work, Bond, Voice, and Pack in one compact detail view.
 [*]The paper-plane icon opens the local AETHER Mailbox for feedback and contextual bug reports without leaving Terraria.
 [*]Companions speak according to personality, mood, weather, danger, and location, react to fights and creature deaths, and share small wordless moments with town NPCs.
-[*]Speech remains readable longer, deliberately trails a departing soul, and fades as a soft echo where it was spoken.
+[*]Named speech bubbles follow the companion, stay readable longer, and leave a soft fading echo when it moves away.
 [/list]
 
 [h2]Autonomy With Character[/h2]
@@ -69,8 +69,8 @@ New characters receive one Soulcore and three Blank Sigils. Everything can also 
 [b]Delver Charm:[/b] 5 Iron/Lead Bars, 2 Amethyst, 20 Stone Blocks
 [b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
 
-[h2]Current Release: 0.12.0 - Mining Intent[/h2]
-Nearby ores now unfold from the Work Soulwheel as Terraria item icons. Adaptive, Tunnel, Vein, and Surface approaches determine how each companion mines; Tunnel opens a narrow route toward ore or the next free space, while unstable sand-like material is handled only from exposed edges. Talk Mode now shows real level progress, the active approach, and can be resized with its ruler handle. Existing Sigils load safely in Adaptive mode.
+[h2]Current Version: 0.12.1 - Clear Voices[/h2]
+Corrected English and German text keys, readable status values, and consistent hitboxes across UI scales. Named speech bubbles follow the companion rather than the player, with a gentle fading trail. Four mining approaches and the contextual ore wheel remain available; unsafe or blocked work now gives clearer feedback.
 [b]Legacy install note:[/b] If you manually installed a GitHub `9.9.x` build, remove that duplicate `.tmod` before using the Workshop AETHER-EGG line. Normal Workshop subscriptions replace themselves automatically.
 
 [h2]How Soulmates Got Here[/h2]

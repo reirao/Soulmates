@@ -375,7 +375,7 @@ public sealed class Soulmates : Mod
 		if (Main.netMode != NetmodeID.MultiplayerClient || profileId == Guid.Empty)
 			return;
 		if (SoulboundCompanion.FindFor(Main.LocalPlayer) is { } companion && companion.Profile.Id == profileId)
-			companion.ShowSpeech(string.IsNullOrEmpty(argument) ? SoulmatesText.Get(key) : SoulmatesText.Get(key, argument));
+			companion.ShowLocalizedSpeech(key, argument);
 	}
 
 	private void HandleQuickActionRequest(BinaryReader reader, int whoAmI)

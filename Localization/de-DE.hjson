@@ -145,6 +145,11 @@ Mods: {
 				Mine: Bergbau
 				Gather: Sammeln
 				ToggleAutonomy: Autonomie
+				ResetInitiativeRules: Wieder fragen
+				MiningAdaptive: Adaptiver Bergbau
+				MiningTunnel: Tunnel graben
+				MiningVein: Erzadern abbauen
+				MiningSurface: Oberfläche abbauen
 				Details: Details
 			}
 
@@ -235,8 +240,9 @@ Mods: {
 				GrowthMax: LV {0} MAX
 				LevelProgress: LV {0} · {1}/{2}
 				LevelMax: LV {0} · MAX
-				MiningApproach: "BERGBAU · {0}"
+				MiningApproach: BERGBAU · {0}
 				Resize: Zum Vergrößern ziehen
+				ResponseTimeout: Keine Antwort angekommen. Bitte versuch es erneut.
 				OmniSoul: OMNI-SEELE
 				AetherLearning: ALLE INSTINKTE | ALLE PERKS
 				Observing: BEOBACHTET DICH
@@ -318,26 +324,19 @@ Mods: {
 				}
 
 				NearbyOres: {
-					Select: "NÄCHSTES {0} ABBAUEN"
+					Select: NÄCHSTES {0} ABBAUEN
 					Manual: BLOCK IN DER WELT AUSWÄHLEN
 				}
 			}
 
-		MiningApproaches: {
-			Names: {
-				Adaptive: Adaptiv
-				Tunnel: Tunnel
-				Vein: Ader
-				Surface: Oberfläche
+			MiningApproaches: {
+				Selected: {
+					Adaptive: Ich wähle einen sinnvollen Weg und nehme instabilen Boden nur von einer offenen Kante.
+					Tunnel: Ich grabe einen schmalen Weg zu nahem Erz oder hinab bis zum nächsten Freiraum.
+					Vein: Ich lasse gewöhnliches Material stehen und baue nur Erzadern ab.
+					Surface: Ich nehme nur Material, das bereits an einen freien Raum grenzt.
+				}
 			}
-
-			Selected: {
-				Adaptive: Ich wähle einen sinnvollen Weg und nehme instabilen Boden nur von einer offenen Kante.
-				Tunnel: Ich grabe einen schmalen Weg zu nahem Erz oder hinab bis zum nächsten Freiraum.
-				Vein: Ich lasse gewöhnliches Material stehen und baue nur Erzadern ab.
-				Surface: Ich nehme nur Material, das bereits an einen freien Raum grenzt.
-			}
-		}
 
 			DirectOrder: {
 				MineInvalid: ABBAUBARES ERZ ODER GELERNTES MATERIAL ANKLICKEN  |  RECHTSKLICK BRICHT AB
@@ -380,8 +379,8 @@ Mods: {
 			Recovering: ENERGIE ERHOLEN
 			Watching: BEOBACHTET · {0} BLÖCKE
 			Assignment: Auftrag: {0}
-			AssignmentPaused: "PAUSE · {0}"
-			AssignmentPausedProgress: "PAUSE · {0} · {1}/{2}"
+			AssignmentPaused: PAUSE · {0}
+			AssignmentPausedProgress: PAUSE · {0} · {1}/{2}
 			Ready: Bereit
 
 			Autonomy: {
@@ -454,7 +453,7 @@ Mods: {
 				ObservingProgress: Lernen: beobachtet deine Gewohnheiten  |  {0}
 				AetherLearning: AETHER: alle Talentinstinkte und erlernten Perks sind aktiv
 				Resourcefulness: Bergbauwissen: {0}% Spitzhackenstärke  |  {1} beobachtete Materialien
-				MiningApproach: "Abbaumodus: {0}"
+				MiningApproach: Abbaumodus: {0}
 				Assignment: Aktiver Auftrag: {0}
 				Controls: Benutzen: beschwören  |  Rechtsklick auf Gefährten: Aktionsrad  |  V: Details  |  Hoch + Rechtsklick: zurückrufen
 				Emotes: Rechtsklick auf dich oder G drücken öffnet das Player-Emote-Rad
@@ -479,10 +478,11 @@ Mods: {
 			}
 
 			Mining: {
-				Protected: Ich habe {0} Erzblöcke abgebaut, aber {1} geschützte Blöcke haben widerstanden. Schick mich an einem neuen Ort wieder los.
-				Cleared: Das Gebiet ist leer. Ich habe alle {0} abbaubaren Erzblöcke im Radius von {1} Blöcken entfernt. Schick mich an einem neuen Ort wieder los.
-				Empty: Im Radius von {0} Blöcken gibt es kein abbaubares Erz. Schick mich an einem neuen Ort wieder los.
-				Timeout: Meine Zeit ist nach {0} Erzblöcken abgelaufen. Schick mich erneut los, damit ich weitermache.
+				Protected: Ich habe {0} Blöcke abgebaut, aber {1} Blöcke ließen sich nicht abbauen. Schick mich an einem neuen Ort wieder los.
+				Cleared: Mein Abbauplan ist fertig: {0} Blöcke im Radius von {1} Blöcken. Schick mich für eine weitere Runde los.
+				Empty: Im Radius von {0} Blöcken finde ich weder abbaubares Erz noch gelerntes Material. Schick mich an einem neuen Ort wieder los.
+				Timeout: Meine Zeit ist nach {0} Blöcken abgelaufen. Schick mich erneut los, damit ich weitermache.
+				TunnelBlocked: Mit den Werkzeugen und Materialien, die ich kenne, finde ich im Radius von {0} Blöcken keinen sicheren Tunnel.
 			}
 
 			Gathering: {

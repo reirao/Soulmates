@@ -21,6 +21,13 @@ namespace Soulmates.Content.NPCs;
 
 public sealed partial class SoulboundCompanion
 {
+	private string cachedSpeech = "";
+	private string cachedSpeechName = "";
+	private float cachedSpeechWidth;
+	private object? cachedSpeechFont;
+	private List<string> speechLines = [];
+	private Vector2 speechSize;
+	private float speechSide = 1f;
 	private void UpdateEmoteEffects()
 	{
 		if (Main.dedServ || emoteTimer % 6 != 0)
@@ -67,7 +74,6 @@ public sealed partial class SoulboundCompanion
 			spriteBatch.Draw(texture, center + glowOffset, source, Profile.EssenceColor * 0.18f, drawRotation, origin, scale, effects, 0f);
 		}
 		spriteBatch.Draw(texture, center, source, tint, drawRotation, origin, scale, effects, 0f);
-		DrawSpeechBubble(spriteBatch, screenPos);
 		return false;
 	}
 
@@ -98,86 +104,78 @@ public sealed partial class SoulboundCompanion
 		};
 	}
 
-	private void DrawSpeechBubble(SpriteBatch spriteBatch, Vector2 screenPos)
+	internal void DrawSpeechBubble(SpriteBatch spriteBatch)
 	{
 		if (speechTimer <= 0 || string.IsNullOrWhiteSpace(speechText))
 			return;
+		Vector2 viewport = SoulmatesUISpace.Viewport;
+		Vector2 speaker = SoulmatesUISpace.FromWorld(NPC.Center);
+		if (speaker.X < -64f || speaker.X > viewport.X + 64f || speaker.Y < -64f || speaker.Y > viewport.Y + 64f)
+			return;
+		float maximumWidth = Math.Min(280f, Math.Max(60f, viewport.X - 44f));
+		var font = FontAssets.MouseText.Value;
+		if (cachedSpeech != speechText || cachedSpeechName != Profile.Name
+			|| cachedSpeechWidth != maximumWidth || cachedSpeechFont != font) {
+			cachedSpeech = speechText;
+			cachedSpeechName = Profile.Name;
+			cachedSpeechWidth = maximumWidth;
+			cachedSpeechFont = font;
+			speechLines = SoulmatesTextLayout.Wrap(speechText, maximumWidth, line => font.MeasureString(line).X * 0.8f);
+			float width = Math.Min(maximumWidth, font.MeasureString(Profile.Name).X * 0.62f);
+			foreach (string line in speechLines)
+				width = Math.Max(width, font.MeasureString(line).X * 0.8f);
+			speechSize = new Vector2(width + 24f, speechLines.Count * 23f + 34f);
+		}
 		float elapsed = Math.Max(0, speechDuration - speechTimer);
 		float opacity = Math.Min(MathHelper.Clamp(elapsed / 12f, 0f, 1f),
 			MathHelper.Clamp(speechTimer / 120f, 0f, 1f));
-		Vector2 anchor = (speechAnchorWorld == Vector2.Zero ? NPC.Center : speechAnchorWorld) - screenPos;
-		Vector2 trail = (speechTrailWorld == Vector2.Zero ? NPC.Center : speechTrailWorld) - screenPos;
-		if (Vector2.DistanceSquared(anchor, trail) > 16f)
-			DrawSpeechBubbleAt(spriteBatch, trail, opacity * 0.18f);
-		DrawSpeechBubbleAt(spriteBatch, anchor, opacity);
+		Vector2 anchor = SoulmatesUISpace.FromWorld(speechAnchorWorld == Vector2.Zero ? NPC.Center : speechAnchorWorld);
+		Vector2 trail = SoulmatesUISpace.FromWorld(speechTrailWorld == Vector2.Zero ? NPC.Center : speechTrailWorld);
+		float trailDistance = Vector2.Distance(anchor, trail);
+		if (trailDistance > 24f && trailDistance < 180f) {
+			float trailOpacity = opacity * 0.12f * MathHelper.Clamp((trailDistance - 24f) / 48f, 0f, 1f);
+			DrawSpeechBubbleAt(spriteBatch, trail, speaker, trailOpacity, drawTail: false);
+		}
+		DrawSpeechBubbleAt(spriteBatch, anchor, speaker, opacity, drawTail: true);
 	}
 
-	private void DrawSpeechBubbleAt(SpriteBatch spriteBatch, Vector2 companionCenter, float opacity)
+	private void DrawSpeechBubbleAt(SpriteBatch spriteBatch, Vector2 anchor, Vector2 speaker, float opacity, bool drawTail)
 	{
 		if (opacity <= 0.01f)
 			return;
-		float zoom = Math.Max(1f, Main.GameViewMatrix.Zoom.X);
-		float textScale = 0.8f / zoom;
-		List<string> lines = WrapSpeech(speechText, 250f / zoom, textScale);
-		float width = 0f;
-		foreach (string line in lines)
-			width = Math.Max(width, FontAssets.MouseText.Value.MeasureString(line).X * textScale);
-		float lineHeight = 23f / zoom;
-		float paddingX = 13f / zoom;
-		float paddingY = 9f / zoom;
-		float height = lines.Count * lineHeight;
-		float halfWidth = width * 0.5f + paddingX;
-		float halfHeight = height * 0.5f + paddingY;
-		Vector2 viewportCenter = new(Main.screenWidth * 0.5f, Main.screenHeight * 0.5f);
-		float visibleLeft = viewportCenter.X * (1f - 1f / zoom);
-		float visibleRight = viewportCenter.X * (1f + 1f / zoom);
-		float visibleTop = viewportCenter.Y * (1f - 1f / zoom);
-		float visibleBottom = viewportCenter.Y * (1f + 1f / zoom);
-		float safeTop = visibleTop + 54f / zoom;
-		float side = facing >= 0 ? -1f : 1f;
-		float sideOffset = halfWidth + 40f / zoom;
-		float preferredX = companionCenter.X + side * sideOffset;
-		float minimumX = visibleLeft + halfWidth + 8f / zoom;
-		float maximumX = visibleRight - halfWidth - 8f / zoom;
-		if (preferredX < minimumX || preferredX > maximumX)
-			preferredX = companionCenter.X - side * sideOffset;
-		Vector2 bubbleCenter = new(preferredX, companionCenter.Y - (72f / zoom + halfHeight));
-		if (bubbleCenter.Y - halfHeight < safeTop)
-			bubbleCenter.Y = companionCenter.Y + 54f / zoom + halfHeight;
-		bubbleCenter.X = MathHelper.Clamp(bubbleCenter.X, minimumX, maximumX);
-		bubbleCenter.Y = MathHelper.Clamp(bubbleCenter.Y, safeTop + halfHeight,
-			visibleBottom - halfHeight - 10f / zoom);
-		Rectangle background = new((int)(bubbleCenter.X - width * 0.5f - paddingX), (int)(bubbleCenter.Y - height * 0.5f - paddingY),
-			(int)(width + paddingX * 2f), (int)(height + paddingY * 2f));
+		Vector2 viewport = SoulmatesUISpace.Viewport;
+		Vector2 position = new(anchor.X + speechSide * (speechSize.X * 0.5f + 36f) - speechSize.X * 0.5f,
+			anchor.Y - 88f - speechSize.Y);
+		if (position.Y < 52f)
+			position.Y = anchor.Y + 64f;
+		position.X = Math.Clamp(position.X, 8f, Math.Max(8f, viewport.X - speechSize.X - 8f));
+		position.Y = Math.Clamp(position.Y, 52f, Math.Max(52f, viewport.Y - speechSize.Y - 10f));
+		Rectangle background = new((int)position.X, (int)position.Y, (int)speechSize.X, (int)speechSize.Y);
 		Texture2D pixel = TextureAssets.MagicPixel.Value;
-		spriteBatch.Draw(pixel, background, new Color(11, 17, 29) * (0.9f * opacity));
+		if (drawTail) {
+			Vector2 endpoint = new(Math.Clamp(speaker.X, background.Left + 12f, background.Right - 12f),
+				speaker.Y < background.Top ? background.Top : background.Bottom);
+			Vector2 mouth = speaker + new Vector2(0f, -30f);
+			float distance = Vector2.Distance(mouth, endpoint);
+			if (distance is > 10f and < 220f) {
+				for (int i = 1; i <= 3; i++) {
+					Vector2 dot = Vector2.Lerp(mouth, endpoint, i / 4f);
+					int size = i + 1;
+					spriteBatch.Draw(pixel, new Rectangle((int)dot.X - size / 2, (int)dot.Y - size / 2, size, size),
+						Profile.EssenceColor * (opacity * 0.65f));
+				}
+			}
+		}
+		spriteBatch.Draw(pixel, background, new Color(11, 17, 29) * (0.94f * opacity));
 		spriteBatch.Draw(pixel, new Rectangle(background.X, background.Y, background.Width, 2),
 			Profile.EssenceColor * (0.9f * opacity));
-		for (int i = 0; i < lines.Count; i++) {
-			Vector2 size = FontAssets.MouseText.Value.MeasureString(lines[i]) * textScale;
-			Vector2 position = new(bubbleCenter.X - size.X * 0.5f, background.Y + 6f / zoom + i * lineHeight);
-			Utils.DrawBorderString(spriteBatch, lines[i], position, Color.White * opacity, textScale);
-		}
-	}
-
-	private static List<string> WrapSpeech(string text, float maximumWidth, float scale)
-	{
-		var lines = new List<string>();
-		string current = "";
-		foreach (string word in text.Split(' ', StringSplitOptions.RemoveEmptyEntries)) {
-			string candidate = string.IsNullOrEmpty(current) ? word : $"{current} {word}";
-			if (!string.IsNullOrEmpty(current) && FontAssets.MouseText.Value.MeasureString(candidate).X * scale > maximumWidth) {
-				lines.Add(current);
-				current = word;
-			}
-			else
-				current = candidate;
-		}
-		if (!string.IsNullOrEmpty(current))
-			lines.Add(current);
-		if (lines.Count == 0)
-			lines.Add("...");
-		return lines;
+		float nameWidth = FontAssets.MouseText.Value.MeasureString(Profile.Name).X;
+		float nameScale = nameWidth <= 0f ? 0.62f : Math.Min(0.62f, (speechSize.X - 24f) / nameWidth);
+		Utils.DrawBorderString(spriteBatch, Profile.Name, position + new Vector2(12f, 7f),
+			Color.Lerp(Profile.EssenceColor, Color.White, 0.3f) * opacity, nameScale);
+		for (int i = 0; i < speechLines.Count; i++)
+			Utils.DrawBorderString(spriteBatch, speechLines[i], position + new Vector2(12f, 27f + i * 23f),
+				Color.White * opacity, 0.8f);
 	}
 
 	private void DrawJobOrbit(SpriteBatch spriteBatch, Vector2 center)

@@ -274,6 +274,10 @@ public sealed partial class SoulboundCompanion
 
 	private void UpdateMiningJob()
 	{
+		if (jobTimer > 7200) {
+			CompleteJob(SoulmatesText.Get("Jobs.Mining.Timeout", jobCount), success: false);
+			return;
+		}
 		if (!hasJobTarget && !FindMiningTarget(out jobTarget)) {
 			string report = directedJob
 				? jobCount > 0
@@ -283,7 +287,8 @@ public sealed partial class SoulboundCompanion
 				? SoulmatesText.Get("Jobs.Mining.Protected", jobCount, failedMiningTargets.Count)
 				: jobCount > 0
 					? SoulmatesText.Get("Jobs.Mining.Cleared", jobCount, MiningRadiusTiles)
-					: SoulmatesText.Get("Jobs.Mining.Empty", MiningRadiusTiles);
+					: SoulmatesText.Get(Profile.MiningApproach == CompanionMiningApproach.Tunnel
+						? "Jobs.Mining.TunnelBlocked" : "Jobs.Mining.Empty", MiningRadiusTiles);
 			CompleteJob(report, jobCount > 0, CompanionMemoryKind.MiningCompleted, jobCount);
 			return;
 		}
@@ -300,7 +305,9 @@ public sealed partial class SoulboundCompanion
 			return;
 		if (!WorldGen.InWorld(jobTarget.X, jobTarget.Y, 10)
 			|| !Main.tile[jobTarget.X, jobTarget.Y].HasTile
-			|| !CanMineTile(jobTarget.X, jobTarget.Y, includeLearnedMaterials: true)) {
+			|| !CanMineTile(jobTarget.X, jobTarget.Y, includeLearnedMaterials: true)
+			|| directedJob && Main.tile[jobTarget.X, jobTarget.Y].TileType != directedMiningTileType
+			|| !directedJob && !IsAllowedByMiningApproach(jobTarget, Main.tile[jobTarget.X, jobTarget.Y].TileType)) {
 			DiscardMiningTarget(jobTarget);
 			hasJobTarget = false;
 			return;
@@ -323,8 +330,6 @@ public sealed partial class SoulboundCompanion
 			failedMiningTargets.Add(jobTarget);
 		DiscardMiningTarget(jobTarget);
 		hasJobTarget = false;
-		if (jobTimer > 7200)
-			CompleteJob(SoulmatesText.Get("Jobs.Mining.Timeout", jobCount), success: false);
 	}
 
 	private void UpdateGatherJob()
@@ -469,6 +474,7 @@ public sealed partial class SoulboundCompanion
 			if (WorldGen.InWorld(candidate.X, candidate.Y, 10)
 				&& Main.tile[candidate.X, candidate.Y].HasTile
 				&& !failedMiningTargets.Contains(candidate)
+				&& IsAllowedByMiningApproach(candidate, Main.tile[candidate.X, candidate.Y].TileType)
 				&& CanMineTile(candidate.X, candidate.Y, includeLearnedMaterials: true)) {
 				result = candidate;
 				return true;
@@ -583,11 +589,6 @@ public sealed partial class SoulboundCompanion
 
 		if (oreTarget is Point ore && plannedMiningTargets.Contains(ore))
 			AppendConnectedOreVein(ore, available, 24);
-		if (plannedMiningTargets.Count == 0) {
-			foreach (Point exposed in candidates.Where(IsExposedMiningTile)
-				.OrderBy(point => Vector2.DistanceSquared(point.ToVector2(), center.ToVector2())).Take(24))
-				AddMiningPlanTarget(exposed);
-		}
 	}
 
 	private void AppendConnectedOreVein(Point origin, HashSet<Point> available, int limit)
@@ -596,12 +597,14 @@ public sealed partial class SoulboundCompanion
 		var pending = new Queue<Point>();
 		var visited = new HashSet<Point>();
 		pending.Enqueue(origin);
-		while (pending.Count > 0 && visited.Count < limit) {
+		int matched = 0;
+		while (pending.Count > 0 && matched < limit) {
 			Point current = pending.Dequeue();
 			if (!visited.Add(current) || !available.Contains(current)
 				|| Main.tile[current.X, current.Y].TileType != tileType)
 				continue;
 			AddMiningPlanTarget(current);
+			matched++;
 			pending.Enqueue(new Point(current.X - 1, current.Y));
 			pending.Enqueue(new Point(current.X + 1, current.Y));
 			pending.Enqueue(new Point(current.X, current.Y - 1));

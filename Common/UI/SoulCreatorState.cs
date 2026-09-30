@@ -37,6 +37,7 @@ public sealed class SoulCreatorState : UIState
 			BorderColor = new Color(118, 154, 206)
 		};
 		Append(panel);
+		panel.SetPadding(0f);
 
 		var creatorTitle = new UIText("", 1.15f, true) {
 			HAlign = 0.5f,
@@ -71,6 +72,7 @@ public sealed class SoulCreatorState : UIState
 			IsWrapped = true
 		};
 		previewPanel.Append(details);
+		details.HAlign = 0f;
 
 		float left = 280f;
 		float width = 376f;
@@ -363,8 +365,9 @@ internal sealed class SoulPreviewElement(Func<CompanionProfile> getProfile) : UI
 		CalculatedStyle area = GetDimensions();
 		Vector2 center = new(area.X + area.Width * 0.5f, area.Y + area.Height * 0.52f);
 		float time = Main.GlobalTimeWrappedHourly;
-		center.Y += MathF.Sin(time * 2.1f) * 6f;
-		DrawAura(spriteBatch, profile, center, time);
+		float previewScale = Math.Min(1f, Math.Min(area.Width, area.Height) / 190f);
+		center.Y += MathF.Sin(time * 2.1f) * 6f * previewScale;
+		DrawAura(spriteBatch, profile, center, time, previewScale);
 
 		Texture2D pet = CompanionVisuals.GetTexture(profile.Muse);
 		Rectangle source = CompanionVisuals.GetFrame(profile.Muse, pet);
@@ -373,7 +376,9 @@ internal sealed class SoulPreviewElement(Func<CompanionProfile> getProfile) : UI
 			CompanionForm.Wisp => new Vector2(0.88f, 1.14f),
 			_ => Vector2.One
 		};
-		float baseScale = 190f / Math.Max(source.Width, source.Height);
+		float baseScale = Math.Min(190f / Math.Max(source.Width, source.Height),
+			Math.Min(Math.Max(1f, area.Width - 20f) / (source.Width * formScale.X),
+				Math.Max(1f, area.Height - 20f) / (source.Height * formScale.Y)));
 		Color tint = Color.Lerp(Color.White, profile.EssenceColor, 0.36f);
 		Vector2 origin = source.Size() * 0.5f;
 		float rotation = MathF.Sin(time * 1.4f) * 0.025f;
@@ -385,15 +390,15 @@ internal sealed class SoulPreviewElement(Func<CompanionProfile> getProfile) : UI
 		spriteBatch.Draw(pet, center, source, tint, rotation, origin, formScale * baseScale, SpriteEffects.None, 0f);
 	}
 
-	private static void DrawAura(SpriteBatch spriteBatch, CompanionProfile profile, Vector2 center, float time)
+	private static void DrawAura(SpriteBatch spriteBatch, CompanionProfile profile, Vector2 center, float time, float scale)
 	{
 		Texture2D pixel = TextureAssets.MagicPixel.Value;
 		int count = profile.Aura == CompanionAura.SoftGlow ? 4 : 7;
 		for (int i = 0; i < count; i++) {
 			float phase = time * (profile.Aura == CompanionAura.SoulSparks ? 1.8f : 0.8f) + MathHelper.TwoPi * i / count;
-			float radius = profile.Aura == CompanionAura.SoftGlow ? 58f : 82f;
+			float radius = (profile.Aura == CompanionAura.SoftGlow ? 58f : 82f) * scale;
 			Vector2 point = center + new Vector2(MathF.Cos(phase) * radius, MathF.Sin(phase) * radius * 0.55f);
-			float size = profile.Aura == CompanionAura.OrbitingStars ? 6f : 3f + (i % 2) * 2f;
+			float size = Math.Max(1f, (profile.Aura == CompanionAura.OrbitingStars ? 6f : 3f + (i % 2) * 2f) * scale);
 			spriteBatch.Draw(pixel, new Rectangle((int)(point.X - size), (int)(point.Y - size), (int)(size * 2f), (int)(size * 2f)), profile.EssenceColor * 0.75f);
 		}
 	}

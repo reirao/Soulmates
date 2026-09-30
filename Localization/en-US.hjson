@@ -145,6 +145,11 @@ Mods: {
 				Mine: Mine
 				Gather: Gather
 				ToggleAutonomy: Autonomy
+				ResetInitiativeRules: Ask again
+				MiningAdaptive: Adaptive mining
+				MiningTunnel: Tunnel mining
+				MiningVein: Vein mining
+				MiningSurface: Surface mining
 				Details: Details
 			}
 
@@ -235,8 +240,9 @@ Mods: {
 				GrowthMax: LV {0} MAX
 				LevelProgress: LV {0} · {1}/{2}
 				LevelMax: LV {0} · MAX
-				MiningApproach: "MINING · {0}"
+				MiningApproach: MINING · {0}
 				Resize: Drag to resize
+				ResponseTimeout: No reply arrived. Please try again.
 				OmniSoul: OMNI SOUL
 				AetherLearning: ALL INSTINCTS | ALL PERKS
 				Observing: OBSERVING YOU
@@ -318,26 +324,19 @@ Mods: {
 				}
 
 				NearbyOres: {
-					Select: "MINE NEAREST {0}"
+					Select: MINE NEAREST {0}
 					Manual: CHOOSE A BLOCK IN THE WORLD
 				}
 			}
 
-		MiningApproaches: {
-			Names: {
-				Adaptive: Adaptive
-				Tunnel: Tunnel
-				Vein: Vein
-				Surface: Surface
+			MiningApproaches: {
+				Selected: {
+					Adaptive: I will choose a sensible route and skim unstable ground from its open edge.
+					Tunnel: I will cut a narrow passage toward nearby ore, or down to the next opening.
+					Vein: I will leave ordinary material alone and clear ore veins only.
+					Surface: I will only take material already exposed to open space.
+				}
 			}
-
-			Selected: {
-				Adaptive: I will choose a sensible route and skim unstable ground from its open edge.
-				Tunnel: I will cut a narrow passage toward nearby ore, or down to the next opening.
-				Vein: I will leave ordinary material alone and clear ore veins only.
-				Surface: I will only take material already exposed to open space.
-			}
-		}
 
 			DirectOrder: {
 				MineInvalid: CLICK A MINEABLE ORE OR LEARNED MATERIAL  |  RIGHT-CLICK CANCELS
@@ -380,8 +379,8 @@ Mods: {
 			Recovering: RECOVERING ENERGY
 			Watching: OBSERVING · {0} TILES
 			Assignment: "{0} assignment"
-			AssignmentPaused: "RESTING · {0}"
-			AssignmentPausedProgress: "RESTING · {0} · {1}/{2}"
+			AssignmentPaused: RESTING · {0}
+			AssignmentPausedProgress: RESTING · {0} · {1}/{2}
 			Ready: Ready
 
 			Autonomy: {
@@ -454,7 +453,7 @@ Mods: {
 				ObservingProgress: Learning: observing your habits  |  {0}
 				AetherLearning: AETHER: all talent instincts and learned perks are active
 				Resourcefulness: Mining knowledge: {0}% pick power  |  {1} observed materials
-				MiningApproach: "Mining approach: {0}"
+				MiningApproach: Mining approach: {0}
 				Assignment: Active assignment: {0}
 				Controls: Use: summon  |  Right-click companion: action wheel  |  V: details  |  Up + Right-click: recall
 				Emotes: Emotes: right-click yourself or press G for the Player Emote Wheel
@@ -479,10 +478,11 @@ Mods: {
 			}
 
 			Mining: {
-				Protected: I cleared {0} ore blocks, but {1} protected blocks resisted me. Send me again somewhere new.
-				Cleared: The area is clear. I mined all {0} workable ore blocks within {1} tiles. Send me out again in a new place.
-				Empty: There is no workable ore within {0} tiles. Send me out again somewhere new.
-				Timeout: I reached my time limit after clearing {0} ore blocks. Send me again to continue.
+				Protected: I cleared {0} blocks, but {1} blocks could not be mined. Send me again somewhere new.
+				Cleared: I finished my mining plan: {0} blocks within {1} tiles. Send me again for another pass.
+				Empty: I found no workable ore or learned material within {0} tiles. Send me again somewhere new.
+				Timeout: I reached my time limit after clearing {0} blocks. Send me again to continue.
+				TunnelBlocked: I could not find a safe tunnel within {0} tiles using the tools and materials I know.
 			}
 
 			Gathering: {

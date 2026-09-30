@@ -23,6 +23,9 @@ public sealed class DirectOrderSystem : ModSystem
 	private bool rightMouseDown;
 	private CompanionTargetOrder order;
 	private SoulboundCompanion? companion;
+	private string cachedLabel = "";
+	private string wrappedLabel = "";
+	private float cachedLabelWidth;
 
 	public bool IsActive => active;
 
@@ -145,23 +148,30 @@ public sealed class DirectOrderSystem : ModSystem
 		bool valid = TryResolveTarget(out Point tileTarget, out int itemTarget);
 		Color accent = valid ? companion.Profile.EssenceColor : new Color(215, 95, 95);
 		Rectangle targetRectangle = order == CompanionTargetOrder.Mine
-			? new Rectangle(tileTarget.X * 16 - (int)Main.screenPosition.X,
-				tileTarget.Y * 16 - (int)Main.screenPosition.Y, 16, 16)
+			? SoulmatesUISpace.FromWorld(new Rectangle(tileTarget.X * 16, tileTarget.Y * 16, 16, 16))
 			: ItemScreenRectangle(itemTarget);
 		if (targetRectangle.Width > 0)
 			DrawOutline(Main.spriteBatch, targetRectangle, accent, 2);
 
 		int iconType = order == CompanionTargetOrder.Mine ? ItemID.CopperPickaxe : ItemID.TreasureMagnet;
-		Vector2 iconPosition = Main.MouseScreen + new Vector2(30f, 24f);
+		Vector2 iconPosition = SoulmatesUISpace.Mouse + new Vector2(30f, 24f);
 		DrawCursorIcon(Main.spriteBatch, iconPosition, iconType, accent);
 
 		string label = TargetLabel(valid, tileTarget, itemTarget);
 		float scale = 0.62f;
-		Vector2 size = FontAssets.MouseText.Value.MeasureString(label) * scale;
-		Vector2 labelPosition = Main.MouseScreen + new Vector2(24f, 48f);
-		labelPosition.X = Math.Clamp(labelPosition.X, 10f, Math.Max(10f, Main.screenWidth - size.X - 10f));
-		labelPosition.Y = Math.Clamp(labelPosition.Y, 10f, Math.Max(10f, Main.screenHeight - size.Y - 10f));
-		Utils.DrawBorderString(Main.spriteBatch, label, labelPosition, Color.Lerp(Color.White, accent, 0.25f), scale);
+		Vector2 viewport = SoulmatesUISpace.Viewport;
+		float labelWidth = Math.Min(440f, Math.Max(20f, viewport.X - 20f));
+		if (cachedLabel != label || cachedLabelWidth != labelWidth) {
+			cachedLabel = label;
+			cachedLabelWidth = labelWidth;
+			wrappedLabel = string.Join("\n", SoulmatesTextLayout.Wrap(label, labelWidth,
+				line => FontAssets.MouseText.Value.MeasureString(line).X * scale));
+		}
+		Vector2 size = FontAssets.MouseText.Value.MeasureString(wrappedLabel) * scale;
+		Vector2 labelPosition = SoulmatesUISpace.Mouse + new Vector2(24f, 48f);
+		labelPosition.X = Math.Clamp(labelPosition.X, 10f, Math.Max(10f, viewport.X - size.X - 10f));
+		labelPosition.Y = Math.Clamp(labelPosition.Y, 10f, Math.Max(10f, viewport.Y - size.Y - 10f));
+		Utils.DrawBorderString(Main.spriteBatch, wrappedLabel, labelPosition, Color.Lerp(Color.White, accent, 0.25f), scale);
 		return true;
 	}
 
@@ -186,9 +196,7 @@ public sealed class DirectOrderSystem : ModSystem
 	{
 		if (itemIndex < 0 || itemIndex >= Main.maxItems || !Main.item[itemIndex].active)
 			return Rectangle.Empty;
-		Rectangle rectangle = Main.item[itemIndex].Hitbox;
-		rectangle.Offset(-(int)Main.screenPosition.X, -(int)Main.screenPosition.Y);
-		return rectangle;
+		return SoulmatesUISpace.FromWorld(Main.item[itemIndex].Hitbox);
 	}
 
 	private static void DrawOutline(SpriteBatch spriteBatch, Rectangle rectangle, Color color, int thickness)

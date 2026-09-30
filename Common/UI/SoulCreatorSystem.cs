@@ -13,7 +13,7 @@ public sealed class SoulCreatorSystem : ModSystem
 	internal SoulCreatorState? CreatorState { get; private set; }
 	public bool IsOpen => creatorInterface?.CurrentState is SoulCreatorState;
 
-	public override void Load()
+	public override void PostSetupContent()
 	{
 		if (Main.dedServ)
 			return;
@@ -32,12 +32,16 @@ public sealed class SoulCreatorSystem : ModSystem
 		ModContent.GetInstance<TalkModeSystem>().Close();
 		ModContent.GetInstance<CompanionWheelSystem>().Close();
 		ModContent.GetInstance<FeedbackMailboxSystem>().Close();
+		ModContent.GetInstance<InitiativePromptSystem>().Close();
+		ModContent.GetInstance<DirectOrderSystem>().Cancel();
 		CreatorState.ResetDraft();
 		creatorInterface.SetState(CreatorState);
 		Main.playerInventory = false;
 	}
 
 	public void Close() => creatorInterface?.SetState(null);
+
+	public override void OnWorldUnload() => Close();
 
 	internal void ReceiveNetworkResponse(CompanionCreationResult result, string companionName, CompanionEssence essence)
 		=> CreatorState?.ReceiveNetworkResponse(result, companionName, essence);

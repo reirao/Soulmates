@@ -19,28 +19,29 @@ namespace Soulmates.Common.UI;
 
 public sealed class TalkModeState : UIState
 {
-	private const float MinimumWidth = 500f;
-	private const float MinimumHeight = 310f;
-	private static float preferredWidth = 540f;
-	private static float preferredHeight = 310f;
+	private const float MinimumWidth = 540f;
+	private const float MinimumHeight = 384f;
+	private static float preferredWidth = 596f;
+	private static float preferredHeight = 412f;
 	private readonly List<UITextPanel<string>> optionButtons = [];
 	private readonly List<(TalkCategory Category, TalkIconButton Button)> categoryButtons = [];
 	private SoulboundSigil? sigil;
 	private SoulboundCompanion? companion;
 	private TalkCategory category;
 	private UIPanel? rootPanel;
-	private UIPanel? portraitPanel;
+	private UIElement? portraitPanel;
 	private UIElement? previewElement;
 	private CompanionVitalsElement? vitalsElement;
 	private CompanionPackElement? packElement;
 	private UIText? title;
-	private UIText? response;
+	private CompanionResponseElement? response;
 	private UIText? chooseWordsLabel;
 	private UIText? packLabel;
 	private TalkIconButton? closeButton;
 	private TalkItemButton? resizeHandle;
 	private int memoryCursor;
 	private bool awaitingResponse;
+	private int responseWaitTicks;
 	private bool resizing;
 	private Vector2 resizeStartMouse;
 	private Vector2 resizeStartSize;
@@ -58,6 +59,7 @@ public sealed class TalkModeState : UIState
 			BorderColor = new Color(89, 116, 213)
 		};
 		Append(rootPanel);
+		rootPanel.SetPadding(0f);
 		UIPanel panel = rootPanel;
 
 		title = new UIText(SoulmatesText.Get("UI.Talk.Title", ""), 0.76f) {
@@ -66,15 +68,13 @@ public sealed class TalkModeState : UIState
 		};
 		panel.Append(title);
 
-		portraitPanel = new UIPanel {
+		portraitPanel = new UIElement {
 			Left = new StyleDimension(10f, 0f),
 			Top = new StyleDimension(42f, 0f),
 			Width = new StyleDimension(158f, 0f),
-			Height = new StyleDimension(250f, 0f),
-			BackgroundColor = new Color(43, 56, 103) * 0.88f,
-			BorderColor = new Color(89, 116, 213)
+			Height = new StyleDimension(250f, 0f)
 		};
-		UIPanel portrait = portraitPanel;
+		UIElement portrait = portraitPanel;
 		panel.Append(portrait);
 		previewElement = new SoulPreviewElement(() => DisplayProfile ?? new CompanionProfile()) {
 			Left = new StyleDimension(6f, 0f),
@@ -84,14 +84,11 @@ public sealed class TalkModeState : UIState
 		};
 		portrait.Append(previewElement);
 
-		response = new UIText("...", 0.58f) {
+		response = new CompanionResponseElement {
 			Left = new StyleDimension(10f, 0f),
 			Top = new StyleDimension(112f, 0f),
 			Width = new StyleDimension(-20f, 1f),
-			Height = new StyleDimension(52f, 0f),
-			TextOriginX = 0.5f,
-			HAlign = 0.5f,
-			IsWrapped = true
+			Height = new StyleDimension(52f, 0f)
 		};
 		portrait.Append(response);
 
@@ -136,7 +133,7 @@ public sealed class TalkModeState : UIState
 			Left = new StyleDimension(178f, 0f),
 			Top = new StyleDimension(239f, 0f),
 			Width = new StyleDimension(366f, 0f),
-			Height = new StyleDimension(50f, 0f)
+			Height = new StyleDimension(58f, 0f)
 		};
 		panel.Append(packElement);
 		packLabel = new UIText("", 0.58f) {
@@ -171,6 +168,11 @@ public sealed class TalkModeState : UIState
 		sigil.Profile = companion.Profile.Clone();
 		category = Enum.IsDefined(initialCategory) ? initialCategory : TalkCategory.Care;
 		memoryCursor = 0;
+		awaitingResponse = false;
+		responseWaitTicks = 0;
+		resizing = false;
+		ApplyLayout();
+		Recalculate();
 		RefreshLocalizedLabels();
 		if (title is not null)
 			title.SetText(SoulmatesText.Get("UI.Talk.Title", companion.Profile.Name.ToUpperInvariant()));
@@ -201,6 +203,8 @@ public sealed class TalkModeState : UIState
 		sigil = null;
 		companion = null;
 		awaitingResponse = false;
+		responseWaitTicks = 0;
+		resizing = false;
 	}
 
 	private void SelectCategory(TalkCategory selected)
@@ -215,6 +219,12 @@ public sealed class TalkModeState : UIState
 	{
 		base.Update(gameTime);
 		UpdateResize();
+		ApplyLayout();
+		if (awaitingResponse && ++responseWaitTicks >= 600) {
+			awaitingResponse = false;
+			responseWaitTicks = 0;
+			SetResponse(SoulmatesText.Get("UI.Talk.ResponseTimeout"), accepted: false);
+		}
 		if (sigil is null)
 			return;
 		RefreshCategoryStyles();
@@ -223,8 +233,8 @@ public sealed class TalkModeState : UIState
 	private void BeginResize()
 	{
 		resizing = true;
-		resizeStartMouse = Main.MouseScreen;
-		resizeStartSize = new Vector2(preferredWidth, preferredHeight);
+		resizeStartMouse = SoulmatesUISpace.Mouse;
+		resizeStartSize = new Vector2(rootPanel?.Width.Pixels ?? preferredWidth, rootPanel?.Height.Pixels ?? preferredHeight);
 	}
 
 	private void UpdateResize()
@@ -235,50 +245,82 @@ public sealed class TalkModeState : UIState
 			resizing = false;
 			return;
 		}
-		Vector2 delta = Main.MouseScreen - resizeStartMouse;
-		float maximumWidth = Math.Max(MinimumWidth, Main.screenWidth - 32f);
-		float maximumHeight = Math.Max(MinimumHeight, Main.screenHeight - 32f);
-		preferredWidth = Math.Clamp(resizeStartSize.X + delta.X * 2f, MinimumWidth, maximumWidth);
-		preferredHeight = Math.Clamp(resizeStartSize.Y + delta.Y * 2f, MinimumHeight, maximumHeight);
+		Vector2 delta = SoulmatesUISpace.Mouse - resizeStartMouse;
+		Vector2 viewport = SoulmatesUISpace.Viewport;
+		float maximumWidth = Math.Max(240f, viewport.X - 24f);
+		float maximumHeight = Math.Max(240f, viewport.Y - 24f);
+		preferredWidth = Math.Clamp(resizeStartSize.X + delta.X * 2f, Math.Min(MinimumWidth, maximumWidth), maximumWidth);
+		preferredHeight = Math.Clamp(resizeStartSize.Y + delta.Y * 2f, Math.Min(MinimumHeight, maximumHeight), maximumHeight);
 		ApplyLayout();
 		Recalculate();
 		Main.LocalPlayer.mouseInterface = true;
 	}
 
-	private void ApplyLayout()
+	private void ApplyLayout(bool force = false)
 	{
 		if (rootPanel is null || portraitPanel is null || previewElement is null || vitalsElement is null
 			|| packElement is null || resizeHandle is null || closeButton is null)
 			return;
-		float width = preferredWidth;
-		float height = preferredHeight;
-		float portraitHeight = height - 60f;
-		float rightWidth = width - 194f;
-		float previewHeight = Math.Clamp(portraitHeight * 0.43f, 98f, 150f);
+		Vector2 viewport = SoulmatesUISpace.Viewport;
+		float width = Math.Min(preferredWidth, Math.Max(240f, viewport.X - 24f));
+		float height = Math.Min(preferredHeight, Math.Max(240f, viewport.Y - 24f));
+		float portraitWidth = Math.Clamp(width * 0.31f, 100f, 180f);
+		float portraitHeight = height - 56f;
+		float rightLeft = portraitWidth + 26f;
+		float rightWidth = width - rightLeft - 12f;
+		float previewHeight = Math.Clamp(portraitHeight - 232f, 40f, 148f);
+		bool changed = rootPanel.Width.Pixels != width || rootPanel.Height.Pixels != height
+			|| portraitPanel.Width.Pixels != portraitWidth;
+		if (!changed && !force)
+			return;
 
 		rootPanel.Width.Set(width, 0f);
 		rootPanel.Height.Set(height, 0f);
+		if (title is not null) {
+			float titleWidth = FontAssets.MouseText.Value.MeasureString(title.Text).X;
+			title.SetText(title.Text, titleWidth <= 0f ? 0.76f : Math.Min(0.76f, (width - 76f) / titleWidth), false);
+		}
 		portraitPanel.Height.Set(portraitHeight, 0f);
+		portraitPanel.Width.Set(portraitWidth, 0f);
 		previewElement.Height.Set(previewHeight, 0f);
 		if (response is not null) {
 			response.Top.Set(previewHeight + 6f, 0f);
-			response.Height.Set(46f, 0f);
+			response.Height.Set(56f, 0f);
 		}
-		vitalsElement.Top.Set(previewHeight + 55f, 0f);
-		vitalsElement.Height.Set(Math.Max(86f, portraitHeight - previewHeight - 59f), 0f);
+		vitalsElement.Top.Set(previewHeight + 66f, 0f);
+		vitalsElement.Height.Set(Math.Max(80f, portraitHeight - previewHeight - 70f), 0f);
 
-		float categoryStep = Math.Min(46f, Math.Max(40f,
-			(rightWidth - 40f) / Math.Max(1, categoryButtons.Count - 1)));
-		for (int i = 0; i < categoryButtons.Count; i++)
-			categoryButtons[i].Button.Left.Set(178f + i * categoryStep, 0f);
-		foreach (UITextPanel<string> button in optionButtons)
+		float categorySize = Math.Min(40f, rightWidth / categoryButtons.Count - 4f);
+		float categoryStep = Math.Min(48f, (rightWidth - categorySize) / Math.Max(1, categoryButtons.Count - 1));
+		for (int i = 0; i < categoryButtons.Count; i++) {
+			TalkIconButton button = categoryButtons[i].Button;
+			button.Left.Set(rightLeft + i * categoryStep, 0f);
+			button.Width.Set(categorySize, 0f);
+			button.Height.Set(categorySize, 0f);
+		}
+		chooseWordsLabel?.Left.Set(rightLeft, 0f);
+		for (int i = 0; i < optionButtons.Count; i++) {
+			UITextPanel<string> button = optionButtons[i];
+			button.Left.Set(rightLeft, 0f);
 			button.Width.Set(rightWidth, 0f);
-		packElement.Top.Set(height - 71f, 0f);
-		packElement.Width.Set(Math.Max(190f, rightWidth - 30f), 0f);
-		packLabel?.Top.Set(height - 87f, 0f);
+			float availableHeight = Math.Max(78f, height - 202f);
+			float step = Math.Min(49f, availableHeight / 3f);
+			button.Top.Set(106f + i * step, 0f);
+			button.Height.Set(step - 6f, 0f);
+			string text = button.Text;
+			float textWidth = FontAssets.MouseText.Value.MeasureString(text).X;
+			button.SetText(text, textWidth <= 0f ? 0.62f : Math.Min(0.62f, (rightWidth - 20f) / textWidth), false);
+		}
+		packElement.Left.Set(rightLeft, 0f);
+		packElement.Top.Set(height - 78f, 0f);
+		packElement.Width.Set(Math.Max(60f, rightWidth - 30f), 0f);
+		packLabel?.Left.Set(rightLeft, 0f);
+		packLabel?.Top.Set(height - 98f, 0f);
 		closeButton.Left.Set(width - 46f, 0f);
 		resizeHandle.Left.Set(width - 38f, 0f);
 		resizeHandle.Top.Set(height - 38f, 0f);
+		if (changed)
+			Recalculate();
 	}
 
 	private void Speak(int option)
@@ -292,6 +334,7 @@ public sealed class TalkModeState : UIState
 
 		if (Main.netMode == NetmodeID.MultiplayerClient) {
 			awaitingResponse = true;
+			responseWaitTicks = 0;
 			Soulmates.SendTalkRequest(category, option, memoryCursor++);
 			SoundEngine.PlaySound(SoundID.MenuTick);
 			return;
@@ -305,9 +348,10 @@ public sealed class TalkModeState : UIState
 
 	internal void ReceiveNetworkResponse(CompanionProfile profile, string reply, bool accepted)
 	{
-		awaitingResponse = false;
 		if (sigil is null || sigil.Profile.Id != profile.Id)
 			return;
+		awaitingResponse = false;
+		responseWaitTicks = 0;
 		sigil.Profile = profile.Clone();
 		if (companion?.NPC.active == true)
 			companion.Profile = profile.Clone();
@@ -321,6 +365,7 @@ public sealed class TalkModeState : UIState
 			return;
 		if (Main.netMode == NetmodeID.MultiplayerClient) {
 			awaitingResponse = true;
+			responseWaitTicks = 0;
 			Soulmates.SendPackWithdrawRequest(index, singleItem);
 		}
 		else {
@@ -351,6 +396,7 @@ public sealed class TalkModeState : UIState
 				? $"\"{options[i]}\""
 				: $"\"{options[i]}\"  {energy}");
 		}
+		ApplyLayout(force: true);
 	}
 
 	private void RefreshCategoryStyles()
@@ -457,6 +503,36 @@ internal sealed class TalkItemButton(int itemType) : UIElement
 	}
 }
 
+internal sealed class CompanionResponseElement : UIElement
+{
+	private string text = "...";
+	private string cachedText = "";
+	private float cachedWidth;
+	private List<string> lines = [];
+	public Color TextColor { get; set; } = Color.White;
+	public void SetText(string value) => text = value;
+
+	protected override void DrawSelf(SpriteBatch spriteBatch)
+	{
+		CalculatedStyle area = GetDimensions();
+		if (cachedText != text || cachedWidth != area.Width) {
+			cachedText = text;
+			cachedWidth = area.Width;
+			lines = SoulmatesTextLayout.Wrap(text, Math.Max(20f, area.Width),
+				line => FontAssets.MouseText.Value.MeasureString(line).X * 0.58f);
+		}
+		int visibleLines = Math.Min(lines.Count, Math.Max(1, (int)(area.Height / 17f)));
+		for (int i = 0; i < visibleLines; i++) {
+			string line = i == visibleLines - 1 && lines.Count > visibleLines ? "..." : lines[i];
+			float width = FontAssets.MouseText.Value.MeasureString(line).X * 0.58f;
+			Utils.DrawBorderString(spriteBatch, line, new Vector2(area.X + (area.Width - width) * 0.5f, area.Y + i * 17f),
+				TextColor, 0.58f);
+		}
+		if (IsMouseHovering)
+			Main.hoverItemName = text;
+	}
+}
+
 internal sealed class CompanionVitalsElement(
 	Func<CompanionProfile?> getProfile,
 	Func<SoulboundCompanion?> getCompanion) : UIElement
@@ -470,11 +546,13 @@ internal sealed class CompanionVitalsElement(
 
 		CalculatedStyle area = GetDimensions();
 		Vector2 topLeft = new(area.X, area.Y);
+		float rowScale = Math.Min(1f, area.Height / 166f);
+		float width = area.Width;
 		string talent = profile.IsAether
 			? SoulmatesText.Get("UI.Talk.OmniSoul")
 			: SoulmatesText.EnumName(profile.Talent);
 		string identity = $"{talent.ToUpperInvariant()} | {SoulmatesText.EnumName(profile.Rank).ToUpperInvariant()}";
-		Utils.DrawBorderString(spriteBatch, identity, topLeft, Color.LightGray, FitScale(identity, 142f, 0.36f));
+		DrawLine(identity, 0f, Color.LightGray, 0.42f);
 		int experience = profile.Level >= CompanionProfile.MaximumLevel
 			? 1
 			: profile.ExperienceIntoLevel;
@@ -484,22 +562,20 @@ internal sealed class CompanionVitalsElement(
 		string experienceValue = profile.Level >= CompanionProfile.MaximumLevel
 			? SoulmatesText.Get("UI.Talk.LevelMax", profile.Level)
 			: SoulmatesText.Get("UI.Talk.LevelProgress", profile.Level, experience, experienceMaximum);
-		DrawMeter(spriteBatch, topLeft + new Vector2(0f, 15f), experienceValue, experience, experienceMaximum,
-			profile.EssenceColor);
-		DrawMeter(spriteBatch, topLeft + new Vector2(0f, 30f), SoulmatesText.Get("UI.Talk.MoodShort"), profile.Mood, 100,
-			new Color(225, 117, 156));
-		DrawMeter(spriteBatch, topLeft + new Vector2(0f, 45f), SoulmatesText.Get("UI.Talk.EnergyShort"), profile.Energy, 100,
+		DrawLine(experienceValue, 18f, Color.White, 0.52f);
+		DrawBar(spriteBatch, topLeft + new Vector2(0f, 34f * rowScale), width,
+			experience, experienceMaximum, profile.EssenceColor, rowScale);
+		DrawMeter(SoulmatesText.Get("UI.Talk.MoodShort"), profile.Mood, 48f, new Color(225, 117, 156));
+		DrawMeter(SoulmatesText.Get("UI.Talk.EnergyShort"), profile.Energy, 68f,
 			profile.Energy < 20 ? new Color(225, 101, 92) : new Color(94, 196, 225));
 		string status = getCompanion()?.CurrentJobName ?? SoulmatesText.Get("Status.Ready");
 		string footer = $"{SoulmatesText.Get("UI.Talk.BondShort")} {profile.Bond} | "
-			+ $"{SoulmatesText.Get("UI.Talk.PackShort")} {profile.PackLoad}/{profile.PackCapacity} | {status}";
-		footer = footer.ToUpperInvariant();
-		Utils.DrawBorderString(spriteBatch, footer, topLeft + new Vector2(0f, 60f), profile.EssenceColor,
-			FitScale(footer, 142f, 0.36f));
+			+ $"{SoulmatesText.Get("UI.Talk.PackShort")} {profile.PackLoad}/{profile.PackCapacity}";
+		DrawLine(footer, 88f, profile.EssenceColor, 0.43f);
+		DrawLine(status, 106f, Color.LightGray, 0.43f);
 		string miningApproach = SoulmatesText.Get("UI.Talk.MiningApproach",
-			SoulmatesText.Get($"MiningApproaches.Names.{profile.MiningApproach}")).ToUpperInvariant();
-		Utils.DrawBorderString(spriteBatch, miningApproach, topLeft + new Vector2(0f, 74f),
-			Color.Lerp(profile.EssenceColor, Color.White, 0.2f), FitScale(miningApproach, 142f, 0.32f));
+			SoulmatesText.EnumName(profile.MiningApproach));
+		DrawLine(miningApproach, 124f, Color.Lerp(profile.EssenceColor, Color.White, 0.2f), 0.4f);
 		LearnedBehavior dominantBehavior = profile.DominantLearnedBehavior;
 		string dominantPerk = profile.HasLearnedPerk(dominantBehavior)
 			? CompanionProfile.LearnedPerkName(dominantBehavior)
@@ -511,23 +587,34 @@ internal sealed class CompanionVitalsElement(
 				? SoulmatesText.Get("UI.Talk.ObservingProgress", dominantPerk)
 				: SoulmatesText.Get("UI.Talk.Learning", SoulmatesText.EnumName(profile.DominantLearnedBehavior),
 					profile.DominantInsight, dominantPerk);
-		learning = learning.ToUpperInvariant();
-		Utils.DrawBorderString(spriteBatch, learning, topLeft + new Vector2(0f, 88f),
-			Color.Lerp(profile.EssenceColor, Color.White, 0.35f), FitScale(learning, 142f, 0.31f));
+		DrawLine(learning, 144f, Color.Lerp(profile.EssenceColor, Color.White, 0.35f), 0.4f);
+		if (IsMouseHovering)
+			Main.hoverItemName = identity + "\n" + experienceValue + "\n" + footer + "\n" + status
+				+ "\n" + miningApproach + "\n" + learning;
+
+		void DrawLine(string text, float y, Color color, float scale)
+			=> Utils.DrawBorderString(spriteBatch, text, topLeft + new Vector2(0f, y * rowScale), color,
+				FitScale(text, width, scale * rowScale));
+
+		void DrawMeter(string label, int value, float y, Color color)
+		{
+			float labelWidth = width * 0.6f;
+			string text = $"{label} {value}";
+			Utils.DrawBorderString(spriteBatch, text, topLeft + new Vector2(0f, y * rowScale), Color.LightGray,
+				FitScale(text, labelWidth - 4f, 0.43f * rowScale));
+			DrawBar(spriteBatch, topLeft + new Vector2(labelWidth, (y + 4f) * rowScale),
+				width - labelWidth, value, 100, color, rowScale);
+		}
 	}
 
-	private static void DrawMeter(SpriteBatch spriteBatch, Vector2 position, string label, int value, int maximum, Color color)
+	private static void DrawBar(SpriteBatch spriteBatch, Vector2 position, float width, int value, int maximum, Color color, float scale)
 	{
 		Texture2D pixel = TextureAssets.MagicPixel.Value;
-		string upperLabel = label.ToUpperInvariant();
-		Utils.DrawBorderString(spriteBatch, upperLabel, position, Color.LightGray,
-			FitScale(upperLabel, 58f, 0.34f));
-		float barX = position.X + 61f;
-		const float barWidth = 78f;
-		spriteBatch.Draw(pixel, new Rectangle((int)barX, (int)position.Y + 3, (int)barWidth, 7), new Color(33, 40, 55));
-		int fill = (int)(barWidth * Math.Clamp(value, 0, Math.Max(1, maximum)) / Math.Max(1f, maximum));
+		int height = Math.Max(3, (int)(7f * scale));
+		spriteBatch.Draw(pixel, new Rectangle((int)position.X, (int)position.Y, (int)width, height), new Color(33, 40, 55));
+		int fill = (int)(width * Math.Clamp(value, 0, Math.Max(1, maximum)) / Math.Max(1f, maximum));
 		if (fill > 0)
-			spriteBatch.Draw(pixel, new Rectangle((int)barX, (int)position.Y + 3, fill, 7), color);
+			spriteBatch.Draw(pixel, new Rectangle((int)position.X, (int)position.Y, fill, height), color);
 	}
 
 	private static float FitScale(string text, float maximumWidth, float preferredScale)
@@ -555,7 +642,7 @@ internal sealed class CompanionPackElement(
 			return;
 
 		CalculatedStyle area = GetDimensions();
-		const float slotSize = 27f;
+		float slotSize = Math.Min(27f, Math.Max(8f, (area.Width - 20f) / 6f));
 		const float gap = 4f;
 		float totalWidth = slotSize * 6f + gap * 5f;
 		Vector2 start = new(area.X + (area.Width - totalWidth) * 0.5f, area.Y);
@@ -571,14 +658,18 @@ internal sealed class CompanionPackElement(
 			Main.instance.LoadItem(item.type);
 			Texture2D texture = TextureAssets.Item[item.type].Value;
 			Rectangle frame = Main.itemAnimations[item.type]?.GetFrame(texture) ?? texture.Bounds;
-			float scale = Math.Min(20f / frame.Width, 20f / frame.Height);
+			float iconSize = Math.Min(20f, slotSize * 0.75f);
+			float scale = Math.Min(iconSize / frame.Width, iconSize / frame.Height);
 			Vector2 center = position + new Vector2(slotSize * 0.5f);
 			spriteBatch.Draw(texture, center, frame, Color.White, 0f, frame.Size() * 0.5f, scale, SpriteEffects.None, 0f);
-			if (item.stack > 1)
-				Utils.DrawBorderString(spriteBatch, item.stack.ToString(), position + new Vector2(slotSize - 2f, slotSize - 2f), Color.White, 0.55f, 1f, 1f);
+			if (item.stack > 1) {
+				string count = item.stack.ToString();
+				float countScale = Math.Min(0.55f, (slotSize - 2f) / Math.Max(1f, FontAssets.MouseText.Value.MeasureString(count).X));
+				Utils.DrawBorderString(spriteBatch, count, position + new Vector2(slotSize - 2f, slotSize - 2f), Color.White, countScale, 1f, 1f);
+			}
 		}
 
-		int hovered = SlotAt(Main.MouseScreen);
+		int hovered = SlotAt(SoulmatesUISpace.Mouse);
 		if (hovered >= 0 && hovered < profile.Pack.Count && !profile.Pack[hovered].IsAir) {
 			Main.LocalPlayer.mouseInterface = true;
 			Main.HoverItem = profile.Pack[hovered].Clone();
@@ -588,7 +679,7 @@ internal sealed class CompanionPackElement(
 
 	private void Withdraw(bool singleItem)
 	{
-		int index = SlotAt(Main.MouseScreen);
+		int index = SlotAt(SoulmatesUISpace.Mouse);
 		if (index < 0)
 			return;
 		withdraw(index, singleItem);
@@ -597,7 +688,7 @@ internal sealed class CompanionPackElement(
 	private int SlotAt(Vector2 mousePosition)
 	{
 		CalculatedStyle area = GetDimensions();
-		const float slotSize = 27f;
+		float slotSize = Math.Min(27f, Math.Max(8f, (area.Width - 20f) / 6f));
 		const float gap = 4f;
 		float totalWidth = slotSize * 6f + gap * 5f;
 		Vector2 start = new(area.X + (area.Width - totalWidth) * 0.5f, area.Y);

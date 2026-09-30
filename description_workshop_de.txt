@@ -25,7 +25,7 @@ Soulmates entstand mit umfassender KI-Unterstützung bei Programmierung, Texten,
 [*]Talk Mode bietet Fürsorge, Befehle, Arbeit, Bindung, Stimme und Pack in einer kompakten Detailansicht.
 [*]Das Papierflieger-Symbol öffnet den lokalen AETHER-Briefkasten für Feedback und Bugberichte direkt in Terraria.
 [*]Companions sprechen passend zu Persönlichkeit, Stimmung, Wetter, Gefahr und Ort, reagieren auf Kämpfe und friedliche Kreaturen und begegnen Town-NPCs auch wortlos.
-[*]Texte bleiben länger lesbar, folgen einer fortfliegenden Seele verzögert und verblassen als sanfter Nachhall am gesprochenen Ort.
+[*]Sprechblasen zeigen den Namen der Seele, bleiben bei ihr und verblassen beim Weiterfliegen mit einem sanften Nachhall.
 [/list]
 
 [h2]Autonomie mit Charakter[/h2]
@@ -53,28 +53,19 @@ Soulmates entstand mit umfassender KI-Unterstützung bei Programmierung, Texten,
 [*]Der Companion spendet Seelenlicht und deckt die Karte dort auf, wo er unterwegs ist.
 [/list]
 
-[h2]Soul Trinkets[/h2]
-[list]
-[*][b]Starfinder Bell[/b]: deutlich größere Schatzsuche.
-[*][b]Delver Charm[/b]: größerer Bergbauradius und schnelleres Erzräumen.
-[*][b]Hearth Ribbon[/b]: bessere Sammelreichweite, Kapazität und Erholung beim Warten.
-[/list]
-
 [h2]Erste Schritte[/h2]
 Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils. Alles ist auch herstellbar.
 
 [b]Soulcore:[/b] 8 Fallen Stars, 5 Amethyst, 10 Stone Blocks
 [b]Blank Sigil:[/b] 3 Fallen Stars, 1 Amethyst, 5 Silk
-[b]Starfinder Bell:[/b] 5 Fallen Stars, 3 Iron/Lead Bars, 1 Lens
-[b]Delver Charm:[/b] 5 Iron/Lead Bars, 2 Amethyst, 20 Stone Blocks
-[b]Hearth Ribbon:[/b] 5 Silk, 2 Daybloom, 2 Fallen Stars
+Herstellbare Trinkets verbessern Schatzsuche, Bergbau oder Pack und Erholung.
 
-[h2]Aktuelle Version: 0.12.0 - Mining Intent[/h2]
-Erze in der Nähe fächern sich nun im Arbeitsrad als Terraria-Itemsymbole auf. Adaptiv, Tunnel, Ader und Oberfläche bestimmen, wie jeder Companion abbaut; Tunnel öffnet einen schmalen Weg zum Erz oder nächsten Freiraum, während instabiles sandartiges Material nur von offenen Kanten genommen wird. Der Talk Mode zeigt echten Levelfortschritt und den aktiven Modus und lässt sich am Linealgriff vergrößern. Bestehende Sigils laden sicher im adaptiven Modus.
+[h2]Aktuelle Version: 0.12.1 - Clear Voices[/h2]
+Bereinigte englische und deutsche Textschlüssel, lesbarere Statuswerte und korrekte Klickflächen bei skalierter UI. Sprechblasen nennen ihren Absender und folgen der Seele statt dem Spieler. Die vier Bergbaumodi und das kontextuelle Erzrad bleiben erhalten.
 [b]Hinweis zu alten Installationen:[/b] Falls du einen `9.9.x`-Build von GitHub manuell installiert hast, entferne diese doppelte `.tmod`, bevor du die Workshop-Fassung von AETHER-EGG verwendest. Normale Workshop-Abonnements ersetzen ihre eigene Datei automatisch.
 
 [h2]Wie Soulmates hierherkam[/h2]
-Soulmates begann als Item zum Gestalten eines Pets. Wiederholte Ingame-Tests machten daraus dauerhafte Sigils, Persönlichkeiten, Kampfunterstützung, Arbeit, Pack, Lernen, Forstpflege, Initiative und native Emotes. Einige Systeme wurden mehrfach neu gebaut, nachdem echtes Spielen umständliche Bedienung, verschwindende Fracht, doppelte Drops oder zurückbleibende Fähigkeiten zeigte. Der GitHub-Changelog bewahrt diese Geschichte; hier steht nur der umgesetzte Ist-Stand.
+Aus einem Pet-Editor wurden Sigils, Charakter, Arbeit, Pack, Lernen und native Emotes. Spieltests zeigten auch Fehler und führten zu mehreren Umbauten. Der GitHub-Changelog bewahrt diese Geschichte; hier steht der umgesetzte Alpha-Stand.
 
 [h2]Spieletests und Feedback[/h2]
 Jede Rückmeldung hilft. Meine Spielzeit ist begrenzt und Terraria-Fortschritt braucht Zeit, deshalb werden manche Kombinationen und Langzeitprobleme langsam sichtbar. Wenn etwas seltsam, unklar oder später kaputt ist, schreib bitte dazu, was geschah und ob es Singleplayer oder Multiplayer war. Wenn dich dein Companion einfach zum Lächeln bringt, freue ich mich darüber genauso.

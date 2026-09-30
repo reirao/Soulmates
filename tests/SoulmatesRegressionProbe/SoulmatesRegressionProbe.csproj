@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(TML_PATH)\tMLMod.targets" />
+  <PropertyGroup>
+    <AssemblyName>SoulmatesRegressionProbe</AssemblyName>
+    <Nullable>enable</Nullable>
+    <ExtraBuildModFlags>$(ExtraBuildModFlags) -tmlsavedirectory &quot;$(TML_SAVE_PATH)&quot;</ExtraBuildModFlags>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Soulmates" HintPath="$(SOULMATES_ASSEMBLY_PATH)" Private="false" />
+  </ItemGroup>
+</Project>

@@ -16,7 +16,7 @@ public sealed class TalkModeSystem : ModSystem
 	private TalkModeState? talkState;
 	public bool IsOpen => talkInterface?.CurrentState is TalkModeState;
 
-	public override void Load()
+	public override void PostSetupContent()
 	{
 		if (Main.dedServ)
 			return;
@@ -35,6 +35,8 @@ public sealed class TalkModeSystem : ModSystem
 		ModContent.GetInstance<SoulCreatorSystem>().Close();
 		ModContent.GetInstance<CompanionWheelSystem>().Close();
 		ModContent.GetInstance<FeedbackMailboxSystem>().Close();
+		ModContent.GetInstance<InitiativePromptSystem>().Close();
+		ModContent.GetInstance<DirectOrderSystem>().Cancel();
 		talkState.Bind(sigil, companion, initialCategory);
 		talkInterface.SetState(talkState);
 		Main.playerInventory = false;
@@ -45,6 +47,8 @@ public sealed class TalkModeSystem : ModSystem
 		talkInterface?.SetState(null);
 		talkState?.Unbind();
 	}
+
+	public override void OnWorldUnload() => Close();
 
 	internal void ReceiveNetworkResponse(CompanionProfile profile, string reply, bool accepted)
 		=> talkState?.ReceiveNetworkResponse(profile, reply, accepted);

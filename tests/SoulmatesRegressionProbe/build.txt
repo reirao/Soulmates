@@ -1,0 +1,5 @@
+displayName = Soulmates Regression Probe
+author = Soulmates development
+version = 0.0.1
+modReferences = Soulmates
+buildIgnore = *.csproj, bin\*, obj\*

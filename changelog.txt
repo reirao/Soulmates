@@ -1,3 +1,18 @@
+Soulmates 0.12.1 - Clear Voices
+
+- Fixed mining approach reply paths and missing quick-action translations in English and German; mode names now use one canonical enum translation.
+- Initialize UI states after localization registration and refresh mailbox labels when opened; old saved memory keys resolve as text instead of leaking internal identifiers.
+- Moved speech to a zoom-aware UI overlay anchored to the companion, with its name, a subtle speaker connection, stable placement, and a restrained fading trail.
+- Cached speech wrapping, preserved line breaks, and split long words safely; ambient chatter no longer immediately replaces an important reply.
+- Reworked Talk Mode padding, numeric mood/energy values, level bar, response bounds, and pack hitboxes; reset resize state and added recovery from unanswered multiplayer requests.
+- Companion previews and their auras now fit their real panel bounds; wheels shrink within small viewports, and long world-target labels wrap instead of running offscreen.
+- Unified raw-input-to-UI coordinate conversion for wheels, pack slots, resizing, initiative prompts, and world-target outlines.
+- Close conflicting interfaces and clear bindings on world exit.
+- Revalidate changed terrain before mining, enforce the mining timeout during travel, count real ore blocks in tunnel vein traversal, and remove unrelated fallback excavation from blocked tunnels.
+- Mining reports describe the completed plan; blocked tunnels explain their limitation, and stale ore selections refresh instead of targeting changed material.
+- Added reproducible localization, wrapping, UI-transform, and isolated tModLoader engine regression checks.
+- Shortened the German Workshop copy to remain below Steam's 8000-byte limit.
+
 Soulmates 0.12.0 - Mining Intent
 
 - Added a contextual ore crescent to the Work Soulwheel: nearby ore families appear as their real Terraria drop icons and can be assigned with one click; the manual world-target pickaxe remains available.

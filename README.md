@@ -81,13 +81,13 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current release
 
-**Soulmates 0.12.0 - Mining Intent** makes work direction visible and deliberate. Nearby ore families unfold from the mining command with Terraria item icons, while Adaptive, Tunnel, Vein, and Surface approaches decide how area mining proceeds. Tunnel work opens a narrow route toward ore or the next free space, unstable sand-like material is handled only from exposed edges, and Talk Mode now has a resizable status view with a real level bar. Existing Sigils load safely in Adaptive mode.
+**Soulmates 0.12.1 - Clear Voices** fixes missing English/German action texts and initialization-time localization glitches. Named speech bubbles now follow their companion rather than the player, keep a stable side while speaking, and retain a restrained fading trail. Talk Mode has readable numeric mood/energy values, a full-width level bar, and contained response/pack regions. Shared UI coordinates keep world targets and wheel hitboxes consistent across game zoom and UI scaling. The four mining approaches remain; changed terrain is rechecked before mining, blocked tunnels no longer fall back to unrelated material, and completion reports describe the finished plan rather than claiming an empty area.
 
 The maturity gates for Alpha, Beta, release candidate, and 1.0 are defined in [VERSIONING.md](VERSIONING.md). The former `9.9.x` values were experimental build counters and remain in the changelog only as project history.
 
 ## How Soulmates got here
 
-Soulmates began as a reusable item for shaping a personal pet. Repeated in-game passes turned that small idea into persistent Sigils, companion personalities, combat support, work assignments, a real pack, learned behavior, forestry, initiative choices, native emotes, and the compact Soulwheel. Several of those systems were rebuilt more than once when real play exposed awkward controls, disappearing cargo, duplicate drops, stale abilities, or behavior that looked clever but did not remain coherent over a longer session. The complete sequence is preserved in [changelog.txt](changelog.txt); this page describes the implemented AETHER-EGG Alpha state of 0.12.0.
+Soulmates began as a reusable item for shaping a personal pet. Repeated in-game passes turned that small idea into persistent Sigils, companion personalities, combat support, work assignments, a real pack, learned behavior, forestry, initiative choices, native emotes, and the compact Soulwheel. Several of those systems were rebuilt more than once when real play exposed awkward controls, disappearing cargo, duplicate drops, stale abilities, or behavior that looked clever but did not remain coherent over a longer session. The complete sequence is preserved in [changelog.txt](changelog.txt); this page describes the implemented AETHER-EGG Alpha state of 0.12.1.
 
 ## Playtesting and feedback
 

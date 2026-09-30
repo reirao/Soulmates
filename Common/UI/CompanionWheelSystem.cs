@@ -112,6 +112,8 @@ public sealed class CompanionWheelSystem : ModSystem
 	private const float RootRadius = 72f;
 	private const float BranchRadius = 124f;
 	private const float NativeRadius = 178f;
+	private static float LayoutScale => Math.Min(1f,
+		Math.Min(SoulmatesUISpace.Viewport.X / 460f, SoulmatesUISpace.Viewport.Y / 500f));
 	private bool open;
 	private int openTicks;
 	private Vector2 center;
@@ -147,9 +149,11 @@ public sealed class CompanionWheelSystem : ModSystem
 		ModContent.GetInstance<DirectOrderSystem>().Cancel();
 		ModContent.GetInstance<TalkModeSystem>().Close();
 		ModContent.GetInstance<FeedbackMailboxSystem>().Close();
+		ModContent.GetInstance<InitiativePromptSystem>().Close();
+		ModContent.GetInstance<SoulCreatorSystem>().Close();
 		companion = boundCompanion;
 		context = wheelContext;
-		center = ClampCenter(Main.MouseScreen);
+		center = ClampCenter(SoulmatesUISpace.Mouse);
 		branch = initialBranch;
 		nativeCategory = -1;
 		nativePage = 0;
@@ -181,6 +185,8 @@ public sealed class CompanionWheelSystem : ModSystem
 		leftMouseDown = false;
 		rightMouseDown = false;
 	}
+
+	public override void OnWorldUnload() => Close();
 
 	public override void UpdateUI(GameTime gameTime)
 	{
@@ -218,7 +224,7 @@ public sealed class CompanionWheelSystem : ModSystem
 	{
 		hoverLayer = HoverLayer.None;
 		hoverIndex = -1;
-		Vector2 mouse = Main.MouseScreen;
+		Vector2 mouse = SoulmatesUISpace.Mouse;
 		if (Hit(mouse, center, 25f)) {
 			hoverLayer = HoverLayer.Center;
 			return;
@@ -360,6 +366,14 @@ public sealed class CompanionWheelSystem : ModSystem
 
 		NearbyOreChoice choice = nearbyOreChoices[index];
 		SoulboundCompanion selected = companion;
+		if (!selected.CanTargetMining(choice.Tile)
+			|| TileLoader.GetItemDropFromTypeAndStyle(Main.tile[choice.Tile.X, choice.Tile.Y].TileType, 0) != choice.ItemType) {
+			nearbyOreChoices.Clear();
+			nearbyOreChoices.AddRange(selected.FindNearbyOreTargets()
+				.Select(candidate => new NearbyOreChoice(candidate.Tile, candidate.ItemType)));
+			SoundEngine.PlaySound(SoundID.MenuTick);
+			return;
+		}
 		SoulmatesFeedbackSystem.Record("nearby_ore_selected", ("item_type", choice.ItemType),
 			("tile_x", choice.Tile.X), ("tile_y", choice.Tile.Y));
 		Close();
@@ -623,7 +637,7 @@ public sealed class CompanionWheelSystem : ModSystem
 			return;
 		float scale = FitTextScale(label, 300f, 0.72f);
 		Vector2 size = FontAssets.MouseText.Value.MeasureString(label) * scale;
-		Vector2 position = new(center.X - size.X * 0.5f, center.Y + NativeRadius + 27f);
+		Vector2 position = new(center.X - size.X * 0.5f, center.Y + (NativeRadius + 27f) * LayoutScale);
 		Utils.DrawBorderString(spriteBatch, label, position, Color.Lerp(Color.White, accent, 0.15f), scale);
 	}
 
@@ -632,10 +646,10 @@ public sealed class CompanionWheelSystem : ModSystem
 		CompanionProfile profile = companion!.Profile;
 		string status = SoulmatesText.Get("UI.CompanionWheel.Status", companion.CurrentJobName,
 			profile.Level, profile.Energy, profile.PackLoad, profile.PackCapacity,
-			SoulmatesText.Get($"MiningApproaches.Names.{profile.MiningApproach}"));
+			SoulmatesText.EnumName(profile.MiningApproach));
 		float scale = FitTextScale(status, 340f, 0.5f);
 		Vector2 size = FontAssets.MouseText.Value.MeasureString(status) * scale;
-		Vector2 position = new(center.X - size.X * 0.5f, center.Y + NativeRadius + 50f);
+		Vector2 position = new(center.X - size.X * 0.5f, center.Y + (NativeRadius + 50f) * LayoutScale);
 		Utils.DrawBorderString(spriteBatch, status.ToUpperInvariant(), position,
 			Color.Lerp(Color.LightGray, accent, 0.35f), scale);
 	}
@@ -800,7 +814,7 @@ public sealed class CompanionWheelSystem : ModSystem
 	private int EntriesOnNativePage(NativeCategory category)
 		=> Math.Clamp(category.Entries.Length - nativePage * NativePageSize, 0, NativePageSize);
 
-	private Vector2 RootPosition(int index) => center + RootAngle(index).ToRotationVector2() * RootRadius;
+	private Vector2 RootPosition(int index) => center + RootAngle(index).ToRotationVector2() * RootRadius * LayoutScale;
 
 	private Vector2 BranchPosition(RootBranch activeBranch, int index, int count)
 	{
@@ -808,7 +822,7 @@ public sealed class CompanionWheelSystem : ModSystem
 			? -MathHelper.PiOver2
 			: RootAngle(Array.IndexOf(ActiveRoots, activeBranch));
 		float angle = FanAngle(rootAngle, index, count, MathHelper.ToRadians(136f));
-		return center + angle.ToRotationVector2() * BranchRadius;
+		return center + angle.ToRotationVector2() * BranchRadius * LayoutScale;
 	}
 
 	private Vector2 NativePosition(int index, int count)
@@ -819,7 +833,7 @@ public sealed class CompanionWheelSystem : ModSystem
 		float categoryAngle = FanAngle(rootAngle,
 			nativeCategory, NativeCategories.Length, MathHelper.ToRadians(136f));
 		float angle = FanAngle(categoryAngle, index, count, MathHelper.ToRadians(148f));
-		return center + angle.ToRotationVector2() * NativeRadius;
+		return center + angle.ToRotationVector2() * NativeRadius * LayoutScale;
 	}
 
 	private Vector2 MiningApproachPosition(int index)
@@ -828,7 +842,7 @@ public sealed class CompanionWheelSystem : ModSystem
 		float branchAngle = FanAngle(rootAngle, Array.IndexOf(WorkActions, WheelWorkAction.MiningApproach),
 			WorkActions.Length, MathHelper.ToRadians(136f));
 		float angle = FanAngle(branchAngle, index, MiningApproaches.Length, MathHelper.ToRadians(112f));
-		return center + angle.ToRotationVector2() * NativeRadius;
+		return center + angle.ToRotationVector2() * NativeRadius * LayoutScale;
 	}
 
 	private Vector2 OreTargetPosition(int index)
@@ -837,7 +851,7 @@ public sealed class CompanionWheelSystem : ModSystem
 		float branchAngle = FanAngle(rootAngle, Array.IndexOf(WorkActions, WheelWorkAction.MineTarget),
 			WorkActions.Length, MathHelper.ToRadians(136f));
 		float angle = FanAngle(branchAngle, index, nearbyOreChoices.Count + 1, MathHelper.ToRadians(148f));
-		return center + angle.ToRotationVector2() * NativeRadius;
+		return center + angle.ToRotationVector2() * NativeRadius * LayoutScale;
 	}
 
 	private float RootAngle(int index) => -MathHelper.PiOver2 + MathHelper.TwoPi * index / ActiveRoots.Length;
@@ -846,17 +860,21 @@ public sealed class CompanionWheelSystem : ModSystem
 
 	private static Vector2 ClampCenter(Vector2 desired)
 	{
-		const float margin = NativeRadius + 48f;
-		float x = Main.screenWidth <= margin * 2f ? Main.screenWidth * 0.5f : Math.Clamp(desired.X, margin, Main.screenWidth - margin);
-		float y = Main.screenHeight <= margin * 2f ? Main.screenHeight * 0.5f : Math.Clamp(desired.Y, margin, Main.screenHeight - margin);
+		float margin = (NativeRadius + 32f) * LayoutScale;
+		float bottomMargin = (NativeRadius + 80f) * LayoutScale;
+		Vector2 viewport = SoulmatesUISpace.Viewport;
+		float x = viewport.X <= margin * 2f ? viewport.X * 0.5f : Math.Clamp(desired.X, margin, viewport.X - margin);
+		float y = viewport.Y <= margin + bottomMargin ? viewport.Y * 0.5f : Math.Clamp(desired.Y, margin, viewport.Y - bottomMargin);
 		return new Vector2(x, y);
 	}
 
-	private static bool Hit(Vector2 point, Vector2 node, float radius) => Vector2.DistanceSquared(point, node) <= radius * radius;
+	private static bool Hit(Vector2 point, Vector2 node, float radius)
+		=> Vector2.DistanceSquared(point, node) <= radius * radius * LayoutScale * LayoutScale;
 
 	private static void DrawNode(SpriteBatch spriteBatch, Vector2 position, float size, Color accent,
 		bool hovered, bool active, WheelIcon icon)
 	{
+		size *= LayoutScale;
 		Texture2D slot = TextureAssets.InventoryBack.Value;
 		Color slotColor = hovered
 			? Color.White

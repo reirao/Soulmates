@@ -31,8 +31,15 @@ public sealed partial class SoulboundCompanion
 				speechTrailWorld = NPC.Center;
 			}
 			Vector2 previousAnchor = speechAnchorWorld;
-			speechAnchorWorld = Vector2.Lerp(speechAnchorWorld, SpeechAnchorTarget(), 0.12f);
-			speechTrailWorld = Vector2.Lerp(speechTrailWorld, previousAnchor, 0.07f);
+			Vector2 target = SpeechAnchorTarget();
+			if (Vector2.DistanceSquared(previousAnchor, target) > 240f * 240f) {
+				speechAnchorWorld = target;
+				speechTrailWorld = target;
+			}
+			else {
+				speechAnchorWorld = Vector2.Lerp(previousAnchor, target, 0.24f);
+				speechTrailWorld = Vector2.Lerp(speechTrailWorld, previousAnchor, 0.1f);
+			}
 		}
 		else {
 			speechText = "";
@@ -169,12 +176,7 @@ public sealed partial class SoulboundCompanion
 			Main.NewText(message, Profile.EssenceColor);
 	}
 
-	private Vector2 SpeechAnchorTarget()
-	{
-		if (!TryGetOwner(out Player owner))
-			return NPC.Center;
-		return owner.Center + new Vector2(-owner.direction * 28f, -10f);
-	}
+	private Vector2 SpeechAnchorTarget() => NPC.Center;
 
 	private void QueueImitation(LearnedBehavior behavior)
 	{

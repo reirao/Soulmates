@@ -14,7 +14,7 @@ public sealed class FeedbackMailboxSystem : ModSystem
 	internal FeedbackMailboxState? MailboxState { get; private set; }
 	public bool IsOpen => mailboxInterface?.CurrentState is FeedbackMailboxState;
 
-	public override void Load()
+	public override void PostSetupContent()
 	{
 		if (Main.dedServ)
 			return;
@@ -31,6 +31,7 @@ public sealed class FeedbackMailboxSystem : ModSystem
 		ModContent.GetInstance<SoulCreatorSystem>().Close();
 		ModContent.GetInstance<CompanionWheelSystem>().Close();
 		ModContent.GetInstance<InitiativePromptSystem>().Close();
+		ModContent.GetInstance<DirectOrderSystem>().Cancel();
 		MailboxState.Prepare();
 		mailboxInterface.SetState(MailboxState);
 		Main.playerInventory = false;

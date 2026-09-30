@@ -303,7 +303,11 @@ public sealed class CompanionProfile
 	public int CombatInsight { get; set; }
 	public int ExplorationInsight { get; set; }
 	public int ObservedPickPower { get; set; } = 35;
-	public string LastMemory { get; set; } = SoulmatesText.Get("Memories.New");
+	private string lastMemory = "";
+	public string LastMemory {
+		get => SoulmatesText.ResolveSavedText(lastMemory, "Memories.New");
+		set => lastMemory = value;
+	}
 	public List<int> LearnedMiningTiles { get; set; } = [];
 	public List<Item> Pack { get; set; } = [];
 	public List<CompanionMemory> Memories { get; set; } = [];
