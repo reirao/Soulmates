@@ -1,5 +1,15 @@
 # Soulmates Development History
 
+## Soulmates 0.13.0 - Growing Cargo
+
+- Separate Equipment, Resources, and Wallet without changing companion identity or learned behavior.
+- Resources have 60 stack slots and a per-type reserve of 50 units per level, reaching 500 at level 10 and 1,000 at level 20.
+- Collected coins use an exact, uncapped balance, independently of cargo capacity; native coin icons support denomination conversion on withdrawal.
+- Migrate legacy materials and coins, and return resource excess on summon without deleting it.
+- Use resources for forestry, torch support, and recipe suggestions; update cargo feedback snapshots and Sigil tooltips.
+- Add compartment-aware transfers and binary synchronization, responsive slots, resource paging, and focused cargo/wallet regressions.
+- Verified with 4,051 engine/geometry and 2,065 static/math assertions; the creator confirmed that the new cargo works in play. Broader rendering, long-session, and live multiplayer testing remain open.
+
 ## Soulmates 0.12.2 - Patient Choices
 
 - Fixed inventory right-click consuming the reusable Soulcore.

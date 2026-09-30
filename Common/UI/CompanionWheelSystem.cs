@@ -646,7 +646,7 @@ public sealed class CompanionWheelSystem : ModSystem
 		CompanionProfile profile = companion!.Profile;
 		string status = SoulmatesText.Get("UI.CompanionWheel.Status", companion.CurrentJobName,
 			profile.Level, profile.Energy, profile.PackLoad, profile.PackCapacity,
-			SoulmatesText.EnumName(profile.MiningApproach));
+			SoulmatesText.EnumName(profile.MiningApproach), profile.ResourceLoad);
 		float scale = FitTextScale(status, 340f, 0.5f);
 		Vector2 size = FontAssets.MouseText.Value.MeasureString(status) * scale;
 		Vector2 position = new(center.X - size.X * 0.5f, center.Y + (NativeRadius + 50f) * LayoutScale);

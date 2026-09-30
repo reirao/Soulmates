@@ -56,6 +56,12 @@ Mods: {
 		}
 
 		Enums: {
+			CompanionStorage: {
+				Pack: Equipment
+				Resources: Resources
+				Wallet: Wallet
+			}
+
 			CompanionPersonality: {
 				Curious: Curious
 				Loyal: Loyal
@@ -221,7 +227,7 @@ Mods: {
 				Title: "{0} · TALK"
 				Greeting: "{0} looks at you expectantly."
 				ChooseWords: CHOOSE YOUR WORDS
-				Pack: COMPANION PACK
+				Pack: COMPANION CARGO
 				Radius: " | Radius {0}"
 				Stats:
 					'''
@@ -264,7 +270,7 @@ Mods: {
 				Close: Close
 				Previous: Previous page
 				Next: Next page
-				Status: "{0} | LV {1} | Energy {2} | Pack {3}/{4} | {5}"
+				Status: "{0} | LV {1} | Energy {2} | Pack {3}/{4} | Resources {6} | {5}"
 				AutonomyOn: AUTO ON
 				AutonomyOff: AUTO OFF
 				InitiativePrompt: "{0}: YOUR CALL"
@@ -514,8 +520,22 @@ Mods: {
 			}
 		}
 
+		Storage: {
+			Description: Equipment {0}/{1} | {2} resource stacks, {3} per type | {4}
+			Money: "{0}p {1}g {2}s {3}c"
+			Unlimited: Wallet: no capacity limit
+			ResourceSummary: "{0}/type | {1}/{2}"
+			PageHint: Resource pages: next / right-click previous
+			ResourcesFull: My resource inventory has no free slots.
+			Stored: I stored {0} in {1}.
+			Returned: I returned {0}. Anything that did not fit stays with me.
+			Withdrawn: I returned {0} from {1}.
+			WalletHint: "{0}: up to {1} available. Balance: {2}. No capacity limit."
+			Tooltip: Resources: {0} stacks, {1} per type | Wallet: {2} (unlimited)
+		}
+
 		Pack: {
-			Empty: My pack is empty.
+			Empty: My cargo and wallet are empty.
 			AndMoreStacks: ", and {0} more stacks"
 			Description: I carry {0}. ({1}/{2})
 			SelectedEmpty: Your selected hotbar slot is empty.
@@ -526,7 +546,7 @@ Mods: {
 			StoredMany: I stored {0} items. ({1}/{2})
 			ReturnedOne: I returned {0} item. ({1}/{2})
 			ReturnedMany: I returned {0} items. ({1}/{2})
-			AlreadyEmpty: My pack is already empty.
+			AlreadyEmpty: My cargo and wallet are already empty.
 			InventoryFull: Your inventory has no room for my cargo.
 			SlotEmpty: That pack slot is empty.
 			WithdrewOne: I returned {0} item from that slot. ({1}/{2})

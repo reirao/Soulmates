@@ -129,11 +129,11 @@ public sealed class TalkModeState : UIState
 			panel.Append(button);
 		}
 
-		packElement = new CompanionPackElement(() => DisplayProfile, WithdrawPackSlot) {
+		packElement = new CompanionPackElement(() => DisplayProfile, WithdrawStorageSlot) {
 			Left = new StyleDimension(178f, 0f),
 			Top = new StyleDimension(239f, 0f),
 			Width = new StyleDimension(366f, 0f),
-			Height = new StyleDimension(58f, 0f)
+			Height = new StyleDimension(104f, 0f)
 		};
 		panel.Append(packElement);
 		packLabel = new UIText("", 0.58f) {
@@ -171,6 +171,7 @@ public sealed class TalkModeState : UIState
 		awaitingResponse = false;
 		responseWaitTicks = 0;
 		resizing = false;
+		packElement?.Reset();
 		ApplyLayout();
 		Recalculate();
 		RefreshLocalizedLabels();
@@ -303,7 +304,7 @@ public sealed class TalkModeState : UIState
 			UITextPanel<string> button = optionButtons[i];
 			button.Left.Set(rightLeft, 0f);
 			button.Width.Set(rightWidth, 0f);
-			float availableHeight = Math.Max(78f, height - 202f);
+			float availableHeight = Math.Max(78f, height - 244f);
 			float step = Math.Min(49f, availableHeight / 3f);
 			button.Top.Set(106f + i * step, 0f);
 			button.Height.Set(step - 6f, 0f);
@@ -312,10 +313,10 @@ public sealed class TalkModeState : UIState
 			button.SetText(text, textWidth <= 0f ? 0.62f : Math.Min(0.62f, (rightWidth - 20f) / textWidth), false);
 		}
 		packElement.Left.Set(rightLeft, 0f);
-		packElement.Top.Set(height - 78f, 0f);
+		packElement.Top.Set(height - 112f, 0f);
 		packElement.Width.Set(Math.Max(60f, rightWidth - 30f), 0f);
 		packLabel?.Left.Set(rightLeft, 0f);
-		packLabel?.Top.Set(height - 98f, 0f);
+		packLabel?.Top.Set(height - 132f, 0f);
 		closeButton.Left.Set(width - 46f, 0f);
 		resizeHandle.Left.Set(width - 38f, 0f);
 		resizeHandle.Top.Set(height - 38f, 0f);
@@ -359,17 +360,17 @@ public sealed class TalkModeState : UIState
 		SoundEngine.PlaySound(accepted ? SoundID.Chat : SoundID.MenuClose);
 	}
 
-	private void WithdrawPackSlot(int index, bool singleItem)
+	private void WithdrawStorageSlot(CompanionStorage storage, int index, bool singleItem)
 	{
 		if (awaitingResponse || companion?.NPC.active != true)
 			return;
 		if (Main.netMode == NetmodeID.MultiplayerClient) {
 			awaitingResponse = true;
 			responseWaitTicks = 0;
-			Soulmates.SendPackWithdrawRequest(index, singleItem);
+			Soulmates.SendPackWithdrawRequest(index, singleItem, storage);
 		}
 		else {
-			string reply = companion.WithdrawPackSlot(index, singleItem);
+			string reply = companion.WithdrawStorageSlot(storage, index, singleItem);
 			sigil!.Profile = companion.Profile.Clone();
 			SetResponse(reply, accepted: true);
 		}
@@ -480,6 +481,7 @@ internal sealed class TalkIconButton(int emoteId) : UIElement
 internal sealed class TalkItemButton(int itemType) : UIElement
 {
 	public string HoverText { get; set; } = "";
+	public bool Selected { get; set; }
 
 	protected override void DrawSelf(SpriteBatch spriteBatch)
 	{
@@ -488,7 +490,8 @@ internal sealed class TalkItemButton(int itemType) : UIElement
 		float size = Math.Min(area.Width, area.Height);
 		Vector2 center = new(area.X + area.Width * 0.5f, area.Y + area.Height * 0.5f);
 		Texture2D slot = TextureAssets.InventoryBack.Value;
-		spriteBatch.Draw(slot, center, null, IsMouseHovering ? Color.White : Color.White * 0.86f,
+		spriteBatch.Draw(slot, center, null, IsMouseHovering ? Color.White
+			: Selected ? new Color(174, 232, 217) : Color.White * 0.86f,
 			0f, slot.Size() * 0.5f, size / slot.Width, SpriteEffects.None, 0f);
 		Main.instance.LoadItem(itemType);
 		Texture2D texture = TextureAssets.Item[itemType].Value;
@@ -621,82 +624,5 @@ internal sealed class CompanionVitalsElement(
 	{
 		float width = FontAssets.MouseText.Value.MeasureString(text).X;
 		return width <= 0f ? preferredScale : Math.Min(preferredScale, maximumWidth / width);
-	}
-}
-
-internal sealed class CompanionPackElement(
-	Func<CompanionProfile?> getProfile,
-	Action<int, bool> withdraw) : UIElement
-{
-	public override void OnInitialize()
-	{
-		OnLeftClick += (_, _) => Withdraw(singleItem: false);
-		OnRightClick += (_, _) => Withdraw(singleItem: true);
-	}
-
-	protected override void DrawSelf(SpriteBatch spriteBatch)
-	{
-		base.DrawSelf(spriteBatch);
-		CompanionProfile? profile = getProfile();
-		if (profile is null)
-			return;
-
-		CalculatedStyle area = GetDimensions();
-		float slotSize = Math.Min(27f, Math.Max(8f, (area.Width - 20f) / 6f));
-		const float gap = 4f;
-		float totalWidth = slotSize * 6f + gap * 5f;
-		Vector2 start = new(area.X + (area.Width - totalWidth) * 0.5f, area.Y);
-		Texture2D slotTexture = TextureAssets.InventoryBack.Value;
-		for (int i = 0; i < 12; i++) {
-			Vector2 position = start + new Vector2((i % 6) * (slotSize + gap), (i / 6) * (slotSize + gap));
-			Color slotColor = i < profile.PackCapacity ? Color.White : new Color(35, 40, 52) * 0.65f;
-			spriteBatch.Draw(slotTexture, position, null, slotColor, 0f, Vector2.Zero, slotSize / slotTexture.Width, SpriteEffects.None, 0f);
-			if (i >= profile.Pack.Count || profile.Pack[i].IsAir)
-				continue;
-
-			Item item = profile.Pack[i];
-			Main.instance.LoadItem(item.type);
-			Texture2D texture = TextureAssets.Item[item.type].Value;
-			Rectangle frame = Main.itemAnimations[item.type]?.GetFrame(texture) ?? texture.Bounds;
-			float iconSize = Math.Min(20f, slotSize * 0.75f);
-			float scale = Math.Min(iconSize / frame.Width, iconSize / frame.Height);
-			Vector2 center = position + new Vector2(slotSize * 0.5f);
-			spriteBatch.Draw(texture, center, frame, Color.White, 0f, frame.Size() * 0.5f, scale, SpriteEffects.None, 0f);
-			if (item.stack > 1) {
-				string count = item.stack.ToString();
-				float countScale = Math.Min(0.55f, (slotSize - 2f) / Math.Max(1f, FontAssets.MouseText.Value.MeasureString(count).X));
-				Utils.DrawBorderString(spriteBatch, count, position + new Vector2(slotSize - 2f, slotSize - 2f), Color.White, countScale, 1f, 1f);
-			}
-		}
-
-		int hovered = SlotAt(SoulmatesUISpace.Mouse);
-		if (hovered >= 0 && hovered < profile.Pack.Count && !profile.Pack[hovered].IsAir) {
-			Main.LocalPlayer.mouseInterface = true;
-			Main.HoverItem = profile.Pack[hovered].Clone();
-			Main.hoverItemName = profile.Pack[hovered].HoverName;
-		}
-	}
-
-	private void Withdraw(bool singleItem)
-	{
-		int index = SlotAt(SoulmatesUISpace.Mouse);
-		if (index < 0)
-			return;
-		withdraw(index, singleItem);
-	}
-
-	private int SlotAt(Vector2 mousePosition)
-	{
-		CalculatedStyle area = GetDimensions();
-		float slotSize = Math.Min(27f, Math.Max(8f, (area.Width - 20f) / 6f));
-		const float gap = 4f;
-		float totalWidth = slotSize * 6f + gap * 5f;
-		Vector2 start = new(area.X + (area.Width - totalWidth) * 0.5f, area.Y);
-		for (int i = 0; i < 12; i++) {
-			Vector2 position = start + new Vector2((i % 6) * (slotSize + gap), (i / 6) * (slotSize + gap));
-			if (new Rectangle((int)position.X, (int)position.Y, (int)slotSize, (int)slotSize).Contains(mousePosition.ToPoint()))
-				return i;
-		}
-		return -1;
 	}
 }

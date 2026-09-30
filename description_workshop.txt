@@ -1,7 +1,7 @@
 [h1]Soulmates - AETHER-EGG Alpha[/h1]
 Create a companion with a soul. The reusable Soulcore opens a creator inside Terraria; each Soulbound Sigil keeps one companion's name, appearance, personality, growth, memories, and pack.
 
-[b]Current version: 0.12.2 - Patient Choices[/b]
+[b]Current version: 0.13.0 - Growing Cargo[/b]
 [b]Languages:[/b] English and German, following Terraria's language.
 [url=https://github.com/reirao/Soulmates/releases/latest]Latest build, real gameplay screenshots, and release notes[/url]
 
@@ -30,16 +30,17 @@ New characters receive one Soulcore and three Blank Sigils once. Choose a name, 
 [/list]
 
 [h2]Grow and Carry[/h2]
-Companions earn experience through combat, healing, work, and shared moments across 20 levels. Five bond ranks improve their support. Energy recovers naturally; refusals explain energy or mood requirements. Their persistent pack holds 8 slots, or 12 with a Hearth Ribbon, with a reserve of 99 per item type and 12 acorns. Companions also illuminate their surroundings and reveal the nearby map.
+Companions earn experience through combat, healing, work, and shared moments across 20 levels. Five bond ranks improve their support. Energy recovers naturally; refusals explain energy or mood requirements. Equipment retains an 8-slot pack, expanded by bond upgrades or to 12 with a Hearth Ribbon, and a 99-unit reserve per type. Resources have 60 stack slots and a reserve of 50 units per level and type: level 10 holds 500, level 20 holds 1,000. Coins use a separate, uncapped wallet without occupying cargo slots. Companions also illuminate their surroundings and reveal the nearby map.
 
-[h2]What's New in 0.12.2[/h2]
-The reusable Soulcore is no longer consumed by inventory right-click. Soulmates menus stop clicks from using the held item or world tile underneath. New initiative prompts wait for other menus and NPC conversations, keep their buttons stationary, and allow a minute to answer. Speech stays out of the inventory and vanilla NPC dialogue. This release also includes the 0.12.1 localization, speech-placement, UI scaling, cargo-hitbox, and mining-plan corrections.
+[h2]What's New in 0.13.0[/h2]
+Equipment, Resources, and Wallet are separate persistent compartments with Terraria item icons. Resource capacity grows with companion level; coins have no amount or level cap. Old Sigils migrate their materials and money once, returning excess resources on summon instead of deleting them. Forestry, torches, and recipe suggestions use carried resources. Withdrawals only remove what your inventory actually accepts. Multiplayer participants must use the same mod version.
 
 [h2]Controls and Crafting[/h2]
 [list]
 [*]Use Soulcore: Creator. Use Sigil: summon. Hold Up + right-click the active Sigil: recall.
 [*]Bag icon: pack. Details or V: Talk Mode. Paper-plane icon or /soulfeedback: local AETHER Mailbox.
-[*]Pack slots: left-click takes a stack; right-click takes one item. Store the selected hotbar item or unload all from Pack.
+[*]Bag tabs: piggy bank for Equipment, ore for Resources, coins for Wallet. The book or mouse wheel pages through resources.
+[*]Cargo slots: left-click takes a stack; right-click takes one item. Wallet icons convert and withdraw that coin denomination. Store the selected hotbar item or return cargo from Pack; anything that does not fit stays with the companion.
 [*]Follow, Stay, or Explore cancels the current area assignment. ASK AGAIN resets Always/Never choices.
 [*]Use a trinket to equip it; right-click it to remove it. G and V are configurable keybindings.
 [/list]
@@ -49,7 +50,7 @@ At an Anvil: Starfinder Bell = 5 Fallen Stars + 3 Iron/Lead Bars + 1 Lens; Delve
 [h2]An Honest Growing Alpha[/h2]
 Soulmates grew from a pet creator into a companion with work, cargo, learning, and native emotes. Real play exposed awkward controls and cargo problems, and several systems were rebuilt. The full history lives on GitHub, not repeated in every Workshop update.
 
-Single-player and server-authoritative multiplayer are implemented. The latest checks passed 2,013 static/math and 2,669 isolated engine assertions. A real fresh-character playtest covered creation, pack transfers, emotes, tree shaking, combat, and healing. That does not certify every progression tier, long session, or multiplayer combination.
+Single-player and server-authoritative multiplayer are implemented. The 0.13.0 checks passed 2,065 static/math and 4,051 isolated engine/geometry assertions, covering cargo, exact coin conservation, migration, and serialization. The creator confirmed the new cargo works in play. Existing real screenshots show the 0.12.2 playtest, not the new inventory. Broader rendering, live multiplayer, full progression, and long sessions still need testing.
 
 My playtime is limited and progression takes time. Please tell me what happened, your mod version, and whether you played solo or multiplayer when something feels strange. If a companion made you smile, I am just as happy to hear it. The optional AETHER Mailbox and Field Notes save feedback and bug context locally; recording is off by default and nothing is uploaded.
 

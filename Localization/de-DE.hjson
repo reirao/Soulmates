@@ -56,6 +56,12 @@ Mods: {
 		}
 
 		Enums: {
+			CompanionStorage: {
+				Pack: Ausrüstung
+				Resources: Ressourcen
+				Wallet: Geldtasche
+			}
+
 			CompanionPersonality: {
 				Curious: Neugierig
 				Loyal: Loyal
@@ -221,7 +227,7 @@ Mods: {
 				Title: "{0} · GESPRÄCH"
 				Greeting: "{0} blickt dich erwartungsvoll an."
 				ChooseWords: WÄHLE DEINE WORTE
-				Pack: GEFÄHRTEN-PACK
+				Pack: GEFÄHRTEN-INVENTAR
 				Radius: " | Radius {0}"
 				Stats:
 					'''
@@ -264,7 +270,7 @@ Mods: {
 				Close: Schließen
 				Previous: Vorherige Seite
 				Next: Nächste Seite
-				Status: "{0} | LV {1} | Energie {2} | Pack {3}/{4} | {5}"
+				Status: "{0} | LV {1} | Energie {2} | Pack {3}/{4} | Ressourcen {6} | {5}"
 				AutonomyOn: AUTO AN
 				AutonomyOff: AUTO AUS
 				InitiativePrompt: "{0}: DU ENTSCHEIDEST"
@@ -514,8 +520,22 @@ Mods: {
 			}
 		}
 
+		Storage: {
+			Description: Ausrüstung {0}/{1} | {2} Ressourcenstapel, {3} pro Typ | {4}
+			Money: "{0}p {1}g {2}s {3}c"
+			Unlimited: Geldtasche: ohne Kapazitätslimit
+			ResourceSummary: "{0}/Typ | {1}/{2}"
+			PageHint: Ressourcenseiten: nächste / Rechtsklick vorherige
+			ResourcesFull: Mein Ressourceninventar hat keine freien Plätze.
+			Stored: Ich habe {0} in {1} verstaut.
+			Returned: Ich habe {0} zurückgegeben. Was nicht hineinpasste, bleibt bei mir.
+			Withdrawn: Ich habe {0} aus {1} zurückgegeben.
+			WalletHint: "{0}: bis zu {1} verfügbar. Guthaben: {2}. Ohne Kapazitätslimit."
+			Tooltip: Ressourcen: {0} Stapel, {1} pro Typ | Geldtasche: {2} (unbegrenzt)
+		}
+
 		Pack: {
-			Empty: Mein Pack ist leer.
+			Empty: Mein Inventar und meine Geldtasche sind leer.
 			AndMoreStacks: ", sowie {0} weitere Stapel"
 			Description: Ich trage {0}. ({1}/{2})
 			SelectedEmpty: Der ausgewählte Schnellzugriffsplatz ist leer.
@@ -526,7 +546,7 @@ Mods: {
 			StoredMany: Ich habe {0} Gegenstände verstaut. ({1}/{2})
 			ReturnedOne: Ich habe {0} Gegenstand zurückgegeben. ({1}/{2})
 			ReturnedMany: Ich habe {0} Gegenstände zurückgegeben. ({1}/{2})
-			AlreadyEmpty: Mein Pack ist bereits leer.
+			AlreadyEmpty: Mein Inventar und meine Geldtasche sind bereits leer.
 			InventoryFull: In deinem Inventar ist kein Platz für meine Ladung.
 			SlotEmpty: Dieser Pack-Platz ist leer.
 			WithdrewOne: Ich habe {0} Gegenstand aus diesem Platz zurückgegeben. ({1}/{2})

@@ -161,7 +161,7 @@ public sealed class SoulCreatorState : UIState
 		draft.CombatInsight = 0;
 		draft.ExplorationInsight = 0;
 		draft.LastMemory = SoulmatesText.Get("Memories.New");
-		draft.Pack.Clear();
+		draft.ClearCargo();
 		draft.Memories.Clear();
 		creationPending = false;
 		creationPendingTimer = 0;

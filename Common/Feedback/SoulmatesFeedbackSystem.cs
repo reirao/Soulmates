@@ -243,6 +243,9 @@ public sealed class SoulmatesFeedbackSystem : ModSystem
 			LatestSnapshot["level"] = companion.Profile.Level;
 			LatestSnapshot["pack_load"] = companion.Profile.PackLoad;
 			LatestSnapshot["pack_capacity"] = companion.Profile.PackCapacity;
+			LatestSnapshot["resource_slots"] = companion.Profile.ResourceLoad;
+			LatestSnapshot["resource_limit"] = companion.Profile.ResourceCarryLimit;
+			LatestSnapshot["wallet_copper"] = companion.Profile.WalletCopper.ToString();
 			LatestSnapshot["autonomy_enabled"] = companion.Profile.AutonomyEnabled;
 		}
 

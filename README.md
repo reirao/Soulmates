@@ -6,7 +6,7 @@ Soulmates is a tModLoader mod about creating companions that feel personal. The 
 
 ## In-game gallery
 
-### Current 0.12.2 Playtest
+### Published 0.12.2 Playtest
 
 Unaltered captures from an actual new-character client test:
 
@@ -61,7 +61,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Opening the mining target reveals nearby ore families as their real Terraria item icons; choose one immediately or keep the pickaxe node for a manual world target.
 - Choose a persistent mining approach per companion: Adaptive priorities, a narrow Tunnel to ore or the next opening, ore-only Vein work, or exposed-only Surface work. Unstable sand-like materials are skimmed only from open edges.
 - Useful pack contents matter in the world: weapons strengthen companion attacks, torches add light, and food or recovery items can be used at an appropriate moment.
-- Near a crafting opportunity, a companion may occasionally suggest a recipe inspired by materials in its pack.
+- Near a crafting opportunity, a companion may occasionally suggest a recipe inspired by carried materials.
 - Contextual initiative prompts let you answer opportunities with Terraria emotes: Yes, No, Always, or Never, remembered separately for gathering, mining, forestry, and treasure hunting.
 - The learned Forester perk lets a companion shake trees, clear natural fallen logs, collect seeds, and carefully replant carried acorns.
 - A companion named **AETHER** is an Omni Soul with every starting talent instinct and learned perk available.
@@ -82,9 +82,13 @@ Soulmates is an experimental project created with extensive AI assistance across
 - A persistent memory chronicle covering creation, work, protection, healing, equipment, and bond milestones.
 - Craftable Starfinder Bell, Delver Charm, and Hearth Ribbon companion trinkets.
 - Resting companions recover mood and energy over time.
-- Every companion has a persistent 8-slot pack with a practical carry reserve of 99 per item type and 12 acorns; the Hearth Ribbon expands it to 12 slots.
-- The Pack conversation can inspect cargo, store the selected hotbar item, or unload everything.
-- Pack slots have item tooltips and return a full stack on left-click or one item on right-click.
+- Cargo has three persistent compartments: Equipment, Resources, and Wallet, selected using Terraria item icons in the Pack view.
+- Equipment retains the 8-slot pack, bond upgrades, Hearth Ribbon expansion to 12 slots, and 99-unit reserve per item type.
+- Resources have 60 stack slots, displayed in pages of 12. Their reserve grows by 50 units per companion level and item type: level 1 holds 50, level 10 holds 500, and level 20 holds 1,000. Native item stack limits still apply.
+- The separate wallet stores collected copper, silver, gold, and platinum as one exact balance with no amount or level cap. Money does not occupy cargo slots or generate free currency.
+- The Pack conversation can inspect cargo, store the selected hotbar item in its appropriate compartment, or return cargo and wallet coins to the owner.
+- Cargo slots show tooltips; left-click returns a stack and right-click one item. Wallet coin icons withdraw that denomination, converting from the shared balance when needed. A withdrawal is bounded by Terraria's coin stack size, and anything the player's inventory cannot accept stays with the companion.
+- Existing Sigils migrate materials and coins into their new compartments. Resources exceeding the companion's level reserve are returned on summon, rather than silently deleted.
 - Companions illuminate dark spaces and reveal the nearby world map as they explore.
 - Work refusals are deterministic and explain whether mood or energy is too low.
 - Active assignments survive recalls and summons, end when the area is clear, and report when the companion needs a new assignment.
@@ -97,9 +101,11 @@ Soulmates is an experimental project created with extensive AI assistance across
 
 The current release supports single-player and server-authoritative multiplayer companions. Summoning, recalling, conversations, jobs, pack actions, and trinkets are validated by the server and synchronized back to the owning player.
 
-## Current release
+## Current Release
 
-**Soulmates 0.12.2 - Patient Choices** preserves the reusable Soulcore on inventory right-click and gives Soulmates interfaces explicit ownership of item/tile input. New autonomy prompts wait for existing menus and NPC conversations, keep the response nodes stationary, and allow a minute to answer. Speech stays clear of inventory and vanilla NPC dialogue. The Clear Voices localization, companion-anchored speech, readable status values, and four mining approaches remain. This is still an alpha: 2,013 static/math and 2,669 isolated engine assertions plus a real client playtest cover different risks, not every progression or multiplayer combination. See the [release notes](releases/0.12.2.md) and [test report](tests/PLAYTEST-2026-09-30.md).
+**Soulmates 0.13.0 - Growing Cargo** separates usable equipment, level-scaled resources, and an uncapped coin wallet. Cargo transactions, legacy migration, save/load, network serialization, and slot geometry have focused automated coverage: 4,051 engine/geometry and 2,065 static/math assertions pass. The creator also confirmed that the new cargo works in play. See the [0.13.0 notes](releases/0.13.0.md) for scope and testing limitations.
+
+The **0.12.2 - Patient Choices** client captures and [playtest report](tests/PLAYTEST-2026-09-30.md) remain historical evidence for that version, not new screenshots of the cargo update. Broader progression, long sessions, and live multiplayer still need testing.
 
 The maturity gates for Alpha, Beta, release candidate, and 1.0 are defined in [VERSIONING.md](VERSIONING.md). The former `9.9.x` values were experimental build counters and remain in the changelog only as project history.
 
@@ -107,7 +113,7 @@ Workshop update text comes from [changelog.txt](changelog.txt), which contains o
 
 ## How Soulmates got here
 
-Soulmates began as a reusable item for shaping a personal pet. Repeated in-game passes turned that small idea into persistent Sigils, companion personalities, combat support, work assignments, a real pack, learned behavior, forestry, initiative choices, native emotes, and the compact Soulwheel. Several of those systems were rebuilt more than once when real play exposed awkward controls, disappearing cargo, duplicate drops, stale abilities, or behavior that looked clever but did not remain coherent over a longer session. The complete sequence is preserved in [CHANGELOG.md](CHANGELOG.md); this page describes the implemented AETHER-EGG Alpha state of 0.12.2.
+Soulmates began as a reusable item for shaping a personal pet. Repeated in-game passes turned that small idea into persistent Sigils, companion personalities, combat support, work assignments, a real pack, learned behavior, forestry, initiative choices, native emotes, and the compact Soulwheel. Several of those systems were rebuilt more than once when real play exposed awkward controls, disappearing cargo, duplicate drops, stale abilities, or behavior that looked clever but did not remain coherent over a longer session. The complete sequence is preserved in [CHANGELOG.md](CHANGELOG.md); this page describes the implemented AETHER-EGG Alpha state of 0.13.0.
 
 ## Playtesting and feedback
 

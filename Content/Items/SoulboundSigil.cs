@@ -114,6 +114,8 @@ public sealed class SoulboundSigil : ModItem
 		tooltips.Add(new TooltipLine(Mod, "Voice", SoulmatesText.Get("Tooltips.Sigil.Voice", SoulmatesText.EnumName(Profile.Voice))));
 		tooltips.Add(new TooltipLine(Mod, "Trinket", SoulmatesText.Get("Tooltips.Sigil.Trinket", SoulmatesText.EnumName(Profile.Trinket),
 			Profile.PackLoad, Profile.PackCapacity, Profile.JobsCompleted)));
+		tooltips.Add(new TooltipLine(Mod, "Resources", SoulmatesText.Get("Storage.Tooltip",
+			Profile.ResourceLoad, Profile.ResourceCarryLimit, Profile.DescribeWallet())));
 		LearnedBehavior dominantBehavior = Profile.DominantLearnedBehavior;
 		string dominantPerk = Profile.HasLearnedPerk(dominantBehavior)
 			? CompanionProfile.LearnedPerkName(dominantBehavior)

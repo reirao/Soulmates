@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using BigInteger = System.Numerics.BigInteger;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Soulmates.Common;
@@ -29,47 +30,74 @@ public sealed partial class SoulboundCompanion
 			return SoulmatesText.Get("Pack.SelectedEmpty");
 		if (!CanCarry(selected))
 			return SoulmatesText.Get("Pack.CannotCarry");
-		int carryLimit = CompanionProfile.CarryLimitFor(selected.type);
-		if (Profile.ItemCount(selected.type) >= carryLimit)
+		CompanionStorage storage = CompanionProfile.StorageFor(selected);
+		int carryLimit = Profile.CarryLimitFor(selected);
+		if (storage != CompanionStorage.Wallet && Profile.ItemCount(selected.type) >= carryLimit)
 			return SoulmatesText.Get("Pack.ItemLimit", selected.Name, carryLimit);
 		int itemType = selected.type;
 		int moved = Profile.Store(selected);
 		if (moved <= 0)
-			return SoulmatesText.Get("Pack.Full", Profile.PackLoad, Profile.PackCapacity);
+			return SoulmatesText.Get(storage == CompanionStorage.Resources ? "Storage.ResourcesFull" : "Pack.Full",
+				Profile.PackLoad, Profile.PackCapacity);
 		SyncProfileToBoundSigil();
 		NPC.netUpdate = true;
 		SoulmatesFeedbackSystem.Record("pack_stored", ("item_type", itemType), ("amount", moved),
 			("pack_load", Profile.PackLoad));
-		return SoulmatesText.Get(moved == 1 ? "Pack.StoredOne" : "Pack.StoredMany", moved, Profile.PackLoad, Profile.PackCapacity);
+		return SoulmatesText.Get("Storage.Stored", moved, SoulmatesText.EnumName(storage));
 	}
 
 	public string UnloadPack()
 	{
 		int moved = 0;
-		for (int i = Profile.Pack.Count - 1; i >= 0; i--) {
-			Item stored = Profile.Pack[i];
-			int originalStack = stored.stack;
-			Item leftover = Owner.GetItem(Owner.whoAmI, stored.Clone(), GetItemSettings.InventoryEntityToPlayerInventorySettings);
-			moved += originalStack - (leftover.IsAir ? 0 : leftover.stack);
-			if (leftover.IsAir)
-				Profile.Pack.RemoveAt(i);
-			else
-				Profile.Pack[i] = leftover;
+		foreach (List<Item> storage in new[] { Profile.Pack, Profile.Resources }) {
+			for (int i = storage.Count - 1; i >= 0; i--) {
+				Item stored = storage[i];
+				int originalStack = stored.stack;
+				Item leftover = Owner.GetItem(Owner.whoAmI, stored.Clone(), GetItemSettings.InventoryEntityToPlayerInventorySettings);
+				moved += originalStack - (leftover.IsAir ? 0 : leftover.stack);
+				if (leftover.IsAir)
+					storage.RemoveAt(i);
+				else
+					storage[i] = leftover;
+			}
 		}
+		for (int slot = 0; slot < 4; slot++)
+			moved += TransferWalletCoins(CompanionProfile.WalletCoinType(slot), singleItem: false);
 		SyncProfileToBoundSigil();
+		SyncOwnerInventory();
 		NPC.netUpdate = true;
 		SoulmatesFeedbackSystem.Record("pack_unloaded", ("amount", moved), ("pack_load", Profile.PackLoad));
 		return moved > 0
-			? SoulmatesText.Get(moved == 1 ? "Pack.ReturnedOne" : "Pack.ReturnedMany", moved, Profile.PackLoad, Profile.PackCapacity)
-			: Profile.PackLoad == 0 ? SoulmatesText.Get("Pack.AlreadyEmpty") : SoulmatesText.Get("Pack.InventoryFull");
+			? SoulmatesText.Get("Storage.Returned", moved)
+			: Profile.PackLoad == 0 && Profile.ResourceLoad == 0 && Profile.WalletCopper.IsZero
+				? SoulmatesText.Get("Pack.AlreadyEmpty") : SoulmatesText.Get("Pack.InventoryFull");
 	}
 
 	public string WithdrawPackSlot(int index, bool singleItem)
+		=> WithdrawStorageSlot(CompanionStorage.Pack, index, singleItem);
+
+	public string WithdrawStorageSlot(CompanionStorage storageKind, int index, bool singleItem)
 	{
-		if (index < 0 || index >= Profile.Pack.Count || Profile.Pack[index].IsAir)
+		if (!Enum.IsDefined(storageKind))
+			return SoulmatesText.Get("Pack.SlotEmpty");
+		if (storageKind == CompanionStorage.Wallet) {
+			int coinType = CompanionProfile.WalletCoinType(index);
+			if (Profile.WalletCoins(coinType).IsZero)
+				return SoulmatesText.Get("Pack.SlotEmpty");
+			int coins = TransferWalletCoins(coinType, singleItem);
+			if (coins <= 0)
+				return SoulmatesText.Get("Pack.InventoryFull");
+			SyncPackState();
+			SyncOwnerInventory();
+			SoulmatesFeedbackSystem.Record("wallet_withdrawn", ("item_type", coinType), ("amount", coins),
+				("balance_copper", Profile.WalletCopper.ToString()));
+			return SoulmatesText.Get("Storage.Withdrawn", coins, SoulmatesText.EnumName(storageKind));
+		}
+		List<Item> storage = Profile.StorageItems(storageKind);
+		if (index < 0 || index >= storage.Count || storage[index].IsAir)
 			return SoulmatesText.Get("Pack.SlotEmpty");
 
-		Item stored = Profile.Pack[index];
+		Item stored = storage[index];
 		int itemType = stored.type;
 		int requested = singleItem ? 1 : stored.stack;
 		Item transfer = stored.Clone();
@@ -81,13 +109,28 @@ public sealed partial class SoulboundCompanion
 
 		stored.stack -= moved;
 		if (stored.stack <= 0)
-			Profile.Pack.RemoveAt(index);
+			storage.RemoveAt(index);
 		SyncProfileToBoundSigil();
 		SyncOwnerInventory();
 		NPC.netUpdate = true;
 		SoulmatesFeedbackSystem.Record("pack_withdrawn", ("item_type", itemType), ("amount", moved),
 			("pack_load", Profile.PackLoad));
-		return SoulmatesText.Get(moved == 1 ? "Pack.WithdrewOne" : "Pack.WithdrewMany", moved, Profile.PackLoad, Profile.PackCapacity);
+		return SoulmatesText.Get("Storage.Withdrawn", moved, SoulmatesText.EnumName(storageKind));
+	}
+
+	private int TransferWalletCoins(int itemType, bool singleItem)
+	{
+		BigInteger available = Profile.WalletCoins(itemType);
+		if (available.IsZero)
+			return 0;
+		var transfer = new Item(itemType);
+		int requested = (int)BigInteger.Min(available, singleItem ? 1 : transfer.maxStack);
+		transfer.stack = requested;
+		Item leftover = Owner.GetItem(Owner.whoAmI, transfer, GetItemSettings.InventoryEntityToPlayerInventorySettings);
+		int moved = requested - (leftover.IsAir ? 0 : leftover.stack);
+		if (moved > 0)
+			Profile.RemoveWalletCoins(itemType, moved);
+		return moved;
 	}
 
 	private static bool CanCarry(Item item) => item.ModItem is not Soulcore and not SoulboundSigil and not CompanionTrinketItem;
@@ -108,13 +151,16 @@ public sealed partial class SoulboundCompanion
 		if (packReconciled)
 			return;
 		packReconciled = true;
+		Profile.Normalize();
 		var excessItems = new List<Item>();
-		int[] storedTypes = Profile.Pack.Where(item => item is not null && !item.IsAir)
-			.Select(item => item.type).Distinct().ToArray();
-		foreach (int itemType in storedTypes)
-			excessItems.AddRange(Profile.ExtractExcess(itemType, CompanionProfile.CarryLimitFor(itemType)));
-		if (excessItems.Count == 0)
+		Item[] storedTypes = Profile.CarriedItems.Where(item => !item.IsAir)
+			.GroupBy(item => item.type).Select(group => group.First()).ToArray();
+		foreach (Item item in storedTypes)
+			excessItems.AddRange(Profile.ExtractExcess(item.type, Profile.CarryLimitFor(item)));
+		if (excessItems.Count == 0) {
+			SyncPackState();
 			return;
+		}
 
 		foreach (Item returned in excessItems) {
 			Item leftover = Owner.GetItem(Owner.whoAmI, returned.Clone(), GetItemSettings.InventoryEntityToPlayerInventorySettings);

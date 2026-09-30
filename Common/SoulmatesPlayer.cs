@@ -73,7 +73,7 @@ public sealed class SoulmatesPlayer : ModPlayer
 		}
 
 		var current = new Dictionary<int, int>();
-		foreach (Item item in companion.Profile.Pack) {
+		foreach (Item item in companion.Profile.CarriedItems) {
 			if (item.IsAir || item.stack <= 0)
 				continue;
 			current.TryGetValue(item.type, out int amount);

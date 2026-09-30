@@ -1,7 +1,7 @@
 [h1]Soulmates - AETHER-EGG Alpha[/h1]
 Erschaffe einen Companion mit Seele. Der wiederverwendbare Soulcore öffnet einen Editor in Terraria; jedes Soulbound Sigil bewahrt Namen, Aussehen, Persönlichkeit, Fortschritt, Erinnerungen und Pack eines Companions.
 
-[b]Aktuelle Version: 0.12.2 - Patient Choices[/b]
+[b]Aktuelle Version: 0.13.0 - Growing Cargo[/b]
 [b]Sprachen:[/b] Englisch und Deutsch, passend zur Terraria-Sprache.
 [url=https://github.com/reirao/Soulmates/releases/latest]Aktueller Build, echte Spielscreenshots und Versionshinweise[/url]
 
@@ -30,16 +30,17 @@ Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils. Wähle N
 [/list]
 
 [h2]Wachsen und Tragen[/h2]
-Kampf, Heilung, Arbeit und gemeinsame Momente geben Erfahrung über 20 Level. Fünf Bindungsränge verbessern die Unterstützung. Energie regeneriert natürlich; Ablehnungen nennen Energie- oder Stimmungsanforderungen. Das dauerhafte Pack hat 8 Slots, mit Hearth Ribbon 12, und hält bis zu 99 pro Itemtyp sowie 12 Eicheln bereit. Companions beleuchten ihre Umgebung und decken die nahe Karte auf.
+Kampf, Heilung, Arbeit und gemeinsame Momente geben Erfahrung über 20 Level. Fünf Bindungsränge verbessern die Unterstützung. Energie regeneriert natürlich; Ablehnungen nennen Energie- oder Stimmungsanforderungen. Ausrüstung behält 8 Pack-Slots, erweitert durch Bindung oder mit Hearth Ribbon auf 12, und bis zu 99 Stück pro Typ. Ressourcen haben 60 Stapelplätze und 50 Stück pro Level und Typ: Level 10 hält 500, Level 20 hält 1.000. Münzen gehen in eine separate, unbegrenzte Geldtasche und belegen keine Itemplätze. Companions beleuchten ihre Umgebung und decken die nahe Karte auf.
 
-[h2]Neu in 0.12.2[/h2]
-Inventar-Rechtsklick verbraucht den Soulcore nicht mehr. Soulmates-Menüs verhindern, dass Klicks gleichzeitig das gehaltene Item oder Weltobjekte benutzen. Neue Initiativfragen warten auf andere Menüs und NPC-Gespräche, ihre Antwortsymbole bleiben stehen und lassen eine Minute Zeit. Sprechblasen überlagern weder Inventar noch Vanilla-NPC-Dialoge. Enthalten sind auch die 0.12.1-Korrekturen für Übersetzungen, Textposition, UI-Skalierung, Pack-Klickflächen und Bergbaupläne.
+[h2]Neu in 0.13.0[/h2]
+Ausrüstung, Ressourcen und Geldtasche sind getrennte dauerhafte Fächer mit Terraria-Symbolen. Ressourcen wachsen mit dem Companion-Level; Geld hat kein Mengen- oder Level-Limit. Alte Sigils übertragen Materialien und Münzen einmalig und geben überzählige Ressourcen beim Beschwören zurück. Forstpflege, Fackeln und Crafting-Vorschläge nutzen mitgeführte Ressourcen. Nur Items und Münzen, die tatsächlich ins Spielerinventar passen, verlassen den Companion. Alle Multiplayer-Teilnehmer brauchen dieselbe Mod-Version.
 
 [h2]Steuerung und Rezepte[/h2]
 [list]
 [*]Soulcore benutzen: Editor. Sigil benutzen: beschwören. Nach oben + Rechtsklick auf aktives Sigil: zurückrufen.
 [*]Tasche: Pack. Details oder V: Talk Mode. Papierflieger oder /soulfeedback: lokaler AETHER-Briefkasten.
-[*]Pack-Slots: Linksklick nimmt den Stack, Rechtsklick ein Item. Über Pack das ausgewählte Hotbar-Item einlagern oder alles entladen.
+[*]Taschenreiter: Sparschwein für Ausrüstung, Erz für Ressourcen, Münze für Geld. Buch oder Mausrad blättert durch Ressourcen.
+[*]Item-Slots: Linksklick nimmt einen Stack, Rechtsklick ein Item. Münzsymbole wechseln und entnehmen die gewählte Münzsorte. Das ausgewählte Hotbar-Item einlagern oder Fracht zurückgeben; was nicht ins Inventar passt, bleibt beim Companion.
 [*]Folgen, Bleiben oder Erkunden beendet den Gebietsauftrag. WIEDER FRAGEN setzt Immer/Nie zurück.
 [*]Trinket benutzen: ausrüsten. Rechtsklick: entfernen. G und V sind umbelegbar.
 [/list]
@@ -49,7 +50,7 @@ Am Amboss: Starfinder Bell = 5 Fallen Stars + 3 Iron/Lead Bars + 1 Lens; Delver 
 [h2]Eine Ehrlich Wachsende Alpha[/h2]
 Soulmates begann als Pet-Editor und wuchs um Arbeit, Pack, Lernen und native Emotes. Echtes Spielen zeigte unklare Bedienung und Frachtfehler; mehrere Systeme wurden neu gebaut. Die vollständige Geschichte steht auf GitHub und wird nicht in jeden Workshop-Eintrag kopiert.
 
-Singleplayer und serverautoritärer Multiplayer sind implementiert. Zuletzt bestanden 2.013 statische/mathematische und 2.669 isolierte Engine-Prüfungen. Ein echter Test mit frischem Charakter prüfte Erstellung, Pack-Transfers, Emotes, Baumklopfen, Kampf und Heilung. Das bestätigt nicht jede Fortschrittsstufe, Langzeitsitzung oder Multiplayer-Kombination.
+Singleplayer und serverautoritärer Multiplayer sind implementiert. Für 0.13.0 bestanden 2.065 statische/mathematische und 4.051 isolierte Engine-/Geometrie-Prüfungen für Inventare, exakte Geldtransfers, Migration und Synchronisierung. Das neue Inventar funktioniert laut Spieltest des Erstellers. Die echten Screenshots zeigen den 0.12.2-Test, nicht das neue Inventar. Darstellung, echter Multiplayer, Fortschritt und Langzeitsitzungen brauchen weitere Tests.
 
 Meine Spielzeit ist begrenzt und Terraria-Fortschritt braucht Zeit. Wenn etwas seltsam ist, beschreibe bitte das Geschehen, die Mod-Version und ob du solo oder im Multiplayer spielst. Wenn dich dein Companion zum Lächeln bringt, freue ich mich genauso. Der optionale AETHER-Briefkasten und Field Notes speichern Feedback und Fehlerkontext nur lokal; Aufzeichnung ist standardmäßig aus und nichts wird hochgeladen.
 

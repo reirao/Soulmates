@@ -1,9 +1,9 @@
-Soulmates 0.12.2 - Patient Choices | AETHER-EGG Alpha
+Soulmates 0.13.0 - Growing Cargo | AETHER-EGG Alpha
 
 Use the reusable Soulcore to shape unique companions, including the Omni Soul AETHER, bind each one to a Soulbound Sigil, and bring them along on your Terraria adventures.
 
 Companions learn weighted instincts, defend and heal, gather, mine, tend forests, and use practical pack items. Compact Soulwheels offer native emotes, area work, precise cursor orders, and nearby ore icons. Choose Adaptive, Tunnel, Vein, or Surface mining; work resumes after natural recovery. Talk Mode shows growth, conversations, and cargo. Named speech follows the companion. Existing Sigils remain compatible.
 
-Patient Choices preserves the Soulcore on inventory right-click, prevents menu clicks from using items underneath, and gives stationary initiative choices a minute to answer. Speech stays clear of inventory and NPC conversations. This is a growing alpha, not a claim of complete progression or multiplayer testing.
+Growing Cargo separates Equipment, Resources, and Wallet. Resources have 60 stack slots and a reserve of 50 units per level and item type: 500 at level 10, 1,000 at level 20. Collected coins go into an uncapped wallet without using item slots. Existing Sigils migrate their cargo; excess resources are returned on summon. Native coin icons let you withdraw a stack or one coin. This is a growing alpha, not a claim of complete progression or multiplayer testing.
 
 Optional local AETHER Field Notes can record anonymized playtest events and contextual bug reports. Open the in-game mailbox from the Soulwheel's paper-plane icon or with `/soulfeedback`. It is off by default and never uploads data.

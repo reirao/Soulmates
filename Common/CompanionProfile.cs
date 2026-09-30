@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Globalization;
+using BigInteger = System.Numerics.BigInteger;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -156,6 +158,13 @@ public enum CompanionJob : byte
 	Gather
 }
 
+public enum CompanionStorage : byte
+{
+	Pack,
+	Resources,
+	Wallet
+}
+
 public enum BondRank : byte
 {
 	Newbound,
@@ -259,7 +268,7 @@ public sealed class CompanionMemory
 	}
 }
 
-public sealed class CompanionProfile
+public sealed partial class CompanionProfile
 {
 	public const int MaximumPackSlots = 12;
 	public const int MaximumMemories = 8;
@@ -270,7 +279,8 @@ public sealed class CompanionProfile
 	public const int CombatUnlockInsight = 36;
 	public const int ExplorationUnlockInsight = 24;
 	public const int ItemCarryLimit = 99;
-	public const int ForestrySupplyLimit = 12;
+	public const int MaximumResourceSlots = 60;
+	public const int ResourcesPerLevel = 50;
 	public const int MaximumLearnedMiningTiles = 48;
 
 	public Guid Id { get; set; } = Guid.NewGuid();
@@ -310,6 +320,8 @@ public sealed class CompanionProfile
 	}
 	public List<int> LearnedMiningTiles { get; set; } = [];
 	public List<Item> Pack { get; set; } = [];
+	public List<Item> Resources { get; set; } = [];
+	public BigInteger WalletCopper { get; private set; }
 	public List<CompanionMemory> Memories { get; set; } = [];
 
 	public BondRank Rank => Bond switch {
@@ -337,6 +349,9 @@ public sealed class CompanionProfile
 		? MaximumPackSlots
 		: Math.Min(MaximumPackSlots, 8 + (Rank >= BondRank.Soulbound ? 1 : 0) + (Rank >= BondRank.Eternal ? 1 : 0));
 	public int PackLoad => Pack.Count(item => !item.IsAir);
+	public int ResourceLoad => Resources.Count(item => !item.IsAir);
+	public int ResourceCarryLimit => Level * ResourcesPerLevel;
+	public IEnumerable<Item> CarriedItems => Pack.Concat(Resources);
 	public string LatestMemory => Memories.Count > 0 ? Memories[^1].Describe() : LastMemory;
 	public bool IsAether => Name.Equals("AETHER", StringComparison.OrdinalIgnoreCase);
 	public bool ForesterUnlocked => IsAether || Talent == CompanionTalent.Gatherer
@@ -408,6 +423,8 @@ public sealed class CompanionProfile
 		LastMemory = LastMemory,
 		LearnedMiningTiles = LearnedMiningTiles.ToList(),
 		Pack = Pack.Where(item => !item.IsAir).Select(item => item.Clone()).ToList(),
+		Resources = Resources.Where(item => !item.IsAir).Select(item => item.Clone()).ToList(),
+		WalletCopper = WalletCopper,
 		Memories = Memories.Select(memory => memory.Clone()).ToList()
 	};
 
@@ -445,6 +462,8 @@ public sealed class CompanionProfile
 		["lastMemory"] = LastMemory,
 		["learnedMiningTiles"] = LearnedMiningTiles.ToList(),
 		["pack"] = Pack.Where(item => !item.IsAir).Select(ItemIO.Save).ToList(),
+		["resources"] = Resources.Where(item => !item.IsAir).Select(ItemIO.Save).ToList(),
+		["walletCopper"] = WalletCopper.ToString(CultureInfo.InvariantCulture),
 		["memories"] = Memories.Select(memory => memory.Save()).ToList()
 	};
 
@@ -493,6 +512,9 @@ public sealed class CompanionProfile
 				? tag.GetList<int>("learnedMiningTiles").ToList()
 				: [],
 			Pack = tag.ContainsKey("pack") ? tag.GetList<TagCompound>("pack").Select(ItemIO.Load).Where(item => !item.IsAir).ToList() : [],
+			Resources = tag.ContainsKey("resources")
+				? tag.GetList<TagCompound>("resources").Select(ItemIO.Load).Where(item => !item.IsAir).ToList() : [],
+			WalletCopper = tag.ContainsKey("walletCopper") ? ParseWallet(tag.GetString("walletCopper")) : BigInteger.Zero,
 			Memories = tag.ContainsKey("memories")
 				? tag.GetList<TagCompound>("memories").Select(CompanionMemory.Load).ToList()
 				: []
@@ -538,10 +560,9 @@ public sealed class CompanionProfile
 		writer.Write((byte)learnedMiningTiles.Length);
 		foreach (int tileType in learnedMiningTiles)
 			writer.Write((ushort)tileType);
-		Item[] items = Pack.Where(item => !item.IsAir).Take(MaximumPackSlots).ToArray();
-		writer.Write((byte)items.Length);
-		foreach (Item item in items)
-			ItemIO.Send(item, writer, writeStack: true, writeFavorite: false);
+		WriteStorage(writer, Pack);
+		WriteStorage(writer, Resources);
+		writer.Write(WalletCopper.ToString(CultureInfo.InvariantCulture));
 		CompanionMemory[] memories = Memories.TakeLast(MaximumMemories).ToArray();
 		writer.Write((byte)memories.Length);
 		foreach (CompanionMemory memory in memories)
@@ -586,9 +607,9 @@ public sealed class CompanionProfile
 		int learnedMiningTileCount = reader.ReadByte();
 		for (int i = 0; i < learnedMiningTileCount; i++)
 			profile.LearnedMiningTiles.Add(reader.ReadUInt16());
-		int count = reader.ReadByte();
-		for (int i = 0; i < count; i++)
-			profile.Pack.Add(ItemIO.Receive(reader, readStack: true, readFavorite: false));
+		profile.Pack = ReadStorage(reader);
+		profile.Resources = ReadStorage(reader);
+		profile.WalletCopper = ParseWallet(reader.ReadString());
 		int memoryCount = reader.ReadByte();
 		for (int i = 0; i < memoryCount; i++)
 			profile.Memories.Add(CompanionMemory.Read(reader));
@@ -731,10 +752,18 @@ public sealed class CompanionProfile
 		int permitted = GetStorableAmount(source);
 		if (permitted <= 0)
 			return 0;
+		int coinValue = CoinValue(source.type);
+		if (coinValue > 0) {
+			WalletCopper += (BigInteger)permitted * coinValue;
+			source.TurnToAir();
+			return permitted;
+		}
 
 		Item transfer = source.Clone();
 		transfer.stack = permitted;
-		foreach (Item stored in Pack) {
+		List<Item> storage = StorageItems(StorageFor(source));
+		int slotCapacity = IsResource(source) ? MaximumResourceSlots : PackCapacity;
+		foreach (Item stored in storage) {
 			if (stored.type != transfer.type || stored.stack >= stored.maxStack
 				|| !ItemLoader.CanStack(stored, transfer))
 				continue;
@@ -743,11 +772,11 @@ public sealed class CompanionProfile
 				break;
 		}
 
-		while (!transfer.IsAir && transfer.stack > 0 && PackLoad < PackCapacity) {
+		while (!transfer.IsAir && transfer.stack > 0 && storage.Count < slotCapacity) {
 			Item stored = transfer.Clone();
 			stored.stack = Math.Min(transfer.stack, transfer.maxStack);
 			stored.favorited = false;
-			Pack.Add(stored);
+			storage.Add(stored);
 			transfer.stack -= stored.stack;
 			if (transfer.stack <= 0)
 				transfer.TurnToAir();
@@ -764,15 +793,17 @@ public sealed class CompanionProfile
 	{
 		if (source.IsAir || source.stack <= 0)
 			return 0;
+		if (CoinValue(source.type) > 0)
+			return source.stack;
 
 		int permitted = Math.Min(source.stack,
-			Math.Max(0, CarryLimitFor(source.type) - ItemCount(source.type)));
+			Math.Max(0, CarryLimitFor(source) - ItemCount(source.type)));
 		if (permitted <= 0)
 			return 0;
 
 		int occupiedSlots = 0;
 		int available = 0;
-		foreach (Item stored in Pack) {
+		foreach (Item stored in StorageItems(StorageFor(source))) {
 			if (stored is null || stored.IsAir)
 				continue;
 			occupiedSlots++;
@@ -784,20 +815,19 @@ public sealed class CompanionProfile
 			}
 		}
 
-		int freeSlots = Math.Max(0, PackCapacity - occupiedSlots);
+		int freeSlots = Math.Max(0, (IsResource(source) ? MaximumResourceSlots : PackCapacity) - occupiedSlots);
 		long totalCapacity = (long)available + (long)freeSlots * Math.Max(1, source.maxStack);
 		return (int)Math.Min(permitted, Math.Min(int.MaxValue, totalCapacity));
 	}
 
 	public bool CanStore(Item source) => GetStorableAmount(source) > 0;
 
-	public static int CarryLimitFor(int itemType)
-		=> itemType == ItemID.Acorn ? ForestrySupplyLimit : ItemCarryLimit;
+	public int CarryLimitFor(Item item) => IsResource(item) ? ResourceCarryLimit : ItemCarryLimit;
 
 	public int ItemCount(int itemType)
 	{
 		long total = 0;
-		foreach (Item item in Pack) {
+		foreach (Item item in CarriedItems) {
 			if (item is not null && !item.IsAir && item.type == itemType)
 				total += item.stack;
 		}
@@ -809,8 +839,7 @@ public sealed class CompanionProfile
 		NormalizePack();
 		int remaining = Math.Max(0, maximum);
 		var excess = new List<Item>();
-		for (int i = 0; i < Pack.Count; i++) {
-			Item item = Pack[i];
+		foreach (Item item in CarriedItems) {
 			if (item is null || item.IsAir || item.type != itemType)
 				continue;
 			int keep = Math.Min(item.stack, remaining);
@@ -873,20 +902,29 @@ public sealed class CompanionProfile
 
 	private void NormalizePack()
 	{
-		Pack = Pack.Where(item => item is not null && !item.IsAir).Take(MaximumPackSlots).ToList();
-		foreach (Item item in Pack)
+		var items = CarriedItems.Where(item => item is not null && !item.IsAir && item.stack > 0).ToArray();
+		Pack = [];
+		Resources = [];
+		WalletCopper = BigInteger.Max(BigInteger.Zero, WalletCopper);
+		foreach (Item item in items) {
 			item.stack = Math.Clamp(item.stack, 1, Math.Max(1, item.maxStack));
+			int coinValue = CoinValue(item.type);
+			if (coinValue > 0)
+				WalletCopper += (BigInteger)item.stack * coinValue;
+			else if (IsResource(item))
+				Resources.Add(item);
+			else
+				Pack.Add(item);
+		}
 	}
 
 	private static T ValidEnum<T>(T value, T fallback) where T : struct, Enum => Enum.IsDefined(value) ? value : fallback;
 
 	public string DescribePack()
 	{
-		if (PackLoad == 0)
+		if (PackLoad == 0 && ResourceLoad == 0 && WalletCopper.IsZero)
 			return SoulmatesText.Get("Pack.Empty");
-		string contents = string.Join(", ", Pack.Where(item => !item.IsAir).Take(5).Select(item => $"{item.Name} x{item.stack}"));
-		if (PackLoad > 5)
-			contents += SoulmatesText.Get("Pack.AndMoreStacks", PackLoad - 5);
-		return SoulmatesText.Get("Pack.Description", contents, PackLoad, PackCapacity);
+		return SoulmatesText.Get("Storage.Description", PackLoad, PackCapacity, ResourceLoad,
+			ResourceCarryLimit, DescribeWallet());
 	}
 }

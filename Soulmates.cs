@@ -86,7 +86,7 @@ public sealed class Soulmates : Mod
 		packet.Send();
 	}
 
-	internal static void SendPackWithdrawRequest(int slot, bool singleItem)
+	internal static void SendPackWithdrawRequest(int slot, bool singleItem, CompanionStorage storage = CompanionStorage.Pack)
 	{
 		if (Main.netMode != NetmodeID.MultiplayerClient)
 			return;
@@ -94,6 +94,7 @@ public sealed class Soulmates : Mod
 		packet.Write((byte)MessageType.PackWithdrawRequest);
 		packet.Write((byte)slot);
 		packet.Write(singleItem);
+		packet.Write((byte)storage);
 		packet.Send();
 	}
 
@@ -331,13 +332,16 @@ public sealed class Soulmates : Mod
 	{
 		int slot = reader.ReadByte();
 		bool singleItem = reader.ReadBoolean();
-		if (Main.netMode != NetmodeID.Server || slot >= CompanionProfile.MaximumPackSlots
+		CompanionStorage storage = (CompanionStorage)reader.ReadByte();
+		int slots = storage == CompanionStorage.Wallet ? 4
+			: CompanionProfile.MaximumPackSlots + CompanionProfile.MaximumResourceSlots;
+		if (Main.netMode != NetmodeID.Server || !Enum.IsDefined(storage) || slot >= slots
 			|| whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active)
 			return;
 		Player player = Main.player[whoAmI];
 		if (SoulboundCompanion.FindFor(player) is not { } companion)
 			return;
-		string reply = companion.WithdrawPackSlot(slot, singleItem);
+		string reply = companion.WithdrawStorageSlot(storage, slot, singleItem);
 		ModPacket packet = GetPacket();
 		packet.Write((byte)MessageType.TalkResponse);
 		packet.Write(reply);

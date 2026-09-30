@@ -730,18 +730,19 @@ public sealed partial class SoulboundCompanion
 		if (available <= 0)
 			return 0;
 		int matchingItemsBefore = Profile.ItemCount(worldItem.type);
-		var packBefore = new List<Item>(Profile.Pack.Count);
-		foreach (Item stored in Profile.Pack)
-			packBefore.Add(stored.Clone());
+		CompanionProfile cargoBefore = Profile.Clone();
 		Item transfer = worldItem.Clone();
 		transfer.stack = available;
 		int moved = Math.Clamp(Profile.Store(transfer), 0, available);
-		int confirmed = Math.Clamp(Profile.ItemCount(worldItem.type) - matchingItemsBefore, 0, available);
-		if (moved <= 0 || confirmed != moved) {
+		int coinValue = CompanionProfile.CoinValue(itemType);
+		bool confirmed = coinValue > 0
+			? Profile.WalletCopper - cargoBefore.WalletCopper == (System.Numerics.BigInteger)moved * coinValue
+			: Profile.ItemCount(itemType) - matchingItemsBefore == moved;
+		if (moved <= 0 || !confirmed) {
 			SoulmatesFeedbackSystem.Record("pack_transaction_rejected", ("item_type", itemType),
-				("available", available), ("reported_moved", moved), ("confirmed_moved", confirmed),
+				("available", available), ("reported_moved", moved), ("confirmed", confirmed),
 				("world_stack_before", worldStackBefore), ("pack_load", Profile.PackLoad));
-			Profile.Pack = packBefore;
+			Profile = cargoBefore;
 			return 0;
 		}
 
@@ -752,22 +753,25 @@ public sealed partial class SoulboundCompanion
 		}
 		SoulmatesFeedbackSystem.Record("pack_auto_collect", ("item_type", itemType), ("amount", moved),
 			("world_stack_before", worldStackBefore), ("world_stack_after", Math.Max(0, worldStackBefore - moved)),
-			("type_total_after", Profile.ItemCount(itemType)), ("pack_load", Profile.PackLoad));
+			("type_total_after", Profile.ItemCount(itemType)), ("pack_load", Profile.PackLoad),
+			("resource_load", Profile.ResourceLoad), ("wallet_copper", Profile.WalletCopper.ToString()));
 		return moved;
 	}
 
-	private bool HasPackItem(int itemType) => Profile.Pack.Exists(item => !item.IsAir && item.type == itemType && item.stack > 0);
+	private bool HasPackItem(int itemType) => Profile.ItemCount(itemType) > 0;
 
 	private bool ConsumePackItem(int itemType)
 	{
-		for (int i = 0; i < Profile.Pack.Count; i++) {
-			Item item = Profile.Pack[i];
-			if (item.IsAir || item.type != itemType || item.stack <= 0)
-				continue;
-			item.stack--;
-			if (item.stack <= 0)
-				Profile.Pack.RemoveAt(i);
-			return true;
+		foreach (List<Item> storage in new[] { Profile.Pack, Profile.Resources }) {
+			for (int i = 0; i < storage.Count; i++) {
+				Item item = storage[i];
+				if (item.IsAir || item.type != itemType || item.stack <= 0)
+					continue;
+				item.stack--;
+				if (item.stack <= 0)
+					storage.RemoveAt(i);
+				return true;
+			}
 		}
 		return false;
 	}

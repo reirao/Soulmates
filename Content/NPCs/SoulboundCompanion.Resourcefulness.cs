@@ -167,7 +167,7 @@ public sealed partial class SoulboundCompanion
 
 	private void AddPackLight()
 	{
-		if (!Profile.Pack.Any(item => !item.IsAir && item.createTile == TileID.Torches))
+		if (!Profile.CarriedItems.Any(item => !item.IsAir && item.createTile == TileID.Torches))
 			return;
 		Lighting.AddLight(NPC.Center, new Vector3(0.8f, 0.58f, 0.28f));
 	}
@@ -319,7 +319,7 @@ public sealed partial class SoulboundCompanion
 		foreach (int groupId in recipe.acceptedGroups) {
 			if (!RecipeGroup.recipeGroups.TryGetValue(groupId, out RecipeGroup? group))
 				continue;
-			if (Profile.Pack.Any(item => !item.IsAir && group.ContainsItem(item.type)))
+			if (Profile.CarriedItems.Any(item => !item.IsAir && group.ContainsItem(item.type)))
 				return true;
 		}
 		return false;
