@@ -12,11 +12,11 @@ Unaltered captures from an actual new-character client test:
 
 | Pack transfer | Native emote crescent |
 | --- | --- |
-| ![99 rope stored, one left with the player](media/playtest-0.12.2-pack.png) | ![Terraria emotes in the player wheel](media/playtest-0.12.2-emote-wheel.png) |
+| ![99 rope stored, one left with the player](media/playtest-0.12.2-pack.jpg) | ![Terraria emotes in the player wheel](media/playtest-0.12.2-emote-wheel.jpg) |
 
 | Tree-shake drops | Shared emotes |
 | --- | --- |
-| ![Real wood and fruit drops after tree shaking](media/playtest-0.12.2-forestry.png) | ![Native heart emotes over the player and companion](media/playtest-0.12.2-shared-emote.png) |
+| ![Real wood and fruit drops after tree shaking](media/playtest-0.12.2-forestry.jpg) | ![Native heart emotes over the player and companion](media/playtest-0.12.2-shared-emote.jpg) |
 
 Scope and unfinished retests are recorded in the [playtest report](tests/PLAYTEST-2026-09-30.md).
 

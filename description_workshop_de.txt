@@ -53,7 +53,7 @@ Singleplayer und serverautoritärer Multiplayer sind implementiert. Zuletzt best
 
 Meine Spielzeit ist begrenzt und Terraria-Fortschritt braucht Zeit. Wenn etwas seltsam ist, beschreibe bitte das Geschehen, die Mod-Version und ob du solo oder im Multiplayer spielst. Wenn dich dein Companion zum Lächeln bringt, freue ich mich genauso. Der optionale AETHER-Briefkasten und Field Notes speichern Feedback und Fehlerkontext nur lokal; Aufzeichnung ist standardmäßig aus und nichts wird hochgeladen.
 
-[b]Alte manuelle Installation:[/b] 9.9.x-Pakete gelten numerisch als neuer. Entferne eine solche doppelte .tmod, bevor du das Workshop-Abo verwendest.
+[b]Alte manuelle Installation:[/b] 9.9.x-Pakete gelten numerisch als neuer. Entferne eine solche doppelte .tmod, bevor du die Workshop-Version verwendest.
 
 [h2]Hinweis zur KI-Unterstützung[/h2]
 Programmierung, Texte, UI und visuelle Entwicklung entstanden mit umfangreicher KI-Unterstützung. Workshop-Bild, Mod-Icon und eigener Soulkin-Sprite wurden KI-generiert. Andere Musen-, Item-, Inventar- und Emote-Grafiken nutzen Terraria-Assets. Spielscreenshots sind echte Aufnahmen, keine generierten Szenen.

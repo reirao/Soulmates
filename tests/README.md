@@ -22,4 +22,4 @@ For 0.12.2, the isolated engine run passed 2,669 assertions. The static/math run
 
 An actual single-player client pass and unaltered screenshots are documented in [PLAYTEST-2026-09-30.md](PLAYTEST-2026-09-30.md). Automated checks do not replace live multiplayer, progression, or long-session testing.
 
-The compiler reports no warnings or errors. tModLoader's packager still emits `Image loading failed: unknown image type`; the package builds and loads successfully, but that image diagnostic remains unresolved.
+MSBuild compilation reports no warnings or errors. The final Workshop package uses tModLoader's native release compiler without `-eac`, which reports one CS8632 nullable-annotation warning and no errors. The 2,669 engine checks passed against that exact release package. tModLoader's packager still emits `Image loading failed: unknown image type`; the package builds and loads successfully, but that image diagnostic remains unresolved.
