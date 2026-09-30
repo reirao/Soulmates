@@ -22,6 +22,8 @@ namespace Soulmates.Content.NPCs;
 
 public sealed partial class SoulboundCompanion
 {
+	private const int InitiativeResponseTicks = 60 * 60;
+
 	private bool UpdateHelpfulAutonomy()
 	{
 		if (autonomyDiscoveryCooldown > 0 && Main.netMode != NetmodeID.MultiplayerClient)
@@ -57,6 +59,8 @@ public sealed partial class SoulboundCompanion
 		if (socialNpcTarget >= 0)
 			return false;
 		if (Main.netMode == NetmodeID.MultiplayerClient || --autonomyDecisionTimer > 0)
+			return false;
+		if (Main.netMode == NetmodeID.SinglePlayer && !SoulmatesUIInput.CanPresentInitiative)
 			return false;
 
 		bool eagerGatherer = EagerGatherer;
@@ -665,7 +669,7 @@ public sealed partial class SoulboundCompanion
 		}
 
 		pendingAutonomyActivity = activity;
-		pendingInitiativeTimer = 1200;
+		pendingInitiativeTimer = InitiativeResponseTicks;
 		pendingTargetItem = targetItem;
 		pendingTargetTile = targetTile;
 		pendingForestAction = forestAction;
@@ -688,7 +692,7 @@ public sealed partial class SoulboundCompanion
 		if (Main.netMode != NetmodeID.MultiplayerClient || !Enum.IsDefined(kind))
 			return;
 		pendingAutonomyActivity = ActivityFor(kind);
-		pendingInitiativeTimer = 1200;
+		pendingInitiativeTimer = InitiativeResponseTicks;
 		ModContent.GetInstance<InitiativePromptSystem>().Open(this);
 	}
 

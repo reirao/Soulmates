@@ -32,6 +32,7 @@ public sealed class Soulcore : ModItem
 
 	public override bool CanUseItem(Player player) => !ModContent.GetInstance<SoulCreatorSystem>().IsOpen;
 	public override bool CanRightClick() => !ModContent.GetInstance<SoulCreatorSystem>().IsOpen;
+	public override bool ConsumeItem(Player player) => false;
 
 	public override void RightClick(Player player)
 	{

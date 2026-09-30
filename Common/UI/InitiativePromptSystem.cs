@@ -36,8 +36,7 @@ public sealed class InitiativePromptSystem : ModSystem
 
 	public void Open(SoulboundCompanion boundCompanion)
 	{
-		if (Main.dedServ || Main.gameMenu || Main.LocalPlayer.dead || Main.playerInventory
-			|| !boundCompanion.HasPendingInitiative)
+		if (!SoulmatesUIInput.CanPresentInitiative || !boundCompanion.HasPendingInitiative)
 			return;
 
 		ModContent.GetInstance<CompanionWheelSystem>().Close();
@@ -70,16 +69,19 @@ public sealed class InitiativePromptSystem : ModSystem
 
 	public override void UpdateUI(GameTime gameTime)
 	{
-		if (!open)
+		if (!open) {
+			if (SoulmatesUIInput.CanPresentInitiative
+				&& SoulboundCompanion.FindFor(Main.LocalPlayer) is { HasPendingInitiative: true } pending)
+				Open(pending);
 			return;
+		}
 		if (Main.gameMenu || Main.LocalPlayer.dead || Main.playerInventory || companion?.NPC.active != true
 			|| !companion.HasPendingInitiative) {
 			Close();
 			return;
 		}
 
-		Vector2 desired = ClampCenter(SoulmatesUISpace.FromWorld(companion.NPC.Center));
-		center = Vector2.Lerp(center, desired, 0.18f);
+		center = ClampCenter(center);
 		openTicks++;
 		hoverIndex = FindHoveredResponse(SoulmatesUISpace.Mouse);
 

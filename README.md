@@ -6,6 +6,24 @@ Soulmates is a tModLoader mod about creating companions that feel personal. The 
 
 ## In-game gallery
 
+### Current 0.12.2 Playtest
+
+Unaltered captures from an actual new-character client test:
+
+| Pack transfer | Native emote crescent |
+| --- | --- |
+| ![99 rope stored, one left with the player](media/playtest-0.12.2-pack.png) | ![Terraria emotes in the player wheel](media/playtest-0.12.2-emote-wheel.png) |
+
+| Tree-shake drops | Shared emotes |
+| --- | --- |
+| ![Real wood and fruit drops after tree shaking](media/playtest-0.12.2-forestry.png) | ![Native heart emotes over the player and companion](media/playtest-0.12.2-shared-emote.png) |
+
+Scope and unfinished retests are recorded in the [playtest report](tests/PLAYTEST-2026-09-30.md).
+
+### Earlier Feature Gallery
+
+These earlier in-game captures illustrate the project's history; some interface details have since changed.
+
 | Soul Creator | Living companion |
 | --- | --- |
 | ![Soul Creator with animated live preview](media/soul-creator.webp) | ![A Soulkin companion beside its player](media/living-companion.webp) |
@@ -81,13 +99,15 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current release
 
-**Soulmates 0.12.1 - Clear Voices** fixes missing English/German action texts and initialization-time localization glitches. Named speech bubbles now follow their companion rather than the player, keep a stable side while speaking, and retain a restrained fading trail. Talk Mode has readable numeric mood/energy values, a full-width level bar, and contained response/pack regions. Shared UI coordinates keep world targets and wheel hitboxes consistent across game zoom and UI scaling. The four mining approaches remain; changed terrain is rechecked before mining, blocked tunnels no longer fall back to unrelated material, and completion reports describe the finished plan rather than claiming an empty area.
+**Soulmates 0.12.2 - Patient Choices** preserves the reusable Soulcore on inventory right-click and gives Soulmates interfaces explicit ownership of item/tile input. New autonomy prompts wait for existing menus and NPC conversations, keep the response nodes stationary, and allow a minute to answer. Speech stays clear of inventory and vanilla NPC dialogue. The Clear Voices localization, companion-anchored speech, readable status values, and four mining approaches remain. This is still an alpha: 2,013 static/math and 2,669 isolated engine assertions plus a real client playtest cover different risks, not every progression or multiplayer combination. See the [release notes](releases/0.12.2.md) and [test report](tests/PLAYTEST-2026-09-30.md).
 
 The maturity gates for Alpha, Beta, release candidate, and 1.0 are defined in [VERSIONING.md](VERSIONING.md). The former `9.9.x` values were experimental build counters and remain in the changelog only as project history.
 
+Workshop update text comes from [changelog.txt](changelog.txt), which contains only the current update. [CHANGELOG.md](CHANGELOG.md) preserves the complete development history separately so it cannot be accidentally republished in every Workshop entry.
+
 ## How Soulmates got here
 
-Soulmates began as a reusable item for shaping a personal pet. Repeated in-game passes turned that small idea into persistent Sigils, companion personalities, combat support, work assignments, a real pack, learned behavior, forestry, initiative choices, native emotes, and the compact Soulwheel. Several of those systems were rebuilt more than once when real play exposed awkward controls, disappearing cargo, duplicate drops, stale abilities, or behavior that looked clever but did not remain coherent over a longer session. The complete sequence is preserved in [changelog.txt](changelog.txt); this page describes the implemented AETHER-EGG Alpha state of 0.12.1.
+Soulmates began as a reusable item for shaping a personal pet. Repeated in-game passes turned that small idea into persistent Sigils, companion personalities, combat support, work assignments, a real pack, learned behavior, forestry, initiative choices, native emotes, and the compact Soulwheel. Several of those systems were rebuilt more than once when real play exposed awkward controls, disappearing cargo, duplicate drops, stale abilities, or behavior that looked clever but did not remain coherent over a longer session. The complete sequence is preserved in [CHANGELOG.md](CHANGELOG.md); this page describes the implemented AETHER-EGG Alpha state of 0.12.2.
 
 ## Playtesting and feedback
 

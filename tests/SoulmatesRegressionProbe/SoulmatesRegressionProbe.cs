@@ -5,7 +5,9 @@ using System.Reflection;
 using System.Text;
 using Hjson;
 using Soulmates.Common;
+using Soulmates.Content.Items;
 using Soulmates.Content.NPCs;
+using Soulmates.Common.UI;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -31,7 +33,12 @@ public sealed class EngineChecks : ModSystem
 		}
 		try {
 			Mod soulmates = ModLoader.GetMod("Soulmates");
-			Check(soulmates.Version == new Version(0, 12, 1), "Wrong packaged version: " + soulmates.Version);
+			Check(soulmates.Version == new Version(0, 12, 2), "Wrong packaged version: " + soulmates.Version);
+			var core = new Item(ModContent.ItemType<Soulcore>());
+			Check(!core.consumable, "Soulcore marked consumable");
+			Check(!ItemLoader.ConsumeItem(core, new Player()), "Inventory right-click consumes the reusable Soulcore");
+			CheckMenuInput(Check, core);
+			CheckWorldPickup(Check);
 			foreach (string culture in new[] { "en-US", "de-DE" }) {
 				LanguageManager.Instance.SetLanguage(culture);
 				JsonValue catalog = HjsonValue.Parse(Encoding.UTF8.GetString(soulmates.GetFileBytes("Localization/" + culture + ".hjson")));
@@ -131,5 +138,114 @@ public sealed class EngineChecks : ModSystem
 		Console.WriteLine(report);
 		// This isolated probe never joins or loads a player's world.
 		Environment.Exit(failures.Count == 0 ? 0 : 1);
+	}
+
+	private static void CheckWorldPickup(Action<bool, string> check)
+	{
+		Player original = Main.player[0];
+		try {
+			Main.player[0] = new Player { whoAmI = 0, active = true };
+			var npc = new NPC();
+			npc.SetDefaults(ModContent.NPCType<SoulboundCompanion>());
+			var companion = (SoulboundCompanion)npc.ModNPC;
+			MethodInfo collect = typeof(SoulboundCompanion).GetMethod("StoreLooseItem",
+				BindingFlags.Instance | BindingFlags.NonPublic)!;
+			int Collect(Item item) => (int)collect.Invoke(companion, new object[] { item })!;
+			foreach (int type in new[] { ItemID.Gel, ItemID.Acorn, ItemID.StoneBlock, ItemID.Wood, ItemID.CopperOre }) {
+				var drop = new Item(type, 137) { active = true, playerIndexTheItemIsReservedFor = 255 };
+				int limit = CompanionProfile.CarryLimitFor(type);
+				check(Collect(drop) == limit, "World pickup limit failed: " + type);
+				check(drop.active && drop.type == type && drop.stack == 137 - limit,
+					"Uncollected remainder disappeared or changed type: " + type);
+				for (int repeat = 0; repeat < 100; repeat++)
+					check(Collect(drop) == 0 && companion.Profile.ItemCount(type) + drop.stack == 137,
+						"Repeated world pickup duplicated or lost units: " + type + "/" + repeat);
+			}
+			check(companion.Profile.PackLoad == 5, "World pickup merged different item types");
+			foreach (int type in new[] { ItemID.Heart, ItemID.Star, ModContent.ItemType<Soulcore>(), ModContent.ItemType<SoulboundSigil>() }) {
+				var protectedDrop = new Item(type, 1) { active = true, playerIndexTheItemIsReservedFor = 255 };
+				check(Collect(protectedDrop) == 0 && protectedDrop.active && protectedDrop.stack == 1,
+					"Pickup consumed a protected item: " + type);
+			}
+			var reserved = new Item(ItemID.IronOre, 7) { active = true, playerIndexTheItemIsReservedFor = 1 };
+			check(Collect(reserved) == 0 && reserved.stack == 7, "Pickup stole another player's reservation");
+			reserved.playerIndexTheItemIsReservedFor = 0;
+			check(Collect(reserved) == 7 && !reserved.active && reserved.IsAir,
+				"Owner-reserved pickup did not finish atomically");
+			while (companion.Profile.PackLoad < companion.Profile.PackCapacity)
+				companion.Profile.Store(new Item(ItemID.IronBar + companion.Profile.PackLoad, 1));
+			var overflow = new Item(ItemID.DirtBlock, 5) { active = true, playerIndexTheItemIsReservedFor = 255 };
+			check(Collect(overflow) == 0 && overflow.stack == 5 && overflow.active,
+				"Full pack destroyed a world drop");
+			var bound = new Item(ModContent.ItemType<SoulboundSigil>());
+			var sigil = (SoulboundSigil)bound.ModItem;
+			sigil.Profile = companion.Profile.Clone();
+			Main.player[0].inventory[0] = bound;
+			companion.SyncProfileToBoundSigil();
+			check(sigil.Profile.ItemCount(ItemID.Gel) == 99 && sigil.Profile.ItemCount(ItemID.Acorn) == 12,
+				"World cargo did not persist to its bound sigil");
+		}
+		finally {
+			Main.player[0] = original;
+		}
+	}
+
+	private static void CheckMenuInput(Action<bool, string> check, Item core)
+	{
+		bool oldMenu = Main.gameMenu;
+		int oldPlayer = Main.myPlayer;
+		Player original = Main.player[0];
+		try {
+			Main.dedServ = false;
+			Main.gameMenu = false;
+			Main.myPlayer = 0;
+			Main.player[0] = new Player { whoAmI = 0, active = true };
+			Player player = Main.player[0];
+			player.SetTalkNPC(-1);
+			SoulmatesPlayer controls = player.GetModPlayer<SoulmatesPlayer>();
+			Main.mouseLeft = Main.mouseRight = false;
+			foreach ((ModSystem system, string field) in new (ModSystem, string)[] {
+				(ModContent.GetInstance<CompanionWheelSystem>(), "open"),
+				(ModContent.GetInstance<InitiativePromptSystem>(), "open"),
+				(ModContent.GetInstance<DirectOrderSystem>(), "active")
+			}) {
+				FieldInfo state = system.GetType().GetField(field, BindingFlags.Instance | BindingFlags.NonPublic)!;
+				state.SetValue(system, true);
+				check(!controls.CanUseItem(core), system.Name + " allowed held item use");
+				player.controlUseItem = player.controlUseTile = true;
+				Main.mouseLeft = true;
+				controls.SetControls();
+				check(!player.controlUseItem && !player.controlUseTile, system.Name + " leaked controls");
+				Type input = typeof(SoulmatesPlayer).Assembly.GetType("Soulmates.Common.UI.SoulmatesUIInput")!;
+				bool CanPrompt() => (bool)input.GetProperty("CanPresentInitiative")!.GetValue(null)!;
+				check(!CanPrompt(), system.Name + " can be replaced by a prompt");
+				state.SetValue(system, false);
+				controls.SetControls();
+				check(!controls.CanUseItem(core), system.Name + " leaked closing click");
+				Main.mouseLeft = Main.mouseRight = false;
+				controls.SetControls();
+				check(controls.CanUseItem(core), system.Name + " kept items blocked after release");
+				check(CanPrompt(), system.Name + " failed to release deferred prompt");
+				player.SetTalkNPC(1);
+				check(!CanPrompt(), "Prompt interrupts a vanilla NPC conversation");
+				PropertyInfo speech = typeof(CompanionSpeechSystem).GetProperty("CanShowSpeech",
+					BindingFlags.Static | BindingFlags.NonPublic)!;
+				check(!(bool)speech.GetValue(null)!, "Speech covers a vanilla NPC conversation");
+				player.SetTalkNPC(-1);
+				Main.playerInventory = true;
+				check(!CanPrompt(), "Prompt interrupts inventory");
+				check(!(bool)speech.GetValue(null)!, "Speech covers inventory");
+				Main.playerInventory = false;
+				check((bool)speech.GetValue(null)!, "Speech stays hidden after vanilla UI closes");
+			}
+		}
+		finally {
+			Main.dedServ = true;
+			Main.gameMenu = oldMenu;
+			Main.myPlayer = oldPlayer;
+			Main.player[0] = original;
+			Main.mouseLeft = Main.mouseRight = false;
+			Main.playerInventory = false;
+		}
 	}
 }

@@ -1,7 +1,9 @@
-Soulmates 0.12.1 - Clear Voices: Shape a companion that watches, learns, and grows beside you.
+Soulmates 0.12.2 - Patient Choices | AETHER-EGG Alpha
 
 Use the reusable Soulcore to shape unique companions, including the Omni Soul AETHER, bind each one to a Soulbound Sigil, and bring them along on your Terraria adventures.
 
-Persistent animated companions learn weighted instincts from your behavior, defend and heal, gather, mine, tend forests, and use practical pack items. The Work Soulwheel offers area work, precise cursor orders, nearby ore icons, and persistent Adaptive, Tunnel, Vein, or Surface mining. Work pauses for natural recovery and resumes without losing its plan. Resizable Talk Mode shows level progress and readable status values. Named speech bubbles follow the companion with a soft fading trail. Existing Sigils remain compatible.
+Companions learn weighted instincts, defend and heal, gather, mine, tend forests, and use practical pack items. Compact Soulwheels offer native emotes, area work, precise cursor orders, and nearby ore icons. Choose Adaptive, Tunnel, Vein, or Surface mining; work resumes after natural recovery. Talk Mode shows growth, conversations, and cargo. Named speech follows the companion. Existing Sigils remain compatible.
+
+Patient Choices preserves the Soulcore on inventory right-click, prevents menu clicks from using items underneath, and gives stationary initiative choices a minute to answer. Speech stays clear of inventory and NPC conversations. This is a growing alpha, not a claim of complete progression or multiplayer testing.
 
 Optional local AETHER Field Notes can record anonymized playtest events and contextual bug reports. Open the in-game mailbox from the Soulwheel's paper-plane icon or with `/soulfeedback`. It is off by default and never uploads data.

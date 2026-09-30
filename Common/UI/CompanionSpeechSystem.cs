@@ -8,6 +8,11 @@ namespace Soulmates.Common.UI;
 
 public sealed class CompanionSpeechSystem : ModSystem
 {
+	internal static bool CanShowSpeech => !Main.gameMenu && !Main.playerInventory
+		&& Main.LocalPlayer.talkNPC < 0 && !ModContent.GetInstance<TalkModeSystem>().IsOpen
+		&& !ModContent.GetInstance<FeedbackMailboxSystem>().IsOpen
+		&& !ModContent.GetInstance<SoulCreatorSystem>().IsOpen;
+
 	public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
 	{
 		int mouseIndex = layers.FindIndex(layer => layer.Name == "Vanilla: Mouse Text");
@@ -17,9 +22,7 @@ public sealed class CompanionSpeechSystem : ModSystem
 
 	private static bool Draw()
 	{
-		if (Main.gameMenu || ModContent.GetInstance<TalkModeSystem>().IsOpen
-			|| ModContent.GetInstance<FeedbackMailboxSystem>().IsOpen
-			|| ModContent.GetInstance<SoulCreatorSystem>().IsOpen)
+		if (!CanShowSpeech)
 			return true;
 		foreach (NPC npc in Main.ActiveNPCs) {
 			if (npc.ModNPC is SoulboundCompanion companion)

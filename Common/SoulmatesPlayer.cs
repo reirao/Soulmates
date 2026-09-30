@@ -21,6 +21,7 @@ public sealed class SoulmatesPlayer : ModPlayer
 	private int serverGatheringObservationCooldown;
 	private int feedbackActivityCooldown;
 	private bool rightMouseDown;
+	private bool soulmatesCapturedInput;
 	private bool queuedSelfSoulwheel;
 	private Point queuedSelfSoulwheelPosition;
 	private Guid feedbackProfileId;
@@ -32,6 +33,7 @@ public sealed class SoulmatesPlayer : ModPlayer
 	{
 		ActiveCompanionWhoAmI = -1;
 		rightMouseDown = false;
+		soulmatesCapturedInput = false;
 		queuedSelfSoulwheel = false;
 		feedbackProfileId = Guid.Empty;
 		feedbackPackCounts.Clear();
@@ -41,6 +43,7 @@ public sealed class SoulmatesPlayer : ModPlayer
 	{
 		ActiveCompanionWhoAmI = -1;
 		rightMouseDown = false;
+		soulmatesCapturedInput = false;
 		queuedSelfSoulwheel = false;
 		feedbackProfileId = Guid.Empty;
 		feedbackPackCounts.Clear();
@@ -146,6 +149,24 @@ public sealed class SoulmatesPlayer : ModPlayer
 			SoulboundCompanion.FindFor(Player)?.ObserveOwnerActivity(LearnedBehavior.Gathering);
 		return true;
 	}
+
+	public override void SetControls()
+	{
+		if (Main.dedServ || Player.whoAmI != Main.myPlayer)
+			return;
+		if (!Main.mouseLeft && !Main.mouseRight)
+			soulmatesCapturedInput = false;
+		if (SoulmatesUIInput.IsCaptured)
+			soulmatesCapturedInput = true;
+		// A menu-closing click belongs to the menu until the mouse is released.
+		if (soulmatesCapturedInput) {
+			Player.controlUseItem = false;
+			Player.controlUseTile = false;
+		}
+	}
+
+	public override bool CanUseItem(Item item) => Main.dedServ || Player.whoAmI != Main.myPlayer
+		|| !soulmatesCapturedInput && !SoulmatesUIInput.IsCaptured;
 
 	public override void ProcessTriggers(TriggersSet triggersSet)
 	{
