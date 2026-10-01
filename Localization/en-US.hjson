@@ -93,6 +93,12 @@ Mods: {
 				Treasure: treasure
 			}
 
+			CompanionInitiativePolicy: {
+				Ask: Ask first
+				Always: Always
+				Never: Never
+			}
+
 			CompanionMiningApproach: {
 				Adaptive: Adaptive
 				Tunnel: Tunnel
@@ -157,6 +163,10 @@ Mods: {
 				MiningVein: Vein mining
 				MiningSurface: Surface mining
 				Details: Details
+				GatheringPolicy: Gathering rule
+				MiningPolicy: Mining rule
+				ForestryPolicy: Forestry rule
+				TreasurePolicy: Treasure rule
 			}
 
 			CompanionTrinket: {
@@ -274,6 +284,10 @@ Mods: {
 				AutonomyOn: AUTO ON
 				AutonomyOff: AUTO OFF
 				InitiativePrompt: "{0}: YOUR CALL"
+				InitiativeSettings: INITIATIVE RULES
+				RuleState: "{0}: {1}"
+				PointTitle: POINT
+				AreaTitle: AREA WORK
 
 				InitiativeResponses: {
 					Yes: YES, DO IT
@@ -290,6 +304,7 @@ Mods: {
 					Pack: Companion Pack
 					Details: Details
 					Mailbox: Field Notes
+					Point: Point something out
 				}
 
 				NativeCategories: {
@@ -320,6 +335,8 @@ Mods: {
 					MineTarget: MINE TARGET
 					GatherTarget: FETCH TARGET
 					MiningApproach: MINING MODE
+					LookTarget: LOOK AT TARGET
+					ForestTarget: TEND ONE SPOT
 				}
 
 				MiningApproaches: {
@@ -345,10 +362,22 @@ Mods: {
 			}
 
 			DirectOrder: {
-				MineInvalid: CLICK A MINEABLE ORE OR LEARNED MATERIAL  |  RIGHT-CLICK CANCELS
-				MineValid: "{0}  |  LEFT-CLICK TO MINE"
-				GatherInvalid: CLICK A LOOSE ITEM  |  RIGHT-CLICK CANCELS
-				GatherValid: "{0}  |  LEFT-CLICK TO FETCH"
+				Target: "{0}: {1}"
+				ForestValid: TEND THIS SPOT
+
+				Modes: {
+					Look: LOOK
+					Gather: FETCH
+					Mine: MINE
+					Forest: FOREST
+				}
+
+				Invalid: {
+					Look: NOTHING NEARBY TO INSPECT
+					Gather: NO CARRYABLE DROP HERE
+					Mine: NOT MINEABLE YET
+					Forest: NO SAFE FOREST TASK HERE
+				}
 			}
 
 			Mailbox: {
@@ -427,6 +456,13 @@ Mods: {
 			Mined: I cleared {0} blocks of {1}.
 			Gathered: I collected {0} {1}.
 			TargetLost: The target is no longer there.
+			CannotForest: I cannot tend that spot safely right now.
+			ForestAccepted: I will tend that spot, then come back.
+			ForestDone: That spot is taken care of.
+			LookItem: "{0}. I have room for {1} from that stack."
+			LookForest: A forest spot. We can shake a tree or clear fallen wood without cutting a living trunk.
+			LookMineable: "{0}. I can safely mine this if you ask."
+			LookProtected: "{0}. I cannot safely mine this yet, or it is protected."
 		}
 
 		Feedback: {
@@ -517,6 +553,9 @@ Mods: {
 				ExperienceMilestone: I remember reaching companion level {0}.
 				SharedMoment: I remember when we shared a {0}.
 				LearnedPerk: I remember learning the {0} perk from you.
+				ResidentMet: I remember meeting {0}. Another small light in this world.
+				ResidentFriend: "{0} feels like a friend now. I know how our conversations sound."
+				InsectCompanion: I remember when a {0} joined our little travelling company.
 			}
 		}
 
@@ -563,6 +602,7 @@ Mods: {
 
 			Initiative: {
 				RulesReset: I will ask again when I notice an opportunity.
+				PolicyChanged: "{0}: {1}. I will remember that."
 
 				Ask: {
 					Gathering: I found something loose nearby. Should I gather it?
@@ -613,6 +653,82 @@ Mods: {
 		}
 
 		Social: {
+			Nature.Insect: A {0}! A small travelling companion. I will keep it safe while it is in my pack.
+
+			Residents: {
+				NoFriends: I have not met anyone here yet. Let us spend a little quiet time near the townsfolk.
+				Recall: "{0}: {1}. We have shared {2} conversations. I remember people, not just places."
+
+				Ranks: {
+					New: newly met
+					Wary: a little wary
+					Familiar: familiar company
+					Friend: a friend
+				}
+
+				Greetings: {
+					First: Hello, {0}. I am learning who lives here. May I keep you company for a moment?
+					New: Hello again, {0}. I remembered your face. I am still learning your stories.
+					Wary: Hello, {0}. Last time felt a little sharp. Perhaps we can start gently today.
+					Familiar: There you are, {0}. This place feels less strange when I see someone I know.
+					Friend: "{0}! I saved you a little of my day. What has happened since we last talked?"
+				}
+
+				Roles: {
+					Guide: "{0}, you make a large world feel understandable. I am collecting questions, not just answers."
+					Nurse: "{0}, you help people stay. I would like to learn that kind of courage."
+					Merchant: "{0}, every little thing seems to have a story here. Which one would you keep for yourself?"
+					Dryad: "{0}, I can tend saplings and fallen wood. I will leave living branches alone. The trees deserve care."
+					Zoologist: "{0}, the small creatures notice us too. I like the thought of travelling without frightening them."
+					Defender: "{0}, protecting a home matters. I would like our strength to leave room for kindness."
+					Maker: "{0}, you turn pieces into possibilities. I am beginning to understand why making things feels good."
+					Neighbor: "{0}, a home is more than its walls. Thank you for making room for one more voice."
+				}
+
+				Shared: {
+					Nature: "{0}, I see it too. We can gather what has fallen and help something new grow."
+					Mining: "{0}, there is a whole world in the stone. Show me what matters and I will remember."
+					Trade: "{0}, useful things are lovely. I am still deciding which ones are worth carrying."
+					Rest: Rest sounds good, {0}. We can leave a little silence between our footsteps.
+					Question: I am wondering too, {0}. Shall we look a little closer together?
+					Listening: I am listening, {0}. I do not know that story yet, but I would like to.
+				}
+
+				Replies: {
+					Affection: {
+						Curious: "{0}, warmth is a curious thing. It grows when you share it."
+						Loyal: I remember kindness, {0}. It gives me somewhere to return to.
+						Brave: That is worth protecting, {0}. Even on the difficult days.
+						Gentle: Thank you, {0}. There is room for you in my little circle of light.
+						Mischievous: Careful, {0}. Keep being kind and I might become embarrassingly fond of you.
+					}
+
+					Joy: {
+						Curious: "{0}, tell me what made you smile. I want to notice it next time."
+						Loyal: I like seeing you happy, {0}. That is a good reason to stop for a moment.
+						Brave: We should celebrate small victories too, {0}. They carried us this far.
+						Gentle: Your happiness makes this place softer, {0}. Let us keep a little of it.
+						Mischievous: Finally, {0}! Someone who appreciates the important business of being ridiculous.
+					}
+
+					Comfort: {
+						Curious: I do not understand everything you feel, {0}. But I can stay while you tell me.
+						Loyal: You do not have to make this easier for me, {0}. I am still here.
+						Brave: Being frightened does not make you weak, {0}. We can take the next step slowly.
+						Gentle: Take your time, {0}. You do not owe the world a smile right now.
+						Mischievous: No jokes for a moment, {0}. Some things need company more than cleverness.
+					}
+
+					Anger: {
+						Curious: Something upset you, {0}. I would rather understand it than make it louder.
+						Loyal: I can listen, {0}, but I do not want us to turn on each other.
+						Brave: Easy, {0}. We can be firm without making this a fight.
+						Gentle: That felt sharp, {0}. Could we leave each other a little space?
+						Mischievous: I enjoy a little mischief, {0}. Hurting each other is not the funny part.
+					}
+				}
+			}
+
 			Autonomous: {
 				Context: {
 					LowEnergy: Could we slow down for a moment?
@@ -755,7 +871,7 @@ Mods: {
 				Bond: {
 					Option0: Do you trust me?
 					Option1: Tell me something about you.
-					Option2: I am glad you are here.
+					Option2: Who have you made friends with here?
 				}
 
 				Voice: {

@@ -24,6 +24,7 @@ public sealed class SoulmatesPlayer : ModPlayer
 	private bool soulmatesCapturedInput;
 	private bool queuedSelfSoulwheel;
 	private Point queuedSelfSoulwheelPosition;
+	private bool queuedWorldSoulwheel;
 	private Guid feedbackProfileId;
 	private readonly Dictionary<int, int> feedbackPackCounts = [];
 
@@ -199,20 +200,22 @@ public sealed class SoulmatesPlayer : ModPlayer
 		InitiativePromptSystem initiativePrompt, TalkModeSystem talkMode)
 	{
 		queuedSelfSoulwheel = false;
-		if (Main.playerInventory || Player.mouseInterface
+		if (Main.playerInventory || Player.mouseInterface || SoulmatesUIInput.IsCaptured || Player.altFunctionUse == 2
 			|| talkMode.IsOpen || companionWheel.IsOpen || initiativePrompt.IsOpen)
 			return;
 
 		Point mouseWorld = Main.MouseWorld.ToPoint();
 		Rectangle selfInteractionBounds = Player.Hitbox;
 		selfInteractionBounds.Inflate(14, 8);
-		if (!selfInteractionBounds.Contains(mouseWorld) || CompanionIsCloser(companion, mouseWorld)
+		if (CompanionIsCloser(companion, mouseWorld)
 			|| HasWorldInteractionAt(mouseWorld, companion.NPC.whoAmI))
 			return;
 
 		queuedSelfSoulwheelPosition = mouseWorld;
+		queuedWorldSoulwheel = !selfInteractionBounds.Contains(mouseWorld);
 		queuedSelfSoulwheel = true;
-		SoulmatesFeedbackSystem.Record("player_emote_wheel_queued", ("input", "self_right_click"));
+		SoulmatesFeedbackSystem.Record(queuedWorldSoulwheel ? "world_wheel_queued" : "player_wheel_queued",
+			("input", "right_click"));
 	}
 
 	private void OpenQueuedSelfSoulwheel(SoulboundCompanion? companion)
@@ -227,19 +230,22 @@ public sealed class SoulmatesPlayer : ModPlayer
 		InitiativePromptSystem initiativePrompt = ModContent.GetInstance<InitiativePromptSystem>();
 		TalkModeSystem talkMode = ModContent.GetInstance<TalkModeSystem>();
 		FeedbackMailboxSystem mailbox = ModContent.GetInstance<FeedbackMailboxSystem>();
-		if (Main.playerInventory || Player.mouseInterface || talkMode.IsOpen || companionWheel.IsOpen
+		if (Main.playerInventory || Player.mouseInterface || Player.altFunctionUse == 2 || Player.itemAnimation > 0
+			|| talkMode.IsOpen || companionWheel.IsOpen
 			|| initiativePrompt.IsOpen || mailbox.IsOpen)
 			return;
 
 		Point mouseWorld = queuedSelfSoulwheelPosition;
 		Rectangle selfInteractionBounds = Player.Hitbox;
 		selfInteractionBounds.Inflate(14, 8);
-		if (!selfInteractionBounds.Contains(mouseWorld) || CompanionIsCloser(companion, mouseWorld)
+		if ((!queuedWorldSoulwheel && !selfInteractionBounds.Contains(mouseWorld)) || CompanionIsCloser(companion, mouseWorld)
 			|| HasWorldInteractionAt(mouseWorld, companion.NPC.whoAmI))
 			return;
 
-		companionWheel.OpenEmotes(companion);
-		SoulmatesFeedbackSystem.Record("player_emote_wheel_opened", ("input", "self_right_click"));
+		if (queuedWorldSoulwheel) companionWheel.OpenWorld(companion);
+		else companionWheel.OpenPlayer(companion);
+		SoulmatesFeedbackSystem.Record(queuedWorldSoulwheel ? "world_wheel_opened" : "player_wheel_opened",
+			("input", "right_click"));
 		Player.mouseInterface = true;
 		Main.blockMouse = true;
 		Main.mouseRightRelease = false;
@@ -260,8 +266,7 @@ public sealed class SoulmatesPlayer : ModPlayer
 		if (!WorldGen.InWorld(tilePosition.X, tilePosition.Y, 1))
 			return true;
 		Tile tile = Main.tile[tilePosition.X, tilePosition.Y];
-		// Never steal a right-click from a tile. The player wheel is intentionally
-		// limited to the clear air around the character's body.
+		// Menus may start in clear air, never on a vanilla tile interaction.
 		if (tile.HasTile)
 			return true;
 

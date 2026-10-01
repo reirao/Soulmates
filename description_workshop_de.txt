@@ -1,63 +1,55 @@
 [h1]Soulmates - AETHER-EGG Alpha[/h1]
-Erschaffe einen Companion mit Seele. Der wiederverwendbare Soulcore öffnet einen Editor in Terraria; jedes Soulbound Sigil bewahrt Namen, Aussehen, Persönlichkeit, Fortschritt, Erinnerungen und Pack eines Companions.
+Erschaffe einen Companion mit Seele. Der wiederverwendbare Soulcore öffnet einen Editor in Terraria; jedes Soulbound Sigil bewahrt Namen, Aussehen, Persönlichkeit, Fortschritt, Erinnerungen und Fracht.
 
-[b]Aktuelle Version: 0.13.0 - Growing Cargo[/b]
+[b]Version: 0.15.0 - Familiar Faces[/b]
 [b]Sprachen:[/b] Englisch und Deutsch, passend zur Terraria-Sprache.
-[url=https://github.com/reirao/Soulmates/releases/latest]Aktueller Build, echte Spielscreenshots und Versionshinweise[/url]
+[url=https://github.com/reirao/Soulmates]Quellcode und Versionshinweise[/url]
 
 [h2]Zusammen Anfangen[/h2]
-Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils. Wähle Namen, Persönlichkeit, Starttalent, Farben, Aura und eine animierte Soulkin-, Hasen-, Schleim-, Vogel- oder Eichhörnchen-Muse. Binde ein Sigil und benutze es zum Beschwören. Pro Spieler ist nur ein Companion aktiv; ein Sigil-Wechsel beendet den vorherigen Companion und seine Effekte. Bestehende Sigils bleiben kompatibel.
+Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils. Wähle Namen, Starttalent, Persönlichkeit, Farben, Aura und eine animierte Soulkin-, Hasen-, Schleim-, Vogel- oder Eichhörnchen-Muse. Binde ein Sigil und beschwöre. Pro Spieler ist ein Companion aktiv; ein Sigil-Wechsel beendet den vorherigen Companion und seine Effekte. Bestehende Sigils bleiben kompatibel.
 
-[h2]Kleine Räder, Mehr Persönlichkeit[/h2]
+[h2]Kleine Räder, Direkte Entscheidungen[/h2]
 [list]
-[*]Rechtsklick auf den Companion: Soulwheel für Befehle, Arbeit, Bindung, Pack, Einstellungen und Details.
-[*]Rechtsklick auf deinen Charakter oder G: separates Player Emote Wheel. Alle 151 Vanilla-Emotes sind mit Terraria-Grafiken in Halbmond-Kategorien geordnet.
-[*]Talk Mode behält Gespräche, Erinnerungen, Level-Fortschritt, Stimmung, Energie und Fracht in einer größenveränderbaren Detailansicht.
-[*]Companions teilen native Emotes, gelegentliche persönlichkeitsabhängige Texte und kleine Begegnungen mit Town-NPCs. Benannte Sprechblasen folgen dem Companion mit einem zurückhaltenden Nachhall.
+[*]Rechtsklick auf den Companion: Befehle, Arbeit, Bindung, Fracht, Einstellungen, Details und Briefkasten.
+[*]Rechtsklick auf dich: Spielerrad mit Emotes, Zeigen und Briefkasten. Alle 151 Vanilla-Emotes öffnen sich in Halbmond-Kategorien; G öffnet sie direkt.
+[*]Rechtsklick in freie Luft: Weltrad. Rechtsklick wechselt Zeigen / Gebietsarbeit; das native X beendet. Ansehen, Holen, Abbauen und Forstpflege bleiben für weitere Ziele aktiv. Normale Kachel-, NPC-, Inventar- und Alternativaktionen behalten Vorrang.
+[*]Nahe Erzarten erscheinen als echte Item-Symbole. Bergbaumodi sind Adaptive, Tunnel, Vein und Surface. Werkzeugstärke, Energie, Reichweite und geschützte Blöcke begrenzen die Arbeit weiterhin.
+[*]Antworte auf Initiativen mit Ja, Nein, Immer oder Nie. Das Antwortrad erscheint beim Spieler, während sie Aufgabe und Fragezeichen zeigt. Befehle > Initiativregeln setzt Fragen / Immer / Nie getrennt für Sammeln, Bergbau, Forstpflege und Schatzsuche.
+[*]Talk Mode behält Gespräche, Erinnerungen, Stimmung, Energie, Level und Fracht in einer größenveränderbaren Detailansicht.
+[/list]
+
+[h2]Vertraute Gesichter[/h2]
+Companions begrüßen nahe Bewohner, hören deren native Emotes und antworten passend zur Persönlichkeit und Symbolbedeutung. Bewohner werden neue Bekanntschaften, vertraute Gesellschaft, Freunde oder jemand, dem man vorsichtig begegnet. Beziehungen bleiben im Sigil erhalten und unterscheiden Welt, NPC-Typ und Bewohnernamen.
+[list]
+[*]Erste Begegnungen und Freundschaftsmeilensteine werden Erinnerungen. Talk Mode > Bindung > Mit wem hast du dich hier angefreundet? blättert durch lokale Bekanntschaften.
+[*]Zuneigung, Lachen, Traurigkeit, Ärger, Fragen, Arbeit und Ruhe erhalten passende native Symbolantworten. Ärger wird nicht länger als Jubel belohnt.
+[*]Bewohnerrollen haben eigene Dialoge. Besuche respektieren abgeschaltete Autonomie und weichen ausdrücklicher Arbeit oder Verteidigung.
+[*]Mehr benannte Texte folgen ihr mit sanftem Nachhall; Emotes halten auch ruhige Momente lebendig.
 [/list]
 
 [h2]Eine Hilfreiche Kleine Seele[/h2]
-[list]
-[*]Companions verteidigen in der Nähe, heilen abhängig vom Talent, sammeln nutzbare Drops, suchen Schätze und helfen beim Bergbau. Bleiben setzt einen echten Weltanker.
-[*]Lernen gewichtet wiederholtes Sammeln, Bergbauen, Forsten, Kämpfen und Erkunden. Das ist Spiellogik, kein Online-KI-Dienst.
-[*]Initiativfragen verwenden Ja, Nein, Immer oder Nie, getrennt für Sammeln, Bergbau, Forstpflege und Schatzsuche. Autonomie ist pro Companion umschaltbar.
-[*]Vergib einen Gebietsauftrag oder zeige auf einen Materialverband oder ein loses Item. Das Bergbaurad zeigt nahe Erzarten als echte Item-Symbole.
-[*]Wähle Adaptive, Tunnel, Vein oder Surface. Spitzhackenstärke, geschützte Blöcke, Reichweite und Energie begrenzen die Arbeit weiterhin. Instabile Materialien werden nur an freien Kanten bearbeitet.
-[*]Arbeit pausiert für natürliche Erholung und setzt ihren Plan fort. Abgeschlossene oder blockierte Aufträge melden ihr Ergebnis.
-[*]Forstpflege schüttelt Bäume und räumt natürliche umgestürzte Stämme; der erlernte Forester-Perk unterstützt außerdem vorsichtiges Eichelpflanzen. Unproduktive Bäume bekommen eine Pause.
-[*]Praktische Pack-Items helfen: Waffen stärken Angriffe, Fackeln geben Licht, Nahrung und Erholungsitems können genutzt werden. Materialien regen gelegentliche Crafting-Vorschläge an.
-[*]Ein Companion namens AETHER ist eine Omni-Seele mit allen Starttalent-Instinkten und erlernten Perks.
-[/list]
+Sie verteidigt nahe Bedrohungen, heilt abhängig vom Talent, sammelt nutzbare Drops, sucht Schätze und bearbeitet erreichbare Erze sowie sichere erlernte Materialien. Bleiben setzt einen echten Weltanker. Energie regeneriert natürlich; Arbeit kann pausieren und fortgesetzt werden. Abschlüsse und Hindernisse werden gemeldet.
+
+Aufmerksamkeit gewichtet Abstand, Talent, erlernte Gewohnheiten und Wartezeit mit getrennten Aufgabenpausen. Lernen adaptiert wiederholtes Sammeln, Bergbauen, Forsten, Kämpfen und Erkunden. Es ist lokale Spiellogik, kein Online-KI-Dienst.
+
+Forstpflege schüttelt Bäume und räumt natürliche umgestürzte Stämme. Der Forester-Perk pflanzt echte mitgeführte Eicheln nach. Das Beschneiden lebender Baumäste ist nicht aktiviert. Nützliche Fracht unterstützt Waffen, Licht, Nahrung, Erholung und gelegentliche Crafting-Vorschläge.
+
+[h2]AETHERs Kleine Gesellschaft[/h2]
+Ein Companion namens AETHER besitzt alle Starttalent-Instinkte und erlernten Perks. Gib ihr einen Kescher in die Fracht: genehmigte Forstpflege kann nahe natürliche Schmetterlinge, Glühwürmchen und Leuchtkäfer fangen. Forstpflege > Immer erlaubt auch Fänge im Leerlauf. Spielerfreigelassene und statuenbeschworene Insekten sind ausgeschlossen.
+
+Der echte Fang durchläuft ihre normale Frachttransaktion. Bis zu sechs mitgeführte Insekten umkreisen sie mit nativen animierten Sprites; beim Zurückgeben verschwinden sie. Das ist kosmetisch, keine Kampfarmee, und erzeugt weder zusätzliche Tiere noch Pet-Slots.
 
 [h2]Wachsen und Tragen[/h2]
-Kampf, Heilung, Arbeit und gemeinsame Momente geben Erfahrung über 20 Level. Fünf Bindungsränge verbessern die Unterstützung. Energie regeneriert natürlich; Ablehnungen nennen Energie- oder Stimmungsanforderungen. Ausrüstung behält 8 Pack-Slots, erweitert durch Bindung oder mit Hearth Ribbon auf 12, und bis zu 99 Stück pro Typ. Ressourcen haben 60 Stapelplätze und 50 Stück pro Level und Typ: Level 10 hält 500, Level 20 hält 1.000. Münzen gehen in eine separate, unbegrenzte Geldtasche und belegen keine Itemplätze. Companions beleuchten ihre Umgebung und decken die nahe Karte auf.
+Erfahrung unterstützt 20 Level und fünf Bindungsränge. Ausrüstung behält 8 Plätze, durch Bindung oder Hearth Ribbon bis zu 12, und maximal 99 Stück pro Typ. Ressourcen haben 60 Stapelplätze und 50 Stück pro Level und Typ: 500 auf Level 10, 1.000 auf Level 20. Gesammelte Münzen nutzen eine separate unbegrenzte Geldtasche ohne Itemplätze.
 
-[h2]Neu in 0.13.0[/h2]
-Ausrüstung, Ressourcen und Geldtasche sind getrennte dauerhafte Fächer mit Terraria-Symbolen. Ressourcen wachsen mit dem Companion-Level; Geld hat kein Mengen- oder Level-Limit. Alte Sigils übertragen Materialien und Münzen einmalig und geben überzählige Ressourcen beim Beschwören zurück. Forstpflege, Fackeln und Crafting-Vorschläge nutzen mitgeführte Ressourcen. Nur Items und Münzen, die tatsächlich ins Spielerinventar passen, verlassen den Companion. Alle Multiplayer-Teilnehmer brauchen dieselbe Mod-Version.
+Fracht bietet native Item-Symbole, Seiten, Tooltips, Stapel- oder Einzelentnahme und Münzumrechnung. Was nicht ins Spielerinventar passt, bleibt beim Companion. Bestehende Sigils bewahren Fracht und geben überschüssige Level-Reserven beim Beschwören sicher zurück.
 
-[h2]Steuerung und Rezepte[/h2]
-[list]
-[*]Soulcore benutzen: Editor. Sigil benutzen: beschwören. Nach oben + Rechtsklick auf aktives Sigil: zurückrufen.
-[*]Tasche: Pack. Details oder V: Talk Mode. Papierflieger oder /soulfeedback: lokaler AETHER-Briefkasten.
-[*]Taschenreiter: Sparschwein für Ausrüstung, Erz für Ressourcen, Münze für Geld. Buch oder Mausrad blättert durch Ressourcen.
-[*]Item-Slots: Linksklick nimmt einen Stack, Rechtsklick ein Item. Münzsymbole wechseln und entnehmen die gewählte Münzsorte. Das ausgewählte Hotbar-Item einlagern oder Fracht zurückgeben; was nicht ins Inventar passt, bleibt beim Companion.
-[*]Folgen, Bleiben oder Erkunden beendet den Gebietsauftrag. WIEDER FRAGEN setzt Immer/Nie zurück.
-[*]Trinket benutzen: ausrüsten. Rechtsklick: entfernen. G und V sind umbelegbar.
-[/list]
-An der Werkbank: Soulcore = 8 Fallen Stars + 5 Amethyst + 10 Stone Blocks; Blank Sigil = 3 Fallen Stars + 1 Amethyst + 5 Silk; Hearth Ribbon = 5 Silk + 2 Daybloom + 2 Fallen Stars.
-Am Amboss: Starfinder Bell = 5 Fallen Stars + 3 Iron/Lead Bars + 1 Lens; Delver Charm = 5 Iron/Lead Bars + 2 Amethyst + 20 Stone Blocks.
+[h2]Feldnotizen und Feedback[/h2]
+Der AETHER-Briefkasten öffnet über das Papierflieger-Symbol oder /soulfeedback. Optionale Feldnotizen und kontextuelle Bugberichte bleiben auf diesem Computer, sind standardmäßig aus und laden nichts hoch.
 
-[h2]Eine Ehrlich Wachsende Alpha[/h2]
-Soulmates begann als Pet-Editor und wuchs um Arbeit, Pack, Lernen und native Emotes. Echtes Spielen zeigte unklare Bedienung und Frachtfehler; mehrere Systeme wurden neu gebaut. Die vollständige Geschichte steht auf GitHub und wird nicht in jeden Workshop-Eintrag kopiert.
+Dies ist eine gewachsene Alpha. Automatische Prüfungen und begrenzte Client-Spieltests sind getrennt dokumentiert; vollständiger Fortschritt, lange Sitzungen, neue visuelle Kombinationen und Live-Multiplayer brauchen weitere Tests. Alle Mitspieler benötigen dieselbe Version. Der Entwickler kann nur wenig spielen. Hinweise mit dem beobachteten Verhalten und Solo-/Multiplayer-Angabe helfen deshalb besonders. Und wir freuen uns genauso, wenn ein Companion jemanden zum Lächeln bringt.
 
-Singleplayer und serverautoritärer Multiplayer sind implementiert. Für 0.13.0 bestanden 2.065 statische/mathematische und 4.051 isolierte Engine-/Geometrie-Prüfungen für Inventare, exakte Geldtransfers, Migration und Synchronisierung. Das neue Inventar funktioniert laut Spieltest des Erstellers. Die echten Screenshots zeigen den 0.12.2-Test, nicht das neue Inventar. Darstellung, echter Multiplayer, Fortschritt und Langzeitsitzungen brauchen weitere Tests.
+[h2]Entwicklungshinweis[/h2]
+Soulmates entstand mit umfangreicher KI-Unterstützung bei Programmierung, Texten, Oberflächen und visueller Entwicklung. Workshop-Icon, Mod-Icon und eigener Soulkin-Sprite wurden KI-generiert und in die Mod integriert. Native Terraria-Sprites, Items, Inventarsymbole, Emotes und Navigation bleiben in Verwendung. Dieser Hinweis bedeutet nicht, dass das Spiel einen Online-KI-Dienst nutzt.
 
-Meine Spielzeit ist begrenzt und Terraria-Fortschritt braucht Zeit. Wenn etwas seltsam ist, beschreibe bitte das Geschehen, die Mod-Version und ob du solo oder im Multiplayer spielst. Wenn dich dein Companion zum Lächeln bringt, freue ich mich genauso. Der optionale AETHER-Briefkasten und Field Notes speichern Feedback und Fehlerkontext nur lokal; Aufzeichnung ist standardmäßig aus und nichts wird hochgeladen.
-
-[b]Alte manuelle Installation:[/b] 9.9.x-Pakete gelten numerisch als neuer. Entferne eine solche doppelte .tmod, bevor du die Workshop-Version verwendest.
-
-[h2]Hinweis zur KI-Unterstützung[/h2]
-Programmierung, Texte, UI und visuelle Entwicklung entstanden mit umfangreicher KI-Unterstützung. Workshop-Bild, Mod-Icon und eigener Soulkin-Sprite wurden KI-generiert. Andere Musen-, Item-, Inventar- und Emote-Grafiken nutzen Terraria-Assets. Spielscreenshots sind echte Aufnahmen, keine generierten Szenen.
-
-[url=https://github.com/reirao/Soulmates]Quellcode und vollständige Historie[/url] | [url=https://github.com/reirao/Soulmates/issues]Fehlerberichte und Beobachtungen[/url]
-Danke, dass du diesen kleinen Seelen beim Wachsen hilfst.
+[url=https://steamcommunity.com/sharedfiles/filedetails/?id=3807130821]Workshop[/url] | [url=https://github.com/reirao/Soulmates/issues]Bugberichte[/url]

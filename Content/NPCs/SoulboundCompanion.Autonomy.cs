@@ -24,21 +24,41 @@ public sealed partial class SoulboundCompanion
 {
 	private const int InitiativeResponseTicks = 60 * 60;
 
+	private void UpdateAttentionClock()
+	{
+		if (Main.netMode == NetmodeID.MultiplayerClient) {
+			if (pendingInitiativeTimer > 0) pendingInitiativeTimer--;
+			return;
+		}
+		attention.Tick();
+		if (autonomyAnnouncementCooldown > 0) autonomyAnnouncementCooldown--;
+		if (autonomyDecisionTimer > 0) autonomyDecisionTimer--;
+		if (autonomyDiscoveryCooldown > 0)
+			autonomyDiscoveryCooldown--;
+		if (imitationCueTimer > 0 && --imitationCueTimer <= 0)
+			imitationSignals.Clear();
+		if (pendingAutonomyActivity != AutonomyActivity.None) {
+			if (!Profile.AutonomyEnabled || Command == StayCommand || Profile.Energy < 16 || Profile.Mood < 15
+				|| activeJob != CompanionJob.None
+				|| !IsInitiativeTargetValid(pendingAutonomyActivity, pendingTargetItem, pendingTargetTile, pendingForestAction, checkLootIdentity: true)) {
+				SoulmatesFeedbackSystem.Record("initiative_expired", ("action", PendingInitiativeKind.ToString()),
+					("reason", "target_or_context_changed"));
+				attention.Defer(PendingInitiativeKind, 300);
+				ClearPendingInitiative(90);
+			}
+			else if (--pendingInitiativeTimer <= 0) {
+				attention.Defer(PendingInitiativeKind, 1800);
+				SoulmatesFeedbackSystem.Record("initiative_expired", ("action", PendingInitiativeKind.ToString()),
+					("reason", "unanswered"));
+				ClearPendingInitiative(90);
+			}
+			else if (pendingInitiativeTimer == InitiativeResponseTicks - 120)
+				ShowNativeEmote(EmoteID.EmoteConfused, 180);
+		}
+	}
+
 	private bool UpdateHelpfulAutonomy()
 	{
-		if (autonomyDiscoveryCooldown > 0 && Main.netMode != NetmodeID.MultiplayerClient)
-			autonomyDiscoveryCooldown--;
-		if (imitationCueTimer > 0 && Main.netMode != NetmodeID.MultiplayerClient
-			&& --imitationCueTimer <= 0)
-			imitationSignals.Clear();
-		if (deferredInitiativeTimer > 0 && Main.netMode != NetmodeID.MultiplayerClient
-			&& --deferredInitiativeTimer <= 0)
-			deferredInitiativeKind = null;
-		if (pendingAutonomyActivity != AutonomyActivity.None && Main.netMode != NetmodeID.MultiplayerClient
-			&& --pendingInitiativeTimer <= 0) {
-			ClearPendingInitiative(600);
-		}
-
 		if (!Profile.AutonomyEnabled || Command == StayCommand || Profile.Energy < 16 || Profile.Mood < 15) {
 			if ((autonomyActivity != AutonomyActivity.None || pendingAutonomyActivity != AutonomyActivity.None)
 				&& Main.netMode != NetmodeID.MultiplayerClient)
@@ -58,7 +78,7 @@ public sealed partial class SoulboundCompanion
 			return false;
 		if (socialNpcTarget >= 0)
 			return false;
-		if (Main.netMode == NetmodeID.MultiplayerClient || --autonomyDecisionTimer > 0)
+		if (Main.netMode == NetmodeID.MultiplayerClient || autonomyDecisionTimer > 0)
 			return false;
 		if (Main.netMode == NetmodeID.SinglePlayer && !SoulmatesUIInput.CanPresentInitiative)
 			return false;
@@ -70,31 +90,62 @@ public sealed partial class SoulboundCompanion
 		autonomyDecisionTimer = Main.rand.Next(minimum, maximum);
 		if (Vector2.DistanceSquared(NPC.Center, Owner.Center) > 440f * 440f)
 			return false;
-		if (TryConsiderImitationCue(out bool imitationResult))
-			return imitationResult;
-
+		opportunities.Clear();
+		int itemIndex = -1;
+		Point ore = Point.Zero;
+		Point forestTarget = Point.Zero;
+		ForestAction forestAction = ForestAction.None;
+		Point chest = Point.Zero;
 		if (MayConsiderInitiative(CompanionInitiativeKind.Gathering)
-			&& FindAutonomousLooseItem(out int itemIndex))
-			return ConsiderInitiative(AutonomyActivity.FetchItem, targetItem: itemIndex);
+			&& FindAutonomousLooseItem(out itemIndex))
+			OfferOpportunity(CompanionInitiativeKind.Gathering, Main.item[itemIndex].Center, EagerGatherer);
 
 		if (MiningInstinct && MayConsiderInitiative(CompanionInitiativeKind.Mining)
-			&& FindAutonomousOre(out Point ore))
-			return ConsiderInitiative(AutonomyActivity.AssistMining, targetTile: ore);
+			&& FindAutonomousOre(out ore))
+			OfferOpportunity(CompanionInitiativeKind.Mining, ore.ToWorldCoordinates(), Profile.HasTalent(CompanionTalent.Miner));
 
 		if (MayConsiderInitiative(CompanionInitiativeKind.Forestry)
-			&& FindForestTask(Owner.Center, out Point forestTarget, out ForestAction forestAction))
-			return ConsiderInitiative(AutonomyActivity.TendForest, targetTile: forestTarget,
-				forestAction: forestAction);
+			&& FindForestTask(Owner.Center, out forestTarget, out forestAction))
+			OfferOpportunity(CompanionInitiativeKind.Forestry, forestTarget.ToWorldCoordinates(), Profile.ForesterUnlocked);
 
 		if (TreasureInstinct && MayConsiderInitiative(CompanionInitiativeKind.Treasure)
 			&& autonomyDiscoveryCooldown <= 0
-			&& FindAutonomousChest(out Point chest))
-			return ConsiderInitiative(AutonomyActivity.InspectTreasure, targetTile: chest);
+			&& FindAutonomousChest(out chest))
+			OfferOpportunity(CompanionInitiativeKind.Treasure, chest.ToWorldCoordinates(), Profile.HasTalent(CompanionTalent.TreasureSeeker));
+
+		CompanionInitiativeKind? selected = attention.Choose(opportunities);
+		if (selected is CompanionInitiativeKind kind) {
+			SoulmatesFeedbackSystem.Record("attention_selected", ("action", kind.ToString()),
+				("alternatives", opportunities.Count));
+			bool result = kind switch {
+				CompanionInitiativeKind.Gathering => ConsiderInitiative(AutonomyActivity.FetchItem, targetItem: itemIndex),
+				CompanionInitiativeKind.Mining => ConsiderInitiative(AutonomyActivity.AssistMining, targetTile: ore),
+				CompanionInitiativeKind.Forestry => ConsiderInitiative(AutonomyActivity.TendForest, targetTile: forestTarget, forestAction: forestAction),
+				_ => ConsiderInitiative(AutonomyActivity.InspectTreasure, targetTile: chest)
+			};
+			imitationSignals.Remove(BehaviorFor(kind));
+			return result;
+		}
 
 		if (Main.rand.NextBool(3))
 			PerformAutonomousMoment();
 		return false;
 	}
+
+	private void OfferOpportunity(CompanionInitiativeKind kind, Vector2 position, bool specialist)
+	{
+		int proximity = (int)(20f * (1f - Math.Clamp(Vector2.Distance(NPC.Center, position) / 560f, 0f, 1f)));
+		int imitation = imitationCueTimer > 0 && imitationSignals.TryGetValue(BehaviorFor(kind), out int strength)
+			? Math.Min(30, strength * 5) : 0;
+		opportunities.Add(new CompanionOpportunity(kind, 20 + proximity + (specialist ? 15 : 0) + imitation));
+	}
+
+	private static LearnedBehavior BehaviorFor(CompanionInitiativeKind kind) => kind switch {
+		CompanionInitiativeKind.Mining => LearnedBehavior.Mining,
+		CompanionInitiativeKind.Forestry => LearnedBehavior.Forestry,
+		CompanionInitiativeKind.Treasure => LearnedBehavior.Exploration,
+		_ => LearnedBehavior.Gathering
+	};
 
 	private bool UpdateAutonomousActivity()
 	{
@@ -305,12 +356,20 @@ public sealed partial class SoulboundCompanion
 		CancelAutonomousActivity(autonomyWorkCount > 0 ? 180 : 260);
 	}
 
-	private bool PerformForestAction(Point target, ForestAction action) => action switch {
-		ForestAction.ShakeTree => ShakeTree(target),
-		ForestAction.ClearDeadwood => ClearDeadwood(target),
-		ForestAction.PlantAcorn => PlantAcorn(target),
-		_ => false
-	};
+	private bool PerformForestAction(Point target, ForestAction action)
+	{
+		bool success = action switch {
+			ForestAction.ShakeTree => ShakeTree(target),
+			ForestAction.ClearDeadwood => ClearDeadwood(target),
+			ForestAction.PlantAcorn => PlantAcorn(target),
+			_ => false
+		};
+		if (success) {
+			ShowNativeEmote(EmoteID.MiscTree, 120);
+			TryCatchNearbyInsect();
+		}
+		return success;
+	}
 
 	private bool ShakeTree(Point target)
 	{
@@ -387,79 +446,6 @@ public sealed partial class SoulboundCompanion
 		}
 		return false;
 	}
-
-	private bool TryConsiderImitationCue(out bool actionResult)
-	{
-		actionResult = false;
-		if (imitationSignals.Count == 0 || imitationCueTimer <= 0)
-			return false;
-
-		foreach (KeyValuePair<LearnedBehavior, int> signal in imitationSignals
-			.OrderByDescending(entry => entry.Value)
-			.ThenBy(entry => ImitationPriority(entry.Key)).ToArray()) {
-			LearnedBehavior behavior = signal.Key;
-			bool actionable = behavior switch {
-				LearnedBehavior.Gathering => TryImitateGathering(out actionResult),
-				LearnedBehavior.Mining => TryImitateMining(out actionResult),
-				LearnedBehavior.Forestry => TryImitateForestry(out actionResult),
-				LearnedBehavior.Exploration => TryImitateExploration(out actionResult),
-				_ => false
-			};
-			if (!actionable)
-				continue;
-			imitationSignals.Remove(behavior);
-			if (imitationSignals.Count == 0)
-				imitationCueTimer = 0;
-			return true;
-		}
-		return false;
-	}
-
-	private bool TryImitateGathering(out bool actionResult)
-	{
-		actionResult = false;
-		if (!FindAutonomousLooseItem(out int itemIndex))
-			return false;
-		actionResult = ConsiderInitiative(AutonomyActivity.FetchItem, targetItem: itemIndex);
-		return true;
-	}
-
-	private bool TryImitateMining(out bool actionResult)
-	{
-		actionResult = false;
-		if (!MiningInstinct || !FindAutonomousOre(out Point ore))
-			return false;
-		actionResult = ConsiderInitiative(AutonomyActivity.AssistMining, targetTile: ore);
-		return true;
-	}
-
-	private bool TryImitateForestry(out bool actionResult)
-	{
-		actionResult = false;
-		if (!Profile.ForesterUnlocked
-			|| !FindForestTask(Owner.Center, out Point forestTarget, out ForestAction forestAction))
-			return false;
-		actionResult = ConsiderInitiative(AutonomyActivity.TendForest, targetTile: forestTarget,
-			forestAction: forestAction);
-		return true;
-	}
-
-	private bool TryImitateExploration(out bool actionResult)
-	{
-		actionResult = false;
-		if (!TreasureInstinct || autonomyDiscoveryCooldown > 0 || !FindAutonomousChest(out Point chest))
-			return false;
-		actionResult = ConsiderInitiative(AutonomyActivity.InspectTreasure, targetTile: chest);
-		return true;
-	}
-
-	private static int ImitationPriority(LearnedBehavior behavior) => behavior switch {
-		LearnedBehavior.Mining => 0,
-		LearnedBehavior.Forestry => 1,
-		LearnedBehavior.Gathering => 2,
-		LearnedBehavior.Exploration => 3,
-		_ => 4
-	};
 
 	private bool ClearDeadwood(Point target)
 	{
@@ -655,15 +641,18 @@ public sealed partial class SoulboundCompanion
 	{
 		CompanionInitiativeKind kind = InitiativeKindFor(activity);
 		CompanionInitiativePolicy policy = Profile.GetInitiativePolicy(kind);
-		if (policy == CompanionInitiativePolicy.Never) {
-			autonomyDecisionTimer = Math.Max(autonomyDecisionTimer, 600);
+		if (!MayConsiderInitiative(kind)
+			|| !IsInitiativeTargetValid(activity, targetItem, targetTile, forestAction)) {
 			return false;
 		}
 
 		ShowNativeEmote(InitiativeEmote(kind), 120);
 		if (policy == CompanionInitiativePolicy.Always) {
 			SoulmatesFeedbackSystem.Record("initiative_auto_accept", ("action", kind.ToString()));
-			SpeakLocalized($"Autonomy.Initiative.Always.{kind}");
+			if (autonomyAnnouncementCooldown <= 0 && speechTimer <= 0) {
+				SpeakLocalized($"Autonomy.Initiative.Always.{kind}");
+				autonomyAnnouncementCooldown = 1800;
+			}
 			BeginAutonomousActivity(activity, targetItem, targetTile, forestAction);
 			return true;
 		}
@@ -673,7 +662,9 @@ public sealed partial class SoulboundCompanion
 		pendingTargetItem = targetItem;
 		pendingTargetTile = targetTile;
 		pendingForestAction = forestAction;
-		autonomyDecisionTimer = Math.Max(autonomyDecisionTimer, pendingInitiativeTimer);
+		pendingLootIdentity = activity == AutonomyActivity.FetchItem ? Main.item[targetItem] : null;
+		pendingLootType = pendingLootIdentity?.type ?? 0;
+		pendingLootPrefix = pendingLootIdentity?.prefix ?? 0;
 		SpeakLocalized($"Autonomy.Initiative.Ask.{kind}");
 		NPC.netUpdate = true;
 		if (Main.netMode == NetmodeID.Server)
@@ -685,7 +676,39 @@ public sealed partial class SoulboundCompanion
 
 	private bool MayConsiderInitiative(CompanionInitiativeKind kind)
 		=> Profile.GetInitiativePolicy(kind) != CompanionInitiativePolicy.Never
-			&& (deferredInitiativeKind != kind || deferredInitiativeTimer <= 0);
+			&& attention.IsReady(kind);
+
+	private bool IsInitiativeTargetValid(AutonomyActivity activity, int itemIndex, Point tile,
+		ForestAction forestAction, bool checkLootIdentity = false)
+	{
+		if (!TryGetOwner(out Player owner) || owner.dead) return false;
+		if (activity == AutonomyActivity.FetchItem) {
+			if (itemIndex < 0 || itemIndex >= Main.maxItems) return false;
+			Item item = Main.item[itemIndex];
+			return (!checkLootIdentity || ReferenceEquals(item, pendingLootIdentity)
+				&& item.type == pendingLootType && item.prefix == pendingLootPrefix)
+				&& CanCollectLooseItem(item)
+				&& Vector2.DistanceSquared(owner.Center, item.Center) <= 560f * 560f;
+		}
+		if (!WorldGen.InWorld(tile.X, tile.Y, 10)
+			|| Vector2.DistanceSquared(owner.Center, tile.ToWorldCoordinates()) > 560f * 560f)
+			return false;
+		return activity switch {
+			AutonomyActivity.AssistMining => MiningInstinct
+				&& CanMineTile(tile.X, tile.Y, includeLearnedMaterials: false),
+			AutonomyActivity.InspectTreasure => TreasureInstinct
+				&& Main.chest.Any(chest => chest is not null && chest.x == tile.X && chest.y == tile.Y),
+			AutonomyActivity.TendForest => forestAction switch {
+				ForestAction.ShakeTree => treeShakeCooldown <= 0 && TryFindTreeTrunk(tile, out _),
+				ForestAction.ClearDeadwood => Main.tile[tile.X, tile.Y].HasTile
+					&& Main.tile[tile.X, tile.Y].TileType == TileID.FallenLog,
+				ForestAction.PlantAcorn => Profile.ForesterUnlocked && HasPackItem(ItemID.Acorn)
+					&& CanPlantAcornAt(tile.X, tile.Y),
+				_ => false
+			},
+			_ => false
+		};
+	}
 
 	public void ReceiveInitiativePrompt(CompanionInitiativeKind kind)
 	{
@@ -698,7 +721,8 @@ public sealed partial class SoulboundCompanion
 
 	public bool RespondToInitiative(CompanionInitiativeResponse response)
 	{
-		if (!Enum.IsDefined(response) || pendingAutonomyActivity == AutonomyActivity.None)
+		if (Main.netMode == NetmodeID.MultiplayerClient || !Enum.IsDefined(response)
+			|| pendingAutonomyActivity == AutonomyActivity.None)
 			return false;
 
 		AutonomyActivity activity = pendingAutonomyActivity;
@@ -706,17 +730,19 @@ public sealed partial class SoulboundCompanion
 		int targetItem = pendingTargetItem;
 		Point targetTile = pendingTargetTile;
 		ForestAction forestAction = pendingForestAction;
+		if (!Profile.AutonomyEnabled || Command == StayCommand || Profile.Energy < 16 || Profile.Mood < 15
+			|| activeJob != CompanionJob.None
+			|| !IsInitiativeTargetValid(activity, targetItem, targetTile, forestAction, checkLootIdentity: true)) {
+			attention.Defer(kind, 300);
+			ClearPendingInitiative(90);
+			return false;
+		}
 		if (response == CompanionInitiativeResponse.Always)
 			Profile.SetInitiativePolicy(kind, CompanionInitiativePolicy.Always);
 		else if (response == CompanionInitiativeResponse.Never)
 			Profile.SetInitiativePolicy(kind, CompanionInitiativePolicy.Never);
 		if (response == CompanionInitiativeResponse.No) {
-			deferredInitiativeKind = kind;
-			deferredInitiativeTimer = 900;
-		}
-		else if (deferredInitiativeKind == kind) {
-			deferredInitiativeKind = null;
-			deferredInitiativeTimer = 0;
+			attention.Defer(kind, 1800);
 		}
 
 		ClearPendingInitiative(response is CompanionInitiativeResponse.Yes or CompanionInitiativeResponse.Always ? 0 : 120);
@@ -758,6 +784,9 @@ public sealed partial class SoulboundCompanion
 		pendingTargetItem = -1;
 		pendingTargetTile = Point.Zero;
 		pendingForestAction = ForestAction.None;
+		pendingLootIdentity = null;
+		pendingLootType = 0;
+		pendingLootPrefix = 0;
 		autonomyDecisionTimer = Math.Max(autonomyDecisionTimer, nextDecisionDelay);
 		if (changed)
 			NPC.netUpdate = true;
@@ -777,7 +806,7 @@ public sealed partial class SoulboundCompanion
 		_ => AutonomyActivity.FetchItem
 	};
 
-	private static int InitiativeEmote(CompanionInitiativeKind kind) => kind switch {
+	internal static int InitiativeEmote(CompanionInitiativeKind kind) => kind switch {
 		CompanionInitiativeKind.Mining => EmoteID.ItemPickaxe,
 		CompanionInitiativeKind.Forestry => EmoteID.MiscTree,
 		CompanionInitiativeKind.Treasure => EmoteID.ItemGoldpile,
@@ -800,6 +829,13 @@ public sealed partial class SoulboundCompanion
 	{
 		bool changed = autonomyActivity != AutonomyActivity.None || pendingAutonomyActivity != AutonomyActivity.None;
 		if (autonomyActivity != AutonomyActivity.None)
+			attention.Defer(InitiativeKindFor(autonomyActivity), autonomyActivity switch {
+				AutonomyActivity.FetchItem => 180,
+				AutonomyActivity.AssistMining => 600,
+				AutonomyActivity.TendForest => 900,
+				_ => 2400
+			});
+		if (autonomyActivity != AutonomyActivity.None)
 			SoulmatesFeedbackSystem.Record("autonomy_ended", ("action", autonomyActivity.ToString()),
 				("work_count", autonomyWorkCount), ("attempt_count", autonomyAttemptCount));
 		autonomyActivity = AutonomyActivity.None;
@@ -809,10 +845,8 @@ public sealed partial class SoulboundCompanion
 		autonomyWorkCount = 0;
 		autonomyAttemptCount = 0;
 		autonomyForestAction = ForestAction.None;
-		imitationSignals.Clear();
-		imitationCueTimer = 0;
 		ClearPendingInitiative();
-		autonomyDecisionTimer = Math.Max(autonomyDecisionTimer, nextDecisionDelay);
+		autonomyDecisionTimer = Math.Max(autonomyDecisionTimer, Math.Min(180, nextDecisionDelay));
 		if (changed)
 			NPC.netUpdate = true;
 	}

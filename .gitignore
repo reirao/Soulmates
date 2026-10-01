@@ -6,3 +6,4 @@ obj/
 work/
 .dotnet-cli/
 outputs/
+media/

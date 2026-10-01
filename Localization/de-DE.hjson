@@ -93,6 +93,12 @@ Mods: {
 				Treasure: Schatzsuche
 			}
 
+			CompanionInitiativePolicy: {
+				Ask: Erst fragen
+				Always: Immer
+				Never: Nie
+			}
+
 			CompanionMiningApproach: {
 				Adaptive: Adaptiv
 				Tunnel: Tunnel
@@ -157,6 +163,10 @@ Mods: {
 				MiningVein: Erzadern abbauen
 				MiningSurface: Oberfläche abbauen
 				Details: Details
+				GatheringPolicy: Sammelregel
+				MiningPolicy: Bergbauregel
+				ForestryPolicy: Forstregel
+				TreasurePolicy: Schatzregel
 			}
 
 			CompanionTrinket: {
@@ -274,6 +284,10 @@ Mods: {
 				AutonomyOn: AUTO AN
 				AutonomyOff: AUTO AUS
 				InitiativePrompt: "{0}: DU ENTSCHEIDEST"
+				InitiativeSettings: AUTONOMIE-REGELN
+				RuleState: "{0}: {1}"
+				PointTitle: ZEIGEN
+				AreaTitle: ARBEIT IM GEBIET
 
 				InitiativeResponses: {
 					Yes: JA, MACH DAS
@@ -290,6 +304,7 @@ Mods: {
 					Pack: Gefährten-Pack
 					Details: Details
 					Mailbox: Field Notes
+					Point: Etwas zeigen
 				}
 
 				NativeCategories: {
@@ -320,6 +335,8 @@ Mods: {
 					MineTarget: ZIEL ABBAUEN
 					GatherTarget: ZIEL HOLEN
 					MiningApproach: ABBAUMODUS
+					LookTarget: ZIEL ANSEHEN
+					ForestTarget: EINEN ORT PFLEGEN
 				}
 
 				MiningApproaches: {
@@ -345,10 +362,22 @@ Mods: {
 			}
 
 			DirectOrder: {
-				MineInvalid: ABBAUBARES ERZ ODER GELERNTES MATERIAL ANKLICKEN  |  RECHTSKLICK BRICHT AB
-				MineValid: "{0}  |  LINKSKLICK ZUM ABBAUEN"
-				GatherInvalid: LOSES ITEM ANKLICKEN  |  RECHTSKLICK BRICHT AB
-				GatherValid: "{0}  |  LINKSKLICK ZUM HOLEN"
+				Target: "{0}: {1}"
+				ForestValid: DIESEN ORT PFLEGEN
+
+				Modes: {
+					Look: ANSEHEN
+					Gather: HOLEN
+					Mine: ABBAUEN
+					Forest: FORSTPFLEGE
+				}
+
+				Invalid: {
+					Look: NICHTS IN DER NÄHE ZUM ANSEHEN
+					Gather: KEIN TRAGBARER FUND HIER
+					Mine: NOCH NICHT ABBAUBAR
+					Forest: KEINE SICHERE FORSTAUFGABE HIER
+				}
 			}
 
 			Mailbox: {
@@ -427,6 +456,13 @@ Mods: {
 			Mined: Ich habe {0} Blöcke {1} abgebaut.
 			Gathered: Ich habe {0} {1} eingesammelt.
 			TargetLost: Das Ziel ist nicht mehr da.
+			CannotForest: Dort kann ich gerade nicht sicher Forstpflege betreiben.
+			ForestAccepted: Ich pflege diesen Ort und komme dann zurück.
+			ForestDone: Dieser Ort ist versorgt.
+			LookItem: "{0}. Für {1} aus diesem Stapel habe ich noch Platz."
+			LookForest: Ein Waldort. Wir können einen Baum schütteln oder totes Holz entfernen, ohne lebende Stämme zu fällen.
+			LookMineable: "{0}. Das kann ich sicher abbauen, wenn du mich bittest."
+			LookProtected: "{0}. Das kann ich noch nicht sicher abbauen, oder es ist geschützt."
 		}
 
 		Feedback: {
@@ -517,6 +553,9 @@ Mods: {
 				ExperienceMilestone: Ich erinnere mich daran, Gefährtenlevel {0} erreicht zu haben.
 				SharedMoment: Ich erinnere mich an unser gemeinsames {0}.
 				LearnedPerk: Ich erinnere mich daran, den Perk {0} von dir gelernt zu haben.
+				ResidentMet: Ich erinnere mich daran, {0} kennengelernt zu haben. Ein kleines Licht mehr in dieser Welt.
+				ResidentFriend: "{0} fühlt sich jetzt wie ein Freund an. Ich kenne den Klang unserer Gespräche."
+				InsectCompanion: Ich erinnere mich daran, wie ein {0} unserer kleinen Reisegesellschaft beigetreten ist.
 			}
 		}
 
@@ -563,6 +602,7 @@ Mods: {
 
 			Initiative: {
 				RulesReset: Ich frage wieder nach, wenn ich eine Gelegenheit entdecke.
+				PolicyChanged: "{0}: {1}. Das merke ich mir."
 
 				Ask: {
 					Gathering: Ich habe etwas lose herumliegen sehen. Soll ich es einsammeln?
@@ -613,6 +653,82 @@ Mods: {
 		}
 
 		Social: {
+			Nature.Insect: Ein {0}! Ein kleiner Reisegefährte. In meinem Pack passe ich gut darauf auf.
+
+			Residents: {
+				NoFriends: Ich kenne hier noch niemanden. Lass uns ein wenig ruhige Zeit bei den Dorfbewohnern verbringen.
+				Recall: "{0}: {1}. Wir haben {2} Gespräche geteilt. Ich erinnere mich an Menschen, nicht nur an Orte."
+
+				Ranks: {
+					New: gerade kennengelernt
+					Wary: etwas vorsichtig
+					Familiar: vertraute Gesellschaft
+					Friend: befreundet
+				}
+
+				Greetings: {
+					First: Hallo, {0}. Ich lerne gerade, wer hier lebt. Darf ich dir einen Moment Gesellschaft leisten?
+					New: Hallo wieder, {0}. Dein Gesicht habe ich mir gemerkt. Deine Geschichten lerne ich noch kennen.
+					Wary: Hallo, {0}. Letztes Mal war es etwas schroff. Vielleicht fangen wir heute sanfter an.
+					Familiar: Da bist du, {0}. Dieser Ort fühlt sich weniger fremd an, wenn ich jemanden kenne.
+					Friend: "{0}! Ein kleines Stück meines Tages habe ich für dich aufgehoben. Was ist seit unserem letzten Gespräch passiert?"
+				}
+
+				Roles: {
+					Guide: "{0}, durch dich wird eine große Welt verständlicher. Ich sammle Fragen, nicht nur Antworten."
+					Nurse: "{0}, du hilfst Menschen, zu bleiben. Diese Art von Mut möchte ich lernen."
+					Merchant: "{0}, jedes kleine Ding scheint hier eine Geschichte zu haben. Welches würdest du selbst behalten?"
+					Dryad: "{0}, ich kann Setzlinge und gefallenes Holz pflegen. Lebende Äste lasse ich in Ruhe. Bäume verdienen Fürsorge."
+					Zoologist: "{0}, die kleinen Wesen bemerken uns auch. Ich mag den Gedanken, zu reisen, ohne ihnen Angst zu machen."
+					Defender: "{0}, ein Zuhause zu schützen ist wichtig. Unsere Stärke soll auch Platz für Freundlichkeit lassen."
+					Maker: "{0}, aus Einzelteilen machst du Möglichkeiten. Langsam verstehe ich, warum Erschaffen gut tut."
+					Neighbor: "{0}, ein Zuhause ist mehr als seine Wände. Danke, dass hier noch eine Stimme Platz hat."
+				}
+
+				Shared: {
+					Nature: "{0}, ich sehe es auch. Wir können sammeln, was gefallen ist, und etwas Neues wachsen lassen."
+					Mining: "{0}, im Stein steckt eine ganze Welt. Zeig mir, was wichtig ist, und ich merke es mir."
+					Trade: "{0}, nützliche Dinge sind schön. Ich entscheide noch, welche es wert sind, getragen zu werden."
+					Rest: Ruhe klingt gut, {0}. Zwischen unseren Schritten darf ein wenig Stille bleiben.
+					Question: Ich frage mich auch, {0}. Wollen wir zusammen etwas genauer hinschauen?
+					Listening: Ich höre zu, {0}. Diese Geschichte kenne ich noch nicht, aber ich würde sie gern kennenlernen.
+				}
+
+				Replies: {
+					Affection: {
+						Curious: "{0}, Wärme ist etwas Seltsames. Sie wächst, wenn man sie teilt."
+						Loyal: Freundlichkeit merke ich mir, {0}. Sie gibt mir einen Ort zum Zurückkehren.
+						Brave: Das ist es wert, beschützt zu werden, {0}. Auch an schwierigen Tagen.
+						Gentle: Danke, {0}. In meinem kleinen Kreis aus Licht ist Platz für dich.
+						Mischievous: Vorsicht, {0}. Wenn du so freundlich bleibst, werde ich dich womöglich peinlich gern mögen.
+					}
+
+					Joy: {
+						Curious: "{0}, erzähl mir, was dich zum Lächeln gebracht hat. Nächstes Mal möchte ich es auch bemerken."
+						Loyal: Ich sehe dich gern glücklich, {0}. Dafür lohnt sich eine kleine Pause.
+						Brave: Kleine Siege sollten wir auch feiern, {0}. Sie haben uns bis hierher getragen.
+						Gentle: Deine Freude macht diesen Ort sanfter, {0}. Lass uns ein wenig davon behalten.
+						Mischievous: Endlich, {0}! Jemand versteht das wichtige Geschäft des Albernseins.
+					}
+
+					Comfort: {
+						Curious: Ich verstehe nicht alles, was du fühlst, {0}. Aber ich kann bleiben, während du es erzählst.
+						Loyal: Du musst es für mich nicht leichter machen, {0}. Ich bin noch da.
+						Brave: Angst macht dich nicht schwach, {0}. Den nächsten Schritt können wir langsam gehen.
+						Gentle: Lass dir Zeit, {0}. Du schuldest der Welt gerade kein Lächeln.
+						Mischievous: Einen Moment keine Witze, {0}. Manche Dinge brauchen mehr Gesellschaft als Schlagfertigkeit.
+					}
+
+					Anger: {
+						Curious: Etwas hat dich geärgert, {0}. Ich würde es lieber verstehen, als es lauter zu machen.
+						Loyal: Ich kann zuhören, {0}, aber wir sollen uns nicht gegeneinander wenden.
+						Brave: Langsam, {0}. Wir können bestimmt sein, ohne daraus einen Streit zu machen.
+						Gentle: Das war schroff, {0}. Können wir einander etwas Platz lassen?
+						Mischievous: Ein wenig Unfug mag ich, {0}. Einander weh zu tun ist nicht der lustige Teil.
+					}
+				}
+			}
+
 			Autonomous: {
 				Context: {
 					LowEnergy: Könnten wir einen Moment langsamer machen?
@@ -755,7 +871,7 @@ Mods: {
 				Bond: {
 					Option0: Vertraust du mir?
 					Option1: Erzähl mir etwas über dich.
-					Option2: Ich bin froh, dass du hier bist.
+					Option2: Mit wem hast du dich hier angefreundet?
 				}
 
 				Voice: {

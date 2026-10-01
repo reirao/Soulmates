@@ -30,7 +30,12 @@ Dictionary<string, string> Catalog(string culture)
 		else
 			result.Add(path, (string)value);
 	}
-	Flatten(HjsonValue.Load(Path.Combine(root, "Localization", culture + ".hjson")), "");
+	string path = Path.Combine(root, "Localization", culture + ".hjson");
+	try { Flatten(HjsonValue.Load(path), ""); }
+	catch (Exception exception) {
+		Console.Error.WriteLine($"Cannot read localization catalog '{path}': {exception.Message}");
+		Environment.Exit(1);
+	}
 	return result;
 }
 

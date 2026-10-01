@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.IO;
 using Microsoft.Xna.Framework;
@@ -188,6 +189,9 @@ public sealed class Soulmates : Mod
 		packet.Write((short)tileTarget.X);
 		packet.Write((short)tileTarget.Y);
 		packet.Write((short)itemTarget);
+		Item? target = itemTarget >= 0 && itemTarget < Main.maxItems ? Main.item[itemTarget] : null;
+		packet.Write(target?.type ?? 0);
+		packet.Write(target?.prefix ?? (byte)0);
 		packet.Send();
 	}
 
@@ -509,13 +513,20 @@ public sealed class Soulmates : Mod
 		CompanionTargetOrder order = (CompanionTargetOrder)reader.ReadByte();
 		var tileTarget = new Point(reader.ReadInt16(), reader.ReadInt16());
 		int itemTarget = reader.ReadInt16();
+		int expectedType = reader.ReadInt32();
+		byte expectedPrefix = reader.ReadByte();
 		if (Main.netMode != NetmodeID.Server || !Enum.IsDefined(order)
 			|| whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active)
 			return;
 		if (SoulboundCompanion.FindFor(Main.player[whoAmI]) is not { } companion)
 			return;
 
-		CompanionConversationResult result = companion.PerformDirectOrder(order, tileTarget, itemTarget);
+		bool changedItem = (order is CompanionTargetOrder.Gather or CompanionTargetOrder.Look) && itemTarget >= 0
+			&& (itemTarget >= Main.maxItems || !Main.item[itemTarget].active
+				|| Main.item[itemTarget].type != expectedType || Main.item[itemTarget].prefix != expectedPrefix);
+		CompanionConversationResult result = changedItem
+			? new CompanionConversationResult(SoulmatesText.Get("TargetOrders.TargetLost"), false)
+			: companion.PerformDirectOrder(order, tileTarget, itemTarget);
 		ModPacket packet = GetPacket();
 		packet.Write((byte)MessageType.QuickActionResponse);
 		packet.Write(result.Accepted);

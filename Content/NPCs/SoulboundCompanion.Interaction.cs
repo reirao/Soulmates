@@ -65,6 +65,26 @@ public sealed partial class SoulboundCompanion
 
 	public CompanionConversationResult PerformQuickAction(CompanionQuickAction action)
 	{
+		CompanionInitiativeKind? policyKind = action switch {
+			CompanionQuickAction.GatheringPolicy => CompanionInitiativeKind.Gathering,
+			CompanionQuickAction.MiningPolicy => CompanionInitiativeKind.Mining,
+			CompanionQuickAction.ForestryPolicy => CompanionInitiativeKind.Forestry,
+			CompanionQuickAction.TreasurePolicy => CompanionInitiativeKind.Treasure,
+			_ => null
+		};
+		if (policyKind is CompanionInitiativeKind kind) {
+			CompanionInitiativePolicy policy = (CompanionInitiativePolicy)(((int)Profile.GetInitiativePolicy(kind) + 1) % 3);
+			Profile.SetInitiativePolicy(kind, policy);
+			if (autonomyActivity != AutonomyActivity.None && InitiativeKindFor(autonomyActivity) == kind)
+				CancelAutonomousActivity(90);
+			if (HasPendingInitiative && PendingInitiativeKind == kind) ClearPendingInitiative(90);
+			attention.Reset();
+			SoulmatesFeedbackSystem.Record("initiative_policy_changed", ("action", kind.ToString()), ("policy", policy.ToString()));
+			SyncProfileToBoundSigil();
+			NPC.netUpdate = true;
+			return new CompanionConversationResult(SoulmatesText.Get("Autonomy.Initiative.PolicyChanged",
+				SoulmatesText.EnumName(kind), SoulmatesText.EnumName(policy)), true);
+		}
 		if (TryGetMiningApproach(action, out CompanionMiningApproach approach)) {
 			Profile.MiningApproach = approach;
 			if (activeJob == CompanionJob.Mine && !directedJob) {
@@ -94,6 +114,7 @@ public sealed partial class SoulboundCompanion
 		}
 		if (action == CompanionQuickAction.ResetInitiativeRules) {
 			Profile.ResetInitiativePolicies();
+			attention.Reset();
 			ClearPendingInitiative(120);
 			SyncProfileToBoundSigil();
 			NPC.netUpdate = true;
@@ -137,6 +158,7 @@ public sealed partial class SoulboundCompanion
 			SpeechAction.StoreHeldItem => StoreSelectedItem(),
 			SpeechAction.UnloadPack => UnloadPack(),
 			SpeechAction.RecallMemory => Profile.RecallMemory(memoryCursor),
+			SpeechAction.RecallResident => Profile.RecallResident(Main.ActiveWorldFileData.UniqueId, memoryCursor),
 			_ => result.Reply
 		};
 		if (result.Action is SpeechAction.StoreHeldItem or SpeechAction.UnloadPack)
@@ -268,7 +290,20 @@ public sealed partial class SoulboundCompanion
 			|| nativeEmoteReactionCooldown > 0)
 			return;
 		nativeEmoteReactionCooldown = 45;
-		PerformEmote(RelationshipEmoteFor(emoteId), emoteId, applyRestCommand: false);
+		SocialReply reply = CompanionSocialDialogue.Respond(emoteId, Profile.Personality);
+		if (reply.Key == "Anger") {
+			StartEmote(reply.Gesture, 130);
+			ShowNativeEmote(reply.Emote, 180);
+			if (interactionRewardCooldown <= 0) {
+				Profile.Mood = Math.Max(0, Profile.Mood - 1);
+				interactionRewardCooldown = 300;
+				SyncPackState();
+			}
+		}
+		else
+			PerformEmote(reply.Gesture, reply.Emote, applyRestCommand: false);
+		if (speechTimer <= 180)
+			SpeakLocalized(CompanionSocialDialogue.ReplyKey(reply, Profile.Personality), Owner.name);
 	}
 
 	private void PerformEmote(CompanionEmote emote, int nativeEmoteId, bool applyRestCommand)
@@ -305,7 +340,7 @@ public sealed partial class SoulboundCompanion
 			ShowNativeEmote(nativeEmoteId, 150);
 		else
 			ShowNativeEmote(emote, 150);
-		if (Main.rand.NextBool(4))
+		if (nativeEmoteId < 0 && Main.rand.NextBool(2))
 			SpeakLocalized($"Social.Emotes.{emote}.{Profile.Personality}");
 		SyncProfileToBoundSigil();
 		NPC.netUpdate = true;
@@ -315,18 +350,6 @@ public sealed partial class SoulboundCompanion
 		else if (!string.IsNullOrEmpty(message))
 			Main.NewText(message, Profile.EssenceColor);
 	}
-
-	private static CompanionEmote RelationshipEmoteFor(int emoteId) => emoteId switch {
-		EmoteID.EmotionLove or EmoteID.EmoteKiss or EmoteID.EmoteWink => CompanionEmote.Heart,
-		EmoteID.EmoteHappiness => CompanionEmote.Cheer,
-		EmoteID.EmoteLaugh or EmoteID.EmoteSilly => CompanionEmote.Laugh,
-		EmoteID.EmoteSleep => CompanionEmote.Rest,
-		EmoteID.EmotionCry or EmoteID.EmoteSadness or EmoteID.EmoteFear or EmoteID.EmoteConfused
-			=> CompanionEmote.Comfort,
-		EmoteID.EmotionAnger or EmoteID.EmoteAnger or EmoteID.EmoteFight or EmoteID.EmoteScowl
-			=> CompanionEmote.Cheer,
-		_ => CompanionEmote.Wave
-	};
 
 	public void RecordDefeat(NPC defeated)
 	{

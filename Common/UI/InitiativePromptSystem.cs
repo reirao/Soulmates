@@ -36,7 +36,7 @@ public sealed class InitiativePromptSystem : ModSystem
 
 	public void Open(SoulboundCompanion boundCompanion)
 	{
-		if (!SoulmatesUIInput.CanPresentInitiative || !boundCompanion.HasPendingInitiative)
+		if (!SoulmatesUIInput.CanPresentInitiative || !boundCompanion.HasPendingInitiative || boundCompanion.IsDefending)
 			return;
 
 		ModContent.GetInstance<CompanionWheelSystem>().Close();
@@ -45,7 +45,7 @@ public sealed class InitiativePromptSystem : ModSystem
 		ModContent.GetInstance<SoulCreatorSystem>().Close();
 		ModContent.GetInstance<DirectOrderSystem>().Cancel();
 		companion = boundCompanion;
-		center = ClampCenter(SoulmatesUISpace.FromWorld(boundCompanion.NPC.Center));
+		center = ClampCenter(SoulmatesUISpace.FromWorld(Main.LocalPlayer.Center));
 		hoverIndex = -1;
 		leftMouseDown = Main.mouseLeft;
 		rightMouseDown = Main.mouseRight;
@@ -76,7 +76,7 @@ public sealed class InitiativePromptSystem : ModSystem
 			return;
 		}
 		if (Main.gameMenu || Main.LocalPlayer.dead || Main.playerInventory || companion?.NPC.active != true
-			|| !companion.HasPendingInitiative) {
+			|| !companion.HasPendingInitiative || companion.IsDefending) {
 			Close();
 			return;
 		}
@@ -149,7 +149,8 @@ public sealed class InitiativePromptSystem : ModSystem
 			DrawNode(spriteBatch, position, hovered ? 43f * pulse : 38f, accent, hovered,
 				ResponseEmote(Responses[i]));
 		}
-		DrawNode(spriteBatch, center, 46f * pulse, accent, false, EmoteID.EmotionAlert);
+		DrawNode(spriteBatch, center, 46f * pulse, accent, false,
+			SoulboundCompanion.InitiativeEmote(companion.PendingInitiativeKind));
 		DrawPrompt(spriteBatch, accent);
 		DrawHoverLabel(spriteBatch, accent);
 		return true;
@@ -167,6 +168,9 @@ public sealed class InitiativePromptSystem : ModSystem
 			(int)size.X + 18, (int)size.Y + 10);
 		spriteBatch.Draw(pixel, background, new Color(9, 14, 25) * 0.9f);
 		spriteBatch.Draw(pixel, new Rectangle(background.X, background.Y, background.Width, 2), accent * 0.9f);
+		float remaining = Math.Clamp(companion.PendingInitiativeTicks / 3600f, 0f, 1f);
+		spriteBatch.Draw(pixel, new Rectangle(background.X, background.Bottom + 3,
+			(int)(background.Width * remaining), 2), accent * 0.85f);
 		Utils.DrawBorderString(spriteBatch, prompt, position, Color.Lerp(Color.White, accent, 0.2f), scale);
 	}
 

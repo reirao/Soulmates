@@ -1,10 +1,11 @@
-Soulmates 0.13.0 - Growing Cargo
+Soulmates 0.15.0 - Familiar Faces
 
-- Separate persistent Equipment, Resources, and Wallet compartments with Terraria item icons.
-- Give resources 60 stack slots, paged in groups of 12, and a reserve of 50 units per level and item type: level 10 holds 500 and level 20 holds 1,000.
-- Store collected coins as one exact, uncapped wallet balance without consuming cargo slots. Money is collected, not generated.
-- Withdraw native copper, silver, gold, or platinum coins. Only money or items actually accepted by the player's inventory leave the companion.
-- Migrate existing Sigils and safely return resource excess on summon. Forestry, torches, and recipe suggestions use the new resource compartment.
-- Preserve the new cargo and wallet through cloning, save/load, and multiplayer profile synchronization. Multiplayer participants must use the same mod version.
+- Save up to 24 resident relationships per companion, scoped by world, NPC type, and name. Native conversations influence sympathy; first meetings and friendships create memories.
+- Add personality-aware native-emote answers, resident-role dialogue, and a Bond conversation for recalling acquaintances. Anger is no longer rewarded as cheering.
+- Respect disabled autonomy, interrupt NPC visits for explicit work or combat, and reject replaced NPC targets.
+- Anchor initiative answer wheels at the player. The companion shows the work symbol followed by a question mark; the center displays the task.
+- Let AETHER use a carried bug net on nearby natural butterflies, fireflies, and lightning bugs during approved forestry. Forestry > Always also permits idle catches.
+- Route the exact native catch drop through the existing cargo transaction. Up to six carried insects form a cosmetic native-sprite flock, without creating extra critters, pets, or combat damage.
+- Retain 0.14.0 world modes, persistent pointing, independent initiative rules, Equipment, Resources, and the uncapped Wallet.
 
-Verification: 4,051 engine/geometry and 2,065 static/math assertions passed. The creator confirmed the new cargo works in play. Broader rendering, long sessions, and live multiplayer still need testing; the 0.12.2 screenshots are not new 0.13.0 captures.
+Living tree-branch pruning is not enabled. Growing alpha: new social visuals, long sessions, full progression, and live multiplayer need playtesting. All multiplayer participants must use the same mod version.

@@ -39,6 +39,35 @@ public sealed partial class SoulboundCompanion
 			&& Vector2.DistanceSquared(Owner.Center, item.Center) <= MathF.Pow((GatheringRadiusTiles + 8) * 16f, 2f);
 	}
 
+	internal bool CanTargetLook(Point tile, int itemIndex)
+	{
+		if (itemIndex >= 0 && itemIndex < Main.maxItems && Main.item[itemIndex].active && !Main.item[itemIndex].IsAir)
+			return Vector2.DistanceSquared(Owner.Center, Main.item[itemIndex].Center) <= 600f * 600f;
+		return WorldGen.InWorld(tile.X, tile.Y, 10) && Main.tile[tile.X, tile.Y].HasTile
+			&& Vector2.DistanceSquared(Owner.Center, tile.ToWorldCoordinates()) <= 600f * 600f;
+	}
+
+	internal bool TryResolveForestTarget(Point cursor, out Point target, out ForestAction action)
+	{
+		target = cursor;
+		action = ForestAction.None;
+		if (!WorldGen.InWorld(cursor.X, cursor.Y, 10)
+			|| Vector2.DistanceSquared(Owner.Center, cursor.ToWorldCoordinates()) > 560f * 560f) return false;
+		Tile tile = Main.tile[cursor.X, cursor.Y];
+		if (tile.HasTile && IsTreeTrunk(tile.TileType)) {
+			WorldGen.GetTreeBottom(cursor.X, cursor.Y, out int x, out int y);
+			target = new Point(x, y);
+			action = ForestAction.ShakeTree;
+		}
+		else if (tile.HasTile && tile.TileType == TileID.FallenLog)
+			action = ForestAction.ClearDeadwood;
+		else {
+			if (tile.HasTile && IsAcornGround(tile.TileType)) target.Y--;
+			action = ForestAction.PlantAcorn;
+		}
+		return IsInitiativeTargetValid(AutonomyActivity.TendForest, -1, target, action);
+	}
+
 	internal List<(Point Tile, int ItemType)> FindNearbyOreTargets(int maximumTypes = 7)
 	{
 		var nearestByDrop = new Dictionary<int, (Point Tile, float Distance)>();
@@ -73,6 +102,8 @@ public sealed partial class SoulboundCompanion
 	{
 		if (Main.netMode == NetmodeID.MultiplayerClient)
 			return new CompanionConversationResult(SoulmatesText.Get("TargetOrders.Invalid"), false);
+		if (order == CompanionTargetOrder.Look)
+			return InspectPointedTarget(tileTarget, itemTarget);
 		if (Profile.Energy < 5)
 			return new CompanionConversationResult(SoulmatesText.Get("TargetOrders.LowEnergy"), false);
 		if (Profile.Mood < 15)
@@ -81,8 +112,45 @@ public sealed partial class SoulboundCompanion
 		return order switch {
 			CompanionTargetOrder.Mine => StartDirectedMining(tileTarget),
 			CompanionTargetOrder.Gather => StartDirectedGathering(itemTarget),
+			CompanionTargetOrder.Forest => StartDirectedForest(tileTarget),
 			_ => new CompanionConversationResult(SoulmatesText.Get("TargetOrders.Invalid"), false)
 		};
+	}
+
+	private CompanionConversationResult InspectPointedTarget(Point tile, int itemIndex)
+	{
+		if (!CanTargetLook(tile, itemIndex))
+			return new CompanionConversationResult(SoulmatesText.Get("TargetOrders.Invalid"), false);
+		ShowNativeEmote(EmoteID.EmotionAlert, 120);
+		SoulmatesFeedbackSystem.Record("pointed_observation", ("world_item", itemIndex >= 0));
+		if (itemIndex >= 0 && itemIndex < Main.maxItems && Main.item[itemIndex].active && !Main.item[itemIndex].IsAir) {
+			Item item = Main.item[itemIndex];
+			return new CompanionConversationResult(SoulmatesText.Get("TargetOrders.LookItem", item.Name,
+				AvailableCarryAmount(item)), true);
+		}
+		ushort type = Main.tile[tile.X, tile.Y].TileType;
+		if (IsTreeTrunk(type) || type == TileID.FallenLog)
+			return new CompanionConversationResult(SoulmatesText.Get("TargetOrders.LookForest"), true);
+		int dropType = TileLoader.GetItemDropFromTypeAndStyle(type, 0);
+		string name = dropType > ItemID.None ? Lang.GetItemNameValue(dropType) : SoulmatesText.Get("Resourcefulness.UnknownMaterial");
+		return new CompanionConversationResult(SoulmatesText.Get(CanTargetMining(tile)
+			? "TargetOrders.LookMineable" : "TargetOrders.LookProtected", name), true);
+	}
+
+	private CompanionConversationResult StartDirectedForest(Point cursor)
+	{
+		if (!TryResolveForestTarget(cursor, out Point target, out ForestAction action))
+			return new CompanionConversationResult(SoulmatesText.Get("TargetOrders.CannotForest"), false);
+		BeginJob(CompanionJob.Gather);
+		Profile.Routine = CompanionJob.None;
+		directedJob = true;
+		jobTarget = target;
+		jobOrigin = target.ToWorldCoordinates();
+		gatherForestAction = action;
+		hasJobTarget = true;
+		jobPlannedTotal = 1;
+		SyncPackState();
+		return new CompanionConversationResult(SoulmatesText.Get("TargetOrders.ForestAccepted"), true);
 	}
 
 	private CompanionConversationResult StartDirectedMining(Point target)
@@ -122,6 +190,8 @@ public sealed partial class SoulboundCompanion
 		directedJob = true;
 		jobOrigin = item.Center;
 		jobTargetItem = itemIndex;
+		directedLootIdentity = item;
+		directedLootType = item.type;
 		jobPlannedTotal = item.stack;
 		SyncProfileToBoundSigil();
 		NPC.netUpdate = true;
@@ -167,6 +237,8 @@ public sealed partial class SoulboundCompanion
 	private void ClearDirectedJob()
 	{
 		directedJob = false;
+		directedLootIdentity = null;
+		directedLootType = 0;
 		directedMiningTileType = 0;
 		directedMiningTargets.Clear();
 	}
@@ -420,6 +492,16 @@ public sealed partial class SoulboundCompanion
 		hasJobTarget = false;
 		jobTarget = Point.Zero;
 		gatherPause = success ? 6 : 2;
+		if (directedJob) {
+			if (success) {
+				jobCount++;
+				Profile.Energy = Math.Max(0, Profile.Energy - 1);
+				CollectNearbyLooseItems(target, 96f, 6);
+				ShowNativeEmote(EmoteID.MiscTree, 90);
+			}
+			CompleteJob(SoulmatesText.Get(success ? "TargetOrders.ForestDone" : "TargetOrders.TargetLost"), success);
+			return;
+		}
 		if (!success)
 			return;
 
@@ -714,7 +796,8 @@ public sealed partial class SoulboundCompanion
 			return false;
 		Item item = Main.item[itemIndex];
 		float radius = GatheringRadiusTiles * 16f;
-		return item.active && !item.IsAir && CanCollectLooseItem(item)
+		return (!directedJob || ReferenceEquals(item, directedLootIdentity) && item.type == directedLootType)
+			&& item.active && !item.IsAir && CanCollectLooseItem(item)
 			&& (item.playerIndexTheItemIsReservedFor == 255 || item.playerIndexTheItemIsReservedFor == Owner.whoAmI)
 			&& Vector2.DistanceSquared(jobOrigin, item.Center) < radius * radius;
 	}

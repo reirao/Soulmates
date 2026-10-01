@@ -68,6 +68,7 @@ public sealed partial class SoulboundCompanion
 		Color tint = Color.Lerp(Color.White, Profile.EssenceColor, 0.34f);
 		float drawRotation = NPC.rotation + EmoteRotationOffset();
 		DrawJobOrbit(spriteBatch, center);
+		DrawInsectCompanions(spriteBatch, center);
 
 		for (int i = 0; i < 4; i++) {
 			Vector2 glowOffset = new Vector2(2f, 0f).RotatedBy(MathHelper.PiOver2 * i);

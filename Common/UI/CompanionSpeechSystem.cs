@@ -11,7 +11,8 @@ public sealed class CompanionSpeechSystem : ModSystem
 	internal static bool CanShowSpeech => !Main.gameMenu && !Main.playerInventory
 		&& Main.LocalPlayer.talkNPC < 0 && !ModContent.GetInstance<TalkModeSystem>().IsOpen
 		&& !ModContent.GetInstance<FeedbackMailboxSystem>().IsOpen
-		&& !ModContent.GetInstance<SoulCreatorSystem>().IsOpen;
+		&& !ModContent.GetInstance<SoulCreatorSystem>().IsOpen
+		&& !ModContent.GetInstance<CompanionWheelSystem>().IsOpen;
 
 	public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
 	{

@@ -24,6 +24,10 @@ public sealed partial class SoulboundCompanion
 {
 	private void UpdateSocialState()
 	{
+		if (Main.netMode != NetmodeID.MultiplayerClient && socialNpcTarget >= 0
+			&& (!Profile.AutonomyEnabled || HasPendingInitiative || Command == StayCommand
+				|| activeJob != CompanionJob.None || autonomyActivity != AutonomyActivity.None || guardianTarget >= 0))
+			ClearTownNpcInteraction();
 		if (speechTimer > 0) {
 			speechTimer--;
 			if (speechAnchorWorld == Vector2.Zero) {
@@ -55,6 +59,7 @@ public sealed partial class SoulboundCompanion
 			combatReactionCooldown--;
 		if (townNpcInteractionCooldown > 0)
 			townNpcInteractionCooldown--;
+		if (socialReplyDelay > 0) socialReplyDelay--;
 		if (tendedForestResetTimer > 0)
 			tendedForestResetTimer--;
 		else {
@@ -74,7 +79,8 @@ public sealed partial class SoulboundCompanion
 		int minimum = Profile.Personality == CompanionPersonality.Mischievous ? 1200 : 1500;
 		int maximum = Profile.Personality == CompanionPersonality.Gentle ? 3000 : 2600;
 		socialTimer = Main.rand.Next(minimum, maximum);
-		if (activeJob != CompanionJob.None || autonomyActivity != AutonomyActivity.None
+		if (!Profile.AutonomyEnabled || HasPendingInitiative
+			|| activeJob != CompanionJob.None || autonomyActivity != AutonomyActivity.None
 			|| guardianTarget >= 0 || socialNpcTarget >= 0 || Owner.dead
 			|| Vector2.DistanceSquared(NPC.Center, Owner.Center) > 520f * 520f)
 			return;
@@ -108,7 +114,7 @@ public sealed partial class SoulboundCompanion
 				: PersonalityGesture();
 		StartEmote(gesture, 110);
 		ShowNativeEmote(gesture, 130);
-		if (Main.rand.NextBool(4))
+		if (Main.rand.NextBool(2))
 			SpeakLocalized(key);
 	}
 
@@ -223,7 +229,8 @@ public sealed partial class SoulboundCompanion
 
 	private bool TryBeginTownNpcInteraction()
 	{
-		if (Command == StayCommand || socialNpcTarget >= 0 || townNpcInteractionCooldown > 0
+		if (Command == StayCommand || Profile.Energy < 20 || Profile.Mood < 20
+			|| socialNpcTarget >= 0 || townNpcInteractionCooldown > 0
 			|| !Main.rand.NextBool(2))
 			return false;
 
@@ -244,7 +251,10 @@ public sealed partial class SoulboundCompanion
 			return false;
 
 		socialNpcTarget = nearest.whoAmI;
-		socialNpcTimer = 300;
+		socialNpcIdentity = nearest;
+		socialNpcType = nearest.type;
+		socialResidentName = nearest.GivenName;
+		socialNpcTimer = 900;
 		socialNpcGreeted = false;
 		townNpcInteractionCooldown = Main.rand.Next(1800, 3000);
 		NPC.netUpdate = true;
@@ -261,7 +271,9 @@ public sealed partial class SoulboundCompanion
 		}
 
 		NPC townNpc = Main.npc[socialNpcTarget];
-		if (!IsSocialTownNpc(townNpc)
+		if (!Profile.AutonomyEnabled || HasPendingInitiative || !IsSocialTownNpc(townNpc)
+			|| Main.netMode != NetmodeID.MultiplayerClient && (!ReferenceEquals(townNpc, socialNpcIdentity)
+				|| townNpc.type != socialNpcType || townNpc.GivenName != socialResidentName)
 			|| Vector2.DistanceSquared(townNpc.Center, Owner.Center) > 640f * 640f) {
 			ClearTownNpcInteraction();
 			return false;
@@ -275,13 +287,48 @@ public sealed partial class SoulboundCompanion
 			CompanionEmote gesture = PersonalityGesture();
 			facing = townNpc.Center.X < NPC.Center.X ? -1 : 1;
 			StartEmote(gesture, 130);
-			ShowNativeEmote(gesture, 150);
-			EmoteBubble.NewBubbleNPC(new WorldUIAnchor(townNpc), 150, new WorldUIAnchor(NPC));
+			ShowNativeEmote(CompanionSocialDialogue.ResidentGreetingEmote(townNpc.type), 140);
 			socialNpcGreeted = true;
-			socialNpcTimer = Math.Min(socialNpcTimer, 150);
+			socialNpcTimer = Math.Min(socialNpcTimer, 780);
+			CompanionRelationship relation = Profile.MeetResident(Main.ActiveWorldFileData.UniqueId,
+				townNpc.type, townNpc.GivenName);
+			string greeting = relation.Meetings == 1 ? "First" : relation.Rank;
+			SpeakLocalized($"Social.Residents.Greetings.{greeting}", townNpc.GivenName);
+			SyncPackState();
+			EmoteBubble.NewBubbleNPC(new WorldUIAnchor(townNpc), 180, new WorldUIAnchor(NPC));
+			socialReplyDelay = 600;
 			NPC.netUpdate = true;
 		}
+		if (Main.netMode != NetmodeID.MultiplayerClient && socialNpcGreeted && !socialNpcReplied
+			&& socialReplyDelay <= 0) {
+			socialNpcReplied = true;
+			RespondToTownNpc(townNpc);
+		}
 		return true;
+	}
+
+	public void ObserveResidentEmote(NPC resident, EmoteBubble bubble)
+	{
+		if (Main.netMode == NetmodeID.MultiplayerClient || !socialNpcGreeted || socialNpcReplied
+			|| !ReferenceEquals(resident, socialNpcIdentity)) return;
+		socialResidentBubble = bubble;
+	}
+
+	private void RespondToTownNpc(NPC resident)
+	{
+		CompanionRelationship? relation = Profile.FindRelationship(Main.ActiveWorldFileData.UniqueId,
+			resident.type, resident.GivenName);
+		if (relation is null) return;
+		int nativeEmote = socialResidentBubble?.emote ?? -1;
+		SocialReply reply = CompanionSocialDialogue.Respond(nativeEmote, Profile.Personality);
+		Profile.RespondToResident(relation, nativeEmote, reply.Affinity);
+		StartEmote(reply.Gesture, 130);
+		ShowNativeEmote(reply.Emote, 180);
+		string key = reply.Key == "Listening"
+			? $"Social.Residents.Roles.{CompanionSocialDialogue.ResidentRole(resident.type)}"
+			: CompanionSocialDialogue.ReplyKey(reply, Profile.Personality);
+		SpeakLocalized(key, resident.GivenName);
+		SyncPackState();
 	}
 
 	private CompanionEmote PersonalityGesture() => Profile.Personality switch {
@@ -293,13 +340,17 @@ public sealed partial class SoulboundCompanion
 	};
 
 	private static bool IsSocialTownNpc(NPC candidate) => candidate.active && candidate.townNPC
-		&& candidate.life > 0 && !candidate.dontTakeDamageFromHostiles;
+		&& candidate.life > 0 && !candidate.dontTakeDamageFromHostiles && !string.IsNullOrWhiteSpace(candidate.GivenName);
 
 	private void ClearTownNpcInteraction()
 	{
 		socialNpcTarget = -1;
 		socialNpcTimer = 0;
 		socialNpcGreeted = false;
+		socialNpcIdentity = null;
+		socialResidentBubble = null;
+		socialNpcReplied = false;
+		socialReplyDelay = 0;
 		if (Main.netMode != NetmodeID.MultiplayerClient)
 			NPC.netUpdate = true;
 	}

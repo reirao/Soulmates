@@ -1,9 +1,15 @@
-Soulmates 0.13.0 - Growing Cargo | AETHER-EGG Alpha
+Soulmates 0.15.0 - Familiar Faces | AETHER-EGG Alpha
 
-Use the reusable Soulcore to shape unique companions, including the Omni Soul AETHER, bind each one to a Soulbound Sigil, and bring them along on your Terraria adventures.
+Create personal companions with the reusable Soulcore. Each Soulbound Sigil saves one companion's appearance, personality, growth, learned habits, cargo, and memories. A companion named AETHER has every talent and learned perk.
 
-Companions learn weighted instincts, defend and heal, gather, mine, tend forests, and use practical pack items. Compact Soulwheels offer native emotes, area work, precise cursor orders, and nearby ore icons. Choose Adaptive, Tunnel, Vein, or Surface mining; work resumes after natural recovery. Talk Mode shows growth, conversations, and cargo. Named speech follows the companion. Existing Sigils remain compatible.
+Right-click the companion for her Soulwheel, yourself for Player tools and Emotes, or clear air for Point / Area work. Persistent Look, Gather, Mine, and Forest tools let you show her targets. Native tile, NPC, inventory, and held-item alternate actions retain priority.
 
-Growing Cargo separates Equipment, Resources, and Wallet. Resources have 60 stack slots and a reserve of 50 units per level and item type: 500 at level 10, 1,000 at level 20. Collected coins go into an uncapped wallet without using item slots. Existing Sigils migrate their cargo; excess resources are returned on summon. Native coin icons let you withdraw a stack or one coin. This is a growing alpha, not a claim of complete progression or multiplayer testing.
+Nearby work is weighted by talent, distance, learned habits, and waiting time. Choose Ask / Always / Never separately for each initiative. Answer wheels open at the player while she shows the task symbol and a question mark. She defends, heals, gathers, mines safe reachable materials, shakes trees, clears fallen logs, and replants carried acorns with the Forester perk. Living tree-branch pruning is not enabled.
 
-Optional local AETHER Field Notes can record anonymized playtest events and contextual bug reports. Open the in-game mailbox from the Soulwheel's paper-plane icon or with `/soulfeedback`. It is off by default and never uploads data.
+Town visits include native NPC emotes and personality-aware replies. Saved resident relationships are scoped by world, NPC type, and name; she remembers new acquaintances and friends. Talk Mode > Bond can recall them. Her richer symbol responses include comfort and disagreement instead of simply copying your emote.
+
+Give AETHER a carried bug net for nearby butterflies, fireflies, and lightning bugs during approved forestry. Forestry > Always also permits idle catches. Up to six actual carried insects form a cosmetic native-sprite flock; returning their items removes them. No critters or combat pets are duplicated.
+
+Equipment, Resources, and Wallet remain separate. Resources have 60 stack slots and a per-type limit of 50 units per level: 500 at level 10 and 1,000 at level 20. Collected coins use an uncapped wallet. Existing Sigils remain compatible.
+
+English and German. Learning is local game logic, not an online AI service. Optional AETHER Field Notes and the in-game feedback mailbox stay on this computer and never upload data. Growing alpha: full progression, long sessions, and live multiplayer still need testing.

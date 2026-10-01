@@ -47,7 +47,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 		TendForest
 	}
 
-	private enum ForestAction : byte
+	internal enum ForestAction : byte
 	{
 		None,
 		ShakeTree,
@@ -86,6 +86,8 @@ public sealed partial class SoulboundCompanion : ModNPC
 	private int recoveryTimer;
 	private int gatherPause;
 	private int jobTargetItem = -1;
+	private Item? directedLootIdentity;
+	private int directedLootType;
 	private ForestAction gatherForestAction;
 	private int areaEmptyTimer;
 	private int revealTimer;
@@ -106,6 +108,12 @@ public sealed partial class SoulboundCompanion : ModNPC
 	private int socialNpcTarget = -1;
 	private int socialNpcTimer;
 	private bool socialNpcGreeted;
+	private NPC? socialNpcIdentity;
+	private int socialNpcType;
+	private string socialResidentName = "";
+	private EmoteBubble? socialResidentBubble;
+	private bool socialNpcReplied;
+	private int socialReplyDelay;
 	private AutonomyActivity autonomyActivity;
 	private AutonomyActivity pendingAutonomyActivity;
 	private int autonomyDecisionTimer;
@@ -120,8 +128,12 @@ public sealed partial class SoulboundCompanion : ModNPC
 	private int pendingTargetItem = -1;
 	private Point pendingTargetTile;
 	private ForestAction pendingForestAction;
-	private CompanionInitiativeKind? deferredInitiativeKind;
-	private int deferredInitiativeTimer;
+	private readonly CompanionAttention attention = new();
+	private readonly List<CompanionOpportunity> opportunities = new(4);
+	private Item? pendingLootIdentity;
+	private int pendingLootType;
+	private int pendingLootPrefix;
+	private int autonomyAnnouncementCooldown;
 	private int learningObservationTimer;
 	private readonly Dictionary<LearnedBehavior, int> imitationSignals = [];
 	private int imitationCueTimer;
@@ -151,6 +163,8 @@ public sealed partial class SoulboundCompanion : ModNPC
 	public CompanionJob CurrentJob => activeJob;
 	public bool HasPendingInitiative => pendingAutonomyActivity != AutonomyActivity.None;
 	public CompanionInitiativeKind PendingInitiativeKind => InitiativeKindFor(pendingAutonomyActivity);
+	public int PendingInitiativeTicks => Math.Max(0, pendingInitiativeTimer);
+	public bool IsDefending => guardianTarget >= 0;
 	public string CurrentJobName => activeJob != CompanionJob.None
 		? jobRecoveryPaused
 			? jobPlannedTotal > 0
@@ -231,6 +245,8 @@ public sealed partial class SoulboundCompanion : ModNPC
 
 	public override bool PreHoverInteract(bool mouseIntersects)
 	{
+		if (Main.playerInventory || SoulmatesUIInput.IsCaptured)
+			return false;
 		if (mouseIntersects && Main.mouseRight && Main.mouseRightRelease
 			&& TryGetOwner(out Player owner) && owner.whoAmI == Main.myPlayer) {
 			Vector2 mouse = Main.MouseWorld;
@@ -269,8 +285,10 @@ public sealed partial class SoulboundCompanion : ModNPC
 		UpdateAuraDust();
 		UpdateSocialState();
 		UpdateLearningFromOwner();
+		UpdateAttentionClock();
 		UpdateAutonomousSocialBehavior();
 		UpdateResourcefulness();
+		UpdateNatureCompanions();
 		if (attackCooldown > 0)
 			attackCooldown--;
 		if (healingCooldown > 0)

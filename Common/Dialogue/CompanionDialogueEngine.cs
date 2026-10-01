@@ -28,7 +28,8 @@ public enum SpeechAction
 	ShowPack,
 	StoreHeldItem,
 	UnloadPack,
-	RecallMemory
+	RecallMemory,
+	RecallResident
 }
 
 public readonly record struct DialogueResult(string Reply, bool Accepted, SpeechAction Action, int BondDelta, int MoodDelta, int EnergyDelta);
@@ -108,7 +109,7 @@ public static class CompanionDialogueEngine
 		1 => profile.Memories.Count > 0
 			? new DialogueResult(profile.LatestMemory, true, SpeechAction.RecallMemory, 2, 2, 0)
 			: new DialogueResult(profile.JobsCompleted > 0 ? profile.LastMemory : PersonalitySecret(profile), true, SpeechAction.None, 2, 2, 0),
-		_ => new DialogueResult(Styled(profile, "Dialogue.Replies.Bond.Glad"), true, SpeechAction.None, 3, 4, 0)
+		_ => new DialogueResult("", true, SpeechAction.RecallResident, 0, 0, 0)
 	};
 
 	private static DialogueResult Refusal(CompanionProfile profile, TalkCategory category, int requiredEnergy, int requiredMood)

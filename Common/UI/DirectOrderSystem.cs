@@ -67,10 +67,17 @@ public sealed class DirectOrderSystem : ModSystem
 		leftMouseDown = leftDown;
 		rightMouseDown = rightDown;
 
-		if (rightPressed || Main.keyState.IsKeyDown(Keys.Escape) && Main.oldKeyState.IsKeyUp(Keys.Escape)) {
+		if (Main.keyState.IsKeyDown(Keys.Escape) && Main.oldKeyState.IsKeyUp(Keys.Escape)) {
 			Main.mouseRightRelease = false;
 			Cancel();
 			SoundEngine.PlaySound(SoundID.MenuClose with { Volume = 0.45f });
+			return;
+		}
+		if (rightPressed) {
+			Main.mouseRightRelease = false;
+			SoulboundCompanion target = companion;
+			Cancel();
+			ModContent.GetInstance<CompanionWheelSystem>().OpenWorld(target, page: 1);
 			return;
 		}
 
@@ -79,7 +86,6 @@ public sealed class DirectOrderSystem : ModSystem
 			if (TryResolveTarget(out Point tileTarget, out int itemTarget)) {
 				SoulboundCompanion target = companion;
 				CompanionTargetOrder selectedOrder = order;
-				Cancel();
 				SoulmatesFeedbackSystem.Record("direct_order_selected", ("order", selectedOrder.ToString()),
 					("tile_x", tileTarget.X), ("tile_y", tileTarget.Y), ("item_index", itemTarget));
 				if (Main.netMode == NetmodeID.MultiplayerClient)
@@ -104,9 +110,13 @@ public sealed class DirectOrderSystem : ModSystem
 		itemTarget = FindHoveredItem();
 		if (companion?.NPC.active != true)
 			return false;
-		return order == CompanionTargetOrder.Mine
-			? companion.CanTargetMining(tileTarget)
-			: companion.CanTargetGathering(itemTarget);
+		return order switch {
+			CompanionTargetOrder.Mine => companion.CanTargetMining(tileTarget),
+			CompanionTargetOrder.Gather => companion.CanTargetGathering(itemTarget),
+			CompanionTargetOrder.Look => companion.CanTargetLook(tileTarget, itemTarget),
+			CompanionTargetOrder.Forest => companion.TryResolveForestTarget(tileTarget, out _, out _),
+			_ => false
+		};
 	}
 
 	private static int FindHoveredItem()
@@ -147,19 +157,26 @@ public sealed class DirectOrderSystem : ModSystem
 
 		bool valid = TryResolveTarget(out Point tileTarget, out int itemTarget);
 		Color accent = valid ? companion.Profile.EssenceColor : new Color(215, 95, 95);
-		Rectangle targetRectangle = order == CompanionTargetOrder.Mine
-			? SoulmatesUISpace.FromWorld(new Rectangle(tileTarget.X * 16, tileTarget.Y * 16, 16, 16))
-			: ItemScreenRectangle(itemTarget);
+		Rectangle targetRectangle = order == CompanionTargetOrder.Gather
+			|| order == CompanionTargetOrder.Look && itemTarget >= 0
+			? ItemScreenRectangle(itemTarget)
+			: SoulmatesUISpace.FromWorld(new Rectangle(tileTarget.X * 16, tileTarget.Y * 16, 16, 16));
 		if (targetRectangle.Width > 0)
 			DrawOutline(Main.spriteBatch, targetRectangle, accent, 2);
 
-		int iconType = order == CompanionTargetOrder.Mine ? ItemID.CopperPickaxe : ItemID.TreasureMagnet;
-		Vector2 iconPosition = SoulmatesUISpace.Mouse + new Vector2(30f, 24f);
+		int iconType = order switch {
+			CompanionTargetOrder.Mine => ItemID.CopperPickaxe,
+			CompanionTargetOrder.Gather => ItemID.TreasureMagnet,
+			CompanionTargetOrder.Forest => ItemID.CopperAxe,
+			_ => ItemID.Binoculars
+		};
+		Vector2 viewport = SoulmatesUISpace.Viewport;
+		Vector2 iconPosition = Vector2.Clamp(SoulmatesUISpace.Mouse + new Vector2(30f, 24f),
+			new Vector2(18f), Vector2.Max(new Vector2(18f), viewport - new Vector2(18f)));
 		DrawCursorIcon(Main.spriteBatch, iconPosition, iconType, accent);
 
 		string label = TargetLabel(valid, tileTarget, itemTarget);
 		float scale = 0.62f;
-		Vector2 viewport = SoulmatesUISpace.Viewport;
 		float labelWidth = Math.Min(440f, Math.Max(20f, viewport.X - 20f));
 		if (cachedLabel != label || cachedLabelWidth != labelWidth) {
 			cachedLabel = label;
@@ -178,18 +195,18 @@ public sealed class DirectOrderSystem : ModSystem
 	private string TargetLabel(bool valid, Point tileTarget, int itemTarget)
 	{
 		if (!valid)
-			return SoulmatesText.Get(order == CompanionTargetOrder.Mine
-				? "UI.DirectOrder.MineInvalid"
-				: "UI.DirectOrder.GatherInvalid");
-		if (order == CompanionTargetOrder.Gather)
-			return SoulmatesText.Get("UI.DirectOrder.GatherValid", Main.item[itemTarget].Name);
+			return SoulmatesText.Get($"UI.DirectOrder.Invalid.{order}");
+		if (order == CompanionTargetOrder.Forest)
+			return SoulmatesText.Get("UI.DirectOrder.ForestValid");
+		if (itemTarget >= 0 && order is CompanionTargetOrder.Gather or CompanionTargetOrder.Look)
+			return SoulmatesText.Get("UI.DirectOrder.Target", SoulmatesText.Get($"UI.DirectOrder.Modes.{order}"), Main.item[itemTarget].Name);
 
 		ushort tileType = Main.tile[tileTarget.X, tileTarget.Y].TileType;
 		int dropType = TileLoader.GetItemDropFromTypeAndStyle(tileType, 0);
 		string name = dropType > ItemID.None
 			? Lang.GetItemNameValue(dropType)
 			: SoulmatesText.Get("Resourcefulness.UnknownMaterial");
-		return SoulmatesText.Get("UI.DirectOrder.MineValid", name);
+		return SoulmatesText.Get("UI.DirectOrder.Target", SoulmatesText.Get($"UI.DirectOrder.Modes.{order}"), name);
 	}
 
 	private static Rectangle ItemScreenRectangle(int itemIndex)

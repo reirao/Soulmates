@@ -1,5 +1,32 @@
 # Soulmates Development History
 
+## Soulmates 0.15.0 - Familiar Faces
+
+- Store up to 24 resident relationships per companion, keyed by world, NPC type, and name. Conversations affect sympathy; first meetings and friendships add memories.
+- Add native-emote meaning and personality-aware replies, role-specific resident dialogue, and a Bond option to recall local acquaintances. Anger is no longer rewarded as cheering.
+- Give social visits a greeting and response turn, limit each visit to one relationship update, reject replaced residents, and cancel visits for explicit assignments, Stay, combat, or disabled autonomy.
+- Move initiative answer wheels to the player; show the task symbol over the companion, followed by a question mark. Preserve stationary answer targets and per-task permission rules.
+- AETHER can use a carried bug net for nearby natural butterflies, fireflies, and lightning bugs during approved forestry. Forestry > Always also permits idle catches. Reject statue-spawned and player-released insects.
+- Observe the exact native catch drop and use the existing world-to-cargo transaction, with capacity checks and authority-only catching. A cosmetic flock of at most six native animated insects is backed by real carried items and disappears when withdrawn.
+- Retain safe tree shaking, fallen-log clearing, and carried-acorn planting. Living tree-branch pruning and a combat swarm are not implemented.
+- Move the isolated engine probe to PostAddRecipes, after loader hooks and networking IDs exist. Use disconnected test sockets for server-mode packet construction, not a claimed live multiplayer session.
+- Pass 9,950 engine assertions and 2,335 static/math assertions on tModLoader 2026.8.3.0. Both compilers report zero compiler warnings/errors; the existing packager image-type warning remains. The creator has begun playing 0.15.0; a complete graphical, progression, and live-multiplayer test is not claimed.
+- Remove older public screenshot galleries and screenshot release attachments at the creator's request, preserving local originals and historical test reports.
+
+## Soulmates 0.14.0 - Attentive Souls (Prepared)
+
+- Separate Companion, Player, and World wheels. The Player wheel has its own Emotes button; G remains a direct emote shortcut.
+- Right-click clear air to open Point tools; further right-clicks cycle Point and Area wheels. The native X exits, while vanilla tile, inventory, NPC, and alternate-use interactions retain priority.
+- Keep Look, Gather, Mine, and Forest tools active after each target. Look is read-only; a directed forest order tends one valid location without starting a broad gathering routine.
+- Replace potion-shaped navigation with Terraria's native back, forward, and close icons.
+- Rank actionable opportunities by proximity, talent, recent imitation signals, and bounded waiting priority. Use independent task cooldowns so repeated loot does not monopolize initiative.
+- Expose per-task Ask / Always / Never rules in a crescent submenu. Honor Never before scanning for work and rate-limit repeated automatic speech.
+- Revalidate unanswered prompts, cargo capacity, and target identity. Advance prompt timeouts through combat; remove the old full-minute decision debt after answering.
+- Validate pointed loot type/prefix on the server and reject recycled item slots during directed travel. All multiplayer participants need this version.
+- A real-client pass exposed companion hover stealing an open wheel's right-click; guard captured input and cover it in regressions.
+- Preserve 0.13.0 cargo, save migration, resource tiers, and the uncapped wallet. No new custom graphics or online AI service.
+- Keep regular speech clear of an open wheel; use binoculars consistently for Look and a loot magnet for gathering. Both compilers report zero compiler warnings/errors; 6,629 engine and 2,178 static/math assertions pass. Final icon/speech polish, live multiplayer, and long sessions still need visual/play testing.
+
 ## Soulmates 0.13.0 - Growing Cargo
 
 - Separate Equipment, Resources, and Wallet without changing companion identity or learned behavior.

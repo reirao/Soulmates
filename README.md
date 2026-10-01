@@ -2,40 +2,6 @@
 
 Soulmates is a tModLoader mod about creating companions that feel personal. The reusable **Soulcore** opens a small companion creator. Each finished companion is stored in its own **Soulbound Sigil** with a persistent name, appearance, personality, talent, bond, mood, and energy.
 
-![Soulmates feature overview](media/soulmates-overview.webp)
-
-## In-game gallery
-
-### Published 0.12.2 Playtest
-
-Unaltered captures from an actual new-character client test:
-
-| Pack transfer | Native emote crescent |
-| --- | --- |
-| ![99 rope stored, one left with the player](media/playtest-0.12.2-pack.jpg) | ![Terraria emotes in the player wheel](media/playtest-0.12.2-emote-wheel.jpg) |
-
-| Tree-shake drops | Shared emotes |
-| --- | --- |
-| ![Real wood and fruit drops after tree shaking](media/playtest-0.12.2-forestry.jpg) | ![Native heart emotes over the player and companion](media/playtest-0.12.2-shared-emote.jpg) |
-
-Scope and unfinished retests are recorded in the [playtest report](tests/PLAYTEST-2026-09-30.md).
-
-### Earlier Feature Gallery
-
-These earlier in-game captures illustrate the project's history; some interface details have since changed.
-
-| Soul Creator | Living companion |
-| --- | --- |
-| ![Soul Creator with animated live preview](media/soul-creator.webp) | ![A Soulkin companion beside its player](media/living-companion.webp) |
-
-| Talk Mode | Work orders |
-| --- | --- |
-| ![Talk Mode showing mood, energy and bond](media/talk-mode.webp) | ![Work orders for treasure, ore and gathering](media/work-orders.webp) |
-
-| Companion pack | Emergent dialogue |
-| --- | --- |
-| ![Persistent companion pack](media/companion-pack.webp) | ![A companion speaking during normal play](media/emergent-dialogue.webp) |
-
 ## AI-assisted development disclosure
 
 Soulmates is an experimental project created with extensive AI assistance across programming, writing, interface work, and visual development. The Workshop icon, mod icon, and custom Soulkin sprite were AI-generated and then integrated into the mod. Bunny, Blue Slime, Bird, Squirrel, item, inventory, and emote visuals reuse Terraria assets. The released build was reviewed and tested in-game by the creator.
@@ -57,20 +23,25 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Talent-driven initiative: every companion retrieves nearby usable drops, Gatherers do so faster and farther, Miners help in short bursts and collect what they mine, Treasure Seekers investigate nearby chests, Guardians intercept danger, and Healers react to injuries.
 - Persistent learning insights adapt to the owner's gathering, mining, forestry, combat, and exploration habits.
 - All vanilla and modded ore families are recognized; companions remember safe natural materials they watch the owner mine and reuse discovered pickaxes for later mining assignments.
-- The Work wheel supports both area assignments and precise cursor orders: point at one ore/material cluster or one loose world item and send the companion there directly.
+- Right-click clear air for a world mode wheel. Right-click again cycles between Point tools and Area work; the native X exits. Tiles, NPCs, inventory clicks, and held-item alternate actions keep their normal interactions.
+- Choose Look, Gather, Mine, or Forest to point at nearby targets repeatedly. Right-click an active tool opens the Area wheel; Escape exits targeting. Look reports an opportunity without changing the assignment, cargo, or terrain.
 - Opening the mining target reveals nearby ore families as their real Terraria item icons; choose one immediately or keep the pickaxe node for a manual world target.
 - Choose a persistent mining approach per companion: Adaptive priorities, a narrow Tunnel to ore or the next opening, ore-only Vein work, or exposed-only Surface work. Unstable sand-like materials are skimmed only from open edges.
 - Useful pack contents matter in the world: weapons strengthen companion attacks, torches add light, and food or recovery items can be used at an appropriate moment.
 - Near a crafting opportunity, a companion may occasionally suggest a recipe inspired by carried materials.
-- Contextual initiative prompts let you answer opportunities with Terraria emotes: Yes, No, Always, or Never, remembered separately for gathering, mining, forestry, and treasure hunting.
+- Contextual initiative prompts let you answer opportunities with Terraria emotes: Yes, No, Always, or Never. Commands > Initiative Rules also lets you cycle Ask, Always, and Never separately for gathering, mining, forestry, and treasure hunting.
+- Nearby opportunities share an attention scheduler weighted by proximity, talent, recent observed habits, and waiting time. Repeated drops cannot indefinitely starve other actionable tasks; cooldowns and unanswered questions affect only their own task kind.
 - The learned Forester perk lets a companion shake trees, clear natural fallen logs, collect seeds, and carefully replant carried acorns.
+- Initiative answer wheels open at the player; the companion shows the task symbol, then a question mark. Their positions stay still while choosing.
 - A companion named **AETHER** is an Omni Soul with every starting talent instinct and learned perk available.
+- Give AETHER a bug net in her cargo. Approved forestry can catch nearby natural butterflies, fireflies, and lightning bugs; Forestry > Always also permits idle catches. Up to six carried insects form a cosmetic native-sprite flock, disappearing when withdrawn. No free critters, combat swarm, or extra pet slots are created.
 - Personality-driven autonomous moments add small surprises without overriding combat, Stay, explicit assignments, or low-energy recovery.
 - Persistent companion experience with 20 levels earned from combat, healing, work, and shared moments.
 - Use the compact Companion Soulwheel for commands, work, bonding, direct pack access, and details.
-- Right-click your own character, or press the configurable **Player Emote Wheel** key (`G` by default), to open the separate wheel with all 151 vanilla Terraria emotes. Categories unfold into crescent sub-wheels instead of another window.
+- Right-click your own character for a separate Player wheel with Emotes, Point, and Mailbox buttons. Emotes unfolds all 151 vanilla Terraria emotes in crescent categories. The configurable **Player Emote Wheel** key (`G` by default) opens Emotes directly.
 - Native Terraria emote bubbles for shared gestures, with occasional context-aware speech instead of constant text.
-- Quiet social encounters with nearby town NPCs: companions approach, emote, and receive a native NPC response.
+- Social encounters include a greeting, a native NPC emote, and a personality-aware reply. Resident relationships remember world, NPC type, and name, with wary, new, familiar, and friend states. Combat and explicit work interrupt the visit.
+- Talk Mode > Bond > "Who have you made friends with here?" cycles local resident relationships. Meeting someone and making a friend add chronicle memories; NPC conversation does not generate experience.
 - Personality-specific reactions to normal victories, bosses, and creature deaths.
 - Talk Mode with Care, Commands, Work, Bond, Voice, and Pack conversations.
 - Mood-, energy-, bond-, and personality-aware replies, including clearly explained refusals.
@@ -101,11 +72,11 @@ Soulmates is an experimental project created with extensive AI assistance across
 
 The current release supports single-player and server-authoritative multiplayer companions. Summoning, recalling, conversations, jobs, pack actions, and trinkets are validated by the server and synchronized back to the owning player.
 
-## Current Release
+## Current Build
 
-**Soulmates 0.13.0 - Growing Cargo** separates usable equipment, level-scaled resources, and an uncapped coin wallet. Cargo transactions, legacy migration, save/load, network serialization, and slot geometry have focused automated coverage: 4,051 engine/geometry and 2,065 static/math assertions pass. The creator also confirmed that the new cargo works in play. See the [0.13.0 notes](releases/0.13.0.md) for scope and testing limitations.
+**Soulmates 0.15.0 - Familiar Faces** is the current AETHER-EGG Alpha build. It retains the 0.14.0 controls and attention improvements, and adds saved resident relationships, richer native-emote responses, player-centered initiative answers, and AETHER's pack-backed insect flock. See the [0.15.0 notes](releases/0.15.0.md) for scope and limitations. Living tree-branch pruning is deliberately not enabled; existing safe forestry remains unchanged.
 
-The **0.12.2 - Patient Choices** client captures and [playtest report](tests/PLAYTEST-2026-09-30.md) remain historical evidence for that version, not new screenshots of the cargo update. Broader progression, long sessions, and live multiplayer still need testing.
+The [0.14.0 client report](tests/PLAYTEST-2026-10-01.md) records a bounded real-client control pass and a subsequently fixed click conflict. The creator has begun playing 0.15.0 and confirmed a positive first impression; this is not a complete graphical or progression test. Older screenshot galleries have been removed at the creator's request. Broader progression, long sessions, and live multiplayer still need testing.
 
 The maturity gates for Alpha, Beta, release candidate, and 1.0 are defined in [VERSIONING.md](VERSIONING.md). The former `9.9.x` values were experimental build counters and remain in the changelog only as project history.
 
@@ -113,7 +84,7 @@ Workshop update text comes from [changelog.txt](changelog.txt), which contains o
 
 ## How Soulmates got here
 
-Soulmates began as a reusable item for shaping a personal pet. Repeated in-game passes turned that small idea into persistent Sigils, companion personalities, combat support, work assignments, a real pack, learned behavior, forestry, initiative choices, native emotes, and the compact Soulwheel. Several of those systems were rebuilt more than once when real play exposed awkward controls, disappearing cargo, duplicate drops, stale abilities, or behavior that looked clever but did not remain coherent over a longer session. The complete sequence is preserved in [CHANGELOG.md](CHANGELOG.md); this page describes the implemented AETHER-EGG Alpha state of 0.13.0.
+Soulmates began as a reusable item for shaping a personal pet. Repeated in-game passes added persistent Sigils, personalities, combat support, work, cargo, learned behavior, forestry, initiative choices, native emotes, and the Soulwheel. Several systems were rebuilt when real play exposed awkward controls, disappearing cargo, duplicate drops, or stale abilities. The full sequence is preserved in [CHANGELOG.md](CHANGELOG.md); this page describes the implemented AETHER-EGG Alpha state of 0.15.0, without promising future features.
 
 ## Playtesting and feedback
 

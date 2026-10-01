@@ -133,13 +133,19 @@ public enum CompanionQuickAction : byte
 	MiningTunnel,
 	MiningVein,
 	MiningSurface,
-	Details
+	Details,
+	GatheringPolicy,
+	MiningPolicy,
+	ForestryPolicy,
+	TreasurePolicy
 }
 
 public enum CompanionTargetOrder : byte
 {
 	Mine,
-	Gather
+	Gather,
+	Look,
+	Forest
 }
 
 public enum CompanionTrinket : byte
@@ -188,7 +194,10 @@ public enum CompanionMemoryKind : byte
 	CreatureEncounter,
 	ExperienceMilestone,
 	SharedMoment,
-	LearnedPerk
+	LearnedPerk,
+	ResidentMet,
+	ResidentFriend,
+	InsectCompanion
 }
 
 public sealed class CompanionMemory
@@ -254,6 +263,9 @@ public sealed class CompanionMemory
 			Enum.TryParse(Detail, out LearnedBehavior learnedBehavior)
 				? CompanionProfile.LearnedPerkName(learnedBehavior)
 				: SoulmatesText.Get("Learning.Forester")),
+		CompanionMemoryKind.ResidentMet => SoulmatesText.Get("Memories.Chronicle.ResidentMet", Detail),
+		CompanionMemoryKind.ResidentFriend => SoulmatesText.Get("Memories.Chronicle.ResidentFriend", Detail),
+		CompanionMemoryKind.InsectCompanion => SoulmatesText.Get("Memories.Chronicle.InsectCompanion", Detail),
 		_ => SoulmatesText.Get("Memories.New")
 	};
 
@@ -425,7 +437,8 @@ public sealed partial class CompanionProfile
 		Pack = Pack.Where(item => !item.IsAir).Select(item => item.Clone()).ToList(),
 		Resources = Resources.Where(item => !item.IsAir).Select(item => item.Clone()).ToList(),
 		WalletCopper = WalletCopper,
-		Memories = Memories.Select(memory => memory.Clone()).ToList()
+		Memories = Memories.Select(memory => memory.Clone()).ToList(),
+		Relationships = Relationships.Select(relation => relation.Clone()).ToList()
 	};
 
 	public TagCompound Save() => new() {
@@ -464,7 +477,8 @@ public sealed partial class CompanionProfile
 		["pack"] = Pack.Where(item => !item.IsAir).Select(ItemIO.Save).ToList(),
 		["resources"] = Resources.Where(item => !item.IsAir).Select(ItemIO.Save).ToList(),
 		["walletCopper"] = WalletCopper.ToString(CultureInfo.InvariantCulture),
-		["memories"] = Memories.Select(memory => memory.Save()).ToList()
+		["memories"] = Memories.Select(memory => memory.Save()).ToList(),
+		["relationships"] = Relationships.Select(relation => relation.Save()).ToList()
 	};
 
 	public static CompanionProfile Load(TagCompound tag)
@@ -517,7 +531,9 @@ public sealed partial class CompanionProfile
 			WalletCopper = tag.ContainsKey("walletCopper") ? ParseWallet(tag.GetString("walletCopper")) : BigInteger.Zero,
 			Memories = tag.ContainsKey("memories")
 				? tag.GetList<TagCompound>("memories").Select(CompanionMemory.Load).ToList()
-				: []
+				: [],
+			Relationships = tag.ContainsKey("relationships")
+				? tag.GetList<TagCompound>("relationships").Select(CompanionRelationship.Load).ToList() : []
 		};
 		profile.Normalize();
 		return profile;
@@ -567,6 +583,10 @@ public sealed partial class CompanionProfile
 		writer.Write((byte)memories.Length);
 		foreach (CompanionMemory memory in memories)
 			memory.Write(writer);
+		CompanionRelationship[] relations = Relationships.TakeLast(MaximumRelationships).ToArray();
+		writer.Write((byte)relations.Length);
+		foreach (CompanionRelationship relation in relations)
+			relation.Write(writer);
 	}
 
 	public static CompanionProfile Read(BinaryReader reader)
@@ -613,6 +633,9 @@ public sealed partial class CompanionProfile
 		int memoryCount = reader.ReadByte();
 		for (int i = 0; i < memoryCount; i++)
 			profile.Memories.Add(CompanionMemory.Read(reader));
+		int relationCount = reader.ReadByte();
+		for (int i = 0; i < relationCount; i++)
+			profile.Relationships.Add(CompanionRelationship.Read(reader));
 		profile.Normalize();
 		return profile;
 	}
@@ -898,6 +921,7 @@ public sealed partial class CompanionProfile
 		LearnedMiningTiles = LearnedMiningTiles.Where(type => type >= 0 && type <= ushort.MaxValue)
 			.Distinct().Take(MaximumLearnedMiningTiles).ToList();
 		Memories = Memories.Where(memory => memory is not null).TakeLast(MaximumMemories).ToList();
+		NormalizeRelationships();
 	}
 
 	private void NormalizePack()
