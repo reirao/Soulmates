@@ -6,4 +6,5 @@ obj/
 work/
 .dotnet-cli/
 outputs/
-media/
+media/*
+!media/current/

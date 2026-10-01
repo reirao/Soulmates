@@ -76,11 +76,23 @@ The current release supports single-player and server-authoritative multiplayer 
 
 **Soulmates 0.15.0 - Familiar Faces** is the current AETHER-EGG Alpha build. It retains the 0.14.0 controls and attention improvements, and adds saved resident relationships, richer native-emote responses, player-centered initiative answers, and AETHER's pack-backed insect flock. See the [0.15.0 notes](releases/0.15.0.md) for scope and limitations. Living tree-branch pruning is deliberately not enabled; existing safe forestry remains unchanged.
 
-The [0.14.0 client report](tests/PLAYTEST-2026-10-01.md) records a bounded real-client control pass and a subsequently fixed click conflict. The creator has begun playing 0.15.0 and confirmed a positive first impression; this is not a complete graphical or progression test. Older screenshot galleries have been removed at the creator's request. Broader progression, long sessions, and live multiplayer still need testing.
+The [0.14.0 client report](tests/PLAYTEST-2026-10-01.md) records a bounded real-client control pass and a subsequently fixed click conflict. The creator has begun playing 0.15.0 and confirmed a positive first impression; this is not a complete graphical or progression test. The current gallery uses the creator's own screenshots and unchanged frames from their gameplay video. Older galleries remain removed. Broader progression, long sessions, and live multiplayer still need testing.
 
 The maturity gates for Alpha, Beta, release candidate, and 1.0 are defined in [VERSIONING.md](VERSIONING.md). The former `9.9.x` values were experimental build counters and remain in the changelog only as project history.
 
 Workshop update text comes from [changelog.txt](changelog.txt), which contains only the current update. [CHANGELOG.md](CHANGELOG.md) preserves the complete development history separately so it cannot be accidentally republished in every Workshop entry.
+
+## Actual Gameplay
+
+These are genuine captures supplied by the creator on October 1, 2026, not generated mockups. The selected video frames retain their original 1280 x 720 resolution; the creator's own screenshots retain their original framing and size.
+
+![Soul Creator with the animated Soulkin preview](media/current/01-soul-creator.png)
+
+![Soulkin companion in the world](media/current/02-soulkin-companion.png)
+
+![Native Terraria emotes unfolded from the player wheel](media/current/03-native-emote-wheel.png)
+
+See the [complete current gallery](media/current/README.md) for Talk Mode, the mailbox, world tools, mining initiative answers, and more gameplay moments. The [screenshot bundle](https://github.com/reirao/Soulmates/releases/download/v0.15.0/Soulmates-screens.zip) contains all 17 unchanged PNGs with source timestamps for the video frames.
 
 ## How Soulmates got here
 

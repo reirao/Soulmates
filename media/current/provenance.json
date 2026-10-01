@@ -1,0 +1,117 @@
+{
+  "capturedDate": "2026-10-01",
+  "video": "SOULMATES.mp4",
+  "videoSha256": "e94871a488b610b905c394ba2ca19e2daa164ed8e342fc35ef6b8e529f9af6fc",
+  "screenshots": [
+    {
+      "file": "01-soul-creator.png",
+      "origin": "creator screenshot",
+      "sha256": "3f1e03d4437a231e8af3f0085ebcf62bd8cc2cbc3130d7f451220cac61f63a14",
+      "unchanged": true
+    },
+    {
+      "file": "02-soulkin-companion.png",
+      "origin": "creator screenshot",
+      "sha256": "72612c6463b7d59fd9577f4ea9600d65ff4443c32323710e46e22ff5cb222ec2",
+      "unchanged": true
+    },
+    {
+      "file": "03-native-emote-wheel.png",
+      "origin": "creator screenshot",
+      "sha256": "c9db2fb2bd6682074ccb9d101f952599a3c029eea3b6fe05bf981dfab0dbc4cd",
+      "unchanged": true
+    },
+    {
+      "file": "04-talk-mode.png",
+      "origin": "creator screenshot",
+      "sha256": "2e6e32d22d778649d00b431c40b6fde4a1e120cdd7e1c8f12ff57ccedbe0d04f",
+      "unchanged": true
+    },
+    {
+      "file": "05-player-wheel.png",
+      "origin": "creator screenshot",
+      "sha256": "79f08aa17e20c7a753ac0aeb52bacf24af1fc589ba6a285fb1400a64748cb466",
+      "unchanged": true
+    },
+    {
+      "file": "06-mailbox.png",
+      "origin": "creator screenshot",
+      "sha256": "0680e874b505feae24bd1c1237965d3a3bbe532c9786d679a87fef915eaee7e1",
+      "unchanged": true
+    },
+    {
+      "file": "07-forest-target.png",
+      "origin": "creator screenshot",
+      "sha256": "686bc140020d85419bf833e968ccb476a32835916b2b8065c86594d60d4e8c3f",
+      "unchanged": true
+    },
+    {
+      "file": "08-world-point-tools.png",
+      "origin": "creator screenshot",
+      "sha256": "8194c4f46ba573e4ceebf623464f46931064005eb9f344175d66f161d7cda2ed",
+      "unchanged": true
+    },
+    {
+      "file": "09-companion-work-wheel.png",
+      "origin": "creator screenshot",
+      "sha256": "cc6e4ca61f444b3c20e0e725c9410a358fe51c85878c3e47e2aa3ac5cd21597b",
+      "unchanged": true
+    },
+    {
+      "file": "10-video-companion-wheel-0007.png",
+      "origin": "SOULMATES.mp4",
+      "sha256": "689cec2c6a517e9eaee32a99ba3c5bf01c8781a4a50bc8f9ebad72cd6a1bd544",
+      "unchanged": true,
+      "timestamp": "00:07"
+    },
+    {
+      "file": "11-video-world-point-wheel-0014.png",
+      "origin": "SOULMATES.mp4",
+      "sha256": "40c321b05fb0b97841d0a823cc1776ee170c48574208ffcd6fe6f02ceb2ea445",
+      "unchanged": true,
+      "timestamp": "00:14"
+    },
+    {
+      "file": "12-video-forestry-question-0103.png",
+      "origin": "SOULMATES.mp4",
+      "sha256": "86c4dadc03abde1973dcc4d4e49b816467bf598a09314b137cfbdfb2ba9d887b",
+      "unchanged": true,
+      "timestamp": "01:03"
+    },
+    {
+      "file": "13-video-combat-0110.png",
+      "origin": "SOULMATES.mp4",
+      "sha256": "544fce8f342eee128a2c297d6372209ac45d5595f37938383079592d25336255",
+      "unchanged": true,
+      "timestamp": "01:10"
+    },
+    {
+      "file": "14-video-town-emotes-0131.png",
+      "origin": "SOULMATES.mp4",
+      "sha256": "387c536b3a8dee3bf4fe3ad27b44c24e468eb3f3e2e2f5a342e6e8f0393dd067",
+      "unchanged": true,
+      "timestamp": "01:31"
+    },
+    {
+      "file": "15-video-mining-answer-wheel-0152.png",
+      "origin": "SOULMATES.mp4",
+      "sha256": "048aabfbaede2e7509484053cf8f6b48e7c376896e987873c8a2197f225307e9",
+      "unchanged": true,
+      "timestamp": "01:52"
+    },
+    {
+      "file": "16-video-nature-emote-crescent-0213.png",
+      "origin": "SOULMATES.mp4",
+      "sha256": "549bf4bb660b26e25cc77ce9b6af90c7da7db2d54085c1e3e60ce17ea2953e7b",
+      "unchanged": true,
+      "timestamp": "02:13"
+    },
+    {
+      "file": "17-video-echo-conversation-0234.png",
+      "origin": "SOULMATES.mp4",
+      "sha256": "cd08dc5203c40b6b14fd8e72581b0db0024b7643b844d6de1fd13668981ed43a",
+      "unchanged": true,
+      "timestamp": "02:34"
+    }
+  ]
+}
