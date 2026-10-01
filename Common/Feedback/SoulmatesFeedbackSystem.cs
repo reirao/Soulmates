@@ -37,16 +37,26 @@ public sealed class SoulmatesFeedbackSystem : ModSystem
 	private static bool sessionActive;
 	private static bool rawLogCapped;
 	private static string lastError = "";
+	private static bool? enabledCache;
+	public const int MaximumNoteCharacters = 360;
 
 	public static string FeedbackFolder => Path.Combine(Main.SavePath, FolderName);
 	private static string EnabledMarkerPath => Path.Combine(FeedbackFolder, EnabledMarkerName);
 	private static string SummaryPath => Path.Combine(FeedbackFolder, "latest-summary.json");
-	public static bool Enabled => File.Exists(EnabledMarkerPath);
+	public static bool Enabled => enabledCache ??= File.Exists(EnabledMarkerPath);
 	public static bool SessionActive => sessionActive;
 	public static string LastError => lastError;
 
-	public override void OnWorldUnload() => EndSession("world_unload");
-	public override void Unload() => EndSession("mod_unload");
+	public override void OnWorldUnload()
+	{
+		EndSession("world_unload");
+		enabledCache = null;
+	}
+	public override void Unload()
+	{
+		EndSession("mod_unload");
+		enabledCache = null;
+	}
 
 	public static bool SetEnabled(bool enabled)
 	{
@@ -56,8 +66,9 @@ public sealed class SoulmatesFeedbackSystem : ModSystem
 			if (enabled) {
 				File.WriteAllText(EnabledMarkerPath,
 					"Soulmates AETHER Field Notes are enabled.\n"
-					+ "Files remain local and contain no player, character, world, account, chat, or exact position names.\n"
+					+ "Automatic records omit names, chat, and exact positions. Your typed notes are stored locally.\n"
 					+ "Use /soulfeedback off in game to stop future recording.\n", Encoding.UTF8);
+				enabledCache = true;
 				if (!wasEnabled && !sessionActive && !Main.gameMenu && Main.LocalPlayer.active)
 					BeginSession(Main.LocalPlayer);
 			}
@@ -65,6 +76,7 @@ public sealed class SoulmatesFeedbackSystem : ModSystem
 				EndSession("disabled_by_player");
 				if (File.Exists(EnabledMarkerPath))
 					File.Delete(EnabledMarkerPath);
+				enabledCache = false;
 			}
 			lastError = "";
 			return true;
@@ -137,9 +149,12 @@ public sealed class SoulmatesFeedbackSystem : ModSystem
 			["event"] = eventName
 		};
 		foreach ((string key, object? value) in fields) {
-			if (string.IsNullOrWhiteSpace(key) || value is null)
+			if (string.IsNullOrWhiteSpace(key) || value is null
+				|| key is "tile_x" or "tile_y" or "world_x" or "world_y"
+					or "player_name" or "character_name" or "world_name" or "account_name" or "chat")
 				continue;
-			object safeValue = value is string text ? Sanitize(text) : value;
+			object safeValue = value is string text
+				? Sanitize(text, key is "note" or "description" ? MaximumNoteCharacters : 180) : value;
 			entry[key] = safeValue;
 			if (key is "action" or "behavior" or "job" or "response")
 				Increment($"{eventName}.{safeValue}");
@@ -155,7 +170,7 @@ public sealed class SoulmatesFeedbackSystem : ModSystem
 
 	public static void RecordNote(string note)
 	{
-		string safeNote = Sanitize(note);
+		string safeNote = Sanitize(note, MaximumNoteCharacters);
 		if (!string.IsNullOrWhiteSpace(safeNote))
 			Record("player_note", ("note", safeNote));
 	}
@@ -165,7 +180,7 @@ public sealed class SoulmatesFeedbackSystem : ModSystem
 		if (!sessionActive || string.IsNullOrWhiteSpace(note))
 			return false;
 		try {
-			string safeNote = Sanitize(note);
+			string safeNote = Sanitize(note, MaximumNoteCharacters);
 			var report = new Dictionary<string, object?>(StringComparer.Ordinal) {
 				["schema"] = 1,
 				["utc"] = DateTime.UtcNow.ToString("O"),
@@ -259,7 +274,7 @@ public sealed class SoulmatesFeedbackSystem : ModSystem
 		var summary = new Dictionary<string, object?>(StringComparer.Ordinal) {
 			["schema"] = 1,
 			["purpose"] = "Local, opt-in AETHER Field Notes for improving Soulmates behavior.",
-			["privacy"] = "No account, player, character, world, chat, or exact position names are recorded.",
+			["privacy"] = "Automatic records omit account, player, character and world names, chat, and exact positions. Typed notes are stored locally.",
 			["session_id"] = sessionId,
 			["session_file"] = Path.GetFileName(sessionPath),
 			["started_utc"] = sessionStartedUtc.ToString("O"),
@@ -337,10 +352,10 @@ public sealed class SoulmatesFeedbackSystem : ModSystem
 		_ => "server"
 	};
 
-	private static string Sanitize(string value)
+	private static string Sanitize(string value, int maximumCharacters = 180)
 	{
 		string result = value.Replace('\r', ' ').Replace('\n', ' ').Trim();
-		return result.Length <= 180 ? result : result[..180];
+		return result.Length <= maximumCharacters ? result : result[..maximumCharacters];
 	}
 
 	private static void Increment(string key)

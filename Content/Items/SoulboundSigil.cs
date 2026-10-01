@@ -8,8 +8,10 @@ using Soulmates.Common.Feedback;
 using Soulmates.Common.UI;
 using Soulmates.Content.NPCs;
 using Terraria;
+using Terraria.Chat;
 using Terraria.DataStructures;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
@@ -75,26 +77,32 @@ public sealed class SoulboundSigil : ModItem
 			return true;
 		}
 
-		SummonCompanion(player);
+		bool summoned = SummonCompanion(player);
 		if (Main.netMode != NetmodeID.Server)
-			Main.NewText(SoulmatesText.Get("Messages.Summoned", Profile.Name), Profile.EssenceColor);
+			Main.NewText(SoulmatesText.Get(summoned ? "Messages.Summoned" : "Messages.SummonFailed", Profile.Name), Profile.EssenceColor);
+		else if (!summoned)
+			ChatHelper.SendChatMessageToClient(NetworkText.FromKey("Mods.Soulmates.Messages.SummonFailed", Profile.Name),
+				Profile.EssenceColor, player.whoAmI);
 		return true;
 	}
 
-	internal void SummonCompanion(Player player)
+	internal bool SummonCompanion(Player player)
 	{
+		if (Main.netMode == NetmodeID.MultiplayerClient || !player.active || player.dead)
+			return false;
 		Profile.Normalize();
 		SoulboundCompanion.RecallAllFor(player);
 
 		int index = NPC.NewNPC(new EntitySource_ItemUse(player, Item), (int)player.Center.X, (int)player.Center.Y - 48,
 			ModContent.NPCType<SoulboundCompanion>(), ai0: player.whoAmI);
-		if (Main.npc[index].ModNPC is SoulboundCompanion created) {
-			created.Profile = Profile.Clone();
-			created.NPC.netUpdate = true;
-			player.GetModPlayer<SoulmatesPlayer>().ActiveCompanionWhoAmI = index;
-		}
+		if (index < 0 || index >= Main.maxNPCs || Main.npc[index].ModNPC is not SoulboundCompanion created)
+			return false;
+		created.Profile = Profile.Clone();
+		created.NPC.netUpdate = true;
+		player.GetModPlayer<SoulmatesPlayer>().ActiveCompanionWhoAmI = index;
 		if (Main.netMode == NetmodeID.Server)
 			NetMessage.SendData(MessageID.SyncNPC, -1, -1, null, index);
+		return true;
 	}
 
 	public override void ModifyTooltips(List<TooltipLine> tooltips)

@@ -1,5 +1,20 @@
 # Soulmates Development History
 
+## Soulmates 0.15.1 - Careful Company
+
+- Keep wheel shortcuts, companion clicks, and automatic questions out of native chat/sign/chest text entry and existing Soulmates interfaces.
+- Wait for the multiplayer acknowledgement before reopening an answered initiative wheel, with a bounded retry timeout.
+- Distinguish cargo-blocked drops from an empty gathering area; reject independent client-side world-to-cargo mutations.
+- Send actual healing deltas, mana recovery, and potion/food buffs to the owning client rather than relying on observer-only player-state packets.
+- Ignore invulnerable enemies, retain repeated attacks, and verify facing, Stay anchoring, server projectile ownership, and companion-specific recall cleanup.
+- Recall when the matching Sigil leaves the carried inventory; preserve single-player cursor-held binding during inventory rearrangement.
+- Validate the carried binding at the multiplayer request boundary too, preventing queued actions after a Sigil move or owner death.
+- Save perk-unlock XP in the same update and report failed summons when all NPC slots are occupied.
+- Preserve the mailbox's full 360-character note allowance; omit exact coordinates from new automatic records and accurately distinguish typed notes in privacy text. Existing local logs are untouched.
+- Cache the Field Notes opt-in marker and reuse cargo-observation buffers, avoiding repeated filesystem checks and per-frame container allocation.
+- Avoid the installed packer's exhausted-stream conversion for `icon_small.png` by excluding that optional asset. Keep its source, the normal mod/Workshop icons, and all gameplay graphics; this removes the longstanding image-type warning without editing Terraria or replacing images.
+- Expand focused regression coverage without replacing existing companions or changing resource tiers, the wallet, forestry permissions, or relationships. See [the revision report](tests/REVISION-2026-10-01.md) for verification and remaining test gaps.
+
 ## Soulmates 0.15.0 - Familiar Faces
 
 - Store up to 24 resident relationships per companion, keyed by world, NPC type, and name. Conversations affect sympathy; first meetings and friendships add memories.

@@ -1,11 +1,15 @@
-Soulmates 0.15.0 - Familiar Faces
+Soulmates 0.15.1 - Careful Company
 
-- Save up to 24 resident relationships per companion, scoped by world, NPC type, and name. Native conversations influence sympathy; first meetings and friendships create memories.
-- Add personality-aware native-emote answers, resident-role dialogue, and a Bond conversation for recalling acquaintances. Anger is no longer rewarded as cheering.
-- Respect disabled autonomy, interrupt NPC visits for explicit work or combat, and reject replaced NPC targets.
-- Anchor initiative answer wheels at the player. The companion shows the work symbol followed by a question mark; the center displays the task.
-- Let AETHER use a carried bug net on nearby natural butterflies, fireflies, and lightning bugs during approved forestry. Forestry > Always also permits idle catches.
-- Route the exact native catch drop through the existing cargo transaction. Up to six carried insects form a cosmetic native-sprite flock, without creating extra critters, pets, or combat damage.
-- Retain 0.14.0 world modes, persistent pointing, independent initiative rules, Equipment, Resources, and the uncapped Wallet.
+- Preserve text entry and open interfaces: wheels and hotkeys wait while chatting, editing names, or using another Soulmates menu.
+- Prevent answered multiplayer initiative wheels from reopening before the server acknowledges the choice.
+- Report blocked cargo capacity instead of claiming nearby drops are gone. Client-side pickup cannot independently change cargo or world items.
+- Synchronize actual companion healing, carried-potion mana recovery, and potion/food buffs to the owning multiplayer client.
+- Release invulnerable combat targets. Regression checks cover repeated shots, target-facing, Stay defense, and removal of only the recalled companion's projectiles.
+- Stop world work when the matching Sigil is no longer carried. Single-player cursor-held Sigils keep their binding while rearranging inventory.
+- Revalidate the carried binding when accepting multiplayer commands, rejecting late requests after a Sigil move or owner death.
+- Persist perk-unlock experience immediately and handle a full NPC pool with clear summon feedback.
+- Keep all 360 mailbox-note characters, omit exact coordinates from future automatic Field Notes, and reuse feedback buffers instead of allocating them every frame.
+- Omit the optional mini-icon to avoid an installed tModLoader packer stream bug; retain the normal mod and Workshop icons and all gameplay graphics.
+- Retain existing companions, relationships, forestry, Equipment, Resources, and the uncapped Wallet.
 
-Living tree-branch pruning is not enabled. Growing alpha: new social visuals, long sessions, full progression, and live multiplayer need playtesting. All multiplayer participants must use the same mod version.
+Growing alpha: this patch has isolated engine and static checks, not a new graphical client or live multiplayer playtest. All multiplayer participants must use the same mod version.

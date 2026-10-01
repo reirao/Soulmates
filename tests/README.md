@@ -2,6 +2,8 @@
 
 These checks use the installed tModLoader libraries, without downloading test packages.
 
+The latest maintenance pass is [REVISION-2026-10-01.md](REVISION-2026-10-01.md), for the 0.15.1 patch. It passes 10,081 engine assertions and 2,340 static/math assertions. New coverage includes native healing and buff delivery, owner mana recovery, malformed/wrong-direction packets, typing guards, cargo-blocked drops, Sigil binding and queued requests, full NPC pools, prompt acknowledgement, note privacy/length, actual repeated projectiles, Stay, facing, and recall cleanup. The longstanding packager image-type warning is avoided by excluding the optional mini-icon; normal icons and gameplay graphics remain intact. These are isolated engine checks, not a fresh graphical or live multiplayer playtest.
+
 ## Static and Math Checks
 
 From the repository root:

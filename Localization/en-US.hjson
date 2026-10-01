@@ -431,6 +431,7 @@ Mods: {
 			SoulCreated: A new soul is bound: {0}
 			Recalled: "{0} returned to the Soulbound Sigil."
 			Summoned: "{0} answers your call."
+			SummonFailed: "There is no room for {0} right now. Please try again shortly."
 			TrinketRemoved: "{0} removed their trinket."
 			TrinketEquipped: "{0} equipped {1}."
 			Healed: "{0} restored {1} life."

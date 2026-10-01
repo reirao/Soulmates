@@ -217,7 +217,7 @@ public sealed class FeedbackMailboxState : UIState
 
 internal sealed class MailboxInputElement(Func<string> placeholder) : UIElement
 {
-	private const int MaximumLength = 360;
+	private const int MaximumLength = SoulmatesFeedbackSystem.MaximumNoteCharacters;
 	public string Text { get; private set; } = "";
 	public bool Focused { get; set; }
 

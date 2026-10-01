@@ -31,12 +31,16 @@ public sealed class InitiativePromptSystem : ModSystem
 	private bool rightMouseDown;
 	private Vector2 center;
 	private SoulboundCompanion? companion;
+	private Guid replyProfileId;
+	private CompanionInitiativeKind replyKind;
+	private int replyWaitTicks;
 
 	public bool IsOpen => open;
 
 	public void Open(SoulboundCompanion boundCompanion)
 	{
-		if (!SoulmatesUIInput.CanPresentInitiative || !boundCompanion.HasPendingInitiative || boundCompanion.IsDefending)
+		if (!SoulmatesUIInput.CanPresentInitiative || !boundCompanion.HasPendingInitiative || boundCompanion.IsDefending
+			|| IsAwaitingReply(boundCompanion))
 			return;
 
 		ModContent.GetInstance<CompanionWheelSystem>().Close();
@@ -65,10 +69,26 @@ public sealed class InitiativePromptSystem : ModSystem
 		companion = null;
 	}
 
-	public override void OnWorldUnload() => Close();
+	public override void OnWorldUnload()
+	{
+		Close();
+		replyWaitTicks = 0;
+		replyProfileId = Guid.Empty;
+	}
+
+	private bool IsAwaitingReply(SoulboundCompanion target) => replyWaitTicks > 0
+		&& target.Profile.Id == replyProfileId && target.HasPendingInitiative && target.PendingInitiativeKind == replyKind;
 
 	public override void UpdateUI(GameTime gameTime)
 	{
+		if (replyWaitTicks > 0) {
+			SoulboundCompanion? current = SoulboundCompanion.FindFor(Main.LocalPlayer);
+			if (current is not null && IsAwaitingReply(current)) {
+				replyWaitTicks--;
+				return;
+			}
+			replyWaitTicks = 0;
+		}
 		if (!open) {
 			if (SoulmatesUIInput.CanPresentInitiative
 				&& SoulboundCompanion.FindFor(Main.LocalPlayer) is { HasPendingInitiative: true } pending)
@@ -117,8 +137,12 @@ public sealed class InitiativePromptSystem : ModSystem
 		SoulmatesFeedbackSystem.Record("initiative_response", ("action", kind.ToString()),
 			("response", response.ToString()));
 		Close();
-		if (Main.netMode == NetmodeID.MultiplayerClient)
+		if (Main.netMode == NetmodeID.MultiplayerClient) {
+			replyProfileId = target.Profile.Id;
+			replyKind = kind;
+			replyWaitTicks = 600;
 			global::Soulmates.Soulmates.SendInitiativeResponse(kind, response);
+		}
 		else
 			target.RespondToInitiative(response);
 		SoundEngine.PlaySound(response is CompanionInitiativeResponse.Yes or CompanionInitiativeResponse.Always

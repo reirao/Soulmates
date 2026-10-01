@@ -27,6 +27,8 @@ public sealed class SoulmatesPlayer : ModPlayer
 	private bool queuedWorldSoulwheel;
 	private Guid feedbackProfileId;
 	private readonly Dictionary<int, int> feedbackPackCounts = [];
+	private readonly Dictionary<int, int> feedbackCurrentCounts = [];
+	private readonly HashSet<int> feedbackObservedTypes = [];
 
 	public int ActiveCompanionWhoAmI { get; set; } = -1;
 
@@ -73,7 +75,8 @@ public sealed class SoulmatesPlayer : ModPlayer
 			return;
 		}
 
-		var current = new Dictionary<int, int>();
+		Dictionary<int, int> current = feedbackCurrentCounts;
+		current.Clear();
 		foreach (Item item in companion.Profile.CarriedItems) {
 			if (item.IsAir || item.stack <= 0)
 				continue;
@@ -90,7 +93,9 @@ public sealed class SoulmatesPlayer : ModPlayer
 			return;
 		}
 
-		var allTypes = new HashSet<int>(feedbackPackCounts.Keys);
+		HashSet<int> allTypes = feedbackObservedTypes;
+		allTypes.Clear();
+		allTypes.UnionWith(feedbackPackCounts.Keys);
 		allTypes.UnionWith(current.Keys);
 		foreach (int itemType in allTypes) {
 			feedbackPackCounts.TryGetValue(itemType, out int before);
@@ -173,13 +178,17 @@ public sealed class SoulmatesPlayer : ModPlayer
 	{
 		if (Player.whoAmI != Main.myPlayer)
 			return;
+		bool rightPressed = Main.mouseRight && !rightMouseDown;
+		rightMouseDown = Main.mouseRight;
+		if (Main.gameMenu || Player.dead || SoulmatesUIInput.IsTyping || SoulmatesUIInput.IsCaptured) {
+			queuedSelfSoulwheel = false;
+			return;
+		}
 		SoulboundCompanion? companion = SoulboundCompanion.FindFor(Player);
 		CompanionWheelSystem companionWheel = ModContent.GetInstance<CompanionWheelSystem>();
 		InitiativePromptSystem initiativePrompt = ModContent.GetInstance<InitiativePromptSystem>();
 		TalkModeSystem talkMode = ModContent.GetInstance<TalkModeSystem>();
 		FeedbackMailboxSystem mailbox = ModContent.GetInstance<FeedbackMailboxSystem>();
-		bool rightPressed = Main.mouseRight && !rightMouseDown;
-		rightMouseDown = Main.mouseRight;
 		if (Soulmates.EmoteKeybind.JustPressed && companion is not null && !Main.playerInventory
 			&& !talkMode.IsOpen && !companionWheel.IsOpen && !initiativePrompt.IsOpen && !mailbox.IsOpen) {
 			companionWheel.OpenEmotes(companion);
@@ -230,7 +239,8 @@ public sealed class SoulmatesPlayer : ModPlayer
 		InitiativePromptSystem initiativePrompt = ModContent.GetInstance<InitiativePromptSystem>();
 		TalkModeSystem talkMode = ModContent.GetInstance<TalkModeSystem>();
 		FeedbackMailboxSystem mailbox = ModContent.GetInstance<FeedbackMailboxSystem>();
-		if (Main.playerInventory || Player.mouseInterface || Player.altFunctionUse == 2 || Player.itemAnimation > 0
+		if (Main.playerInventory || Player.mouseInterface || SoulmatesUIInput.IsTyping || SoulmatesUIInput.IsCaptured
+			|| Player.altFunctionUse == 2 || Player.itemAnimation > 0
 			|| talkMode.IsOpen || companionWheel.IsOpen
 			|| initiativePrompt.IsOpen || mailbox.IsOpen)
 			return;

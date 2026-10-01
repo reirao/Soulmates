@@ -160,7 +160,6 @@ public sealed partial class SoulboundCompanion
 		if (after == before)
 			return;
 
-		SyncProfileToBoundSigil();
 		bool syncMilestone = unlockedPerk is not null || after % 5 == 0;
 		string message = "";
 		if (unlockedPerk is LearnedBehavior learnedBehavior) {
@@ -172,6 +171,7 @@ public sealed partial class SoulboundCompanion
 			message = SoulmatesText.Get("Messages.PerkUnlocked", Profile.Name,
 				CompanionProfile.LearnedPerkName(learnedBehavior));
 		}
+		SyncProfileToBoundSigil();
 
 		if (!syncMilestone)
 			return;

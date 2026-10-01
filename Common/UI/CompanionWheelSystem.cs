@@ -445,8 +445,7 @@ public sealed class CompanionWheelSystem : ModSystem
 			SoundEngine.PlaySound(SoundID.MenuTick);
 			return;
 		}
-		SoulmatesFeedbackSystem.Record("nearby_ore_selected", ("item_type", choice.ItemType),
-			("tile_x", choice.Tile.X), ("tile_y", choice.Tile.Y));
+		SoulmatesFeedbackSystem.Record("nearby_ore_selected", ("item_type", choice.ItemType));
 		Close();
 		if (Main.netMode == NetmodeID.MultiplayerClient)
 			global::Soulmates.Soulmates.SendDirectOrderRequest(CompanionTargetOrder.Mine, choice.Tile, -1);

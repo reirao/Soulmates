@@ -416,7 +416,8 @@ public sealed partial class SoulboundCompanion
 			return;
 		}
 		if (directedJob && !IsValidGatherTarget(jobTargetItem)) {
-			CompleteJob(SoulmatesText.Get("TargetOrders.TargetLost"), success: false);
+			CompleteJob(SoulmatesText.Get(IsGatherTargetPresent(jobTargetItem)
+				? "Jobs.PackFull" : "TargetOrders.TargetLost"), success: false);
 			return;
 		}
 		if (!directedJob && !IsValidGatherTarget(jobTargetItem) && areaEmptyTimer % 10 == 0)
@@ -432,7 +433,7 @@ public sealed partial class SoulboundCompanion
 			areaEmptyTimer++;
 			MoveTo(jobOrigin + new Vector2(0f, -54f + IdleBob()), 4f, 0.05f);
 			if (areaEmptyTimer >= 90) {
-				bool blockedByPack = HasNearbyCarryableItem();
+				bool blockedByPack = HasNearbyBlockedLoot();
 				CompleteJob(blockedByPack
 					? SoulmatesText.Get("Jobs.PackFull")
 					: jobCount > 0
@@ -777,12 +778,12 @@ public sealed partial class SoulboundCompanion
 		return result;
 	}
 
-	private bool HasNearbyCarryableItem()
+	private bool HasNearbyBlockedLoot()
 	{
 		float radius = GatheringRadiusTiles * 16f;
 		for (int i = 0; i < Main.maxItems; i++) {
 			Item item = Main.item[i];
-			if (!CanCollectLooseItem(item))
+			if (!IsEligibleLooseItem(item) || CanCollectLooseItem(item))
 				continue;
 			if (Vector2.DistanceSquared(jobOrigin, item.Center) < radius * radius)
 				return true;
@@ -791,20 +792,23 @@ public sealed partial class SoulboundCompanion
 	}
 
 	private bool IsValidGatherTarget(int itemIndex)
+		=> IsGatherTargetPresent(itemIndex) && CanCollectLooseItem(Main.item[itemIndex]);
+
+	private bool IsGatherTargetPresent(int itemIndex)
 	{
 		if (itemIndex < 0 || itemIndex >= Main.maxItems)
 			return false;
 		Item item = Main.item[itemIndex];
 		float radius = GatheringRadiusTiles * 16f;
 		return (!directedJob || ReferenceEquals(item, directedLootIdentity) && item.type == directedLootType)
-			&& item.active && !item.IsAir && CanCollectLooseItem(item)
-			&& (item.playerIndexTheItemIsReservedFor == 255 || item.playerIndexTheItemIsReservedFor == Owner.whoAmI)
+			&& IsEligibleLooseItem(item)
 			&& Vector2.DistanceSquared(jobOrigin, item.Center) < radius * radius;
 	}
 
 	private int StoreLooseItem(Item worldItem)
 	{
-		if (!worldItem.active || worldItem.IsAir || worldItem.stack <= 0)
+		if (Main.netMode == NetmodeID.MultiplayerClient || !TryGetOwner(out Player owner) || owner.dead
+			|| !worldItem.active || worldItem.IsAir || worldItem.stack <= 0)
 			return 0;
 
 		int itemType = worldItem.type;

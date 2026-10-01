@@ -87,7 +87,7 @@ public sealed class DirectOrderSystem : ModSystem
 				SoulboundCompanion target = companion;
 				CompanionTargetOrder selectedOrder = order;
 				SoulmatesFeedbackSystem.Record("direct_order_selected", ("order", selectedOrder.ToString()),
-					("tile_x", tileTarget.X), ("tile_y", tileTarget.Y), ("item_index", itemTarget));
+					("world_item", itemTarget >= 0));
 				if (Main.netMode == NetmodeID.MultiplayerClient)
 					global::Soulmates.Soulmates.SendDirectOrderRequest(selectedOrder, tileTarget, itemTarget);
 				else {

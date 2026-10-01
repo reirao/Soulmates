@@ -1,10 +1,13 @@
 using Terraria;
+using Terraria.GameInput;
 using Terraria.ModLoader;
 
 namespace Soulmates.Common.UI;
 
 internal static class SoulmatesUIInput
 {
+	public static bool IsTyping => Main.drawingPlayerChat || Main.editSign || Main.editChest || PlayerInput.WritingText;
+
 	public static bool IsCaptured => !Main.dedServ && !Main.gameMenu
 		&& (ModContent.GetInstance<SoulCreatorSystem>().IsOpen
 			|| ModContent.GetInstance<TalkModeSystem>().IsOpen
@@ -15,5 +18,5 @@ internal static class SoulmatesUIInput
 
 	public static bool CanPresentInitiative => !Main.dedServ && !Main.gameMenu
 		&& !Main.LocalPlayer.dead && !Main.playerInventory && Main.LocalPlayer.talkNPC < 0
-		&& !IsCaptured;
+		&& !IsTyping && !IsCaptured;
 }

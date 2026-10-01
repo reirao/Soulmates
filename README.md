@@ -17,7 +17,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Summon exactly one active companion at a time; switching Sigils cleanly retires the previous companion, assignment, and projectiles.
 - Right-click the summoned companion or your own character to open the compact Soulwheel.
 - Hold Up and right-click the Sigil to recall it.
-- Companion identity and progression data are saved on the Sigil.
+- Companion identity and progression data are saved on the Sigil. Keep the active Sigil in the player's inventory; moving it out recalls the companion. In single-player, holding it on the cursor while rearranging inventory preserves the binding.
 - Personality-driven idle, wander, inspect, follow, and catch-up behavior.
 - Persistent per-companion autonomy, switchable from the action wheel.
 - Talent-driven initiative: every companion retrieves nearby usable drops, Gatherers do so faster and farther, Miners help in short bursts and collect what they mine, Treasure Seekers investigate nearby chests, Guardians intercept danger, and Healers react to injuries.
@@ -74,7 +74,7 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current Build
 
-**Soulmates 0.15.0 - Familiar Faces** is the current AETHER-EGG Alpha build. It retains the 0.14.0 controls and attention improvements, and adds saved resident relationships, richer native-emote responses, player-centered initiative answers, and AETHER's pack-backed insect flock. See the [0.15.0 notes](releases/0.15.0.md) for scope and limitations. Living tree-branch pruning is deliberately not enabled; existing safe forestry remains unchanged.
+**Soulmates 0.15.1 - Careful Company** is an AETHER-EGG Alpha maintenance patch. It hardens input ownership, gathering feedback, multiplayer recovery, Sigil persistence, and local Field Notes without adding a new feature tier. See the [0.15.1 release](https://github.com/reirao/Soulmates/releases/tag/v0.15.1), [patch notes](releases/0.15.1.md), and [revision report](tests/REVISION-2026-10-01.md). The [0.15.0 notes](releases/0.15.0.md) describe the existing relationships, emotes, and AETHER flock. Living tree-branch pruning remains deliberately disabled.
 
 The [0.14.0 client report](tests/PLAYTEST-2026-10-01.md) records a bounded real-client control pass and a subsequently fixed click conflict. The creator has begun playing 0.15.0 and confirmed a positive first impression; this is not a complete graphical or progression test. The current gallery uses the creator's own screenshots and unchanged frames from their gameplay video. Older galleries remain removed. Broader progression, long sessions, and live multiplayer still need testing.
 
@@ -96,7 +96,7 @@ See the [complete current gallery](media/current/README.md) for Talk Mode, the m
 
 ## How Soulmates got here
 
-Soulmates began as a reusable item for shaping a personal pet. Repeated in-game passes added persistent Sigils, personalities, combat support, work, cargo, learned behavior, forestry, initiative choices, native emotes, and the Soulwheel. Several systems were rebuilt when real play exposed awkward controls, disappearing cargo, duplicate drops, or stale abilities. The full sequence is preserved in [CHANGELOG.md](CHANGELOG.md); this page describes the implemented AETHER-EGG Alpha state of 0.15.0, without promising future features.
+Soulmates began as a reusable item for shaping a personal pet. Repeated in-game passes added persistent Sigils, personalities, combat support, work, cargo, learned behavior, forestry, initiative choices, native emotes, and the Soulwheel. Several systems were rebuilt when real play exposed awkward controls, disappearing cargo, duplicate drops, or stale abilities. The full sequence is preserved in [CHANGELOG.md](CHANGELOG.md); this page describes the implemented AETHER-EGG Alpha state without promising future features.
 
 ## Playtesting and feedback
 
@@ -104,7 +104,7 @@ Every report helps. The creator has limited time to play and Terraria progressio
 
 Please share findings through the [Steam Workshop page](https://steamcommunity.com/sharedfiles/filedetails/?id=3807130821) or [GitHub issues](https://github.com/reirao/Soulmates/issues).
 
-For local playtests, open the paper-plane icon on the Companion Soulwheel or enter `/soulfeedback` for the in-game **AETHER Mailbox**. It can enable the opt-in Field Notes, send a normal note, or preserve a bug report with recent context. Files are stored under tModLoader's save folder in `SoulmatesFeedback`: a bounded JSONL session journal, `latest-summary.json`, and `bug-inbox.jsonl`. The journal deliberately excludes account, player, character, world, chat, and exact position names, and never uploads anything. Use `/soulfeedback off` to stop future recording; existing notes remain yours until you remove them.
+For local playtests, open the paper-plane icon on the Companion Soulwheel or enter `/soulfeedback` for the in-game **AETHER Mailbox**. It can enable the opt-in Field Notes, send a normal note, or preserve a bug report with recent context. Files are stored under tModLoader's save folder in `SoulmatesFeedback`: a bounded JSONL session journal, `latest-summary.json`, and `bug-inbox.jsonl`. New automatic records exclude account, player, character, and world names, chat text, and exact coordinates. Manually typed notes retain their text, up to 360 characters, so avoid including anything you do not want stored. Nothing is uploaded. Older logs are not rewritten. Use `/soulfeedback off` to stop future recording; existing notes remain yours until you remove them.
 
 ## Languages
 

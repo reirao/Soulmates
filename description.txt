@@ -1,4 +1,4 @@
-Soulmates 0.15.0 - Familiar Faces | AETHER-EGG Alpha
+Soulmates 0.15.1 - Careful Company | AETHER-EGG Alpha
 
 Create personal companions with the reusable Soulcore. Each Soulbound Sigil saves one companion's appearance, personality, growth, learned habits, cargo, and memories. A companion named AETHER has every talent and learned perk.
 
@@ -10,6 +10,6 @@ Town visits include native NPC emotes and personality-aware replies. Saved resid
 
 Give AETHER a carried bug net for nearby butterflies, fireflies, and lightning bugs during approved forestry. Forestry > Always also permits idle catches. Up to six actual carried insects form a cosmetic native-sprite flock; returning their items removes them. No critters or combat pets are duplicated.
 
-Equipment, Resources, and Wallet remain separate. Resources have 60 stack slots and a per-type limit of 50 units per level: 500 at level 10 and 1,000 at level 20. Collected coins use an uncapped wallet. Existing Sigils remain compatible.
+Equipment, Resources, and Wallet remain separate. Resources have 60 stack slots and a per-type limit of 50 units per level: 500 at level 10 and 1,000 at level 20. Collected coins use an uncapped wallet. Existing Sigils remain compatible. Keep the active Sigil in your inventory; moving it out recalls the companion. Full cargo is reported explicitly.
 
-English and German. Learning is local game logic, not an online AI service. Optional AETHER Field Notes and the in-game feedback mailbox stay on this computer and never upload data. Growing alpha: full progression, long sessions, and live multiplayer still need testing.
+English and German. Learning is local game logic, not an online AI service. Optional AETHER Field Notes and the in-game feedback mailbox stay on this computer and never upload data. Automatic records omit names, chat, and exact positions; typed notes retain what you write. Growing alpha: full progression, long sessions, and live multiplayer still need testing.

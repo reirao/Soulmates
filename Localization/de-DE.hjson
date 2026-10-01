@@ -431,6 +431,7 @@ Mods: {
 			SoulCreated: Eine neue Seele wurde gebunden: {0}
 			Recalled: "{0} ist in das Seelengebundene Siegel zurückgekehrt."
 			Summoned: "{0} folgt deinem Ruf."
+			SummonFailed: "Gerade ist kein Platz für {0}. Versuche es bitte gleich noch einmal."
 			TrinketRemoved: "{0} hat das Schmuckstück abgelegt."
 			TrinketEquipped: "{0} hat {1} ausgerüstet."
 			Healed: "{0} hat {1} Leben wiederhergestellt."

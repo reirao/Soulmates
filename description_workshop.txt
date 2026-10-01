@@ -1,12 +1,12 @@
 [h1]Soulmates - AETHER-EGG Alpha[/h1]
 Create a companion with a soul. The reusable Soulcore opens a creator inside Terraria; every Soulbound Sigil keeps one companion's name, appearance, personality, growth, memories, and cargo.
 
-[b]Version: 0.15.0 - Familiar Faces[/b]
+[b]Version: 0.15.1 - Careful Company[/b]
 [b]Languages:[/b] English and German, following Terraria's language.
 [url=https://github.com/reirao/Soulmates]Source and release notes[/url]
 
 [h2]Start Together[/h2]
-New characters receive one Soulcore and three Blank Sigils once. Choose a name, starting talent, personality, colors, aura, and an animated Soulkin, Bunny, Blue Slime, Bird, or Squirrel muse. Bind a Sigil and summon. Only one companion is active per player; switching Sigils retires the previous companion and its effects. Existing Sigils remain compatible.
+New characters receive one Soulcore and three Blank Sigils once. Choose a name, starting talent, personality, colors, aura, and an animated Soulkin, Bunny, Blue Slime, Bird, or Squirrel muse. Bind a Sigil and summon. Only one companion is active per player; switching Sigils retires the previous companion and its effects. Keep the active Sigil in your inventory; moving it out recalls her. Existing Sigils remain compatible.
 
 [h2]Small Wheels, Direct Choices[/h2]
 [list]
@@ -45,7 +45,7 @@ Experience supports 20 levels and five bond ranks. Equipment keeps 8 slots, expa
 Cargo uses native item icons, paging, tooltips, whole-stack or single-item withdrawals, and coin denomination conversion. Anything the player's inventory cannot accept stays with the companion. Existing Sigils preserve cargo and safely return level-reserve excess on summon.
 
 [h2]Field Notes and Feedback[/h2]
-The in-game AETHER Mailbox opens from the paper-plane icon or /soulfeedback. Optional Field Notes and contextual bug reports stay on this computer, are off by default, and never upload data.
+The in-game AETHER Mailbox opens from the paper-plane icon or /soulfeedback. Optional Field Notes and contextual bug reports stay on this computer, are off by default, and never upload data. Automatic records omit names, chat, and exact positions; your typed notes retain what you write.
 
 This is a growing alpha. Automated checks and bounded client playtests are documented separately; full progression, long sessions, new visual combinations, and live multiplayer still need testing. All multiplayer participants need the same version. The creator has limited time to play, so reports about what happened and whether it was solo or multiplayer are especially welcome. We are equally happy to hear that a companion made you smile.
 

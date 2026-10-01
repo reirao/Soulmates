@@ -7,8 +7,10 @@ using BigInteger = System.Numerics.BigInteger;
 using Hjson;
 using Soulmates.Common;
 using Soulmates.Common.Dialogue;
+using Soulmates.Common.Feedback;
 using Soulmates.Content.Items;
 using Soulmates.Content.NPCs;
+using Soulmates.Content.Projectiles;
 using Soulmates.Common.UI;
 using Microsoft.Xna.Framework;
 using Terraria;
@@ -17,6 +19,7 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.GameContent.UI;
 using Terraria.DataStructures;
+using Terraria.GameInput;
 using Terraria.Net;
 using Terraria.Net.Sockets;
 
@@ -49,6 +52,19 @@ public sealed class CatchSourceSpy : GlobalItem
 	}
 }
 
+public sealed class RecoveryPacketSpy : ModSystem
+{
+	public static bool Watching;
+	public static readonly List<(int Type, int Recipient, int Player, float Amount, float Ticks)> Packets = [];
+	public override bool HijackSendData(int whoAmI, int msgType, int remoteClient, int ignoreClient,
+		NetworkText text, int number, float number2, float number3, float number4, int number5, int number6, int number7)
+	{
+		if (!Watching) return false;
+		Packets.Add((msgType, remoteClient, number, number2, number3));
+		return true;
+	}
+}
+
 public sealed class EngineChecks : ModSystem
 {
 	public override void PostAddRecipes()
@@ -64,12 +80,20 @@ public sealed class EngineChecks : ModSystem
 		}
 		try {
 			Mod soulmates = ModLoader.GetMod("Soulmates");
-			Check(soulmates.Version == new Version(0, 15, 0), "Wrong packaged version: " + soulmates.Version);
+			Check(soulmates.Version == new Version(0, 15, 1), "Wrong packaged version: " + soulmates.Version);
+			Check(!soulmates.FileExists("icon_small.rawimg") && !soulmates.FileExists("icon_small.png"),
+				"Optional mini-icon reintroduced the installed packer's exhausted-stream conversion");
+			byte[] icon = soulmates.GetFileBytes("icon.png");
+			Check(icon.Length > 24 && icon[0] == 137 && icon[1] == 80 && icon[2] == 78 && icon[3] == 71,
+				"Full mod icon was removed or is not a PNG");
 			var core = new Item(ModContent.ItemType<Soulcore>());
 			Check(!core.consumable, "Soulcore marked consumable");
 			Check(!ItemLoader.ConsumeItem(core, new Player()), "Inventory right-click consumes the reusable Soulcore");
 			CheckMenuInput(Check, core);
 			CheckWorldPickup(Check);
+			CheckRevisionBoundaries(Check, soulmates);
+			CheckRecoveryAndLifecycle(Check, soulmates);
+			CheckCombatAndSwitching(Check, soulmates);
 			CheckCargoGrowthAndWallet(Check);
 			CheckCargoLayout(Check);
 			CheckAttention(Check);
@@ -600,6 +624,372 @@ public sealed class EngineChecks : ModSystem
 		}
 	}
 
+	private static void CheckRevisionBoundaries(Action<bool, string> check, Mod mod)
+	{
+		const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+		Player oldPlayer = Main.player[0];
+		Item[] oldItems = Main.item;
+		int oldMode = Main.netMode;
+		try {
+			Main.player[0] = new Player { whoAmI = 0, active = true };
+			Main.item = new Item[oldItems.Length];
+			for (int i = 0; i < Main.item.Length; i++) Main.item[i] = new Item();
+			var npc = new NPC();
+			npc.SetDefaults(ModContent.NPCType<SoulboundCompanion>());
+			var companion = (SoulboundCompanion)npc.ModNPC;
+			Main.item[10] = new Item(ItemID.Gel, 7) { active = true, playerIndexTheItemIsReservedFor = 255 };
+			MethodInfo collect = typeof(SoulboundCompanion).GetMethod("StoreLooseItem", flags)!;
+			Main.netMode = NetmodeID.MultiplayerClient;
+			check((int)collect.Invoke(companion, new object[] { Main.item[10] })! == 0
+				&& Main.item[10].stack == 7 && companion.Profile.ItemCount(ItemID.Gel) == 0,
+				"Client mutated a world-to-cargo transaction");
+			Main.netMode = NetmodeID.SinglePlayer;
+			companion.Profile.ClearCargo();
+			companion.Profile.Store(new Item(ItemID.Gel, 50));
+			MethodInfo blocked = typeof(SoulboundCompanion).GetMethod("HasNearbyBlockedLoot", flags)!;
+			check((bool)blocked.Invoke(companion, null)!, "Full resource type was mistaken for an empty gathering area");
+			companion.Profile.ClearCargo();
+			check(!(bool)blocked.Invoke(companion, null)!, "Available cargo was reported as blocked");
+			companion.Profile.Store(new Item(ItemID.Gel, 50));
+			Main.item[10].playerIndexTheItemIsReservedFor = 1;
+			check(!(bool)blocked.Invoke(companion, null)!, "Another player's drop was reported as blocked cargo");
+			Main.item[10] = new Item(ItemID.Heart) { active = true, playerIndexTheItemIsReservedFor = 255 };
+			check(!(bool)blocked.Invoke(companion, null)!, "Recovery pickup was reported as blocked cargo");
+
+			foreach (int mode in new[] { NetmodeID.Server, NetmodeID.MultiplayerClient, NetmodeID.SinglePlayer }) {
+				Main.netMode = mode;
+				for (int type = -1; type <= 18; type++) {
+					using var stream = new MemoryStream(type < 0 ? Array.Empty<byte>() : new[] { (byte)type });
+					using var reader = new BinaryReader(stream);
+					bool rejectedSafely = true;
+					try { mod.HandlePacket(reader, 0); }
+					catch (Exception) { rejectedSafely = false; }
+					check(rejectedSafely, $"Truncated/wrong-direction packet escaped boundary: {mode}/{type}");
+				}
+			}
+			Main.netMode = NetmodeID.Server;
+			foreach (int sender in new[] { -1, Main.maxPlayers }) {
+				using var stream = new MemoryStream(new byte[] { 0 });
+				using var reader = new BinaryReader(stream);
+				mod.HandlePacket(reader, sender);
+				check(stream.Position == 0, "Invalid sender was parsed before rejection: " + sender);
+			}
+			foreach ((int mode, byte message) in new[] { (NetmodeID.Server, (byte)12), (NetmodeID.MultiplayerClient, (byte)7) }) {
+				Main.netMode = mode;
+				bool escaped = false;
+				using var stream = new MemoryStream(new byte[] { message, 255, 255, 255, 255, 15, 0, 0, 0, 0, 0, 0 });
+				using var reader = new BinaryReader(stream);
+				try { mod.HandlePacket(reader, 0); }
+				catch (IOException) { escaped = true; }
+				check(!escaped, "Negative encoded string length escaped packet validation: " + mode);
+			}
+		}
+		finally {
+			Main.player[0] = oldPlayer;
+			Main.item = oldItems;
+			Main.netMode = oldMode;
+		}
+
+		const BindingFlags statics = BindingFlags.Static | BindingFlags.NonPublic;
+		Type feedback = typeof(SoulmatesFeedbackSystem);
+		FieldInfo active = feedback.GetField("sessionActive", statics)!;
+		FieldInfo sequence = feedback.GetField("sequence", statics)!;
+		var lines = (List<string>)feedback.GetField("PendingLines", statics)!.GetValue(null)!;
+		var events = (Queue<string>)feedback.GetField("RecentEvents", statics)!.GetValue(null)!;
+		var metrics = (Dictionary<string, long>)feedback.GetField("Metrics", statics)!.GetValue(null)!;
+		bool oldActive = (bool)active.GetValue(null)!;
+		long oldSequence = (long)sequence.GetValue(null)!;
+		string[] oldLines = lines.ToArray(), oldEvents = events.ToArray();
+		var oldMetrics = new Dictionary<string, long>(metrics);
+		try {
+			lines.Clear(); events.Clear(); metrics.Clear();
+			active.SetValue(null, true);
+			SoulmatesFeedbackSystem.Record("revision_privacy", ("tile_x", 123), ("tile_y", 456), ("item_type", ItemID.Gel));
+			check(!lines[0].Contains("tile_x") && !lines[0].Contains("tile_y") && lines[0].Contains("item_type"),
+				"Field notes retained exact coordinates or dropped useful item metadata");
+			string note = new('n', 360);
+			SoulmatesFeedbackSystem.RecordNote(note);
+			check(lines[1].Contains(note), "Mailbox note was silently truncated below its 360-character input limit");
+		}
+		finally {
+			active.SetValue(null, oldActive); sequence.SetValue(null, oldSequence);
+			lines.Clear(); lines.AddRange(oldLines);
+			events.Clear(); foreach (string value in oldEvents) events.Enqueue(value);
+			metrics.Clear(); foreach (var pair in oldMetrics) metrics[pair.Key] = pair.Value;
+		}
+	}
+
+	private static void CheckRecoveryAndLifecycle(Action<bool, string> check, Mod mod)
+	{
+		const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+		Player oldPlayer = Main.player[0];
+		NPC[] oldNpcs = Main.npc;
+		CombatText[] oldCombatText = Main.combatText;
+		Item oldMouse = Main.mouseItem;
+		int oldMode = Main.netMode, oldMyPlayer = Main.myPlayer;
+		try {
+			Main.combatText = new CombatText[oldCombatText.Length];
+			for (int i = 0; i < Main.combatText.Length; i++) Main.combatText[i] = new CombatText { active = true };
+			Main.myPlayer = 0;
+			Main.netMode = NetmodeID.SinglePlayer;
+			var owner = new Player { whoAmI = 0, active = true, statLife = 40, statLifeMax2 = 100, statManaMax2 = 100 };
+			Main.player[0] = owner;
+			var npc = new NPC();
+			npc.SetDefaults(ModContent.NPCType<SoulboundCompanion>());
+			npc.whoAmI = 20;
+			var companion = (SoulboundCompanion)npc.ModNPC;
+			MethodInfo heal = typeof(SoulboundCompanion).GetMethod("HealOwner", flags)!;
+			check((int)heal.Invoke(companion, new object[] { 7 })! == 7 && owner.statLife == 47,
+				"Single-player healing did not apply exactly once");
+			check((int)heal.Invoke(companion, new object[] { 999 })! == 53 && owner.statLife == 100,
+				"Healing exceeded maximum life");
+			check((int)heal.Invoke(companion, new object[] { -7 })! == 0 && owner.statLife == 100,
+				"Negative healing changed life");
+			Main.netMode = NetmodeID.MultiplayerClient;
+			owner.statLife = 40;
+			check((int)heal.Invoke(companion, new object[] { 7 })! == 0 && owner.statLife == 40,
+				"Client independently repeated server healing");
+			Main.netMode = NetmodeID.Server;
+			RecoveryPacketSpy.Watching = true;
+			RecoveryPacketSpy.Packets.Clear();
+			check((int)heal.Invoke(companion, new object[] { 7 })! == 7 && owner.statLife == 47,
+				"Server healing did not update its authoritative copy");
+			check(RecoveryPacketSpy.Packets.Exists(packet => packet.Type == MessageID.SpiritHeal
+				&& packet.Player == 0 && packet.Amount == 7), "Server healing did not send a real life delta to the owner");
+			typeof(SoulboundCompanion).GetMethod("AddOwnerBuff", flags)!.Invoke(companion, new object[] { BuffID.PotionSickness, 3600 });
+			check(RecoveryPacketSpy.Packets.Exists(packet => packet.Type == MessageID.AddPlayerBuff
+				&& packet.Recipient == 0 && packet.Amount == BuffID.PotionSickness && packet.Ticks == 3600),
+				"Carried potion sickness was not sent to its owner");
+			RecoveryPacketSpy.Watching = false;
+
+			Main.netMode = NetmodeID.MultiplayerClient;
+			Main.player[0] = new Player { whoAmI = 0, active = true, statLife = 40, statLifeMax2 = 100, statManaMax2 = 100 };
+			owner = Main.player[0];
+			var native = new MessageBuffer { whoAmI = 256 };
+			native.ResetReader();
+			using (var stream = new MemoryStream(native.readBuffer)) {
+				using var writer = new BinaryWriter(stream);
+				writer.Write((byte)MessageID.SpiritHeal); writer.Write((byte)0); writer.Write((short)7);
+			}
+			native.GetData(0, 4, out _);
+			check(owner.statLife == 47, "Native SpiritHeal did not heal the owning client");
+			using (var stream = new MemoryStream(native.readBuffer)) {
+				using var writer = new BinaryWriter(stream);
+				writer.Write((byte)MessageID.AddPlayerBuff); writer.Write((byte)0); writer.Write((ushort)BuffID.PotionSickness); writer.Write(3600);
+			}
+			native.GetData(0, 8, out _);
+			check(owner.HasBuff(BuffID.PotionSickness), "Native carried-potion buff was not applied on the owning client");
+			MethodInfo threat = typeof(SoulboundCompanion).GetMethod("IsThreat", BindingFlags.Static | BindingFlags.NonPublic)!;
+			var enemy = new NPC { active = true, type = NPCID.BlueSlime, lifeMax = 25, chaseable = true };
+			check((bool)threat.Invoke(null, new object[] { enemy })!, "Normal hostile target was ignored");
+			enemy.dontTakeDamage = true;
+			check(!(bool)threat.Invoke(null, new object[] { enemy })!, "Invulnerable enemy monopolized defense");
+			Type messageType = mod.GetType().GetNestedType("MessageType", BindingFlags.NonPublic)!;
+			byte manaType = Convert.ToByte(Enum.Parse(messageType, "ManaRecovery"));
+			foreach (int amount in new[] { 30, -1, int.MaxValue }) {
+				int before = owner.statMana;
+				using var stream = new MemoryStream();
+				using (var writer = new BinaryWriter(stream, Encoding.UTF8, true)) { writer.Write(manaType); writer.Write(amount); }
+				stream.Position = 0;
+				using var reader = new BinaryReader(stream);
+				mod.HandlePacket(reader, 256);
+				check(owner.statMana == (amount > 0 ? Math.Min(100, before + (long)amount) : before),
+					"Owner mana recovery failed or exceeded its cap: " + amount);
+			}
+
+			Main.netMode = NetmodeID.SinglePlayer;
+			Main.npc = new NPC[oldNpcs.Length];
+			for (int i = 0; i < Main.npc.Length; i++) Main.npc[i] = new NPC { whoAmI = i };
+			Main.npc[20] = npc;
+			npc.active = true;
+			var sigilItem = new Item(ModContent.ItemType<SoulboundSigil>());
+			var sigil = (SoulboundSigil)sigilItem.ModItem;
+			sigil.Profile = companion.Profile.Clone();
+			Main.mouseItem = sigilItem;
+			check(ReferenceEquals(companion.FindBoundSigil(), sigil), "Rearranging a sigil on the cursor broke its binding");
+			companion.Profile.Store(new Item(ItemID.Wood, 7));
+			companion.SyncProfileToBoundSigil();
+			check(sigil.Profile.ItemCount(ItemID.Wood) == 7, "Cursor-held sigil did not retain cargo");
+			var prompt = ModContent.GetInstance<InitiativePromptSystem>();
+			typeof(SoulboundCompanion).GetField("pendingAutonomyActivity", flags)!.SetValue(companion,
+				Enum.ToObject(typeof(SoulboundCompanion).GetField("pendingAutonomyActivity", flags)!.FieldType, 1));
+			typeof(InitiativePromptSystem).GetField("replyWaitTicks", flags)!.SetValue(prompt, 600);
+			typeof(InitiativePromptSystem).GetField("replyProfileId", flags)!.SetValue(prompt, companion.Profile.Id);
+			typeof(InitiativePromptSystem).GetField("replyKind", flags)!.SetValue(prompt, CompanionInitiativeKind.Gathering);
+			MethodInfo awaiting = typeof(InitiativePromptSystem).GetMethod("IsAwaitingReply", flags)!;
+			check((bool)awaiting.Invoke(prompt, new object[] { companion })!, "Answered prompt was allowed to reopen before server acknowledgement");
+			typeof(SoulboundCompanion).GetField("pendingAutonomyActivity", flags)!.SetValue(companion,
+				Enum.ToObject(typeof(SoulboundCompanion).GetField("pendingAutonomyActivity", flags)!.FieldType, 0));
+			check(!(bool)awaiting.Invoke(prompt, new object[] { companion })!, "Acknowledged prompt retained its waiting state");
+			prompt.OnWorldUnload();
+			owner.inventory[0] = sigilItem;
+			Main.mouseItem = new Item();
+			companion.Profile.MiningInsight = CompanionProfile.MiningUnlockInsight - 1;
+			companion.Profile.Experience = 0;
+			companion.ObserveOwnerActivity(LearnedBehavior.Mining);
+			check(companion.Profile.Experience == 5 && sigil.Profile.Experience == 5,
+				"Perk-unlock XP was not persisted in the same transaction");
+			owner.inventory[0] = new Item();
+			companion.AI();
+			check(!npc.active && companion.CurrentJob == CompanionJob.None,
+				"Companion kept modifying the world without a carried sigil");
+			for (int i = 0; i < Main.maxNPCs; i++) Main.npc[i] = new NPC { whoAmI = i, active = true, type = NPCID.BlueSlime };
+			bool summoned = (bool)typeof(SoulboundSigil).GetMethod("SummonCompanion", flags)!.Invoke(sigil, new object[] { owner })!;
+			check(!summoned && owner.GetModPlayer<SoulmatesPlayer>().ActiveCompanionWhoAmI == -1,
+				"Full NPC pool reported a successful summon or left a stale active companion");
+		}
+		finally {
+			RecoveryPacketSpy.Watching = false;
+			RecoveryPacketSpy.Packets.Clear();
+			Main.player[0] = oldPlayer; Main.npc = oldNpcs; Main.mouseItem = oldMouse;
+			Main.combatText = oldCombatText;
+			Main.netMode = oldMode; Main.myPlayer = oldMyPlayer;
+		}
+	}
+
+	private static void CheckCombatAndSwitching(Action<bool, string> check, Mod mod)
+	{
+		const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+		Type type = typeof(SoulboundCompanion);
+		Player oldPlayer = Main.player[0];
+		NPC[] oldNpcs = Main.npc;
+		Projectile[] oldProjectiles = Main.projectile;
+		int[,] oldProjectileIdentity = Main.projectileIdentity;
+		int oldMode = Main.netMode, oldMyPlayer = Main.myPlayer;
+		try {
+			Main.netMode = NetmodeID.SinglePlayer;
+			Main.myPlayer = 0;
+			var owner = new Player { whoAmI = 0, active = true, statLife = 100, statLifeMax2 = 100 };
+			Main.player[0] = owner;
+			owner.Center = new Vector2(1400f, 900f);
+			Main.npc = new NPC[oldNpcs.Length];
+			for (int i = 0; i < Main.npc.Length; i++) Main.npc[i] = new NPC { whoAmI = i };
+			Main.projectile = new Projectile[oldProjectiles.Length];
+			Main.projectileIdentity = (int[,])oldProjectileIdentity.Clone();
+			for (int i = 0; i < Main.projectile.Length; i++) Main.projectile[i] = new Projectile { whoAmI = i };
+			var npc = new NPC { whoAmI = 20 };
+			npc.SetDefaults(ModContent.NPCType<SoulboundCompanion>());
+			npc.active = true;
+			npc.Center = new Vector2(400f, 300f);
+			Main.npc[20] = npc;
+			var companion = (SoulboundCompanion)npc.ModNPC;
+			companion.Profile.Talent = CompanionTalent.Guardian;
+			var item = new Item(ModContent.ItemType<SoulboundSigil>());
+			((SoulboundSigil)item.ModItem).Profile = companion.Profile.Clone();
+			owner.inventory[0] = item;
+			var enemy = new NPC { whoAmI = 21 };
+			enemy.SetDefaults(NPCID.BlueSlime);
+			enemy.active = true;
+			enemy.target = 0;
+			enemy.Center = npc.Center + new Vector2(90f, 0f);
+			Main.npc[21] = enemy;
+			companion.SetCommand(stay: true);
+			Vector2 anchor = (Vector2)type.GetField("idleTarget", flags)!.GetValue(companion)!;
+			bool Defend() => (bool)type.GetMethod("UpdateTalentBehavior", flags)!.Invoke(companion, null)!;
+			int CountBolts() {
+				int count = 0;
+				foreach (Projectile p in Main.projectile)
+					if (p.active && p.type == ModContent.ProjectileType<SoulBolt>()) count++;
+				return count;
+			}
+			check(Defend() && companion.IsDefending, "Stay did not defend its own anchor away from the owner");
+			check(CountBolts() == 1, "Companion did not spawn an actual SoulBolt");
+			Projectile? bolt = Array.Find(Main.projectile, p => p.active && p.type == ModContent.ProjectileType<SoulBolt>());
+			check(bolt is not null && Vector2.DistanceSquared(bolt.Center, npc.Center) <= 1f
+				&& bolt.owner == 0 && bolt.ai[0] == 21 && bolt.ai[1] == 20 && bolt.npcProj,
+				$"Attack origin, target, or companion ownership was incorrect: center={bolt?.Center}/{npc.Center}, owner={bolt?.owner}, ai={bolt?.ai[0]}/{bolt?.ai[1]}, npcProj={bolt?.npcProj}");
+			check(bolt is not null && bolt.damage == 8 && bolt.friendly && !bolt.hostile,
+				"Base guardian attack damage or friendly state changed");
+			check((Vector2)type.GetField("idleTarget", flags)!.GetValue(companion)! == anchor,
+				"Combat moved the saved Stay anchor");
+			Defend();
+			check(CountBolts() == 1, "Attack cooldown allowed a repeated shot immediately");
+			type.GetField("attackCooldown", flags)!.SetValue(companion, 0);
+			Defend();
+			check(CountBolts() == 2, "Companion stopped attacking after its first shot");
+			npc.velocity = new Vector2(-5f, 0f);
+			type.GetMethod("UpdateFacing", flags)!.Invoke(companion, null);
+			check(npc.spriteDirection == 1, "Companion faced away from a right-hand enemy while retreating");
+			enemy.Center = anchor - new Vector2(90f, 0f);
+			npc.velocity = new Vector2(5f, 0f);
+			type.GetMethod("UpdateFacing", flags)!.Invoke(companion, null);
+			check(npc.spriteDirection == -1, "Companion faced away from a left-hand enemy while retreating");
+			Main.netMode = NetmodeID.MultiplayerClient;
+			type.GetField("attackCooldown", flags)!.SetValue(companion, 0);
+			check(Defend() && CountBolts() == 2, "Client duplicated an authoritative companion attack");
+			Main.netMode = NetmodeID.Server;
+			Main.myPlayer = 255;
+			RecoveryPacketSpy.Watching = true;
+			Defend();
+			check(CountBolts() == 3 && Array.Exists(Main.projectile,
+				p => p.active && p.type == ModContent.ProjectileType<SoulBolt>() && p.owner == 255 && p.ai[1] == 20),
+				"Server did not create its own companion attack");
+			Main.netMode = NetmodeID.SinglePlayer;
+			Main.myPlayer = 0;
+			RecoveryPacketSpy.Watching = false;
+			enemy.dontTakeDamage = true;
+			check(!Defend() && !companion.IsDefending, "Invulnerable target was not released");
+			enemy.dontTakeDamage = false;
+			enemy.Center = owner.Center;
+			check(!Defend(), "Stay chased an enemy at the distant player");
+			companion.SetCommand(stay: false);
+			check(Defend(), "Follow did not switch defense back to the owner");
+			Main.netMode = NetmodeID.Server;
+			Main.myPlayer = 255;
+			MethodInfo requestCompanion = mod.GetType().GetMethod("FindRequestCompanion", BindingFlags.Static | BindingFlags.NonPublic)!;
+			check(ReferenceEquals(requestCompanion.Invoke(null, new object[] { owner }), companion),
+				"Valid carried companion was rejected by the request boundary");
+			owner.inventory[0] = new Item();
+			bool autonomyBefore = companion.Profile.AutonomyEnabled;
+			byte quickAction = Convert.ToByte(Enum.Parse(mod.GetType().GetNestedType("MessageType", BindingFlags.NonPublic)!, "QuickActionRequest"));
+			using (var stream = new MemoryStream(new byte[] { quickAction, (byte)CompanionQuickAction.ToggleAutonomy })) {
+				using var reader = new BinaryReader(stream);
+				mod.HandlePacket(reader, 0);
+			}
+			check(companion.Profile.AutonomyEnabled == autonomyBefore,
+				"Queued request changed a companion after its Sigil left the inventory");
+			owner.inventory[0] = item;
+			owner.dead = true;
+			check(requestCompanion.Invoke(null, new object[] { owner }) is null,
+				"Dead owner retained access to mutating companion requests");
+			owner.dead = false;
+			Main.netMode = NetmodeID.SinglePlayer;
+			Main.myPlayer = 0;
+
+			var other = new NPC { whoAmI = 22 };
+			other.SetDefaults(ModContent.NPCType<SoulboundCompanion>());
+			other.active = true;
+			Main.npc[22] = other;
+			var duplicate = (SoulboundCompanion)other.ModNPC;
+			int unrelated = Projectile.NewProjectile(other.GetSource_FromAI(), other.Center, Vector2.UnitX,
+				ModContent.ProjectileType<SoulBolt>(), 8, 1f, 0, 21, 22);
+			owner.GetModPlayer<SoulmatesPlayer>().ActiveCompanionWhoAmI = 20;
+			check(!(bool)type.GetMethod("ClaimActiveSlot", flags)!.Invoke(duplicate, new object[] { owner })!
+				&& !other.active && npc.active && owner.GetModPlayer<SoulmatesPlayer>().ActiveCompanionWhoAmI == 20,
+				"Duplicate retirement removed the keeper or corrupted its active slot");
+			check(unrelated < Main.maxProjectiles && !Main.projectile[unrelated].active && CountBolts() == 3,
+				"Duplicate retirement removed another companion's projectiles");
+			unrelated = Projectile.NewProjectile(other.GetSource_FromAI(), other.Center, Vector2.UnitX,
+				ModContent.ProjectileType<SoulBolt>(), 8, 1f, 0, 21, 22);
+			companion.Recall();
+			string survivors = string.Join(", ", Array.ConvertAll(Array.FindAll(Main.projectile,
+				p => p.active && p.type == ModContent.ProjectileType<SoulBolt>()),
+				p => $"{p.whoAmI}:owner{p.owner}/companion{p.ai[1]}"));
+			check(!npc.active && !companion.IsDefending && companion.CurrentJob == CompanionJob.None
+				&& owner.GetModPlayer<SoulmatesPlayer>().ActiveCompanionWhoAmI == -1,
+				"Recall retained combat, work, or the active companion slot");
+			check(CountBolts() == 1 && unrelated < Main.maxProjectiles && Main.projectile[unrelated].active,
+				$"Recall did not remove exactly its own SoulBolts: count={CountBolts()}, unrelated={unrelated}, active={Main.projectile[unrelated].active}, survivors={survivors}");
+		}
+		finally {
+			RecoveryPacketSpy.Watching = false;
+			RecoveryPacketSpy.Packets.Clear();
+			Main.player[0] = oldPlayer; Main.npc = oldNpcs; Main.projectile = oldProjectiles;
+			Main.projectileIdentity = oldProjectileIdentity;
+			Main.netMode = oldMode; Main.myPlayer = oldMyPlayer;
+		}
+	}
+
 	private static void FillEquipment(CompanionProfile profile)
 	{
 		while (profile.PackLoad < profile.PackCapacity) {
@@ -880,6 +1270,15 @@ public sealed class EngineChecks : ModSystem
 					BindingFlags.Static | BindingFlags.NonPublic)!;
 				check(!(bool)speech.GetValue(null)!, "Speech covers a vanilla NPC conversation");
 				player.SetTalkNPC(-1);
+				foreach (string fieldName in new[] { "drawingPlayerChat", "editSign", "editChest" }) {
+					FieldInfo typing = typeof(Main).GetField(fieldName)!;
+					typing.SetValue(null, true);
+					check(!CanPrompt(), "Prompt interrupts text entry: " + fieldName);
+					typing.SetValue(null, false);
+				}
+				PlayerInput.WritingText = true;
+				check(!CanPrompt(), "Prompt interrupts a text-entry control");
+				PlayerInput.WritingText = false;
 				Main.playerInventory = true;
 				check(!CanPrompt(), "Prompt interrupts inventory");
 				check(!(bool)speech.GetValue(null)!, "Speech covers inventory");

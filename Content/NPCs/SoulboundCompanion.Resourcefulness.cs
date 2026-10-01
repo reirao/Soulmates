@@ -224,19 +224,22 @@ public sealed partial class SoulboundCompanion
 		switch (kind) {
 			case PackUseKind.Healing:
 				int healed = Math.Min(Owner.statLifeMax2 - Owner.statLife, Owner.GetHealLife(used, true));
-				Owner.Heal(healed);
-				Owner.AddBuff(BuffID.PotionSickness, Item.potionDelay > 0 ? Item.potionDelay : 3600);
+				HealOwner(healed);
+				AddOwnerBuff(BuffID.PotionSickness, Item.potionDelay > 0 ? Item.potionDelay : 3600);
 				ShowNativeEmote(EmoteID.ItemLifePotion, 100);
 				break;
 			case PackUseKind.Mana:
-				int restored = Math.Min(Owner.statManaMax2 - Owner.statMana, Owner.GetHealMana(used, true));
+				int restored = Math.Clamp(Owner.GetHealMana(used, true), 0, Math.Max(0, Owner.statManaMax2 - Owner.statMana));
 				Owner.statMana += restored;
-				Owner.ManaEffect(restored);
-				Owner.AddBuff(BuffID.ManaSickness, 300);
+				if (Main.netMode == NetmodeID.Server)
+					global::Soulmates.Soulmates.SendManaRecovery(Owner, restored);
+				else
+					Owner.ManaEffect(restored);
+				AddOwnerBuff(BuffID.ManaSickness, 300);
 				ShowNativeEmote(EmoteID.ItemManaPotion, 100);
 				break;
 			case PackUseKind.Food:
-				Owner.AddBuff(used.buffType, used.buffTime);
+				AddOwnerBuff(used.buffType, used.buffTime);
 				ShowNativeEmote(EmoteID.ItemSoup, 100);
 				break;
 		}
@@ -253,6 +256,13 @@ public sealed partial class SoulboundCompanion
 		if (Main.netMode == NetmodeID.Server)
 			NetMessage.SendData(MessageID.PlayerLifeMana, -1, -1, null, Owner.whoAmI);
 		return true;
+	}
+
+	private void AddOwnerBuff(int type, int ticks)
+	{
+		Owner.AddBuff(type, ticks);
+		if (Main.netMode == NetmodeID.Server)
+			NetMessage.SendData(MessageID.AddPlayerBuff, Owner.whoAmI, -1, null, Owner.whoAmI, type, ticks);
 	}
 
 	private bool HasWellFedBuff()

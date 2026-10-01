@@ -155,8 +155,9 @@ public sealed partial class SoulboundCompanion
 			return;
 
 		int amount = Math.Min(missingLife, 5 + Profile.RankIndex * 2);
-		Owner.statLife += amount;
-		Owner.HealEffect(amount, broadcast: true);
+		amount = HealOwner(amount);
+		if (amount == 0)
+			return;
 		Profile.Energy = Math.Max(0, Profile.Energy - 4);
 		Profile.Remember(CompanionMemoryKind.HealerAid, amount);
 		SoulmatesFeedbackSystem.Record("companion_heal", ("amount", amount),
@@ -164,6 +165,7 @@ public sealed partial class SoulboundCompanion
 		bool leveledUp = Profile.GainExperience(2, out int newLevel);
 		healingCooldown = Math.Max(360, 660 - Profile.RankIndex * 60);
 		SyncProfileToBoundSigil();
+		NPC.netUpdate = true;
 		for (int i = 0; i < 12; i++) {
 			Dust dust = Dust.NewDustPerfect(Owner.Center + Main.rand.NextVector2Circular(26f, 38f), DustID.HealingPlus,
 				Main.rand.NextVector2Circular(0.7f, 0.7f), 80, Profile.EssenceColor, 0.9f);
@@ -176,6 +178,20 @@ public sealed partial class SoulboundCompanion
 			global::Soulmates.Soulmates.SendProfileUpdate(Owner, this, message);
 		else
 			Main.NewText(message, Profile.EssenceColor);
+	}
+
+	private int HealOwner(int amount)
+	{
+		if (Main.netMode == NetmodeID.MultiplayerClient || Owner.dead)
+			return 0;
+		amount = Math.Clamp(amount, 0, Math.Min(short.MaxValue, Math.Max(0, Owner.statLifeMax2 - Owner.statLife)));
+		if (amount == 0)
+			return 0;
+		Owner.Heal(amount);
+		// Life-state packets ignore the owning client; SpiritHeal applies a real delta there.
+		if (Main.netMode == NetmodeID.Server)
+			NetMessage.SendData(MessageID.SpiritHeal, -1, -1, null, Owner.whoAmI, amount);
+		return amount;
 	}
 
 	private NPC? FindNearestThreat(Vector2 anchor, float range)
@@ -208,7 +224,7 @@ public sealed partial class SoulboundCompanion
 			return false;
 		if (candidate.type == NPCID.TargetDummy)
 			return true;
-		return candidate.chaseable && !candidate.immortal;
+		return candidate.chaseable && !candidate.immortal && !candidate.dontTakeDamage;
 	}
 
 }

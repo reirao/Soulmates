@@ -137,10 +137,13 @@ public sealed partial class SoulboundCompanion
 
 	private bool CanCollectLooseItem(Item item) => AvailableCarryAmount(item) > 0;
 
+	private bool IsEligibleLooseItem(Item item) => item.active && !item.IsAir && item.stack > 0
+		&& CanCarry(item) && !IsRecoveryPickup(item)
+		&& (item.playerIndexTheItemIsReservedFor == 255 || item.playerIndexTheItemIsReservedFor == Owner.whoAmI);
+
 	private int AvailableCarryAmount(Item item)
 	{
-		if (!item.active || item.IsAir || item.stack <= 0 || !CanCarry(item) || IsRecoveryPickup(item)
-			|| item.playerIndexTheItemIsReservedFor != 255 && item.playerIndexTheItemIsReservedFor != Owner.whoAmI)
+		if (!IsEligibleLooseItem(item))
 			return 0;
 
 		return Profile.GetStorableAmount(item);
@@ -176,12 +179,8 @@ public sealed partial class SoulboundCompanion
 
 	public void SyncProfileToBoundSigil()
 	{
-		foreach (Item item in Owner.inventory) {
-			if (item.ModItem is SoulboundSigil sigil && sigil.Profile.Id == Profile.Id) {
-				sigil.Profile = Profile.Clone();
-				return;
-			}
-		}
+		if (FindBoundSigil() is { } sigil)
+			sigil.Profile = Profile.Clone();
 	}
 
 	private void SyncPackState()
@@ -194,10 +193,15 @@ public sealed partial class SoulboundCompanion
 
 	public SoulboundSigil? FindBoundSigil()
 	{
-		foreach (Item item in Owner.inventory) {
+		if (!TryGetOwner(out Player owner))
+			return null;
+		foreach (Item item in owner.inventory) {
 			if (item.ModItem is SoulboundSigil sigil && sigil.Profile.Id == Profile.Id)
 				return sigil;
 		}
+		if (Main.netMode == NetmodeID.SinglePlayer && owner.whoAmI == Main.myPlayer
+			&& Main.mouseItem.ModItem is SoulboundSigil held && held.Profile.Id == Profile.Id)
+			return held;
 		return null;
 	}
 

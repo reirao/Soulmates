@@ -1,12 +1,12 @@
 [h1]Soulmates - AETHER-EGG Alpha[/h1]
 Erschaffe einen Companion mit Seele. Der wiederverwendbare Soulcore öffnet einen Editor in Terraria; jedes Soulbound Sigil bewahrt Namen, Aussehen, Persönlichkeit, Fortschritt, Erinnerungen und Fracht.
 
-[b]Version: 0.15.0 - Familiar Faces[/b]
+[b]Version: 0.15.1 - Careful Company[/b]
 [b]Sprachen:[/b] Englisch und Deutsch, passend zur Terraria-Sprache.
 [url=https://github.com/reirao/Soulmates]Quellcode und Versionshinweise[/url]
 
 [h2]Zusammen Anfangen[/h2]
-Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils. Wähle Namen, Starttalent, Persönlichkeit, Farben, Aura und eine animierte Soulkin-, Hasen-, Schleim-, Vogel- oder Eichhörnchen-Muse. Binde ein Sigil und beschwöre. Pro Spieler ist ein Companion aktiv; ein Sigil-Wechsel beendet den vorherigen Companion und seine Effekte. Bestehende Sigils bleiben kompatibel.
+Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils. Wähle Namen, Starttalent, Persönlichkeit, Farben, Aura und eine animierte Soulkin-, Hasen-, Schleim-, Vogel- oder Eichhörnchen-Muse. Binde ein Sigil und beschwöre. Pro Spieler ist ein Companion aktiv; ein Sigil-Wechsel beendet den vorherigen Companion und seine Effekte. Behalte das aktive Sigil im Inventar; beim Herausnehmen wird sie zurückgerufen. Bestehende Sigils bleiben kompatibel.
 
 [h2]Kleine Räder, Direkte Entscheidungen[/h2]
 [list]
@@ -45,7 +45,7 @@ Erfahrung unterstützt 20 Level und fünf Bindungsränge. Ausrüstung behält 8 
 Fracht bietet native Item-Symbole, Seiten, Tooltips, Stapel- oder Einzelentnahme und Münzumrechnung. Was nicht ins Spielerinventar passt, bleibt beim Companion. Bestehende Sigils bewahren Fracht und geben überschüssige Level-Reserven beim Beschwören sicher zurück.
 
 [h2]Feldnotizen und Feedback[/h2]
-Der AETHER-Briefkasten öffnet über das Papierflieger-Symbol oder /soulfeedback. Optionale Feldnotizen und kontextuelle Bugberichte bleiben auf diesem Computer, sind standardmäßig aus und laden nichts hoch.
+Der AETHER-Briefkasten öffnet über das Papierflieger-Symbol oder /soulfeedback. Optionale Feldnotizen und kontextuelle Bugberichte bleiben auf diesem Computer, sind standardmäßig aus und laden nichts hoch. Automatische Einträge enthalten keine Namen, Chats oder exakten Positionen; selbst geschriebene Notizen behalten deinen Text.
 
 Dies ist eine gewachsene Alpha. Automatische Prüfungen und begrenzte Client-Spieltests sind getrennt dokumentiert; vollständiger Fortschritt, lange Sitzungen, neue visuelle Kombinationen und Live-Multiplayer brauchen weitere Tests. Alle Mitspieler benötigen dieselbe Version. Der Entwickler kann nur wenig spielen. Hinweise mit dem beobachteten Verhalten und Solo-/Multiplayer-Angabe helfen deshalb besonders. Und wir freuen uns genauso, wenn ein Companion jemanden zum Lächeln bringt.
 

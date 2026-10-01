@@ -245,7 +245,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 
 	public override bool PreHoverInteract(bool mouseIntersects)
 	{
-		if (Main.playerInventory || SoulmatesUIInput.IsCaptured)
+		if (Main.playerInventory || SoulmatesUIInput.IsTyping || SoulmatesUIInput.IsCaptured)
 			return false;
 		if (mouseIntersects && Main.mouseRight && Main.mouseRightRelease
 			&& TryGetOwner(out Player owner) && owner.whoAmI == Main.myPlayer) {
@@ -274,6 +274,10 @@ public sealed partial class SoulboundCompanion : ModNPC
 		if (Main.netMode != NetmodeID.MultiplayerClient) {
 			if (!ClaimActiveSlot(owner))
 				return;
+			if (FindBoundSigil() is null) {
+				Recall();
+				return;
+			}
 			ReconcilePackOnce();
 		}
 
