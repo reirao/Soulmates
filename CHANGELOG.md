@@ -1,5 +1,62 @@
 # Soulmates Development History
 
+## Soulmates 0.17.1 - Shared Discoveries
+
+- Give the existing Look/pointing interaction a short personal response shaped by personality, saved voice, mood and energy. Preserve the concrete target/capacity/mining facts; Direct stays concise.
+- Describe coins as uncapped wallet contents rather than finite item-cargo capacity. Add complete English and German responses.
+- Inspection changes no assignments, terrain, cargo, permissions or progression. Existing native player-emote reactions remain separate and keep their existing reward cooldown.
+- Include all deliberate mouse-mode work from the unpublished 0.17.0 candidate in this growing-alpha release. Keep existing Sigils compatible and update the current release text without repeating historical logs.
+- Pass 10,787 native-engine assertions and 3,337 static/localization/layout assertions. The creator played the isolated 0.17.1 build and approved releasing it; full progression, long sessions and live multiplayer remain test work.
+
+## Soulmates 0.17.0 - Deliberate Mouse Modes (Local Candidate)
+
+- Make Terraria the default world right-click mode. Stop opening a mod wheel on every empty-air click.
+- Add deliberate Me and Soulmate mouse modes with native-symbol selectors in the Soulwheel and a small cursor indicator while active. Right-click in an open wheel cycles modes; X or Escape returns to native use.
+- Keep character-bound wheels separate from context-sensitive world targets. Me offers pointing and native player emotes; Soulmate offers only applicable Look, Gather, Mine and Forest actions, with the existing full tools still accessible.
+- Snapshot the original target before moving onto menu buttons. Reject changed tiles, vanished drops and reused item/NPC slots; recheck range, mining protection and cargo eligibility before sending an order.
+- Consolidate companion and player right-click routing around raw, view-transformed mouse coordinates. Preserve inventory, typing, NPC dialogue and cursor-held-item priority, plus the menu-closing-click release latch.
+- Keep existing Sigils and companion preferences compatible. Mouse mode is local session state, not a saved terrain-edit permission. Installation, graphical playtesting and publication are separate steps.
+- Pass 10,686 isolated native-engine assertions and 3,294 static/localization/layout assertions. Compile and package without errors or warnings; see [the input revision report](tests/INPUT-MODES-2026-10-02.md) for the remaining real-client and live multiplayer scope.
+
+## Soulmates 0.16.1 - Here For You (Uploaded, Workshop Review Pending)
+
+- Prioritize helpful work before critter visits; shorten idle decisions and add approved close-range pickup through the existing world-to-cargo conservation transaction.
+- Prioritize nearby coins without capping the wallet. Preserve native reservations, no-grab delay, shared capacity, Stay, disabled autonomy and server authority.
+- Add personal Company and Wallet questions with four native-symbol answers. Save voice and explicit gathering preferences; change mood and bond without granting unrelated mining or forestry permissions. Deferral is neutral.
+- Add ten personality-specific wallet-offer lines. Accept, save together, respond playfully or defer; use native inventory insertion and debit only the actually delivered coins. Keep full-inventory or very large-wallet remainders safe.
+- Validate responses by bound profile, owner and unique question token. Reject stale/replayed answers and clear questions when context changes. Preserve personality chatter alongside the chosen voice.
+- Reject obstructed, sloped, half-block and actuated planting sites; reserve growing room and verify one native sapling consumes exactly one acorn.
+- Record opt-in local question/answer/gift outcomes and preference context. Record explicit Pet Collect rejection when no net is carried.
+- Prepare a separate 0.16.1 candidate for another real playtest. No running installation, Steam upload or GitHub publication is changed by this revision; see [the test scope](tests/REVISION-2026-10-02.md).
+- Follow-up: the tested package was installed locally, and the creator uploaded 0.16.1 to Steam on October 2 at 11:29 CEST. The Workshop reports moderator approval pending. Current descriptions use Soulmates as the mod name; AETHER remains the companion name. This text update does not create a GitHub release or add a gameplay test claim.
+
+## Soulmates 0.16.0 - Little Company (Prepared, Not Published)
+
+- Add a native-symbol Critters branch to the Companion Soulwheel with Watch, Company, Pet Collect and Off. Save the choice on each Sigil; existing Sigils default to non-capturing Watch.
+- Let every companion use a carried catching tool for nearby common natural critters through native CheckCatchNPC and the existing exact-drop cargo transaction. Preserve lava-net requirements, mod catch hooks and capacity limits; exclude gold, statue-spawned and player-released critters.
+- Invite existing native bunnies, squirrels, birds, butterflies, fireflies and lightning bugs as temporary company. Ordinary companions invite one; AETHER invites up to three. No NPCs or items are created by friendship.
+- Guide those real NPCs gently after their native AI, retaining health, collision, catchability, drops and animation. Do not teleport stragglers through terrain. Release company on Off, recall, lost binding, disabled autonomy or excessive distance; synchronize by companion identity rather than NPC slot alone.
+- Add quiet personality-specific observations and native emotes. Work, combat, Stay, social visits and initiative questions take precedence. Explicit Pet Collect replaces implicit idle forestry catches; AETHER's item-backed cosmetic insect flock is unchanged.
+- Vanilla vanity-pet items remain player-bound. This patch does not add companion pet-buff slots, permanent saved critter pets, a combat swarm or living tree pruning.
+- Correct the latest 0.15.3 Steam changelog in place and preserve historical entries. New Critter work is a separate local candidate, not part of the uploaded hotfix.
+- Pass 10,336 isolated engine assertions and 2,463 static/math assertions with zero compiler errors/warnings. New graphical and live multiplayer playtests remain outstanding; see [the candidate scope](releases/0.16.0.md).
+
+## Soulmates 0.15.3 - Bound Delivery
+
+- Fix successful Host & Play creation leaving the new Soulbound Sigil invisible in the owner's inventory. Native unsolicited SyncEquipment updates are ignored by ordinary owning clients.
+- Deliver only transaction-changed inventory slots through an owner-only mod response using native ItemIO serialization; update the client inventory cache and acknowledge the affected slots normally.
+- Reuse that path for cargo deposits, withdrawals, coin transfers, legacy cargo returns, and recall. Preserve unrelated slots and the cursor-held item; parse complete bounded updates before applying them.
+- Record local multiplayer creation results and add an actual serialized server-to-client creation counterexample. This failure was missed by the previous single-player graphical pass.
+- Preserve item favorites and verify owner delivery, resource/coin withdrawals, native item save/load and malformed-update atomicity. The 0.15.2 baseline fails five creation checks; 0.15.3 passes 10,118 engine assertions. See [the hotfix report](tests/HOTFIX-2026-10-02.md) for scope and remaining live-test gaps.
+
+## Soulmates 0.15.2 - Clear Targets (Unreleased)
+
+- Fix pointed Mine, Gather, Look, and Forest targets drifting from the cursor in scaled UI hooks. Convert raw input through the inverse world view, including zoom.
+- Open cargo on its first populated compartment and show compartment counts. Keep storage-tab hover labels in the cargo header rather than over the first item slots.
+- Preserve the existing pickup transaction, resource limits, and unlimited wallet; this patch does not replace the collection logic.
+- Notice nearby residents' native emotes even outside an existing visit. Queue a short personality-aware reply, retain relationship memory, and respect social cooldowns, Stay, assigned work, defense, and server authority.
+- Add targeted coordinate round-trip, initial cargo-tab, and resident-emote regressions. Real Classic-client evidence and remaining gaps are recorded in [the playtest report](tests/PLAYTEST-2026-10-02.md); no publication is implied.
+
 ## Soulmates 0.15.1 - Careful Company
 
 - Keep wheel shortcuts, companion clicks, and automatic questions out of native chat/sign/chest text entry and existing Soulmates interfaces.

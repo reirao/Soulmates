@@ -34,12 +34,16 @@ public sealed class InitiativePromptSystem : ModSystem
 	private Guid replyProfileId;
 	private CompanionInitiativeKind replyKind;
 	private int replyWaitTicks;
+	private bool conversation;
+	private Guid openQuestionId;
+	private Guid replyQuestionId;
 
 	public bool IsOpen => open;
 
 	public void Open(SoulboundCompanion boundCompanion)
 	{
-		if (!SoulmatesUIInput.CanPresentInitiative || !boundCompanion.HasPendingInitiative || boundCompanion.IsDefending
+		bool personal = !boundCompanion.HasPendingInitiative && boundCompanion.HasPendingQuestion;
+		if (!SoulmatesUIInput.CanPresentInitiative || !boundCompanion.HasPendingInitiative && !personal || boundCompanion.IsDefending
 			|| IsAwaitingReply(boundCompanion))
 			return;
 
@@ -49,13 +53,16 @@ public sealed class InitiativePromptSystem : ModSystem
 		ModContent.GetInstance<SoulCreatorSystem>().Close();
 		ModContent.GetInstance<DirectOrderSystem>().Cancel();
 		companion = boundCompanion;
+		conversation = personal;
+		openQuestionId = personal ? boundCompanion.QuestionId : Guid.Empty;
 		center = ClampCenter(SoulmatesUISpace.FromWorld(Main.LocalPlayer.Center));
 		hoverIndex = -1;
 		leftMouseDown = Main.mouseLeft;
 		rightMouseDown = Main.mouseRight;
 		openTicks = 0;
 		open = true;
-		SoulmatesFeedbackSystem.Record("initiative_prompt", ("action", boundCompanion.PendingInitiativeKind.ToString()));
+		SoulmatesFeedbackSystem.Record(personal ? "conversation_prompt" : "initiative_prompt",
+			("action", personal ? boundCompanion.PendingQuestion.ToString() : boundCompanion.PendingInitiativeKind.ToString()));
 		SoundEngine.PlaySound(SoundID.MenuOpen with { Volume = 0.55f, Pitch = 0.22f });
 	}
 
@@ -67,6 +74,8 @@ public sealed class InitiativePromptSystem : ModSystem
 		leftMouseDown = false;
 		rightMouseDown = false;
 		companion = null;
+		conversation = false;
+		openQuestionId = Guid.Empty;
 	}
 
 	public override void OnWorldUnload()
@@ -77,7 +86,9 @@ public sealed class InitiativePromptSystem : ModSystem
 	}
 
 	private bool IsAwaitingReply(SoulboundCompanion target) => replyWaitTicks > 0
-		&& target.Profile.Id == replyProfileId && target.HasPendingInitiative && target.PendingInitiativeKind == replyKind;
+		&& target.Profile.Id == replyProfileId && (replyQuestionId != Guid.Empty
+			? target.HasPendingQuestion && target.QuestionId == replyQuestionId
+			: target.HasPendingInitiative && target.PendingInitiativeKind == replyKind);
 
 	public override void UpdateUI(GameTime gameTime)
 	{
@@ -91,12 +102,14 @@ public sealed class InitiativePromptSystem : ModSystem
 		}
 		if (!open) {
 			if (SoulmatesUIInput.CanPresentInitiative
-				&& SoulboundCompanion.FindFor(Main.LocalPlayer) is { HasPendingInitiative: true } pending)
+				&& SoulboundCompanion.FindFor(Main.LocalPlayer) is { } pending
+				&& (pending.HasPendingInitiative || pending.HasPendingQuestion))
 				Open(pending);
 			return;
 		}
-		if (Main.gameMenu || Main.LocalPlayer.dead || Main.playerInventory || companion?.NPC.active != true
-			|| !companion.HasPendingInitiative || companion.IsDefending) {
+		if (Main.gameMenu || Main.LocalPlayer.dead || Main.playerInventory || SoulmatesUIInput.IsTyping || companion?.NPC.active != true
+			|| (conversation ? !companion.HasPendingQuestion || companion.QuestionId != openQuestionId : !companion.HasPendingInitiative)
+			|| companion.IsDefending || SoulboundCompanion.FindFor(Main.LocalPlayer) != companion) {
 			Close();
 			return;
 		}
@@ -113,23 +126,39 @@ public sealed class InitiativePromptSystem : ModSystem
 		rightMouseDown = rightDown;
 		if (leftPressed && hoverIndex >= 0) {
 			Main.mouseLeftRelease = false;
-			Respond(Responses[hoverIndex]);
+			Respond(hoverIndex);
 		}
 		else if (openTicks > 8 && (rightPressed
 			|| Main.keyState.IsKeyDown(Keys.Escape) && Main.oldKeyState.IsKeyUp(Keys.Escape))) {
 			Main.mouseRightRelease = false;
-			Respond(CompanionInitiativeResponse.No);
+			Respond(conversation ? 3 : 1);
 		}
 
 		Main.LocalPlayer.mouseInterface = true;
 		Main.blockMouse = true;
 	}
 
-	private void Respond(CompanionInitiativeResponse response)
+	private void Respond(int index)
 	{
+		if (index < 0 || index >= Responses.Length) return;
+		CompanionInitiativeResponse response = Responses[index];
 		SoulboundCompanion? target = companion;
-		if (target?.NPC.active != true || !target.HasPendingInitiative) {
+		if (target?.NPC.active != true || (conversation ? !target.HasPendingQuestion : !target.HasPendingInitiative)) {
 			Close();
+			return;
+		}
+		if (conversation) {
+			Guid token = openQuestionId;
+			CompanionAnswer answer = (CompanionAnswer)index;
+			Close();
+			if (Main.netMode == NetmodeID.MultiplayerClient) {
+				replyProfileId = target.Profile.Id;
+				replyQuestionId = token;
+				replyWaitTicks = 600;
+				global::Soulmates.Soulmates.SendChoiceResponse(target.Profile.Id, token, answer);
+			}
+			else target.RespondToQuestion(token, answer);
+			SoundEngine.PlaySound(SoundID.Chat, Main.LocalPlayer.Center);
 			return;
 		}
 
@@ -140,6 +169,7 @@ public sealed class InitiativePromptSystem : ModSystem
 		if (Main.netMode == NetmodeID.MultiplayerClient) {
 			replyProfileId = target.Profile.Id;
 			replyKind = kind;
+			replyQuestionId = Guid.Empty;
 			replyWaitTicks = 600;
 			global::Soulmates.Soulmates.SendInitiativeResponse(kind, response);
 		}
@@ -171,10 +201,11 @@ public sealed class InitiativePromptSystem : ModSystem
 			Vector2 position = Vector2.Lerp(center, ResponsePosition(i), reveal);
 			bool hovered = hoverIndex == i;
 			DrawNode(spriteBatch, position, hovered ? 43f * pulse : 38f, accent, hovered,
-				ResponseEmote(Responses[i]));
+				conversation ? AnswerEmote(i) : ResponseEmote(Responses[i]));
 		}
 		DrawNode(spriteBatch, center, 46f * pulse, accent, false,
-			SoulboundCompanion.InitiativeEmote(companion.PendingInitiativeKind));
+			conversation ? companion.PendingQuestion == CompanionQuestion.Wallet ? EmoteID.ItemGoldpile : EmoteID.EmoteConfused
+				: SoulboundCompanion.InitiativeEmote(companion.PendingInitiativeKind));
 		DrawPrompt(spriteBatch, accent);
 		DrawHoverLabel(spriteBatch, accent);
 		return true;
@@ -182,8 +213,9 @@ public sealed class InitiativePromptSystem : ModSystem
 
 	private void DrawPrompt(SpriteBatch spriteBatch, Color accent)
 	{
-		string prompt = SoulmatesText.Get("UI.CompanionWheel.InitiativePrompt",
-			SoulmatesText.EnumName(companion!.PendingInitiativeKind)).ToUpperInvariant();
+		string prompt = (conversation ? SoulmatesText.Get($"Conversation.{companion!.PendingQuestion}.Heading")
+			: SoulmatesText.Get("UI.CompanionWheel.InitiativePrompt",
+				SoulmatesText.EnumName(companion!.PendingInitiativeKind))).ToUpperInvariant();
 		float scale = FitTextScale(prompt, 300f, 0.58f);
 		Vector2 size = FontAssets.MouseText.Value.MeasureString(prompt) * scale;
 		Vector2 position = new(center.X - size.X * 0.5f, center.Y - 78f);
@@ -192,7 +224,7 @@ public sealed class InitiativePromptSystem : ModSystem
 			(int)size.X + 18, (int)size.Y + 10);
 		spriteBatch.Draw(pixel, background, new Color(9, 14, 25) * 0.9f);
 		spriteBatch.Draw(pixel, new Rectangle(background.X, background.Y, background.Width, 2), accent * 0.9f);
-		float remaining = Math.Clamp(companion.PendingInitiativeTicks / 3600f, 0f, 1f);
+		float remaining = Math.Clamp((conversation ? companion.QuestionTicks : companion.PendingInitiativeTicks) / 3600f, 0f, 1f);
 		spriteBatch.Draw(pixel, new Rectangle(background.X, background.Bottom + 3,
 			(int)(background.Width * remaining), 2), accent * 0.85f);
 		Utils.DrawBorderString(spriteBatch, prompt, position, Color.Lerp(Color.White, accent, 0.2f), scale);
@@ -202,7 +234,8 @@ public sealed class InitiativePromptSystem : ModSystem
 	{
 		if (hoverIndex < 0 || hoverIndex >= Responses.Length)
 			return;
-		string label = SoulmatesText.Get($"UI.CompanionWheel.InitiativeResponses.{Responses[hoverIndex]}");
+		string label = conversation ? SoulmatesText.Get($"Conversation.{companion!.PendingQuestion}.Choices.{(CompanionAnswer)hoverIndex}")
+			: SoulmatesText.Get($"UI.CompanionWheel.InitiativeResponses.{Responses[hoverIndex]}");
 		float scale = FitTextScale(label, 300f, 0.68f);
 		Vector2 size = FontAssets.MouseText.Value.MeasureString(label) * scale;
 		Vector2 position = new(center.X - size.X * 0.5f, center.Y + ResponseRadius + 24f);
@@ -230,6 +263,13 @@ public sealed class InitiativePromptSystem : ModSystem
 		CompanionInitiativeResponse.No => EmoteID.EmoteConfused,
 		CompanionInitiativeResponse.Always => EmoteID.EmoteWink,
 		_ => EmoteID.EmoteScowl
+	};
+
+	private int AnswerEmote(int index) => index switch {
+		0 => EmoteID.ItemGoldpile,
+		1 => companion!.PendingQuestion == CompanionQuestion.Wallet ? EmoteID.EmoteWink : EmoteID.EmoteLaugh,
+		2 => companion!.PendingQuestion == CompanionQuestion.Wallet ? EmoteID.EmoteLaugh : EmoteID.EmotionLove,
+		_ => EmoteID.EmoteSleep
 	};
 
 	private static Vector2 ClampCenter(Vector2 desired)

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Soulmates.Content.Items;
+using Soulmates.Common.Feedback;
 using Terraria;
 using Terraria.Audio;
 using Terraria.GameContent;
@@ -243,6 +244,7 @@ public sealed class SoulCreatorState : UIState
 
 	internal void ReceiveNetworkResponse(CompanionCreationResult result, string companionName, CompanionEssence essence)
 	{
+		SoulmatesFeedbackSystem.Record("companion_creation_result", ("result", result.ToString()));
 		creationPending = false;
 		creationPendingTimer = 0;
 		if (result != CompanionCreationResult.Success) {

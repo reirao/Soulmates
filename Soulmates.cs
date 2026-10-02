@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Soulmates.Common;
@@ -35,7 +36,9 @@ public sealed class Soulmates : Mod
 		InitiativePrompt,
 		InitiativeResponseRequest,
 		DirectOrderRequest,
-		ManaRecovery
+		ManaRecovery,
+		OwnerInventoryUpdate,
+		ChoiceResponseRequest
 	}
 
 	internal static ModKeybind TalkKeybind { get; private set; } = null!;
@@ -239,7 +242,8 @@ public sealed class Soulmates : Mod
 		MessageType type = (MessageType)reader.ReadByte();
 		bool serverResponse = type is MessageType.TalkResponse or MessageType.ProfileUpdate
 			or MessageType.CompanionSpeech or MessageType.QuickActionResponse
-			or MessageType.CreateCompanionResponse or MessageType.InitiativePrompt or MessageType.ManaRecovery;
+			or MessageType.CreateCompanionResponse or MessageType.InitiativePrompt or MessageType.ManaRecovery
+			or MessageType.OwnerInventoryUpdate;
 		if (!Enum.IsDefined(type) || serverResponse != (Main.netMode == NetmodeID.MultiplayerClient))
 			return;
 		int minimumBytes = type switch {
@@ -251,6 +255,7 @@ public sealed class Soulmates : Mod
 			MessageType.CreateCompanionRequest => 7,
 			MessageType.ProfileUpdate or MessageType.InitiativePrompt or MessageType.InitiativeResponseRequest => 2,
 			MessageType.DirectOrderRequest => 12,
+			MessageType.ChoiceResponseRequest => 33,
 			_ => 1
 		};
 		if (reader.BaseStream.CanSeek && reader.BaseStream.Length - reader.BaseStream.Position < minimumBytes)
@@ -316,6 +321,12 @@ public sealed class Soulmates : Mod
 				owner.statMana += restored;
 				if (restored > 0)
 					owner.ManaEffect(restored);
+				break;
+			case MessageType.OwnerInventoryUpdate:
+				CompanionInventorySync.Apply(reader);
+				break;
+			case MessageType.ChoiceResponseRequest:
+				HandleChoiceResponseRequest(reader, whoAmI);
 				break;
 		}
 	}
@@ -526,9 +537,10 @@ public sealed class Soulmates : Mod
 			Personality = personality,
 			Talent = talent
 		};
-		CompanionCreationResult result = CompanionCreationService.TryCreate(player, request, out CompanionProfile profile);
-		if (result == CompanionCreationResult.Success)
-			SyncPlayerInventory(player);
+		CompanionCreationResult result;
+		CompanionProfile profile;
+		using (var inventorySync = new CompanionInventorySync(player))
+			result = CompanionCreationService.TryCreate(player, request, out profile);
 		SendCreateCompanionResponse(whoAmI, result, profile.Name, profile.Essence);
 	}
 
@@ -570,6 +582,30 @@ public sealed class Soulmates : Mod
 		SendProfileUpdate(player, companion);
 	}
 
+	internal static void SendChoiceResponse(Guid profileId, Guid questionId, CompanionAnswer answer)
+	{
+		if (Main.netMode != NetmodeID.MultiplayerClient) return;
+		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
+		packet.Write((byte)MessageType.ChoiceResponseRequest);
+		packet.Write(profileId.ToByteArray());
+		packet.Write(questionId.ToByteArray());
+		packet.Write((byte)answer);
+		packet.Send();
+	}
+
+	private static void HandleChoiceResponseRequest(BinaryReader reader, int whoAmI)
+	{
+		var profileId = new Guid(reader.ReadBytes(16));
+		var questionId = new Guid(reader.ReadBytes(16));
+		CompanionAnswer answer = (CompanionAnswer)reader.ReadByte();
+		if (Main.netMode != NetmodeID.Server || !Enum.IsDefined(answer)
+			|| whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active) return;
+		Player owner = Main.player[whoAmI];
+		if (FindRequestCompanion(owner) is not { } companion || companion.Profile.Id != profileId
+			|| !companion.RespondToQuestion(questionId, answer)) return;
+		SendProfileUpdate(owner, companion);
+	}
+
 	private void HandleDirectOrderRequest(BinaryReader reader, int whoAmI)
 	{
 		CompanionTargetOrder order = (CompanionTargetOrder)reader.ReadByte();
@@ -609,12 +645,20 @@ public sealed class Soulmates : Mod
 		packet.Send(playerIndex);
 	}
 
-	private static void SyncPlayerInventory(Player player)
+	internal static void SendOwnerInventoryUpdate(Player player, IReadOnlyList<(byte Slot, byte[] Data)> changes)
 	{
-		if (Main.netMode != NetmodeID.Server)
+		if (Main.netMode != NetmodeID.Server || changes.Count == 0 || !player.active
+			|| player.whoAmI < 0 || player.whoAmI >= Main.maxPlayers)
 			return;
-		for (int slot = 0; slot < player.inventory.Length; slot++)
-			NetMessage.SendData(MessageID.SyncEquipment, player.whoAmI, -1, null, player.whoAmI, slot);
+		// Native SyncEquipment ignores unsolicited updates to the owning client's inventory.
+		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
+		packet.Write((byte)MessageType.OwnerInventoryUpdate);
+		packet.Write((byte)changes.Count);
+		foreach ((byte slot, byte[] data) in changes) {
+			packet.Write(slot);
+			packet.Write(data);
+		}
+		packet.Send(player.whoAmI);
 	}
 
 	private static void ApplyClientProfile(CompanionProfile profile)

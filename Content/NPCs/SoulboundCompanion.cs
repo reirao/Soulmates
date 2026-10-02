@@ -155,6 +155,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 	public string CommandName => SoulmatesText.Get(Command == StayCommand ? "Status.Stay" : "Status.Follow");
 	internal string FeedbackCommand => Command == StayCommand ? "stay" : "follow";
 	internal string FeedbackActivity => activeJob != CompanionJob.None ? $"job_{activeJob}"
+		: HasPendingQuestion ? $"conversation_{PendingQuestion}"
 		: pendingAutonomyActivity != AutonomyActivity.None ? $"awaiting_{InitiativeKindFor(pendingAutonomyActivity)}"
 		: autonomyActivity != AutonomyActivity.None ? $"autonomy_{autonomyActivity}"
 		: guardianTarget >= 0 ? "guarding"
@@ -233,7 +234,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 		bobSeed = Main.rand.NextFloat(MathHelper.TwoPi);
 		socialTimer = Main.rand.Next(1000, 1800);
 		townNpcInteractionCooldown = Main.rand.Next(1200, 2200);
-		autonomyDecisionTimer = Main.rand.Next(360, 720);
+		autonomyDecisionTimer = Main.rand.Next(90, 180);
 		tendedForestResetTimer = Main.rand.Next(1800, 3600);
 		previousDaytime = Main.dayTime;
 	}
@@ -243,25 +244,8 @@ public sealed partial class SoulboundCompanion : ModNPC
 	public override bool CanChat() => TryGetOwner(out Player owner) && owner.whoAmI == Main.myPlayer;
 	public override string GetChat() => SoulmatesText.Get("UI.Talk.Greeting", Profile.Name);
 
-	public override bool PreHoverInteract(bool mouseIntersects)
-	{
-		if (Main.playerInventory || SoulmatesUIInput.IsTyping || SoulmatesUIInput.IsCaptured)
-			return false;
-		if (mouseIntersects && Main.mouseRight && Main.mouseRightRelease
-			&& TryGetOwner(out Player owner) && owner.whoAmI == Main.myPlayer) {
-			Vector2 mouse = Main.MouseWorld;
-			Rectangle ownerBounds = owner.Hitbox;
-			ownerBounds.Inflate(14, 8);
-			if (ownerBounds.Contains(mouse.ToPoint())
-				&& Vector2.DistanceSquared(mouse, owner.Center) <= Vector2.DistanceSquared(mouse, NPC.Center))
-				return false;
-			ModContent.GetInstance<CompanionWheelSystem>().Open(this);
-			Main.LocalPlayer.mouseInterface = true;
-			Main.blockMouse = true;
-			Main.mouseRightRelease = false;
-		}
-		return false;
-	}
+	// The player input router opens the wheel after native interactions have run.
+	public override bool PreHoverInteract(bool mouseIntersects) => false;
 
 	public override void AI()
 	{
@@ -290,6 +274,8 @@ public sealed partial class SoulboundCompanion : ModNPC
 		UpdateSocialState();
 		UpdateLearningFromOwner();
 		UpdateAttentionClock();
+		UpdateNearbyPickup();
+		UpdateChoiceConversation();
 		UpdateAutonomousSocialBehavior();
 		UpdateResourcefulness();
 		UpdateNatureCompanions();
@@ -315,6 +301,12 @@ public sealed partial class SoulboundCompanion : ModNPC
 		}
 		if (UpdateHelpfulAutonomy()) {
 			recoveryTimer = 0;
+			NPC.rotation = MathHelper.Lerp(NPC.rotation, NPC.velocity.X * 0.025f, 0.08f);
+			UpdateFacing();
+			return;
+		}
+		if (UpdateCritterActivity()) {
+			RecoverEnergy(180, 1, recoverMood: false);
 			NPC.rotation = MathHelper.Lerp(NPC.rotation, NPC.velocity.X * 0.025f, 0.08f);
 			UpdateFacing();
 			return;

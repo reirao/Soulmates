@@ -262,6 +262,9 @@ public sealed class SoulmatesFeedbackSystem : ModSystem
 			LatestSnapshot["resource_limit"] = companion.Profile.ResourceCarryLimit;
 			LatestSnapshot["wallet_copper"] = companion.Profile.WalletCopper.ToString();
 			LatestSnapshot["autonomy_enabled"] = companion.Profile.AutonomyEnabled;
+			LatestSnapshot["gathering_policy"] = companion.Profile.GatheringInitiative.ToString();
+			LatestSnapshot["critter_mode"] = companion.Profile.CritterMode.ToString();
+			LatestSnapshot["voice"] = companion.Profile.Voice.ToString();
 		}
 
 		Record("snapshot", LatestSnapshot.Select(pair => (pair.Key, pair.Value)).ToArray());

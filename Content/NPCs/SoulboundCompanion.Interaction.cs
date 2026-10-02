@@ -65,6 +65,8 @@ public sealed partial class SoulboundCompanion
 
 	public CompanionConversationResult PerformQuickAction(CompanionQuickAction action)
 	{
+		if (TrySetCritterMode(action, out CompanionConversationResult critterResult))
+			return critterResult;
 		CompanionInitiativeKind? policyKind = action switch {
 			CompanionQuickAction.GatheringPolicy => CompanionInitiativeKind.Gathering,
 			CompanionQuickAction.MiningPolicy => CompanionInitiativeKind.Mining,
@@ -103,8 +105,10 @@ public sealed partial class SoulboundCompanion
 		}
 		if (action == CompanionQuickAction.ToggleAutonomy) {
 			Profile.AutonomyEnabled = !Profile.AutonomyEnabled;
-			if (!Profile.AutonomyEnabled)
+			if (!Profile.AutonomyEnabled) {
+				ClearChoiceQuestion();
 				CancelAutonomousActivity();
+			}
 			string reply = SoulmatesText.Get(Profile.AutonomyEnabled
 				? "Autonomy.Enabled"
 				: "Autonomy.Disabled");
@@ -161,8 +165,6 @@ public sealed partial class SoulboundCompanion
 			SpeechAction.RecallResident => Profile.RecallResident(Main.ActiveWorldFileData.UniqueId, memoryCursor),
 			_ => result.Reply
 		};
-		if (result.Action is SpeechAction.StoreHeldItem or SpeechAction.UnloadPack)
-			SyncOwnerInventory();
 		SyncProfileToBoundSigil();
 		NPC.netUpdate = true;
 		return new CompanionConversationResult(reply, result.Accepted);
@@ -237,6 +239,7 @@ public sealed partial class SoulboundCompanion
 
 	private void CancelAssignment()
 	{
+		ClearChoiceQuestion();
 		ClearTownNpcInteraction();
 		CancelAutonomousActivity();
 		activeJob = CompanionJob.None;

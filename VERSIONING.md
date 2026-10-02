@@ -2,7 +2,7 @@
 
 Soulmates uses pre-1.0 semantic versions to describe maturity honestly. The earlier `9.9.x` numbers were experimental build counters, not a claim that the mod was almost finished. `0.10.0` starts the coherent public line, `0.11.0` is its first substantial behavior release, and `0.12.0` adds deliberate mining strategies and contextual ore controls.
 
-## 0.10.0+ - AETHER-EGG Alpha
+## 0.10.0+ - Soulmates Alpha
 
 The companion identity, Soulcore creator, Soulwheels, conversations, combat, work, pack, initiative, and adaptive learning are playable together. Systems may still be rebalanced or rebuilt when longer play sessions expose weak behavior.
 
@@ -24,4 +24,4 @@ Long-session and multiplayer testing support calling the core experience stable.
 
 ## Legacy number note
 
-Manual `9.9.x` `.tmod` files compare as numerically newer than the `0.10.0+` alpha line. Players who installed a GitHub build by hand should remove that duplicate before using the Workshop AETHER-EGG line. A normal Workshop subscription replaces its own file automatically.
+Manual `9.9.x` `.tmod` files compare as numerically newer than the `0.10.0+` alpha line. Players who installed a GitHub build by hand should remove that duplicate before using the Soulmates Workshop alpha line. A normal Workshop subscription replaces its own file automatically.

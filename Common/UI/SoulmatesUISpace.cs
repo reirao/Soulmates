@@ -10,6 +10,8 @@ internal static class SoulmatesUISpace
 	// Main's mouse and screen fields change between world/UI hooks; the raw input state does not.
 	public static Vector2 Viewport => PlayerInput.OriginalScreenSize / Main.UIScale;
 	public static Vector2 Mouse => new Vector2(PlayerInput.MouseX, PlayerInput.MouseY) / Main.UIScale;
+	public static Vector2 WorldMouse => Vector2.Transform(new Vector2(PlayerInput.MouseX, PlayerInput.MouseY),
+		Matrix.Invert(Main.GameViewMatrix.TransformationMatrix)) + Main.screenPosition;
 
 	public static Vector2 FromWorld(Vector2 position)
 		=> Vector2.Transform(position - Main.screenPosition, Main.GameViewMatrix.TransformationMatrix) / Main.UIScale;

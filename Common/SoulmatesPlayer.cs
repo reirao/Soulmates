@@ -23,8 +23,13 @@ public sealed class SoulmatesPlayer : ModPlayer
 	private bool rightMouseDown;
 	private bool soulmatesCapturedInput;
 	private bool queuedSelfSoulwheel;
-	private Point queuedSelfSoulwheelPosition;
-	private bool queuedWorldSoulwheel;
+	private Vector2 queuedSoulwheelUiPosition;
+	private Guid queuedSoulwheelProfile;
+	private byte queuedSoulwheelKind;
+	private SoulwheelMouseMode queuedSoulwheelMode;
+	private int queuedChest;
+	private int queuedTalkNpc;
+	private SoulwheelTarget? queuedSoulwheelTarget;
 	private Guid feedbackProfileId;
 	private readonly Dictionary<int, int> feedbackPackCounts = [];
 	private readonly Dictionary<int, int> feedbackCurrentCounts = [];
@@ -164,12 +169,19 @@ public sealed class SoulmatesPlayer : ModPlayer
 			soulmatesCapturedInput = false;
 		if (SoulmatesUIInput.IsCaptured)
 			soulmatesCapturedInput = true;
+		if (Main.mouseRight && CanCaptureModeClick())
+			soulmatesCapturedInput = true;
 		// A menu-closing click belongs to the menu until the mouse is released.
 		if (soulmatesCapturedInput) {
 			Player.controlUseItem = false;
 			Player.controlUseTile = false;
 		}
 	}
+
+	private bool CanCaptureModeClick() => !Main.gameMenu && !Player.dead && !Main.playerInventory
+		&& !Player.mouseInterface && Player.talkNPC < 0 && !SoulmatesUIInput.IsTyping && Main.mouseItem.IsAir
+		&& ModContent.GetInstance<CompanionWheelSystem>().MouseMode != SoulwheelMouseMode.Terraria
+		&& SoulboundCompanion.FindFor(Player) is not null;
 
 	public override bool CanUseItem(Item item) => Main.dedServ || Player.whoAmI != Main.myPlayer
 		|| !soulmatesCapturedInput && !SoulmatesUIInput.IsCaptured;
@@ -209,22 +221,27 @@ public sealed class SoulmatesPlayer : ModPlayer
 		InitiativePromptSystem initiativePrompt, TalkModeSystem talkMode)
 	{
 		queuedSelfSoulwheel = false;
-		if (Main.playerInventory || Player.mouseInterface || SoulmatesUIInput.IsCaptured || Player.altFunctionUse == 2
+		if (Main.playerInventory || Player.mouseInterface || Player.talkNPC >= 0 || !Main.mouseItem.IsAir || SoulmatesUIInput.IsCaptured
 			|| talkMode.IsOpen || companionWheel.IsOpen || initiativePrompt.IsOpen)
 			return;
 
-		Point mouseWorld = Main.MouseWorld.ToPoint();
+		Point mouseWorld = SoulmatesUISpace.WorldMouse.ToPoint();
 		Rectangle selfInteractionBounds = Player.Hitbox;
 		selfInteractionBounds.Inflate(14, 8);
-		if (CompanionIsCloser(companion, mouseWorld)
-			|| HasWorldInteractionAt(mouseWorld, companion.NPC.whoAmI))
-			return;
+		bool onCompanion = companion.NPC.Hitbox.Contains(mouseWorld)
+			&& (!selfInteractionBounds.Contains(mouseWorld) || CompanionIsCloser(companion, mouseWorld));
+		bool onPlayer = !onCompanion && selfInteractionBounds.Contains(mouseWorld);
+		queuedSoulwheelMode = companionWheel.MouseMode;
+		if (queuedSoulwheelMode == SoulwheelMouseMode.Terraria
+			&& (!onCompanion && !onPlayer || Player.altFunctionUse == 2)) return;
 
-		queuedSelfSoulwheelPosition = mouseWorld;
-		queuedWorldSoulwheel = !selfInteractionBounds.Contains(mouseWorld);
+		queuedSoulwheelUiPosition = SoulmatesUISpace.Mouse;
+		queuedSoulwheelKind = onCompanion ? (byte)1 : onPlayer ? (byte)0 : (byte)2;
+		queuedSoulwheelTarget = queuedSoulwheelKind == 2 ? new SoulwheelTarget(mouseWorld.ToVector2(), companion.NPC.whoAmI) : null;
+		queuedSoulwheelProfile = companion.Profile.Id;
+		queuedChest = Player.chest;
+		queuedTalkNpc = Player.talkNPC;
 		queuedSelfSoulwheel = true;
-		SoulmatesFeedbackSystem.Record(queuedWorldSoulwheel ? "world_wheel_queued" : "player_wheel_queued",
-			("input", "right_click"));
 	}
 
 	private void OpenQueuedSelfSoulwheel(SoulboundCompanion? companion)
@@ -232,7 +249,7 @@ public sealed class SoulmatesPlayer : ModPlayer
 		if (!queuedSelfSoulwheel)
 			return;
 		queuedSelfSoulwheel = false;
-		if (companion is null)
+		if (companion is null || companion.Profile.Id != queuedSoulwheelProfile)
 			return;
 
 		CompanionWheelSystem companionWheel = ModContent.GetInstance<CompanionWheelSystem>();
@@ -240,22 +257,19 @@ public sealed class SoulmatesPlayer : ModPlayer
 		TalkModeSystem talkMode = ModContent.GetInstance<TalkModeSystem>();
 		FeedbackMailboxSystem mailbox = ModContent.GetInstance<FeedbackMailboxSystem>();
 		if (Main.playerInventory || Player.mouseInterface || SoulmatesUIInput.IsTyping || SoulmatesUIInput.IsCaptured
-			|| Player.altFunctionUse == 2 || Player.itemAnimation > 0
+			|| !Main.mouseItem.IsAir || Player.chest != queuedChest || Player.talkNPC != queuedTalkNpc
+			|| queuedSoulwheelMode == SoulwheelMouseMode.Terraria && (Player.altFunctionUse == 2 || Player.itemAnimation > 0)
 			|| talkMode.IsOpen || companionWheel.IsOpen
 			|| initiativePrompt.IsOpen || mailbox.IsOpen)
 			return;
 
-		Point mouseWorld = queuedSelfSoulwheelPosition;
-		Rectangle selfInteractionBounds = Player.Hitbox;
-		selfInteractionBounds.Inflate(14, 8);
-		if ((!queuedWorldSoulwheel && !selfInteractionBounds.Contains(mouseWorld)) || CompanionIsCloser(companion, mouseWorld)
-			|| HasWorldInteractionAt(mouseWorld, companion.NPC.whoAmI))
-			return;
-
-		if (queuedWorldSoulwheel) companionWheel.OpenWorld(companion);
-		else companionWheel.OpenPlayer(companion);
-		SoulmatesFeedbackSystem.Record(queuedWorldSoulwheel ? "world_wheel_opened" : "player_wheel_opened",
+		if (companionWheel.MouseMode != queuedSoulwheelMode) return;
+		if (queuedSoulwheelKind == 1) companionWheel.Open(companion);
+		else if (queuedSoulwheelKind == 0) companionWheel.OpenPlayer(companion);
+		else if (queuedSoulwheelTarget is { } snapshot) companionWheel.OpenContext(companion, snapshot, queuedSoulwheelUiPosition);
+		SoulmatesFeedbackSystem.Record("context_wheel_opened", ("mode", queuedSoulwheelMode.ToString()),
 			("input", "right_click"));
+		soulmatesCapturedInput = true;
 		Player.mouseInterface = true;
 		Main.blockMouse = true;
 		Main.mouseRightRelease = false;
@@ -268,24 +282,6 @@ public sealed class SoulmatesPlayer : ModPlayer
 		Vector2 mouse = mouseWorld.ToVector2();
 		return Vector2.DistanceSquared(mouse, companion.NPC.Center)
 			< Vector2.DistanceSquared(mouse, Player.Center);
-	}
-
-	private static bool HasWorldInteractionAt(Point mouseWorld, int ignoredNpc)
-	{
-		Point tilePosition = mouseWorld.ToVector2().ToTileCoordinates();
-		if (!WorldGen.InWorld(tilePosition.X, tilePosition.Y, 1))
-			return true;
-		Tile tile = Main.tile[tilePosition.X, tilePosition.Y];
-		// Menus may start in clear air, never on a vanilla tile interaction.
-		if (tile.HasTile)
-			return true;
-
-		for (int i = 0; i < Main.maxNPCs; i++) {
-			NPC npc = Main.npc[i];
-			if (i != ignoredNpc && npc.active && npc.Hitbox.Contains(mouseWorld))
-				return true;
-		}
-		return false;
 	}
 
 	public override void OnEnterWorld()

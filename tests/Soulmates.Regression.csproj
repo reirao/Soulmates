@@ -14,5 +14,6 @@
     <Reference Include="FNA" HintPath="$(TML_PATH)\Libraries\FNA\1.0.0\FNA.dll" />
     <Compile Include="..\Common\SoulmatesTextLayout.cs" Link="SoulmatesTextLayout.cs" />
     <Compile Include="..\Common\UI\SoulmatesUISpace.cs" Link="SoulmatesUISpace.cs" />
+    <Compile Include="..\Common\UI\SoulwheelLayout.cs" Link="SoulwheelLayout.cs" />
   </ItemGroup>
 </Project>

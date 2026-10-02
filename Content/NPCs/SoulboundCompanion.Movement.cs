@@ -81,7 +81,8 @@ public sealed partial class SoulboundCompanion
 
 	private bool TryFaceTrackedTarget()
 	{
-		int targetIndex = guardianTarget >= 0 ? guardianTarget : socialNpcTarget;
+		int targetIndex = guardianTarget >= 0 ? guardianTarget : socialNpcTarget >= 0 ? socialNpcTarget
+			: IsAttendingCritter ? critterTarget!.whoAmI : -1;
 		if (targetIndex < 0 || targetIndex >= Main.maxNPCs)
 			return false;
 		NPC target = Main.npc[targetIndex];

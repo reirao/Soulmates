@@ -25,7 +25,7 @@ public sealed partial class SoulboundCompanion
 	private void UpdateSocialState()
 	{
 		if (Main.netMode != NetmodeID.MultiplayerClient && socialNpcTarget >= 0
-			&& (!Profile.AutonomyEnabled || HasPendingInitiative || Command == StayCommand
+			&& (!Profile.AutonomyEnabled || HasPendingInitiative || HasPendingQuestion || Command == StayCommand
 				|| activeJob != CompanionJob.None || autonomyActivity != AutonomyActivity.None || guardianTarget >= 0))
 			ClearTownNpcInteraction();
 		if (speechTimer > 0) {
@@ -79,7 +79,7 @@ public sealed partial class SoulboundCompanion
 		int minimum = Profile.Personality == CompanionPersonality.Mischievous ? 1200 : 1500;
 		int maximum = Profile.Personality == CompanionPersonality.Gentle ? 3000 : 2600;
 		socialTimer = Main.rand.Next(minimum, maximum);
-		if (!Profile.AutonomyEnabled || HasPendingInitiative
+		if (!Profile.AutonomyEnabled || HasPendingInitiative || HasPendingQuestion
 			|| activeJob != CompanionJob.None || autonomyActivity != AutonomyActivity.None
 			|| guardianTarget >= 0 || socialNpcTarget >= 0 || Owner.dead
 			|| Vector2.DistanceSquared(NPC.Center, Owner.Center) > 520f * 520f)
@@ -104,7 +104,8 @@ public sealed partial class SoulboundCompanion
 			key = "Social.Autonomous.Context.Stay";
 		else {
 			int line = chatterSequence++ % 3;
-			key = $"Social.Autonomous.{Profile.Personality}.Line{line}";
+			key = chatterSequence % 2 == 0 ? $"Conversation.Chatter.{Profile.Voice}.Line{line}"
+				: $"Social.Autonomous.{Profile.Personality}.Line{line}";
 		}
 
 		CompanionEmote gesture = Profile.Energy < 20
@@ -250,15 +251,23 @@ public sealed partial class SoulboundCompanion
 		if (nearest is null)
 			return false;
 
-		socialNpcTarget = nearest.whoAmI;
-		socialNpcIdentity = nearest;
-		socialNpcType = nearest.type;
-		socialResidentName = nearest.GivenName;
+		BeginTownNpcInteraction(nearest);
+		return true;
+	}
+
+	private void BeginTownNpcInteraction(NPC resident)
+	{
+		socialNpcTarget = resident.whoAmI;
+		socialNpcIdentity = resident;
+		socialNpcType = resident.type;
+		socialResidentName = resident.GivenName;
 		socialNpcTimer = 900;
 		socialNpcGreeted = false;
+		socialNpcReplied = false;
+		socialResidentBubble = null;
+		socialReplyDelay = 0;
 		townNpcInteractionCooldown = Main.rand.Next(1800, 3000);
 		NPC.netUpdate = true;
-		return true;
 	}
 
 	private bool UpdateTownNpcInteraction()
@@ -271,7 +280,7 @@ public sealed partial class SoulboundCompanion
 		}
 
 		NPC townNpc = Main.npc[socialNpcTarget];
-		if (!Profile.AutonomyEnabled || HasPendingInitiative || !IsSocialTownNpc(townNpc)
+		if (!Profile.AutonomyEnabled || HasPendingInitiative || HasPendingQuestion || !IsSocialTownNpc(townNpc)
 			|| Main.netMode != NetmodeID.MultiplayerClient && (!ReferenceEquals(townNpc, socialNpcIdentity)
 				|| townNpc.type != socialNpcType || townNpc.GivenName != socialResidentName)
 			|| Vector2.DistanceSquared(townNpc.Center, Owner.Center) > 640f * 640f) {
@@ -309,9 +318,28 @@ public sealed partial class SoulboundCompanion
 
 	public void ObserveResidentEmote(NPC resident, EmoteBubble bubble)
 	{
-		if (Main.netMode == NetmodeID.MultiplayerClient || !socialNpcGreeted || socialNpcReplied
-			|| !ReferenceEquals(resident, socialNpcIdentity)) return;
+		if (Main.netMode == NetmodeID.MultiplayerClient || !NPC.active || !IsSocialTownNpc(resident)
+			|| resident.ModNPC is SoulboundCompanion || resident.whoAmI < 0 || resident.whoAmI >= Main.maxNPCs
+			|| !ReferenceEquals(Main.npc[resident.whoAmI], resident)) return;
+		if (ReferenceEquals(resident, socialNpcIdentity)) {
+			if (!socialNpcGreeted || socialNpcReplied) return;
+		}
+		else {
+			if (!Profile.AutonomyEnabled || HasPendingInitiative || HasPendingQuestion || Command == StayCommand
+				|| activeJob != CompanionJob.None || autonomyActivity != AutonomyActivity.None
+				|| guardianTarget >= 0 || socialNpcTarget >= 0 || townNpcInteractionCooldown > 0
+				|| !Owner.active || Owner.dead || Profile.Energy < 20 || Profile.Mood < 20
+				|| Vector2.DistanceSquared(resident.Center, NPC.Center) > 260f * 260f
+				|| Vector2.DistanceSquared(resident.Center, Owner.Center) > 560f * 560f) return;
+			BeginTownNpcInteraction(resident);
+			socialNpcGreeted = true;
+			socialNpcTimer = 240;
+			Profile.MeetResident(Main.ActiveWorldFileData.UniqueId, resident.type, resident.GivenName);
+			SyncPackState();
+		}
+		// Native NPC bubbles finalize their emote after OnSpawn; answer on the next AI ticks.
 		socialResidentBubble = bubble;
+		socialReplyDelay = 45;
 	}
 
 	private void RespondToTownNpc(NPC resident)
@@ -328,6 +356,7 @@ public sealed partial class SoulboundCompanion
 			? $"Social.Residents.Roles.{CompanionSocialDialogue.ResidentRole(resident.type)}"
 			: CompanionSocialDialogue.ReplyKey(reply, Profile.Personality);
 		SpeakLocalized(key, resident.GivenName);
+		SoulmatesFeedbackSystem.Record("resident_emote_reply", ("npc_type", resident.type), ("emote", nativeEmote));
 		SyncPackState();
 	}
 

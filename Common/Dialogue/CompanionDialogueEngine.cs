@@ -37,6 +37,16 @@ public readonly record struct CompanionConversationResult(string Reply, bool Acc
 
 public static class CompanionDialogueEngine
 {
+	public static string ObserveTogether(CompanionProfile profile, string factKey, params object[] args)
+	{
+		string fact = SoulmatesText.Get(factKey, args);
+		if (profile.Voice == CompanionVoice.Direct) return fact;
+		string replyKey = profile.Energy < 5 ? "TargetOrders.Noticing.Rest"
+			: profile.Mood < 15 ? "TargetOrders.Noticing.Quiet"
+			: $"TargetOrders.Noticing.{profile.Voice}.{profile.Personality}";
+		return fact + " " + SoulmatesText.Get(replyKey);
+	}
+
 	public static string[] GetOptions(TalkCategory category) => [
 		SoulmatesText.Get($"Dialogue.Options.{category}.Option0"),
 		SoulmatesText.Get($"Dialogue.Options.{category}.Option1"),

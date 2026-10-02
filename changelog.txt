@@ -1,15 +1,15 @@
-Soulmates 0.15.1 - Careful Company
+Soulmates 0.17.1 - Shared Discoveries
 
-- Preserve text entry and open interfaces: wheels and hotkeys wait while chatting, editing names, or using another Soulmates menu.
-- Prevent answered multiplayer initiative wheels from reopening before the server acknowledges the choice.
-- Report blocked cargo capacity instead of claiming nearby drops are gone. Client-side pickup cannot independently change cargo or world items.
-- Synchronize actual companion healing, carried-potion mana recovery, and potion/food buffs to the owning multiplayer client.
-- Release invulnerable combat targets. Regression checks cover repeated shots, target-facing, Stay defense, and removal of only the recalled companion's projectiles.
-- Stop world work when the matching Sigil is no longer carried. Single-player cursor-held Sigils keep their binding while rearranging inventory.
-- Revalidate the carried binding when accepting multiplayer commands, rejecting late requests after a Sigil move or owner death.
-- Persist perk-unlock experience immediately and handle a full NPC pool with clear summon feedback.
-- Keep all 360 mailbox-note characters, omit exact coordinates from future automatic Field Notes, and reuse feedback buffers instead of allocating them every frame.
-- Omit the optional mini-icon to avoid an installed tModLoader packer stream bug; retain the normal mod and Workshop icons and all gameplay graphics.
-- Retain existing companions, relationships, forestry, Equipment, Resources, and the uncapped Wallet.
+- Add personality-aware shared observations when pointing out nearby drops or tiles. Soft and Playful use distinct character voices; Direct stays factual.
+- Let tired or low-mood companions answer gently without refusing inspection. Looking adds no progression or new work permission and does not disturb existing assignments.
+- Describe coins through the uncapped wallet instead of finite cargo space.
 
-Growing alpha: this patch has isolated engine and static checks, not a new graphical client or live multiplayer playtest. All multiplayer participants must use the same mod version.
+- Restore Terraria as the default world right-click mode. Empty air no longer opens a mod menu automatically.
+- Add deliberate Me and Soulmate modes with native-symbol selectors in the Soulwheel and a small cursor indicator.
+- Me points out the cursor target and opens native player emotes. Soulmate offers suitable Look, Gather, Mine and Forest tasks; full companion tools remain available.
+- Keep the originally clicked target while choosing. Reject changed tiles, vanished drops and reused item/NPC slots, and recheck task eligibility before execution.
+- Use one raw-mouse input router for player and companion right-clicks. Inventory, typing, NPC dialogue and cursor-held items retain priority.
+- Right-click in an open wheel cycles Me, Soulmate and back to Terraria. X or Escape restores normal use; a menu-closing click stays captured until release.
+- Existing Sigils remain compatible. Mouse modes are local session state, not saved autonomy permissions.
+
+Growing alpha. Creator playtested; 10,787 native-engine checks and 3,337 static checks passed. Full progression, long sessions and live multiplayer remain test work. English and German; existing Sigils stay compatible.

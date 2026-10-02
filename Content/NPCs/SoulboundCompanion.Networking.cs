@@ -49,6 +49,9 @@ public sealed partial class SoulboundCompanion
 		writer.Write((short)pendingTargetTile.X);
 		writer.Write((short)pendingTargetTile.Y);
 		writer.Write((byte)pendingForestAction);
+		writer.Write((byte)pendingQuestion);
+		writer.Write(questionId.ToByteArray());
+		writer.Write((short)Math.Clamp(questionTicks, 0, InitiativeResponseTicks));
 	}
 
 	public override void ReceiveExtraAI(BinaryReader reader)
@@ -76,6 +79,17 @@ public sealed partial class SoulboundCompanion
 		pendingTargetItem = reader.ReadInt16();
 		pendingTargetTile = new Point(reader.ReadInt16(), reader.ReadInt16());
 		pendingForestAction = (ForestAction)reader.ReadByte();
+		CompanionQuestion question = (CompanionQuestion)reader.ReadByte();
+		byte[] token = reader.ReadBytes(16);
+		if (token.Length != 16) throw new EndOfStreamException();
+		int ticks = reader.ReadInt16();
+		var id = new Guid(token);
+		if (!Enum.IsDefined(question) || ticks < 0 || ticks > InitiativeResponseTicks
+			|| (question == CompanionQuestion.None ? ticks != 0 || id != Guid.Empty : ticks == 0 || id == Guid.Empty))
+			throw new InvalidDataException("Invalid companion question.");
+		pendingQuestion = question;
+		questionId = id;
+		questionTicks = ticks;
 		if (Main.netMode != NetmodeID.MultiplayerClient || !TryGetOwner(out Player owner) || owner.whoAmI != Main.myPlayer)
 			return;
 		foreach (Item item in owner.inventory) {

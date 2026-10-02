@@ -119,6 +119,8 @@ foreach (float uiScale in new[] { 1f, 1.25f, 1.5f, 2f }) {
 		Terraria.GameInput.PlayerInput.MouseY = (int)Game.MouseScreen.Y;
 		Check(Vector2.Distance(SoulmatesUISpace.FromWorld(world), SoulmatesUISpace.Mouse) <= 1.5f,
 			$"World and hit-test coordinate mismatch: UI {uiScale}, zoom {zoom}");
+		Check(Vector2.Distance(SoulmatesUISpace.WorldMouse, world) <= 1.5f,
+			$"Direct order world target mismatch: UI {uiScale}, zoom {zoom}");
 		Rectangle tile = SoulmatesUISpace.FromWorld(new Rectangle((int)world.X, (int)world.Y, 16, 16));
 		Check(Math.Abs(tile.Width - 16f * zoom / uiScale) <= 1f, "Incorrect target outline size");
 		Vector2 originalViewport = SoulmatesUISpace.Viewport;
@@ -128,8 +130,43 @@ foreach (float uiScale in new[] { 1f, 1.25f, 1.5f, 2f }) {
 		Game.MouseScreen /= uiScale;
 		Check(SoulmatesUISpace.Viewport == originalViewport && SoulmatesUISpace.Mouse == originalMouse,
 			"Coordinates changed after engine SetZoom_UI");
+		Check(Vector2.Distance(SoulmatesUISpace.WorldMouse, world) <= 1.5f,
+			"Direct order changed after engine SetZoom_UI");
 		Game.screenWidth = 1280;
 		Game.screenHeight = 720;
+	}
+}
+
+var directOrderSyntax = CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, "Common", "UI", "DirectOrderSystem.cs"))).GetRoot();
+Check(!directOrderSyntax.DescendantNodes().OfType<MemberAccessExpressionSyntax>()
+	.Any(member => member.ToString() == "Main.MouseWorld"), "Direct order reused hook-dependent Main.MouseWorld");
+foreach (string file in new[] { "Common/SoulmatesPlayer.cs", "Content/NPCs/SoulboundCompanion.cs" }) {
+	var syntax = CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, file))).GetRoot();
+	Check(!syntax.DescendantNodes().OfType<MemberAccessExpressionSyntax>()
+		.Any(member => member.ToString() == "Main.MouseWorld"), "Right-click reused hook-dependent coordinates: " + file);
+}
+foreach (string mode in new[] { "Terraria", "Player", "Companion", "Point", "Look", "Gather", "Mine", "Forest", "Emotes", "Tools", "Target", "TargetChanged" })
+	Check(keys.Contains("UI.CompanionWheel.MouseModes." + mode), "Mouse mode translation missing: " + mode);
+foreach (Vector2 physicalSize in new[] { new Vector2(800, 600), new Vector2(1280, 720), new Vector2(1920, 1080), new Vector2(2560, 1440) }) {
+	foreach (float uiScale in new[] { 1f, 1.25f, 1.5f, 2f }) {
+		Vector2 viewport = physicalSize / uiScale;
+		float scale = SoulwheelLayout.Scale(viewport);
+		foreach (Vector2 desired in new[] { Vector2.Zero, viewport, viewport * 0.5f, new Vector2(-100, 10000) }) {
+			Vector2 center = SoulwheelLayout.ClampCenter(desired, viewport);
+			Check(center.X - 202f * scale >= 0 && center.X + 202f * scale <= viewport.X,
+				"Soulwheel outer ring clipped horizontally");
+			Check(center.Y - 202f * scale >= 0 && center.Y + 304f * scale <= viewport.Y,
+				"Soulwheel outer ring/status clipped vertically");
+			for (int i = 0; i < 3; i++) {
+				Vector2 position = SoulwheelLayout.ModePosition(center, i, viewport);
+				Check(position.Y - 18f * scale > center.Y + (SoulwheelLayout.OuterRadius + 19f) * scale,
+					"Mouse-mode selector overlaps native emotes");
+				Check(position.Y + 18f * scale < center.Y + SoulwheelLayout.LabelOffset * scale,
+					"Mouse-mode selector overlaps hover label");
+				if (i > 0) Check(Vector2.Distance(position, SoulwheelLayout.ModePosition(center, i - 1, viewport)) > 36f * scale,
+					"Mouse-mode hit targets overlap");
+			}
+		}
 	}
 }
 

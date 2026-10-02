@@ -125,15 +125,17 @@ public sealed partial class SoulboundCompanion
 		SoulmatesFeedbackSystem.Record("pointed_observation", ("world_item", itemIndex >= 0));
 		if (itemIndex >= 0 && itemIndex < Main.maxItems && Main.item[itemIndex].active && !Main.item[itemIndex].IsAir) {
 			Item item = Main.item[itemIndex];
-			return new CompanionConversationResult(SoulmatesText.Get("TargetOrders.LookItem", item.Name,
-				AvailableCarryAmount(item)), true);
+			return new CompanionConversationResult(item.type is >= ItemID.CopperCoin and <= ItemID.PlatinumCoin
+				? CompanionDialogueEngine.ObserveTogether(Profile, "TargetOrders.LookCoins", item.Name)
+				: CompanionDialogueEngine.ObserveTogether(Profile, "TargetOrders.LookItem", item.Name,
+					AvailableCarryAmount(item)), true);
 		}
 		ushort type = Main.tile[tile.X, tile.Y].TileType;
 		if (IsTreeTrunk(type) || type == TileID.FallenLog)
-			return new CompanionConversationResult(SoulmatesText.Get("TargetOrders.LookForest"), true);
+			return new CompanionConversationResult(CompanionDialogueEngine.ObserveTogether(Profile, "TargetOrders.LookForest"), true);
 		int dropType = TileLoader.GetItemDropFromTypeAndStyle(type, 0);
 		string name = dropType > ItemID.None ? Lang.GetItemNameValue(dropType) : SoulmatesText.Get("Resourcefulness.UnknownMaterial");
-		return new CompanionConversationResult(SoulmatesText.Get(CanTargetMining(tile)
+		return new CompanionConversationResult(CompanionDialogueEngine.ObserveTogether(Profile, CanTargetMining(tile)
 			? "TargetOrders.LookMineable" : "TargetOrders.LookProtected", name), true);
 	}
 
@@ -764,7 +766,7 @@ public sealed partial class SoulboundCompanion
 		float bestDistance = float.MaxValue;
 		for (int i = 0; i < Main.maxItems; i++) {
 			Item item = Main.item[i];
-			if (!item.active || item.IsAir || !CanCollectLooseItem(item)
+			if (!item.active || item.IsAir || item.noGrabDelay > 0 || !CanCollectLooseItem(item)
 				|| item.playerIndexTheItemIsReservedFor != 255 && item.playerIndexTheItemIsReservedFor != Owner.whoAmI)
 				continue;
 			if (Vector2.DistanceSquared(jobOrigin, item.Center) >= radius * radius)
@@ -873,7 +875,7 @@ public sealed partial class SoulboundCompanion
 		float radiusSquared = radius * radius;
 		for (int i = 0; i < Main.maxItems && movedStacks < maximumStacks; i++) {
 			Item item = Main.item[i];
-			if (!item.active || item.IsAir || !CanCollectLooseItem(item)
+			if (!item.active || item.IsAir || item.noGrabDelay > 0 || !CanCollectLooseItem(item)
 				|| item.playerIndexTheItemIsReservedFor != 255 && item.playerIndexTheItemIsReservedFor != Owner.whoAmI
 				|| Vector2.DistanceSquared(center, item.Center) > radiusSquared)
 				continue;

@@ -62,6 +62,21 @@ public enum CompanionInitiativeResponse : byte
 	Never
 }
 
+public enum CompanionQuestion : byte
+{
+	None,
+	Company,
+	Wallet
+}
+
+public enum CompanionAnswer : byte
+{
+	First,
+	Second,
+	Third,
+	Later
+}
+
 public enum CompanionMiningApproach : byte
 {
 	Adaptive,
@@ -137,7 +152,19 @@ public enum CompanionQuickAction : byte
 	GatheringPolicy,
 	MiningPolicy,
 	ForestryPolicy,
-	TreasurePolicy
+	TreasurePolicy,
+	CritterWatch,
+	CritterCompany,
+	CritterCollect,
+	CritterOff
+}
+
+public enum CompanionCritterMode : byte
+{
+	Watch,
+	Company,
+	Collect,
+	Off
 }
 
 public enum CompanionTargetOrder : byte
@@ -308,6 +335,7 @@ public sealed partial class CompanionProfile
 	public CompanionJob Routine { get; set; }
 	public CompanionMiningApproach MiningApproach { get; set; } = CompanionMiningApproach.Adaptive;
 	public bool AutonomyEnabled { get; set; } = true;
+	public CompanionCritterMode CritterMode { get; set; } = CompanionCritterMode.Watch;
 	public CompanionInitiativePolicy GatheringInitiative { get; set; } = CompanionInitiativePolicy.Ask;
 	public CompanionInitiativePolicy MiningInitiative { get; set; } = CompanionInitiativePolicy.Ask;
 	public CompanionInitiativePolicy ForestryInitiative { get; set; } = CompanionInitiativePolicy.Ask;
@@ -415,6 +443,7 @@ public sealed partial class CompanionProfile
 		Routine = Routine,
 		MiningApproach = MiningApproach,
 		AutonomyEnabled = AutonomyEnabled,
+		CritterMode = CritterMode,
 		GatheringInitiative = GatheringInitiative,
 		MiningInitiative = MiningInitiative,
 		ForestryInitiative = ForestryInitiative,
@@ -455,6 +484,7 @@ public sealed partial class CompanionProfile
 		["routine"] = (byte)Routine,
 		["miningApproach"] = (byte)MiningApproach,
 		["autonomyEnabled"] = AutonomyEnabled,
+		["critterMode"] = (byte)CritterMode,
 		["gatheringInitiative"] = (byte)GatheringInitiative,
 		["miningInitiative"] = (byte)MiningInitiative,
 		["forestryInitiative"] = (byte)ForestryInitiative,
@@ -498,6 +528,8 @@ public sealed partial class CompanionProfile
 			MiningApproach = tag.ContainsKey("miningApproach")
 				? (CompanionMiningApproach)tag.GetByte("miningApproach") : CompanionMiningApproach.Adaptive,
 			AutonomyEnabled = !tag.ContainsKey("autonomyEnabled") || tag.GetBool("autonomyEnabled"),
+			CritterMode = tag.ContainsKey("critterMode")
+				? (CompanionCritterMode)tag.GetByte("critterMode") : CompanionCritterMode.Watch,
 			GatheringInitiative = tag.ContainsKey("gatheringInitiative")
 				? (CompanionInitiativePolicy)tag.GetByte("gatheringInitiative") : CompanionInitiativePolicy.Ask,
 			MiningInitiative = tag.ContainsKey("miningInitiative")
@@ -587,6 +619,7 @@ public sealed partial class CompanionProfile
 		writer.Write((byte)relations.Length);
 		foreach (CompanionRelationship relation in relations)
 			relation.Write(writer);
+		writer.Write((byte)CritterMode);
 	}
 
 	public static CompanionProfile Read(BinaryReader reader)
@@ -636,6 +669,7 @@ public sealed partial class CompanionProfile
 		int relationCount = reader.ReadByte();
 		for (int i = 0; i < relationCount; i++)
 			profile.Relationships.Add(CompanionRelationship.Read(reader));
+		profile.CritterMode = (CompanionCritterMode)reader.ReadByte();
 		profile.Normalize();
 		return profile;
 	}
@@ -897,6 +931,7 @@ public sealed partial class CompanionProfile
 		Trinket = ValidEnum(Trinket, CompanionTrinket.None);
 		Routine = ValidEnum(Routine, CompanionJob.None);
 		MiningApproach = ValidEnum(MiningApproach, CompanionMiningApproach.Adaptive);
+		CritterMode = ValidEnum(CritterMode, CompanionCritterMode.Watch);
 		GatheringInitiative = ValidEnum(GatheringInitiative, CompanionInitiativePolicy.Ask);
 		MiningInitiative = ValidEnum(MiningInitiative, CompanionInitiativePolicy.Ask);
 		ForestryInitiative = ValidEnum(ForestryInitiative, CompanionInitiativePolicy.Ask);

@@ -279,7 +279,7 @@ public sealed partial class SoulboundCompanion
 	{
 		if (Main.dedServ || Owner.whoAmI != Main.myPlayer || !Profile.AutonomyEnabled
 			|| activeJob != CompanionJob.None || autonomyActivity != AutonomyActivity.None
-			|| pendingAutonomyActivity != AutonomyActivity.None || guardianTarget >= 0 || speechTimer > 0)
+			|| pendingAutonomyActivity != AutonomyActivity.None || HasPendingQuestion || guardianTarget >= 0 || speechTimer > 0)
 			return;
 		if (craftingSuggestionCooldown > 0) {
 			craftingSuggestionCooldown--;

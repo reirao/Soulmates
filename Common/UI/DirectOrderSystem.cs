@@ -70,6 +70,7 @@ public sealed class DirectOrderSystem : ModSystem
 		if (Main.keyState.IsKeyDown(Keys.Escape) && Main.oldKeyState.IsKeyUp(Keys.Escape)) {
 			Main.mouseRightRelease = false;
 			Cancel();
+			ModContent.GetInstance<CompanionWheelSystem>().ExitMouseMode();
 			SoundEngine.PlaySound(SoundID.MenuClose with { Volume = 0.45f });
 			return;
 		}
@@ -106,8 +107,8 @@ public sealed class DirectOrderSystem : ModSystem
 
 	private bool TryResolveTarget(out Point tileTarget, out int itemTarget)
 	{
-		tileTarget = Main.MouseWorld.ToTileCoordinates();
-		itemTarget = FindHoveredItem();
+		tileTarget = SoulmatesUISpace.WorldMouse.ToTileCoordinates();
+		itemTarget = SoulwheelTarget.FindHoveredItem(SoulmatesUISpace.WorldMouse);
 		if (companion?.NPC.active != true)
 			return false;
 		return order switch {
@@ -117,28 +118,6 @@ public sealed class DirectOrderSystem : ModSystem
 			CompanionTargetOrder.Forest => companion.TryResolveForestTarget(tileTarget, out _, out _),
 			_ => false
 		};
-	}
-
-	private static int FindHoveredItem()
-	{
-		Vector2 mouse = Main.MouseWorld;
-		int result = -1;
-		float nearest = float.MaxValue;
-		for (int i = 0; i < Main.maxItems; i++) {
-			Item item = Main.item[i];
-			if (!item.active || item.IsAir)
-				continue;
-			Rectangle hitbox = item.Hitbox;
-			hitbox.Inflate(8, 8);
-			if (!hitbox.Contains(mouse.ToPoint()))
-				continue;
-			float distance = Vector2.DistanceSquared(mouse, item.Center);
-			if (distance >= nearest)
-				continue;
-			nearest = distance;
-			result = i;
-		}
-		return result;
 	}
 
 	public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)

@@ -25,6 +25,7 @@ public sealed partial class SoulboundCompanion
 {
 	public string StoreSelectedItem()
 	{
+		using var inventorySync = new CompanionInventorySync(Owner);
 		Item selected = Owner.inventory[Owner.selectedItem];
 		if (selected.IsAir)
 			return SoulmatesText.Get("Pack.SelectedEmpty");
@@ -48,6 +49,7 @@ public sealed partial class SoulboundCompanion
 
 	public string UnloadPack()
 	{
+		using var inventorySync = new CompanionInventorySync(Owner);
 		int moved = 0;
 		foreach (List<Item> storage in new[] { Profile.Pack, Profile.Resources }) {
 			for (int i = storage.Count - 1; i >= 0; i--) {
@@ -64,7 +66,6 @@ public sealed partial class SoulboundCompanion
 		for (int slot = 0; slot < 4; slot++)
 			moved += TransferWalletCoins(CompanionProfile.WalletCoinType(slot), singleItem: false);
 		SyncProfileToBoundSigil();
-		SyncOwnerInventory();
 		NPC.netUpdate = true;
 		SoulmatesFeedbackSystem.Record("pack_unloaded", ("amount", moved), ("pack_load", Profile.PackLoad));
 		return moved > 0
@@ -78,6 +79,7 @@ public sealed partial class SoulboundCompanion
 
 	public string WithdrawStorageSlot(CompanionStorage storageKind, int index, bool singleItem)
 	{
+		using var inventorySync = new CompanionInventorySync(Owner);
 		if (!Enum.IsDefined(storageKind))
 			return SoulmatesText.Get("Pack.SlotEmpty");
 		if (storageKind == CompanionStorage.Wallet) {
@@ -88,7 +90,6 @@ public sealed partial class SoulboundCompanion
 			if (coins <= 0)
 				return SoulmatesText.Get("Pack.InventoryFull");
 			SyncPackState();
-			SyncOwnerInventory();
 			SoulmatesFeedbackSystem.Record("wallet_withdrawn", ("item_type", coinType), ("amount", coins),
 				("balance_copper", Profile.WalletCopper.ToString()));
 			return SoulmatesText.Get("Storage.Withdrawn", coins, SoulmatesText.EnumName(storageKind));
@@ -111,7 +112,6 @@ public sealed partial class SoulboundCompanion
 		if (stored.stack <= 0)
 			storage.RemoveAt(index);
 		SyncProfileToBoundSigil();
-		SyncOwnerInventory();
 		NPC.netUpdate = true;
 		SoulmatesFeedbackSystem.Record("pack_withdrawn", ("item_type", itemType), ("amount", moved),
 			("pack_load", Profile.PackLoad));
@@ -153,6 +153,7 @@ public sealed partial class SoulboundCompanion
 	{
 		if (packReconciled)
 			return;
+		using var inventorySync = new CompanionInventorySync(Owner);
 		packReconciled = true;
 		Profile.Normalize();
 		var excessItems = new List<Item>();
@@ -174,7 +175,6 @@ public sealed partial class SoulboundCompanion
 				NetMessage.SendData(MessageID.SyncItem, -1, -1, null, itemIndex);
 		}
 		SyncPackState();
-		SyncOwnerInventory();
 	}
 
 	public void SyncProfileToBoundSigil()

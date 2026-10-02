@@ -481,6 +481,8 @@ internal sealed class TalkIconButton(int emoteId) : UIElement
 internal sealed class TalkItemButton(int itemType) : UIElement
 {
 	public string HoverText { get; set; } = "";
+	public string BadgeText { get; set; } = "";
+	public bool ShowHoverTooltip { get; set; } = true;
 	public bool Selected { get; set; }
 
 	protected override void DrawSelf(SpriteBatch spriteBatch)
@@ -499,10 +501,17 @@ internal sealed class TalkItemButton(int itemType) : UIElement
 		float scale = Math.Min(size * 0.58f / source.Width, size * 0.58f / source.Height);
 		spriteBatch.Draw(texture, center, source, Color.White, 0f, source.Size() * 0.5f,
 			scale, SpriteEffects.None, 0f);
+		if (BadgeText.Length > 0) {
+			float badgeScale = Math.Min(0.38f, (size - 2f) / Math.Max(1f,
+				FontAssets.MouseText.Value.MeasureString(BadgeText).X));
+			Utils.DrawBorderString(spriteBatch, BadgeText, new Vector2(area.X + area.Width - 2f,
+				area.Y + area.Height - 2f), Color.White, badgeScale, 1f, 1f);
+		}
 		if (!IsMouseHovering || string.IsNullOrWhiteSpace(HoverText))
 			return;
 		Main.LocalPlayer.mouseInterface = true;
-		Main.hoverItemName = HoverText;
+		if (ShowHoverTooltip)
+			Main.hoverItemName = HoverText;
 	}
 }
 

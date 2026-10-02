@@ -23,8 +23,8 @@ public sealed partial class SoulboundCompanion
 {
 	public void Recall()
 	{
+		using var inventorySync = new CompanionInventorySync(Owner);
 		SyncProfileToBoundSigil();
-		SyncOwnerInventory();
 		StopOwnedEffects();
 		if (Owner.active)
 			Owner.GetModPlayer<SoulmatesPlayer>().ActiveCompanionWhoAmI = -1;
@@ -32,14 +32,6 @@ public sealed partial class SoulboundCompanion
 		NPC.netUpdate = true;
 		if (Main.netMode == NetmodeID.Server)
 			NetMessage.SendData(MessageID.SyncNPC, -1, -1, null, NPC.whoAmI);
-	}
-
-	private void SyncOwnerInventory()
-	{
-		if (Main.netMode != NetmodeID.Server)
-			return;
-		for (int slot = 0; slot < Owner.inventory.Length; slot++)
-			NetMessage.SendData(MessageID.SyncEquipment, Owner.whoAmI, -1, null, Owner.whoAmI, slot);
 	}
 
 	public static SoulboundCompanion? FindFor(Player player)
@@ -85,6 +77,8 @@ public sealed partial class SoulboundCompanion
 
 	private void StopOwnedEffects()
 	{
+		ClearChoiceQuestion();
+		ReleaseCritterCompany();
 		for (int i = 0; i < Main.maxProjectiles; i++) {
 			Projectile projectile = Main.projectile[i];
 			if (projectile.active && projectile.type == ModContent.ProjectileType<SoulBolt>()

@@ -1,5 +1,78 @@
 Mods: {
 	Soulmates: {
+		Conversation: {
+			Later: Natürlich. Wir können später reden.
+			Company: {
+				Heading: Was wünschst du dir?
+				Question: {
+					Soft: Welche Art Gesellschaft würde dir gerade guttun?
+					Direct: Was würde dir gerade am meisten helfen?
+					Playful: Hilfreicher Sidekick, Spaßpartner oder ein kleiner stiller Schatten?
+				}
+				Choices: {
+					First: Sammle immer die losen Sachen in der Nähe.
+					Second: Lass uns Spaß haben. Sei verspielt!
+					Third: Ein wenig sanfte Gesellschaft, bitte.
+					Later: Lass uns später reden.
+				}
+				Reply: {
+					Direct: Verstanden. Lose Sachen in der Nähe sind mein Job. Auch meine Worte werden klarer.
+					Playful: Abenteuerpartner also! Ich verspreche absolut vernünftige Mengen an Unfug.
+					Soft: Ich bin da. Ein wenig sanfter, ein wenig näher.
+				}
+			}
+			Wallet: {
+				Heading: Etwas für dich
+				Choices: {
+					First: Danke! Ich nehme die Münzen.
+					Second: Spare weiter für uns.
+					Third: Schau uns an, Schatzjäger!
+					Later: Nicht jetzt. Bewahre sie gut auf.
+				}
+				Delivered: Hier, für dich! Alles sicher in deinen Taschen.
+				Partial: Hier, für dich! Was nicht hineinpasst, behalte ich sicher bei mir.
+				Full: Deine Taschen sind voll. Keine Sorge, jede Münze bleibt sicher bei mir.
+				Saving: Verstanden. Unsere Ersparnisse bleiben bei mir.
+				TreasureHunters: Eine Zwei-Seelen-Schatzexpedition! Ich passe auf unser kleines glänzendes Vermögen auf.
+				Curious: {
+					Line0: Hier, für dich! Ich habe {0} gefunden. Was könnte man dafür bekommen?
+					Line1: Die kleinen Funde haben sich summiert: {0}. Möchtest du sie?
+				}
+				Loyal: {
+					Line0: Hier, für dich! Ich habe {0} gut aufbewahrt. Möchtest du sie?
+					Line1: Eine Kleinigkeit für deine Reise: {0}. Soll ich sie dir geben?
+				}
+				Brave: {
+					Line0: Hier, für dich! Unsere Abenteuer haben {0} eingebracht. Möchtest du sie?
+					Line1: Bereit für das nächste Abenteuer? Ich habe {0} für Vorräte.
+				}
+				Gentle: {
+					Line0: Hier, für dich! Eine kleine Freude, {0}. Darf ich sie dir geben?
+					Line1: Du hast genug getragen. Ich habe {0} für dich gespart.
+				}
+				Mischievous: {
+					Line0: Hier, für dich! {0}, legal erworben. Fast nur ein Scherz. Möchtest du sie?
+					Line1: Meine Taschen klimpern: {0}. Deine könnten es auch!
+				}
+			}
+			Chatter: {
+				Soft: {
+					Line0: Keine Eile. Ich bin gern hier bei dir.
+					Line1: Auch die kleinen Entdeckungen zählen.
+					Line2: Ich höre zu. Wir gehen einen Schritt nach dem anderen.
+				}
+				Direct: {
+					Line0: Ich bleibe nah und halte nach nützlichen Funden Ausschau.
+					Line1: Bereit, sobald du es bist.
+					Line2: Eine Aufgabe nach der anderen. Wir kommen voran.
+				}
+				Playful: {
+					Line0: Offiziell winzig. Inoffiziell ein ausgezeichneter Abenteuerpartner.
+					Line1: Wenn wir einen Schatz finden, darf ich ihn benennen!
+					Line2: Gleiches Team, andere Taschen. Finden wir etwas Glänzendes.
+				}
+			}
+		}
 		Items: {
 			Soulcore: {
 				DisplayName: Seelenkern
@@ -150,6 +223,10 @@ Mods: {
 			}
 
 			CompanionQuickAction: {
+				CritterWatch: Tiere beobachten
+				CritterCompany: Tiergesellschaft
+				CritterCollect: Tiere sammeln
+				CritterOff: Tiere in Ruhe lassen
 				Follow: Folgen
 				Stay: Warten
 				Explore: Erkunden
@@ -174,6 +251,13 @@ Mods: {
 				StarfinderBell: Sternensucherglocke
 				DelverCharm: Tiefengänger-Talisman
 				HearthRibbon: Herdfeuerband
+			}
+
+			CompanionCritterMode: {
+				Watch: Tiere beobachten
+				Company: Tiergesellschaft
+				Collect: Tiere sammeln
+				Off: Tiere in Ruhe lassen
 			}
 
 			CompanionJob: {
@@ -275,6 +359,20 @@ Mods: {
 			Emotes.Center: EMOTE
 
 			CompanionWheel: {
+				MouseModes: {
+					Terraria: Terraria - normal benutzen
+					Player: Ich - zeigen und ausdrücken
+					Companion: Soulmate - eine Aufgabe geben
+					Point: Darauf zeigen
+					Look: Ansehen
+					Gather: Einsammeln
+					Mine: Abbauen
+					Forest: Pflegen
+					Emotes: Meine Emotes
+					Tools: Weitere Werkzeuge
+					Target: "{0}: {1}"
+					TargetChanged: Das Ziel hat sich verändert. Zeigst du es mir noch einmal?
+				}
 				Center: SOULMATE
 				Back: Zurück
 				Close: Schließen
@@ -297,6 +395,7 @@ Mods: {
 				}
 
 				Categories: {
+					Critters: Kleine Tiere
 					Commands: Befehle
 					Work: Arbeit
 					Bond: Bindung
@@ -318,6 +417,10 @@ Mods: {
 				}
 
 				Actions: {
+					CritterWatch: TIERE BEOBACHTEN
+					CritterCompany: TIERGESELLSCHAFT
+					CritterCollect: TIERE SAMMELN
+					CritterOff: IN RUHE LASSEN
 					Follow: FOLGEN
 					Stay: WARTEN
 					Explore: ERKUNDEN
@@ -461,6 +564,25 @@ Mods: {
 			ForestAccepted: Ich pflege diesen Ort und komme dann zurück.
 			ForestDone: Dieser Ort ist versorgt.
 			LookItem: "{0}. Für {1} aus diesem Stapel habe ich noch Platz."
+			LookCoins: "{0}. Münzen kommen in meine Geldtasche; die hat keine Kapazitätsgrenze."
+			Noticing: {
+				Rest: Wir können zusammen schauen, während ich durchatme.
+				Quiet: Lass uns einfach einen Moment schauen. Keine Eile.
+				Soft: {
+					Curious: Schön, dass du es mir zeigst. Was versteckt sich hier noch?
+					Loyal: Ich sehe gern, was dir ins Auge fällt.
+					Brave: Du entdeckst die Gelegenheit. Ich halte Wache.
+					Gentle: Wir müssen nicht alles mitnehmen. Anschauen ist auch schön.
+					Mischievous: Gute Augen. Ich hätte das natürlich gleich selbst bemerkt.
+				}
+				Playful: {
+					Curious: Eine Entdeckung geschafft. Ein paar Tausend fehlen noch!
+					Loyal: Unsere äußerst wichtige Besichtigung geht weiter.
+					Brave: Hervorragend entdeckt. Die dramatische Pose übernehme ich.
+					Gentle: Eine kleine Entdeckung. Die zählen auch, weißt du?
+					Mischievous: Ich habe es zuerst gesehen! ...Na gut. Knapp als Zweite.
+				}
+			}
 			LookForest: Ein Waldort. Wir können einen Baum schütteln oder totes Holz entfernen, ohne lebende Stämme zu fällen.
 			LookMineable: "{0}. Das kann ich sicher abbauen, wenn du mich bittest."
 			LookProtected: "{0}. Das kann ich noch nicht sicher abbauen, oder es ist geschützt."
@@ -564,7 +686,7 @@ Mods: {
 			Description: Ausrüstung {0}/{1} | {2} Ressourcenstapel, {3} pro Typ | {4}
 			Money: "{0}p {1}g {2}s {3}c"
 			Unlimited: Geldtasche: ohne Kapazitätslimit
-			ResourceSummary: "{0}/Typ | {1}/{2}"
+			ResourceSummary: "{3} Stapel | {0}/Typ | {1}/{2}"
 			PageHint: Ressourcenseiten: nächste / Rechtsklick vorherige
 			ResourcesFull: Mein Ressourceninventar hat keine freien Plätze.
 			Stored: Ich habe {0} in {1} verstaut.
@@ -654,6 +776,26 @@ Mods: {
 		}
 
 		Social: {
+			Critters: {
+				NeedNet: Ich brauche einen Kescher in meiner Ausrüstung, bevor ich Tiere sammeln kann.
+				Full: Für ein weiteres kleines Tier ist kein Platz. Ich lasse es hier.
+				Caught: "Ein {0}! Ein echter Fang, sicher in meinem Pack."
+				WorldDrop: Dieser Fang blieb in der Welt. Mein Pack hat ihn nicht aufgenommen.
+				Joined: "Das {0} ist neugierig auf uns. Reisen wir zusammen, solange der Weg es erlaubt."
+				Modes: {
+					Watch: Ich bemerke kleine Tiere, ohne sie einzufangen.
+					Company: Ich lade gewöhnliche Tiere in der Nähe ein, mich zu begleiten. Keine Käfige, keine Kopien.
+					Collect: Ich fange gewöhnliche Tiere mit meinem Netz, wenn Platz ist. Arbeit und Gefahren gehen vor.
+					Off: Ich lasse die Tiere ihre eigenen Abenteuer erleben.
+				}
+				Notice: {
+					Curious: "Ein {0}. Wohin sein kleiner Pfad wohl führt?"
+					Loyal: "Ein {0}. Ich mag Reisen, auf denen auch kleine Schritte Platz haben."
+					Brave: "Ein {0}. So klein in einer so großen Welt. Ich passe darauf auf."
+					Gentle: "Ein {0}. Wir können diesen stillen Fleck der Welt teilen."
+					Mischievous: "Ein {0}! Du kennst bestimmt eine Abkürzung, die ich noch nicht kenne."
+				}
+			}
 			Nature.Insect: Ein {0}! Ein kleiner Reisegefährte. In meinem Pack passe ich gut darauf auf.
 
 			Residents: {

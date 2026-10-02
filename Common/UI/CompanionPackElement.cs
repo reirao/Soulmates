@@ -23,9 +23,14 @@ internal sealed class CompanionPackElement(
 
 	public void Reset()
 	{
-		selectedStorage = CompanionStorage.Pack;
+		selectedStorage = InitialStorage(getProfile());
 		page = 0;
 	}
+
+	internal static CompanionStorage InitialStorage(CompanionProfile? profile)
+		=> profile is null || profile.PackLoad > 0 ? CompanionStorage.Pack
+			: profile.ResourceLoad > 0 ? CompanionStorage.Resources
+			: !profile.WalletCopper.IsZero ? CompanionStorage.Wallet : CompanionStorage.Pack;
 
 	public override void OnInitialize()
 	{
@@ -36,6 +41,7 @@ internal sealed class CompanionPackElement(
 				_ => ItemID.PiggyBank
 			};
 			var button = new TalkItemButton(icon) {
+				ShowHoverTooltip = false,
 				Left = new StyleDimension((int)storage * 30f, 0f),
 				Width = new StyleDimension(26f, 0f),
 				Height = new StyleDimension(26f, 0f)
@@ -45,6 +51,7 @@ internal sealed class CompanionPackElement(
 			Append(button);
 		}
 		pageButton = new TalkItemButton(ItemID.Book) {
+			ShowHoverTooltip = false,
 			Left = new StyleDimension(90f, 0f),
 			Width = new StyleDimension(26f, 0f),
 			Height = new StyleDimension(26f, 0f)
@@ -94,17 +101,22 @@ internal sealed class CompanionPackElement(
 		foreach ((CompanionStorage storage, TalkItemButton button) in tabs) {
 			button.Selected = storage == selectedStorage;
 			button.HoverText = SoulmatesText.EnumName(storage);
+			button.BadgeText = storage switch {
+				CompanionStorage.Resources => profile.ResourceLoad.ToString(),
+				CompanionStorage.Wallet => profile.WalletCopper.IsZero ? "0" : "+",
+				_ => profile.PackLoad.ToString()
+			};
 		}
 		if (pageButton is not null) {
 			pageButton.Selected = selectedStorage == CompanionStorage.Resources && PageCount > 1;
 			pageButton.HoverText = SoulmatesText.Get("Storage.PageHint");
 		}
 		CalculatedStyle area = GetDimensions();
-		string summary = selectedStorage switch {
-			CompanionStorage.Resources => SoulmatesText.Get("Storage.ResourceSummary", profile.ResourceCarryLimit, page + 1, PageCount),
-			CompanionStorage.Wallet => SoulmatesText.Get("Storage.Unlimited"),
-			_ => $"{profile.PackLoad}/{profile.PackCapacity}"
-		};
+		string summary = Summary(profile, selectedStorage);
+		foreach ((CompanionStorage storage, TalkItemButton button) in tabs)
+			if (button.IsMouseHovering) summary = Summary(profile, storage);
+		if (pageButton?.IsMouseHovering == true && PageCount > 1)
+			summary = SoulmatesText.Get("Storage.PageHint");
 		DrawFitted(spriteBatch, summary, new Vector2(area.X + 122f, area.Y + 6f), area.Width - 122f, 0.5f);
 		List<Item>? items = selectedStorage == CompanionStorage.Wallet ? null : profile.StorageItems(selectedStorage);
 		int slots = selectedStorage == CompanionStorage.Wallet ? 4 : 12;
@@ -145,6 +157,15 @@ internal sealed class CompanionPackElement(
 		if (selectedStorage == CompanionStorage.Wallet)
 			DrawFitted(spriteBatch, profile.DescribeWallet(), new Vector2(area.X, area.Y + 75f), area.Width, 0.52f);
 	}
+
+	private string Summary(CompanionProfile profile, CompanionStorage storage) => storage switch {
+		CompanionStorage.Resources => SoulmatesText.EnumName(storage) + " "
+			+ SoulmatesText.Get("Storage.ResourceSummary", profile.ResourceCarryLimit,
+				storage == selectedStorage ? page + 1 : 1,
+				Math.Max(1, (profile.ResourceLoad + 11) / 12), profile.ResourceLoad),
+		CompanionStorage.Wallet => SoulmatesText.Get("Storage.Unlimited"),
+		_ => $"{SoulmatesText.EnumName(storage)} {profile.PackLoad}/{profile.PackCapacity}"
+	};
 
 	private void Withdraw(bool singleItem)
 	{

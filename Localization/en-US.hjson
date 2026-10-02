@@ -1,5 +1,78 @@
 Mods: {
 	Soulmates: {
+		Conversation: {
+			Later: Of course. We can talk later.
+			Company: {
+				Heading: What would you like?
+				Question: {
+					Soft: What kind of company would feel good right now?
+					Direct: What would help you most right now?
+					Playful: Helpful sidekick, mischief partner, or a quiet little shadow?
+				}
+				Choices: {
+					First: Keep collecting nearby drops for me.
+					Second: Let's have some fun. Be playful!
+					Third: Some gentle company, please.
+					Later: Let's talk later.
+				}
+				Reply: {
+					Direct: Got it. Nearby drops are my job. I will keep my words clear, too.
+					Playful: Adventure partner it is! I promise absolutely reasonable amounts of mischief.
+					Soft: I am here. A little softer, a little closer.
+				}
+			}
+			Wallet: {
+				Heading: Something for you
+				Choices: {
+					First: Thank you! I'll take the coins.
+					Second: Keep saving for us.
+					Third: Look at us, treasure hunters!
+					Later: Not now. Keep them safe.
+				}
+				Delivered: Here for you! All safely in your pockets.
+				Partial: Here for you! I will hold on to what did not fit.
+				Full: Your pockets are full. No worries, every coin stays safe with me.
+				Saving: Understood. Our savings stay with me.
+				TreasureHunters: A two-soul treasure operation! I will keep our shiny little fortune safe.
+				Curious: {
+					Line0: Here for you! I found {0}. Shall we see what it can buy?
+					Line1: These little discoveries added up: {0}. Want them?
+				}
+				Loyal: {
+					Line0: Here for you! I kept {0} safe. Would you like it?
+					Line1: A little something for your journey: {0}. Shall I hand it over?
+				}
+				Brave: {
+					Line0: Here for you! Our adventures earned {0}. Want your share?
+					Line1: Ready for the next adventure? I have {0} for supplies.
+				}
+				Gentle: {
+					Line0: Here for you! A small kindness, {0}. May I give it to you?
+					Line1: You have done enough carrying. I saved {0} for you.
+				}
+				Mischievous: {
+					Line0: Here for you! {0}, legally acquired. Mostly kidding. Want it?
+					Line1: My pockets are jingling: {0}. Yours could be, too!
+				}
+			}
+			Chatter: {
+				Soft: {
+					Line0: No hurry. I like being here with you.
+					Line1: Even the small discoveries count.
+					Line2: I am listening. We can take this one step at a time.
+				}
+				Direct: {
+					Line0: Staying close. Watching for our next useful find.
+					Line1: Ready when you are.
+					Line2: One task at a time. We are making progress.
+				}
+				Playful: {
+					Line0: Officially tiny. Unofficially an excellent adventure partner.
+					Line1: If we find treasure, I get naming rights!
+					Line2: Same team, different pockets. Let's find something shiny.
+				}
+			}
+		}
 		Items: {
 			Soulcore: {
 				DisplayName: Soulcore
@@ -150,6 +223,10 @@ Mods: {
 			}
 
 			CompanionQuickAction: {
+				CritterWatch: Watch critters
+				CritterCompany: Critter company
+				CritterCollect: Pet Collect
+				CritterOff: Leave critters alone
 				Follow: Follow
 				Stay: Stay
 				Explore: Explore
@@ -174,6 +251,13 @@ Mods: {
 				StarfinderBell: Starfinder Bell
 				DelverCharm: Delver Charm
 				HearthRibbon: Hearth Ribbon
+			}
+
+			CompanionCritterMode: {
+				Watch: Watch critters
+				Company: Critter company
+				Collect: Pet Collect
+				Off: Leave critters alone
 			}
 
 			CompanionJob: {
@@ -275,6 +359,20 @@ Mods: {
 			Emotes.Center: EMOTE
 
 			CompanionWheel: {
+				MouseModes: {
+					Terraria: Terraria - normal use
+					Player: Me - point and express
+					Companion: Soulmate - give a task
+					Point: Point out
+					Look: Look at
+					Gather: Collect
+					Mine: Mine
+					Forest: Tend
+					Emotes: My emotes
+					Tools: More tools
+					Target: "{0}: {1}"
+					TargetChanged: That target has changed. Show me again?
+				}
 				Center: SOULMATE
 				Back: Back
 				Close: Close
@@ -297,6 +395,7 @@ Mods: {
 				}
 
 				Categories: {
+					Critters: Critters
 					Commands: Commands
 					Work: Work
 					Bond: Bond
@@ -318,6 +417,10 @@ Mods: {
 				}
 
 				Actions: {
+					CritterWatch: WATCH CRITTERS
+					CritterCompany: CRITTER COMPANY
+					CritterCollect: PET COLLECT
+					CritterOff: LEAVE THEM ALONE
 					Follow: FOLLOW
 					Stay: STAY
 					Explore: EXPLORE
@@ -461,6 +564,25 @@ Mods: {
 			ForestAccepted: I will tend that spot, then come back.
 			ForestDone: That spot is taken care of.
 			LookItem: "{0}. I have room for {1} from that stack."
+			LookCoins: "{0}. Coins go in my wallet; it has no capacity limit."
+			Noticing: {
+				Rest: We can look together while I catch my breath.
+				Quiet: Let's just look for a moment. No hurry.
+				Soft: {
+					Curious: I'm glad you showed me. What else is hiding here?
+					Loyal: I like seeing what catches your eye.
+					Brave: You spot the opportunity. I'll keep watch.
+					Gentle: We don't have to take everything. Looking is nice, too.
+					Mischievous: Good eyes. I was absolutely about to notice that.
+				}
+				Playful: {
+					Curious: One discovery down. Several thousand to go!
+					Loyal: Our very important sightseeing expedition continues.
+					Brave: Excellent scouting. I'll handle the dramatic pose.
+					Gentle: A tiny discovery. Those count, you know.
+					Mischievous: I saw it first! ...Fine. A very close second.
+				}
+			}
 			LookForest: A forest spot. We can shake a tree or clear fallen wood without cutting a living trunk.
 			LookMineable: "{0}. I can safely mine this if you ask."
 			LookProtected: "{0}. I cannot safely mine this yet, or it is protected."
@@ -564,7 +686,7 @@ Mods: {
 			Description: Equipment {0}/{1} | {2} resource stacks, {3} per type | {4}
 			Money: "{0}p {1}g {2}s {3}c"
 			Unlimited: Wallet: no capacity limit
-			ResourceSummary: "{0}/type | {1}/{2}"
+			ResourceSummary: "{3} stacks | {0}/type | {1}/{2}"
 			PageHint: Resource pages: next / right-click previous
 			ResourcesFull: My resource inventory has no free slots.
 			Stored: I stored {0} in {1}.
@@ -654,6 +776,26 @@ Mods: {
 		}
 
 		Social: {
+			Critters: {
+				NeedNet: I need a bug net in my Equipment before I can collect critters.
+				Full: There is no room for another little creature. I will leave it here.
+				Caught: "A {0}! One real catch, safely in my pack."
+				WorldDrop: That catch stayed in the world. My pack did not take it.
+				Joined: "The {0} is curious about us. Let us travel together while the path allows it."
+				Modes: {
+					Watch: I will notice little creatures without catching them.
+					Company: I will invite nearby common critters to keep me company. No cages, no copies.
+					Collect: I will use my net on nearby common critters when there is room. Work and danger come first.
+					Off: I will leave the critters to their own adventures.
+				}
+				Notice: {
+					Curious: "A {0}. Where do you suppose its tiny path leads?"
+					Loyal: "A {0}. I like a journey with room for smaller footsteps."
+					Brave: "A {0}. Such a small creature in such a large world. I will watch out for it."
+					Gentle: "A {0}. We can share this quiet patch of the world."
+					Mischievous: "A {0}! You look like you know a shortcut I do not."
+				}
+			}
 			Nature.Insect: A {0}! A small travelling companion. I will keep it safe while it is in my pack.
 
 			Residents: {

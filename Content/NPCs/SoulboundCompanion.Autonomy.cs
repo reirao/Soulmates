@@ -59,6 +59,7 @@ public sealed partial class SoulboundCompanion
 
 	private bool UpdateHelpfulAutonomy()
 	{
+		if (HasPendingQuestion) return false;
 		if (!Profile.AutonomyEnabled || Command == StayCommand || Profile.Energy < 16 || Profile.Mood < 15) {
 			if ((autonomyActivity != AutonomyActivity.None || pendingAutonomyActivity != AutonomyActivity.None)
 				&& Main.netMode != NetmodeID.MultiplayerClient)
@@ -80,13 +81,13 @@ public sealed partial class SoulboundCompanion
 			return false;
 		if (Main.netMode == NetmodeID.MultiplayerClient || autonomyDecisionTimer > 0)
 			return false;
-		if (Main.netMode == NetmodeID.SinglePlayer && !SoulmatesUIInput.CanPresentInitiative)
-			return false;
+		bool canAsk = Main.netMode != NetmodeID.SinglePlayer || SoulmatesUIInput.CanPresentInitiative;
+		bool CanConsider(CompanionInitiativeKind kind) => MayConsiderInitiative(kind)
+			&& (canAsk || Profile.GetInitiativePolicy(kind) == CompanionInitiativePolicy.Always);
 
 		bool eagerGatherer = EagerGatherer;
-		int minimum = eagerGatherer ? 120
-			: Profile.Personality is CompanionPersonality.Curious or CompanionPersonality.Mischievous ? 200 : 260;
-		int maximum = eagerGatherer ? 260 : 480;
+		int minimum = eagerGatherer ? 60 : 90;
+		int maximum = eagerGatherer ? 120 : 180;
 		autonomyDecisionTimer = Main.rand.Next(minimum, maximum);
 		if (Vector2.DistanceSquared(NPC.Center, Owner.Center) > 440f * 440f)
 			return false;
@@ -96,19 +97,20 @@ public sealed partial class SoulboundCompanion
 		Point forestTarget = Point.Zero;
 		ForestAction forestAction = ForestAction.None;
 		Point chest = Point.Zero;
-		if (MayConsiderInitiative(CompanionInitiativeKind.Gathering)
+		if (CanConsider(CompanionInitiativeKind.Gathering)
 			&& FindAutonomousLooseItem(out itemIndex))
-			OfferOpportunity(CompanionInitiativeKind.Gathering, Main.item[itemIndex].Center, EagerGatherer);
+			OfferOpportunity(CompanionInitiativeKind.Gathering, Main.item[itemIndex].Center,
+				EagerGatherer || CompanionProfile.CoinValue(Main.item[itemIndex].type) > 0);
 
-		if (MiningInstinct && MayConsiderInitiative(CompanionInitiativeKind.Mining)
+		if (MiningInstinct && CanConsider(CompanionInitiativeKind.Mining)
 			&& FindAutonomousOre(out ore))
 			OfferOpportunity(CompanionInitiativeKind.Mining, ore.ToWorldCoordinates(), Profile.HasTalent(CompanionTalent.Miner));
 
-		if (MayConsiderInitiative(CompanionInitiativeKind.Forestry)
+		if (CanConsider(CompanionInitiativeKind.Forestry)
 			&& FindForestTask(Owner.Center, out forestTarget, out forestAction))
 			OfferOpportunity(CompanionInitiativeKind.Forestry, forestTarget.ToWorldCoordinates(), Profile.ForesterUnlocked);
 
-		if (TreasureInstinct && MayConsiderInitiative(CompanionInitiativeKind.Treasure)
+		if (TreasureInstinct && CanConsider(CompanionInitiativeKind.Treasure)
 			&& autonomyDiscoveryCooldown <= 0
 			&& FindAutonomousChest(out chest))
 			OfferOpportunity(CompanionInitiativeKind.Treasure, chest.ToWorldCoordinates(), Profile.HasTalent(CompanionTalent.TreasureSeeker));
@@ -127,7 +129,7 @@ public sealed partial class SoulboundCompanion
 			return result;
 		}
 
-		if (Main.rand.NextBool(3))
+		if (canAsk && Main.rand.NextBool(3))
 			PerformAutonomousMoment();
 		return false;
 	}
@@ -366,7 +368,7 @@ public sealed partial class SoulboundCompanion
 		};
 		if (success) {
 			ShowNativeEmote(EmoteID.MiscTree, 120);
-			TryCatchNearbyInsect();
+			if (Profile.CritterMode == CompanionCritterMode.Collect) TryCatchNearbyInsect();
 		}
 		return success;
 	}
@@ -497,6 +499,7 @@ public sealed partial class SoulboundCompanion
 			if (ownerDistance >= radius * radius)
 				continue;
 			float score = Vector2.DistanceSquared(NPC.Center, item.Center);
+			if (CompanionProfile.CoinValue(item.type) > 0) score *= 0.65f;
 			if (item.type == ItemID.FallenStar && TreasureInstinct)
 				score *= 0.55f;
 			if (score >= bestScore)
@@ -591,15 +594,19 @@ public sealed partial class SoulboundCompanion
 
 	private bool CanPlantAcornAt(int x, int y)
 	{
-		if (!WorldGen.InWorld(x, y, 10) || Main.tile[x, y].HasTile || Main.tile[x, y].WallType != WallID.None)
+		if (!WorldGen.InWorld(x, y, 10) || !WorldGen.InWorld(x + 1, y + 1, 10))
 			return false;
-		Tile ground = Main.tile[x, y + 1];
-		if (!ground.HasTile || !IsAcornGround(ground.TileType))
-			return false;
-
-		for (int scanY = y - 4; scanY <= y; scanY++) {
-			if (!WorldGen.InWorld(x, scanY, 10) || Main.tile[x, scanY].HasTile)
+		// Reserve growing room beside the sapling and avoid unstable ground.
+		for (int column = x; column <= x + 1; column++) {
+			Tile ground = Main.tile[column, y + 1];
+			if (!ground.HasTile || ground.IsActuated || ground.IsHalfBlock || ground.Slope != SlopeType.Solid
+				|| !IsAcornGround(ground.TileType))
 				return false;
+			for (int scanY = y - 4; scanY <= y; scanY++) {
+				if (!WorldGen.InWorld(column, scanY, 10)) return false;
+				Tile space = Main.tile[column, scanY];
+				if (space.HasTile || space.WallType != WallID.None || space.LiquidAmount > 0) return false;
+			}
 		}
 		for (int scanX = x - 3; scanX <= x + 3; scanX++) {
 			for (int scanY = y - 6; scanY <= y + 1; scanY++) {
