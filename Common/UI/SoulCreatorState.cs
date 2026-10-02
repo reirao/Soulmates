@@ -45,7 +45,11 @@ public sealed class SoulCreatorState : UIState
 			Top = new StyleDimension(8f, 0f)
 		};
 		panel.Append(creatorTitle);
-		refreshButtons.Add(() => creatorTitle.SetText(SoulmatesText.Get("UI.Creator.Title")));
+		refreshButtons.Add(() => {
+			string text = SoulmatesText.Get("UI.Creator.Title");
+			Vector2 size = FontAssets.DeathText.Value.MeasureString(text);
+			creatorTitle.SetText(text, Math.Min(SoulmatesTextLayout.FitScale(size.X, 640f, 1.15f), 30f / Math.Max(1f, size.Y)), true);
+		});
 
 		var previewPanel = new UIPanel {
 			Left = new StyleDimension(14f, 0f),
@@ -70,7 +74,7 @@ public sealed class SoulCreatorState : UIState
 			Width = new StyleDimension(-20f, 1f),
 			TextOriginX = 0.5f,
 			HAlign = 0.5f,
-			IsWrapped = true
+			Height = new StyleDimension(88f, 0f)
 		};
 		previewPanel.Append(details);
 		details.HAlign = 0f;
@@ -109,7 +113,7 @@ public sealed class SoulCreatorState : UIState
 		}
 
 		var randomize = Button("", 357f, left, width, new Color(82, 74, 116));
-		refreshButtons.Add(() => randomize.SetText(SoulmatesText.Get("UI.Creator.Randomize")));
+		refreshButtons.Add(() => SetButtonText(randomize, SoulmatesText.Get("UI.Creator.Randomize")));
 		randomize.OnLeftClick += (_, _) => RandomizeDraft();
 		panel.Append(randomize);
 
@@ -123,12 +127,12 @@ public sealed class SoulCreatorState : UIState
 		panel.Append(status);
 
 		var create = Button("", 420f, 14f, 450f, new Color(55, 129, 112));
-		refreshButtons.Add(() => create.SetText(SoulmatesText.Get("UI.Creator.Create")));
+		refreshButtons.Add(() => SetButtonText(create, SoulmatesText.Get("UI.Creator.Create")));
 		create.OnLeftClick += (_, _) => CreateCompanion();
 		panel.Append(create);
 
 		var close = Button("", 420f, 480f, 176f, new Color(120, 63, 72));
-		refreshButtons.Add(() => close.SetText(SoulmatesText.Get("UI.Common.Close")));
+		refreshButtons.Add(() => SetButtonText(close, SoulmatesText.Get("UI.Common.Close")));
 		close.OnLeftClick += (_, _) => ModContent.GetInstance<SoulCreatorSystem>().Close();
 		panel.Append(close);
 		Refresh();
@@ -187,7 +191,7 @@ public sealed class SoulCreatorState : UIState
 	private void AddCycleButton(UIPanel panel, string labelKey, float top, float left, float width, Func<string> value, Action cycle)
 	{
 		var button = Button(SoulmatesText.Get("UI.Creator.Field", SoulmatesText.Get(labelKey), value()), top, left, width, new Color(43, 64, 98));
-		refreshButtons.Add(() => button.SetText(SoulmatesText.Get("UI.Creator.Field", SoulmatesText.Get(labelKey), value())));
+		refreshButtons.Add(() => SetButtonText(button, SoulmatesText.Get("UI.Creator.Field", SoulmatesText.Get(labelKey), value())));
 		button.OnLeftClick += (_, _) => {
 			cycle();
 			SoundEngine.PlaySound(SoundID.MenuTick);
@@ -208,8 +212,12 @@ public sealed class SoulCreatorState : UIState
 		};
 		button.OnMouseOver += (_, _) => button.BackgroundColor = color * 1.25f;
 		button.OnMouseOut += (_, _) => button.BackgroundColor = color;
+		SetButtonText(button, text);
 		return button;
 	}
+
+	private static void SetButtonText(UITextPanel<string> button, string text) => button.SetText(text,
+		SoulmatesTextLayout.FitScale(FontAssets.MouseText.Value.MeasureString(text).X, button.Width.Pixels - 24f, 0.82f), false);
 
 	private void CreateCompanion()
 	{
@@ -285,8 +293,12 @@ public sealed class SoulCreatorState : UIState
 		foreach (Action refreshButton in refreshButtons)
 			refreshButton();
 		string talent = draft.IsAether ? SoulmatesText.Get("UI.Talk.OmniSoul") : SoulmatesText.EnumName(draft.Talent);
-		details.SetText(SoulmatesText.Get("UI.Creator.Details", draft.Name, SoulmatesText.EnumName(draft.Muse), SoulmatesText.EnumName(draft.Form),
-			SoulmatesText.EnumName(draft.Essence), SoulmatesText.EnumName(draft.Aura), SoulmatesText.EnumName(draft.Personality), talent));
+		string text = SoulmatesText.Get("UI.Creator.Details", draft.Name, SoulmatesText.EnumName(draft.Muse), SoulmatesText.EnumName(draft.Form),
+			SoulmatesText.EnumName(draft.Essence), SoulmatesText.EnumName(draft.Aura), SoulmatesText.EnumName(draft.Personality), talent);
+		var font = FontAssets.MouseText.Value;
+		float scale = SoulmatesTextLayout.FitWrappedScale(text, 202f, 88f, 0.86f, font.MeasureString("M").Y,
+			line => font.MeasureString(line).X);
+		details.SetText(string.Join("\n", SoulmatesTextLayout.Wrap(text, 202f / scale, line => font.MeasureString(line).X)), scale, false);
 		details.TextColor = draft.EssenceColor;
 		SetStatus(SoulmatesText.Get("UI.Creator.RequiresSigil"), Color.LightGray);
 	}
@@ -295,7 +307,7 @@ public sealed class SoulCreatorState : UIState
 	{
 		if (status is null)
 			return;
-		status.SetText(text);
+		status.SetText(text, SoulmatesTextLayout.FitScale(FontAssets.MouseText.Value.MeasureString(text).X, 376f, 0.8f), false);
 		status.TextColor = color;
 	}
 

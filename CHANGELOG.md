@@ -1,5 +1,48 @@
 # Soulmates Development History
 
+## Soulmates 0.19.1 - Clear Choices
+
+- Recalculate native UI click bounds whenever conversation categories rearrange controls. Item-topic buttons and reply buttons no longer retain overlapping positions from the previous category.
+- Put Items directly on the companion wheel. Selecting a food, ore, tool or other topic immediately gives its cargo response and displays the active topic name.
+- Selecting Me or Soulmate now closes the wheel and arms the next world right-click. Keep right-click cycling within open wheels and X/Escape returning to Terraria. Preserve native interactions in Terraria mode.
+- Add opt-in local journal entries for category/topic selections, mode changes and context actions. Record decisions, not raw chat or per-frame mouse tracking.
+- Reproduce the old UI defect with native hit testing and event dispatch, then test the complete mode/drop/NPC flow through production input hooks and wheel clicks. This is not a claim of a completed graphical or live multiplayer playtest.
+- Include the previously local 0.17.2-0.19.0 systems in this release. The creator uploaded 0.19.1 on October 2; Workshop moderation and subscriber delivery are separate from that upload. Player-wheel item subcategories and Company activity starvation are new open playtest reports, not fixes claimed for this release.
+
+## Soulmates 0.19.0 - Living Chapters (Local Candidate)
+
+- Add item conversations with native-icon categories for food, ores, tools, weapons, recovery, materials, critters and other cargo. Discuss actual held or carried items without consuming them or farming progression.
+- Replace the generic personal memory response with "Do you remember?" and short, personality-aware chapters composed from real recorded events. Remember actual confirmed pickups, greetings and losses; describe visible surroundings when no relevant memory exists. Add occasional bounded environmental remarks that wait behind existing speech and prompts.
+- Expand the critter target context to Look, Company and Collect. Direct invitations replace the current assignment rather than silently waiting behind it; automatic visits still yield to work and low energy. Selected catching uses that exact NPC, a real carried net, cargo capacity and native catch/drop rules.
+- Add Pause, Resume and Abort under Commands. Pause retains work and recovers energy; Resume continues it; Abort clears it and holds automatic work until resumed or a new command. Defense remains available. Save the hold on the Sigil and synchronize targeted visits.
+- Safely prune dry vanilla side branches using native frame and stem checks and a real axe. Direct forestry accepts them; the Forester perk/AETHER can choose them autonomously. Native drops enter normal collection; leafy branches, stems, ground, gem trees and unsupported tree families are not pruning targets.
+- Give long dialogue more room and scrolling in Talk Mode. Longer world speech has bounded reading time and viewport-aware layout. Add all new text to all nine languages. Old Sigils load unpaused; multiplayer participants must use the same mod version.
+- This remains an unpublished local candidate. Test outcomes and remaining graphical/live-multiplayer scope are recorded separately, not inferred from compilation.
+
+## Soulmates 0.18.1 - Small Friends (Local Candidate)
+
+- Fix company guidance being overpowered by native walking and flying directions. Keep real critter AI, collision, health, catches and despawning, with no copies or teleporting through terrain.
+- Make Watch a passive nearby observation that can coexist with work. Greet critters with native symbols and personality-specific lines; busy speech no longer consumes an unheard observation cooldown.
+- Open the clicked NPC, drop or natural-resource context directly if Terraria does not handle the right-click first. Keep empty air, furniture, inventory, typing, native dialogue and alternate item use out of the fallback path.
+- Add NPC Look and eligible critter Company actions, preserving the clicked target and validating profile, owner, type, range and availability on authority. Explain blocked modes; bound visits to six seconds without overriding assigned work or defense.
+- React to nearby visible critter deaths with sorrow or apologies, and disapproval when Terraria records player attack credit. Queue lines behind speech, rate-limit reactions, distinguish native catches from deaths and grant no progression or penalties. Prevent Soul Bolts from hitting harmless critters.
+- Add 21 translated keys across all nine catalogs, bringing each to 750. Preserve existing Sigil serialization. This is a local candidate, not a public release; graphical, terrain traversal and live multiplayer checks remain outstanding.
+
+## Soulmates 0.18.0 - Many Voices (Local Candidate)
+
+- Complete all 729 localization keys in Italian, French, Spanish, Russian, Brazilian Portuguese, Polish and Simplified Chinese, alongside the existing English and German catalogs. These are the nine languages supported by the current Terraria 1.4.4 runtime.
+- Localize menus, work, memories, money gifts, questions, resident relationships, emote reactions and games. Keep proper names intact; select the active catalog through Terraria's language setting.
+- Fit Creator and mailbox buttons, titles and longer wrapped text into their existing controls. Keep native symbols, input routing, jobs and save formats unchanged.
+- Add all-language coverage, format, Unicode wrapping and runtime-selection checks. Keep the translation authoring data and mechanical catalog generation reproducible under tests/localization.
+- Include the unpublished 0.17.2 minigame. This candidate is not a public release; the new AI-authored translations still need native-speaker feedback and graphical review.
+
+## Soulmates 0.17.2 - A Little Game (Local Candidate)
+
+- Add real rock, paper, scissors rounds using Terraria's existing RPS emotes, with a three-symbol submenu under Companion Soulwheel > Bond. Native player RPS emotes also start rounds.
+- Draw an independent random companion move on authority, show both choices and the correct outcome, and reply in English or German according to personality and voice. Direct stays factual; low mood or energy uses a quiet line.
+- Rate-limit duplicate rounds, validate binding and proximity, preserve pending questions, and validate identity and choices on client result delivery. Games award no XP and do not alter work, cargo, mood, energy or permissions.
+- Keep this local test candidate separate from the published 0.17.1 GitHub release and its prepared Workshop upload. No public update is claimed for 0.17.2.
+
 ## Soulmates 0.17.1 - Shared Discoveries
 
 - Give the existing Look/pointing interaction a short personal response shaped by personality, saved voice, mood and energy. Preserve the concrete target/capacity/mining facts; Direct stays concise.

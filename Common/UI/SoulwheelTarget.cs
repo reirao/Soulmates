@@ -16,6 +16,8 @@ internal sealed class SoulwheelTarget
 {
 	public Point Tile { get; }
 	public int ItemSlot { get; }
+	public int NpcSlot => npcSlot;
+	public int NpcType => npcType;
 	private readonly Item? item;
 	private readonly int itemType;
 	private readonly NPC? npc;
@@ -68,6 +70,11 @@ internal sealed class SoulwheelTarget
 	}
 
 	public bool CanPoint => IsCurrent && (item is not null || npc is not null || hasTile);
+	public bool CanOfferFallback => CanPoint && (item is not null || npc is not null
+		|| !Main.tileFrameImportant[tileType] || TileID.Sets.IsATreeTrunk[tileType] || tileType == TileID.FallenLog);
+	public bool CanObserveNpc(SoulboundCompanion companion) => IsCurrent && npc is not null && companion.CanTargetNpc(npcSlot);
+	public bool CanInviteCritter(SoulboundCompanion companion) => IsCurrent && npc is not null && companion.CanTargetCritterCompany(npcSlot);
+	public bool CanCollectCritter(SoulboundCompanion companion) => IsCurrent && npc is not null && companion.CanTargetCritterCollect(npcSlot);
 	public bool CanOrder(SoulboundCompanion companion, CompanionTargetOrder order) => IsCurrent && npc is null && order switch {
 		CompanionTargetOrder.Look => companion.CanTargetLook(Tile, ItemSlot),
 		CompanionTargetOrder.Gather => item is not null && companion.CanTargetGathering(ItemSlot),

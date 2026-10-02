@@ -9,7 +9,8 @@ public enum TalkCategory
 	Work,
 	Bond,
 	Voice,
-	Pack
+	Pack,
+	Items
 }
 
 public enum SpeechAction
@@ -116,9 +117,7 @@ public static class CompanionDialogueEngine
 
 	private static DialogueResult Bond(CompanionProfile profile, int option) => option switch {
 		0 => new DialogueResult(Styled(profile, profile.Bond >= 20 ? "Dialogue.Replies.Bond.TrustHigh" : "Dialogue.Replies.Bond.TrustLow"), true, SpeechAction.None, 2, 1, 0),
-		1 => profile.Memories.Count > 0
-			? new DialogueResult(profile.LatestMemory, true, SpeechAction.RecallMemory, 2, 2, 0)
-			: new DialogueResult(profile.JobsCompleted > 0 ? profile.LastMemory : PersonalitySecret(profile), true, SpeechAction.None, 2, 2, 0),
+		1 => new DialogueResult("", true, SpeechAction.RecallMemory, 0, 0, 0),
 		_ => new DialogueResult("", true, SpeechAction.RecallResident, 0, 0, 0)
 	};
 
@@ -148,14 +147,6 @@ public static class CompanionDialogueEngine
 		0 => new DialogueResult(SoulmatesText.Get("Dialogue.Replies.Pack.Show"), true, SpeechAction.ShowPack, 0, 0, 0),
 		1 => new DialogueResult(SoulmatesText.Get("Dialogue.Replies.Pack.Store"), true, SpeechAction.StoreHeldItem, 0, 0, 0),
 		_ => new DialogueResult(SoulmatesText.Get("Dialogue.Replies.Pack.Unload"), true, SpeechAction.UnloadPack, 0, 0, 0)
-	};
-
-	private static string PersonalitySecret(CompanionProfile profile) => profile.Personality switch {
-		CompanionPersonality.Curious => Styled(profile, "Dialogue.Replies.Secrets.Curious"),
-		CompanionPersonality.Loyal => Styled(profile, "Dialogue.Replies.Secrets.Loyal"),
-		CompanionPersonality.Brave => Styled(profile, "Dialogue.Replies.Secrets.Brave"),
-		CompanionPersonality.Gentle => Styled(profile, "Dialogue.Replies.Secrets.Gentle"),
-		_ => Styled(profile, "Dialogue.Replies.Secrets.Mischievous")
 	};
 
 	private static string Styled(CompanionProfile profile, string key) => SoulmatesText.Get($"{key}.{profile.Voice}");

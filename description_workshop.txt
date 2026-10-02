@@ -1,22 +1,24 @@
 [h1]Soulmates[/h1]
 Create a companion with a soul. The reusable Soulcore opens a creator inside Terraria; every Soulbound Sigil keeps one companion's name, appearance, personality, growth, memories, and cargo.
 
-[b]Version: 0.17.1 - Shared Discoveries | Growing Alpha[/b]
-[b]Languages:[/b] English and German, following Terraria's language.
+[b]Version: 0.19.1 - Clear Choices | Growing Alpha[/b]
+[b]Languages:[/b] EN, DE, IT, FR, ES, RU, PT-BR, PL, Simplified Chinese. Follows Terraria's language. New translations are AI-authored; corrections welcome. Some multiplayer replies still use the server language.
 [url=https://github.com/reirao/Soulmates]Source and release notes[/url]
 
 [h2]Start Together[/h2]
-New characters receive one Soulcore and three Blank Sigils once. Choose a name, starting talent, personality, colors, aura, and an animated Soulkin, Bunny, Blue Slime, Bird, or Squirrel muse. Bind a Sigil and summon. Only one companion is active per player; switching Sigils retires the previous companion and its effects. Keep the active Sigil in your inventory; moving it out recalls her. Existing Sigils remain compatible.
+New characters receive one Soulcore and three Blank Sigils once. Choose name, talent, personality, colors, aura and an animated Soulkin, Bunny, Blue Slime, Bird or Squirrel muse. One companion per player; switching Sigils retires old effects. Keep the active Sigil in your inventory or she recalls. Existing Sigils remain compatible.
 
 [h2]Small Wheels, Direct Choices[/h2]
 [list]
 [*]Right-click the companion for commands, work, bonding, cargo, settings, full details, and the feedback mailbox.
+[*]Bond > Rock, paper, scissors unfolds three native symbols for real rounds and personality-aware reactions. No XP farming or interrupted assignments.
 [*]Right-click yourself for a Player wheel with Emotes, Point, and Mailbox. All 151 vanilla emotes unfold in crescent categories; G opens Emotes directly.
-[*]Terraria is the default for normal world and item use. On either Soulwheel, native-symbol selectors choose Terraria, Me, or Soulmate. Me points out what the cursor sees; Soulmate offers applicable Look, Gather, Mine, and Forest actions for the original clicked target.
+[*]Terraria stays the default. Unhandled clicks on nearby NPCs, drops and resources open their context; air and furniture do not. Selecting Me or Soulmate closes the wheel and arms the next world right-click. Actions retain the clicked target; eligible critters offer Company without a net.
 [*]Right-click inside an open wheel cycles modes; X or Escape restores normal use. Inventory, typing, NPC dialogue, and cursor-held items retain priority. Changed targets are rejected rather than silently redirecting orders.
 [*]Nearby mining expands into real ore-family icons. Mining approaches include Adaptive, Tunnel, Vein, and Surface, with tool-strength, energy, reach, and protected-tile checks.
 [*]Answer initiative with Yes, No, Always, or Never. The answer wheel opens at the player while she shows the task and a question mark. Commands > Initiative Rules sets Ask / Always / Never separately for gathering, mining, forestry, and treasure.
-[*]Talk Mode keeps conversations, memories, mood, energy, level progress, and cargo in a resizable detail view.
+[*]Commands > Pause retains work; Resume continues it; Abort clears it and holds automatic work until resumed or replaced. Defense stays available.
+[*]Companion wheel > Items opens native-icon Food, Ores, Tools and other topics. Topic clicks answer immediately. Talk Mode includes scrollable stories, mood, energy, levels and cargo.
 [/list]
 
 [h2]Familiar Faces[/h2]
@@ -24,21 +26,23 @@ Companions greet townsfolk and answer native emotes according to personality and
 
 Resident roles have their own dialogue. Visits respect disabled autonomy and give way to work or defense. Named speech follows her with a fading trail; native emotes keep quiet moments expressive.
 
-Showing a nearby drop or tile invites a shared observation shaped by personality and chosen voice. Soft can be warm, Playful can joke, and Direct stays factual. Tired companions can quietly look with you. Inspection changes no assignment, energy, cargo, terrain, XP, or work permission.
+"Do you remember?" recalls real shared events with personality-aware reflections. Items discusses actual cargo or held examples by food, ore, tool, weapon, recovery, material and critter categories. Occasional remarks reflect visible surroundings and wait behind speech. Inspection and stories change no assignment, cargo, terrain, XP or permissions.
 
 [h2]A Helpful Little Soul[/h2]
 She defends nearby threats, heals according to talent, retrieves usable drops, investigates treasure, and mines reachable ore and safe learned materials. Stay keeps a true world anchor. Energy recovers naturally; demanding work can pause and resume. Work reports completion or blockers.
 
-Attention weighs distance, talent, learned habits, and waiting time, with independent task cooldowns. Learning adapts to repeated gathering, mining, forestry, combat, and exploration. This is local game logic, not an online AI service.
+Attention weighs distance, talent, habits and waiting time. Learning adapts to gathering, mining, forestry, combat and exploration. Local game logic, not online AI.
 
-Helpful work takes priority over critter visits. During Follow, already-approved nearby drops enter the same safe cargo transaction as other pickups. Ask / Always / Never still controls permission; native item reservations, pickup delays, cargo limits, and Stay are respected.
+Automatic critter visits yield to work. During Follow, approved nearby drops use the shared cargo transaction. Ask / Always / Never, native item reservations, pickup delays, cargo limits and Stay remain respected.
 
-Forestry shakes trees and clears natural fallen logs. The Forester perk also replants real carried acorns. Living tree-branch pruning is not enabled. Useful cargo can supply weapons, light, food, recovery, and occasional crafting suggestions.
+Forestry shakes trees, clears fallen logs and replants carried acorns with Forester. A real axe allows pruning dry vanilla side branches; Forester/AETHER can do it autonomously. Leafy branches, stems, ground and unsupported tree families stay protected. Cargo can supply weapons, light, food, recovery and crafting suggestions.
 
 [h2]Critters and Company[/h2]
-The Companion wheel's Critters branch offers Watch, Company, Pet Collect, and Off. Watch notices creatures without catching them. Pet Collect lets any companion use a carried bug net when cargo has space; lava-net requirements still apply. Gold, statue-spawned, and player-released critters are left alone. Catching is an explicit mode, not a hidden forestry action.
+Critters offers Watch, Company, Pet Collect and Off. Passive Watch greets natural creatures even during work. Pet Collect needs a carried net and cargo room; lava-net rules apply. Gold, statue-spawned and released critters are excluded from automatic catches and company.
 
 Company guides natural bunnies, squirrels, birds, butterflies, fireflies, and lightning bugs: one normally, up to three for AETHER. Real world NPCs retain collision, health, catching, and despawning. Off or recall releases them; no spawning or teleporting through terrain.
+
+Clicked critters offer Look, Company and Collect. Direct visits replace current work; automatic visits wait for free attention, energy and mood. Autonomy, defense and pending questions remain respected. Visible deaths receive grief or disapproval; catches are not deaths. Reactions wait behind speech and grant no XP or penalties. Soul Bolts spare harmless critters.
 
 AETHER has every starting-talent instinct and learned perk. Up to six carried insects form a cosmetic native-sprite flock; withdrawal removes it. No combat swarm; vanilla vanity pets remain player-bound.
 
@@ -46,18 +50,16 @@ AETHER has every starting-talent instinct and learned perk. Up to six carried in
 Four symbol answers to personal questions offer ongoing gathering, playful or gentle company, or talking later. They affect saved voice, mood, and bond. Only Gathering approves further collection, not mining or forestry. Later has no penalty.
 
 [h2]Grow and Carry[/h2]
-Experience supports 20 levels and five bond ranks. Equipment keeps 8 slots, expanding through bond or Hearth Ribbon to 12, with up to 99 units per item type. Resources have 60 stack slots and 50 units per level and type: 500 at level 10, 1,000 at level 20. Collected coins use a separate uncapped Wallet and occupy no item slots.
+20 levels, five bond ranks. Equipment has 8-12 slots and a 99-unit reserve per type. Resources have 60 stack slots and 50 units per level and type: 500 at level 10, 1,000 at level 20. Coins occupy a separate uncapped Wallet.
 
-Cargo uses native item icons, paging, tooltips, whole-stack or single-item withdrawals, and coin denomination conversion. Anything the player's inventory cannot accept stays with the companion. Existing Sigils preserve cargo and safely return level-reserve excess on summon.
-
-She occasionally offers new savings with personality-specific "Here for you!" lines. Accept, save together, reply playfully, or defer. Only coins that fit enter your inventory; the rest stays in her Wallet. These are gifts, not a full-wallet warning: money has no cap.
+Native item icons, paging, tooltips and stack/single-item withdrawals keep cargo accessible. Anything that cannot fit stays safe; old Sigils return excess level reserves on summon. "Here for you!" offers new savings: accept, save, reply playfully or defer. Money has no cap.
 
 [h2]Field Notes and Feedback[/h2]
 The in-game AETHER Mailbox opens from the paper-plane icon or /soulfeedback. Optional Field Notes and contextual bug reports stay on this computer, are off by default, and never upload data. Automatic records omit names, chat, and exact positions; your typed notes retain what you write.
 
-Growing alpha: 0.17.1 passed 10,787 native-engine checks and 3,337 static checks, loaded in the real client, and was playtested by the creator. Full progression, long sessions, and live multiplayer remain test work. All participants need the same version. The creator has limited playtime: please describe what happened and whether it was solo or multiplayer. We are just as happy to hear that a companion made you smile.
+Growing alpha: progression, long sessions and live multiplayer need tests. All players need the same version. Current reports: Emotes > Items is still flat; Company visits can be overshadowed by work. The creator has little playtime: report the action, result and solo/MP. We also love hearing that a companion made you smile.
 
 [h2]Development Disclosure[/h2]
-Soulmates was created with extensive AI assistance in programming, writing, interfaces, and visual development. The Workshop icon, mod icon, and custom Soulkin sprite were AI-generated and integrated into the mod. Native Terraria sprites, items, inventory icons, emotes, and navigation remain in use. This disclosure is part of the project, not a claim that its gameplay uses an online AI.
+Soulmates uses extensive AI assistance in code, writing, interfaces and visuals. Workshop and mod icons and the custom Soulkin sprite were AI-generated. Terraria sprites, items, inventory icons, emotes and navigation remain in use. Gameplay uses no online AI service.
 
 [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3807130821]Workshop[/url] | [url=https://github.com/reirao/Soulmates/issues]Bug reports[/url]

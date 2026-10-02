@@ -60,6 +60,7 @@ public sealed partial class SoulboundCompanion
 	private bool UpdateHelpfulAutonomy()
 	{
 		if (HasPendingQuestion) return false;
+		if (critterTarget is not null && CanAttendCritters()) return false;
 		if (!Profile.AutonomyEnabled || Command == StayCommand || Profile.Energy < 16 || Profile.Mood < 15) {
 			if ((autonomyActivity != AutonomyActivity.None || pendingAutonomyActivity != AutonomyActivity.None)
 				&& Main.netMode != NetmodeID.MultiplayerClient)
@@ -364,6 +365,7 @@ public sealed partial class SoulboundCompanion
 			ForestAction.ShakeTree => ShakeTree(target),
 			ForestAction.ClearDeadwood => ClearDeadwood(target),
 			ForestAction.PlantAcorn => PlantAcorn(target),
+			ForestAction.PruneBranch => PruneBranch(target),
 			_ => false
 		};
 		if (success) {
@@ -542,6 +544,7 @@ public sealed partial class SoulboundCompanion
 		float bestScore = float.MaxValue;
 		var consideredTargets = new HashSet<Point>();
 		bool canPlant = Profile.ForesterUnlocked && HasPackItem(ItemID.Acorn);
+		bool canPrune = Profile.ForesterUnlocked && HasPruningAxe();
 		int radius = Profile.ForesterUnlocked ? 28 : 22;
 		for (int x = center.X - radius; x <= center.X + radius; x++) {
 			for (int y = center.Y - radius; y <= center.Y + radius; y++) {
@@ -551,7 +554,12 @@ public sealed partial class SoulboundCompanion
 				Point candidate;
 				ForestAction candidateAction;
 				float priority;
-				if (tile.HasTile && tile.TileType == TileID.FallenLog) {
+				if (canPrune && IsBareTreeBranch(new Point(x, y))) {
+					candidate = new Point(x, y);
+					candidateAction = ForestAction.PruneBranch;
+					priority = 0.65f;
+				}
+				else if (tile.HasTile && tile.TileType == TileID.FallenLog) {
 					candidate = new Point(x, y);
 					candidateAction = ForestAction.ClearDeadwood;
 					priority = 0.55f;
@@ -707,6 +715,7 @@ public sealed partial class SoulboundCompanion
 				&& Main.chest.Any(chest => chest is not null && chest.x == tile.X && chest.y == tile.Y),
 			AutonomyActivity.TendForest => forestAction switch {
 				ForestAction.ShakeTree => treeShakeCooldown <= 0 && TryFindTreeTrunk(tile, out _),
+				ForestAction.PruneBranch => HasPruningAxe() && IsBareTreeBranch(tile),
 				ForestAction.ClearDeadwood => Main.tile[tile.X, tile.Y].HasTile
 					&& Main.tile[tile.X, tile.Y].TileType == TileID.FallenLog,
 				ForestAction.PlantAcorn => Profile.ForesterUnlocked && HasPackItem(ItemID.Acorn)

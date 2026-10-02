@@ -264,6 +264,7 @@ public sealed class SoulmatesFeedbackSystem : ModSystem
 			LatestSnapshot["autonomy_enabled"] = companion.Profile.AutonomyEnabled;
 			LatestSnapshot["gathering_policy"] = companion.Profile.GatheringInitiative.ToString();
 			LatestSnapshot["critter_mode"] = companion.Profile.CritterMode.ToString();
+			LatestSnapshot["work_paused"] = companion.Profile.WorkPaused;
 			LatestSnapshot["voice"] = companion.Profile.Voice.ToString();
 		}
 

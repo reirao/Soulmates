@@ -1,5 +1,65 @@
 Mods: {
 	Soulmates: {
+		Social.Critters.DirectBusy: I need autonomy on and a quiet moment without danger or an unanswered question for that visit.
+		Enums.CompanionQuickAction.Pause: Pause
+		Enums.CompanionQuickAction.Resume: Resume
+		Enums.CompanionQuickAction.Abort: Abort
+		Enums.TalkCategory.Items: Items
+		Dialogue.Options.Items.Option0: What are you carrying in this category?
+		Dialogue.Options.Items.Option1: What is this useful for?
+		Dialogue.Options.Items.Option2: Does this remind you of something?
+		Items.Topics.All: Everything
+		Items.Topics.Food: Food
+		Items.Topics.Ores: Ores
+		Items.Topics.Tools: Tools
+		Items.Topics.Weapons: Weapons
+		Items.Topics.Recovery: Recovery
+		Items.Topics.Materials: Materials
+		Items.Topics.Critters: Critters
+		Items.Topics.Other: Other
+		Items.Empty: I am not carrying anything from {0} right now.
+		Items.Carrying: In {0}, I have: {1}.
+		Items.Example: "{0} belongs with {1}."
+		Items.Uses.Food: Food gives a well-fed buff. It is worth keeping for a longer outing.
+		Items.Uses.Ores: Ore can become bars at a furnace. The right pickaxe still matters.
+		Items.Uses.Tools: Tools open up different work. A real net is needed for catching critters.
+		Items.Uses.Weapons: This is combat equipment, not building material. I will keep it safe for you.
+		Items.Uses.Recovery: This helps with health, mana, or a buff. Its actual effect matters more than its colour.
+		Items.Uses.Materials: This is building or crafting material. Nearby stations and recipes decide what we can make.
+		Items.Uses.Critters: This is a captured creature. Releasing it makes it a real inhabitant again.
+		Items.Uses.Other: Let us check its tooltip or ask the Guide before deciding what to do with it.
+		Stories.ItemFound: We picked up {0} together.
+		Stories.CritterMet: We greeted a {0}.
+		Stories.CritterLost: We saw a {0} die. I have not forgotten the little one.
+		Stories.Beginning: Our shared story is still beginning.
+		Stories.Intro.Line0: Do you remember this?
+		Stories.Intro.Line1: One little moment stayed with me.
+		Stories.Intro.Line2: I kept this part of our journey.
+		Stories.Reflection.Work: It was not just another item to me. It was something we did together.
+		Stories.Reflection.Protection: For a moment, taking care of each other mattered most.
+		Stories.Reflection.Company: Little encounters can make a place feel less empty.
+		Stories.Reflection.Beginning: That was where our company began.
+		Stories.Reflection.Growth: That belongs to how we have grown together.
+		Stories.Personality.Curious: I wonder what we will notice next.
+		Stories.Personality.Loyal: I am glad I was there with you.
+		Stories.Personality.Brave: I would go with you again.
+		Stories.Personality.Gentle: Small things are worth remembering, too.
+		Stories.Personality.Mischievous: Not a bad little adventure, was it?
+		Stories.Playful: A tiny chapter. Definitely worth keeping!
+		Stories.Present.Threat: There is a {0} nearby. Let us keep an eye on it.
+		Stories.Present.Resident: "{0} is nearby. We are not alone here."
+		Stories.Present.Creature: I can see a {0} near us.
+		Stories.Present.Item: There is {0} on the ground nearby.
+		Stories.Present.Quiet: It is quiet around us right now. I like having you here.
+		Stories.Told: "{0}"
+		WorkControl.Pause: I will pause here and keep the assignment. I can still protect you.
+		WorkControl.Resume: I will continue the saved assignment, or lend a hand if there is none.
+		WorkControl.Abort: Assignment cancelled. I will stay close until you resume or give me a new command.
+		WorkControl.Status: Work paused
+		UI.CompanionWheel.Actions.Pause: Pause work (keep assignment)
+		UI.CompanionWheel.Actions.Resume: Resume work
+		UI.CompanionWheel.Actions.Abort: Abort assignment
+		Social.Critters.CatchSelected: I will put the current job aside and try to catch that {0} with my net.
 		Conversation: {
 			Later: Of course. We can talk later.
 			Company: {
@@ -550,6 +610,10 @@ Mods: {
 		}
 
 		TargetOrders: {
+			LookCritter: "A {0}. Let's watch its little adventure."
+			LookResident: "{0} lives here. Shall we say hello?"
+			LookThreat: "{0}. I will keep an eye on that danger."
+			LookCreature: "{0}. Let's leave it to its own adventure."
 			Invalid: I could not understand that target.
 			LowEnergy: I need a little energy before I can do that.
 			LowMood: I need a moment before taking another order.
@@ -775,8 +839,70 @@ Mods: {
 			}
 		}
 
+		Games.Rps: {
+			Title: Rock, paper, scissors
+			Round: "Yours: {0}. Mine: {1}. {2}"
+			Quiet: A quiet little round. That was nice.
+			Moves: {
+				Rock: Rock
+				Paper: Paper
+				Scissors: Scissors
+			}
+			Outcomes: {
+				PlayerWin: You win!
+				CompanionWin: My point!
+				Draw: A tie!
+			}
+			Replies: {
+				PlayerWin: {
+					Curious: Interesting. I want to try another idea.
+					Loyal: Well played. I am glad we took a moment.
+					Brave: A fair win. I am ready for a rematch.
+					Gentle: Nicely done. I like playing with you.
+					Mischievous: Clearly, you have been training in secret.
+				}
+				CompanionWin: {
+					Curious: That worked! I wonder what comes next.
+					Loyal: My turn this time. Want another round?
+					Brave: Victory! Only a tiny one, but still.
+					Gentle: Oh, I won. Another little round?
+					Mischievous: Behold my terrifying talent for hand games.
+				}
+				Draw: {
+					Curious: The same idea at the same moment!
+					Loyal: Looks like we are in sync.
+					Brave: Neither of us yields. Again?
+					Gentle: A shared point. That feels rather nice.
+					Mischievous: I was absolutely not copying you.
+				}
+			}
+		}
+
 		Social: {
 			Critters: {
+				Busy: I remember your choice. Visits need autonomy on, Follow, free time and enough energy; work and danger come first.
+				Inviting: "I will put the current job aside, invite that {0}, then come back."
+				Greeting: {
+					Curious: "Hello, {0}! Where does your little path lead?"
+					Loyal: "Hello, {0}. There is room for small footsteps beside us."
+					Brave: "Hello, little {0}. Easy now. You are not my enemy."
+					Gentle: "Hello, little {0}. We can share this quiet place."
+					Mischievous: "Hello, {0}! Any secret shortcuts you can show me?"
+				}
+				Loss: {
+					Curious: "That {0} had somewhere to go. I'm sorry, little one."
+					Loyal: "I'm sorry, little {0}. We couldn't keep you safe."
+					Brave: "I'm sorry, {0}. Being small should not mean being alone."
+					Gentle: "I'm so sorry, little {0}. You deserved more time."
+					Mischievous: "Poor {0}. I joke about lots of things. Not this. I'm sorry."
+				}
+				Harmed: {
+					Curious: "That {0} wasn't a threat. Could we leave the little ones alone?"
+					Loyal: "That {0} needed kindness, not a weapon. Please be gentle with them."
+					Brave: "Hey! That {0} couldn't fight back. Leave the little ones alone."
+					Gentle: "I'm sorry, little {0}. Please don't hurt the harmless creatures."
+					Mischievous: "Not funny. That {0} wasn't an enemy. Let's not do that again."
+				}
 				NeedNet: I need a bug net in my Equipment before I can collect critters.
 				Full: There is no room for another little creature. I will leave it here.
 				Caught: "A {0}! One real catch, safely in my pack."
@@ -834,7 +960,7 @@ Mods: {
 					Trade: "{0}, useful things are lovely. I am still deciding which ones are worth carrying."
 					Rest: Rest sounds good, {0}. We can leave a little silence between our footsteps.
 					Question: I am wondering too, {0}. Shall we look a little closer together?
-					Listening: I am listening, {0}. I do not know that story yet, but I would like to.
+					Listening: I am listening, {0}. What would you like us to know about this place?
 				}
 
 				Replies: {
@@ -1013,7 +1139,7 @@ Mods: {
 
 				Bond: {
 					Option0: Do you trust me?
-					Option1: Tell me something about you.
+					Option1: Do you remember?
 					Option2: Who have you made friends with here?
 				}
 

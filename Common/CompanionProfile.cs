@@ -156,7 +156,10 @@ public enum CompanionQuickAction : byte
 	CritterWatch,
 	CritterCompany,
 	CritterCollect,
-	CritterOff
+	CritterOff,
+	Pause,
+	Resume,
+	Abort
 }
 
 public enum CompanionCritterMode : byte
@@ -224,7 +227,10 @@ public enum CompanionMemoryKind : byte
 	LearnedPerk,
 	ResidentMet,
 	ResidentFriend,
-	InsectCompanion
+	InsectCompanion,
+	ItemFound,
+	CritterMet,
+	CritterLost
 }
 
 public sealed class CompanionMemory
@@ -293,6 +299,9 @@ public sealed class CompanionMemory
 		CompanionMemoryKind.ResidentMet => SoulmatesText.Get("Memories.Chronicle.ResidentMet", Detail),
 		CompanionMemoryKind.ResidentFriend => SoulmatesText.Get("Memories.Chronicle.ResidentFriend", Detail),
 		CompanionMemoryKind.InsectCompanion => SoulmatesText.Get("Memories.Chronicle.InsectCompanion", Detail),
+		CompanionMemoryKind.ItemFound => SoulmatesText.Get("Stories.ItemFound", Detail),
+		CompanionMemoryKind.CritterMet => SoulmatesText.Get("Stories.CritterMet", Detail),
+		CompanionMemoryKind.CritterLost => SoulmatesText.Get("Stories.CritterLost", Detail),
 		_ => SoulmatesText.Get("Memories.New")
 	};
 
@@ -335,6 +344,7 @@ public sealed partial class CompanionProfile
 	public CompanionJob Routine { get; set; }
 	public CompanionMiningApproach MiningApproach { get; set; } = CompanionMiningApproach.Adaptive;
 	public bool AutonomyEnabled { get; set; } = true;
+	public bool WorkPaused { get; set; }
 	public CompanionCritterMode CritterMode { get; set; } = CompanionCritterMode.Watch;
 	public CompanionInitiativePolicy GatheringInitiative { get; set; } = CompanionInitiativePolicy.Ask;
 	public CompanionInitiativePolicy MiningInitiative { get; set; } = CompanionInitiativePolicy.Ask;
@@ -443,6 +453,7 @@ public sealed partial class CompanionProfile
 		Routine = Routine,
 		MiningApproach = MiningApproach,
 		AutonomyEnabled = AutonomyEnabled,
+		WorkPaused = WorkPaused,
 		CritterMode = CritterMode,
 		GatheringInitiative = GatheringInitiative,
 		MiningInitiative = MiningInitiative,
@@ -484,6 +495,7 @@ public sealed partial class CompanionProfile
 		["routine"] = (byte)Routine,
 		["miningApproach"] = (byte)MiningApproach,
 		["autonomyEnabled"] = AutonomyEnabled,
+		["workPaused"] = WorkPaused,
 		["critterMode"] = (byte)CritterMode,
 		["gatheringInitiative"] = (byte)GatheringInitiative,
 		["miningInitiative"] = (byte)MiningInitiative,
@@ -528,6 +540,7 @@ public sealed partial class CompanionProfile
 			MiningApproach = tag.ContainsKey("miningApproach")
 				? (CompanionMiningApproach)tag.GetByte("miningApproach") : CompanionMiningApproach.Adaptive,
 			AutonomyEnabled = !tag.ContainsKey("autonomyEnabled") || tag.GetBool("autonomyEnabled"),
+			WorkPaused = tag.ContainsKey("workPaused") && tag.GetBool("workPaused"),
 			CritterMode = tag.ContainsKey("critterMode")
 				? (CompanionCritterMode)tag.GetByte("critterMode") : CompanionCritterMode.Watch,
 			GatheringInitiative = tag.ContainsKey("gatheringInitiative")
@@ -620,6 +633,7 @@ public sealed partial class CompanionProfile
 		foreach (CompanionRelationship relation in relations)
 			relation.Write(writer);
 		writer.Write((byte)CritterMode);
+		writer.Write(WorkPaused);
 	}
 
 	public static CompanionProfile Read(BinaryReader reader)
@@ -670,6 +684,7 @@ public sealed partial class CompanionProfile
 		for (int i = 0; i < relationCount; i++)
 			profile.Relationships.Add(CompanionRelationship.Read(reader));
 		profile.CritterMode = (CompanionCritterMode)reader.ReadByte();
+		profile.WorkPaused = reader.ReadBoolean();
 		profile.Normalize();
 		return profile;
 	}

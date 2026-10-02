@@ -6,6 +6,22 @@ namespace Soulmates.Common;
 
 internal static class SoulmatesTextLayout
 {
+	public static float FitScale(float unscaledWidth, float maximumWidth, float preferredScale) =>
+		unscaledWidth <= 0f ? preferredScale : Math.Min(preferredScale, Math.Max(1f, maximumWidth) / unscaledWidth);
+
+	public static float FitWrappedScale(string text, float maximumWidth, float maximumHeight, float preferredScale,
+		float lineHeight, Func<string, float> measure)
+	{
+		float scale = preferredScale;
+		for (int i = 0; i < 24; i++) {
+			int count = Wrap(text, Math.Max(1f, maximumWidth) / scale, measure).Count;
+			if (count * lineHeight * scale <= maximumHeight)
+				return scale;
+			scale *= 0.9f;
+		}
+		return scale;
+	}
+
 	public static List<string> Wrap(string text, float maximumWidth, Func<string, float> measure)
 	{
 		var lines = new List<string>();

@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Soulmates.Common;
 using Soulmates.Content.NPCs;
 using Terraria;
 using Terraria.Audio;
@@ -66,6 +67,9 @@ public sealed class SoulBolt : ModProjectile
 	}
 
 	public override Color? GetAlpha(Color lightColor) => GetCompanionColor() * 0.92f;
+
+	public override bool? CanHitNPC(NPC target) => target.type == NPCID.TargetDummy ? null
+		: target.friendly || target.townNPC || CompanionCritters.IsCritter(target) ? false : null;
 
 	public override bool PreDraw(ref Color lightColor)
 	{

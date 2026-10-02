@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Soulmates.Content.NPCs;
+using Soulmates.Common.Feedback;
 using Terraria;
 using Terraria.Audio;
 using Terraria.GameContent.UI;
@@ -13,7 +14,7 @@ namespace Soulmates.Common.UI;
 
 public sealed partial class CompanionWheelSystem
 {
-	private enum ContextAction : byte { Point, Look, Gather, Mine, Forest, Emotes, Tools }
+	private enum ContextAction : byte { Point, Look, Gather, Mine, Forest, Emotes, Tools, Company, Collect }
 	private SoulwheelTarget? contextTarget;
 	private readonly List<ContextAction> contextActions = [];
 	public SoulwheelMouseMode MouseMode { get; private set; }
@@ -33,20 +34,25 @@ public sealed partial class CompanionWheelSystem
 			ExitMouseMode();
 			return;
 		}
-		SoulwheelTarget? savedTarget = contextTarget;
-		Vector2 savedCenter = center;
+		Close();
 		MouseMode = mode;
-		if (savedTarget is not null) OpenContext(target, savedTarget, savedCenter);
-		else if (mode == SoulwheelMouseMode.Player) OpenPlayer(target);
-		else Open(target, WheelContext.Companion, null);
+		ModContent.GetInstance<DirectOrderSystem>().Cancel();
+		SoulmatesFeedbackSystem.Record("mouse_mode_selected", ("mode", mode.ToString()));
 	}
 
 	private void CycleMouseMode()
 	{
 		SoulwheelMouseMode visibleMode = context == WheelContext.Player ? SoulwheelMouseMode.Player
 			: context == WheelContext.Companion ? SoulwheelMouseMode.Companion : MouseMode;
+		SoulboundCompanion? target = companion;
+		SoulwheelTarget? snapshot = contextTarget;
+		Vector2 savedCenter = center;
 		SelectMouseMode(visibleMode == SoulwheelMouseMode.Player ? SoulwheelMouseMode.Companion
 			: visibleMode == SoulwheelMouseMode.Companion ? SoulwheelMouseMode.Terraria : SoulwheelMouseMode.Player);
+		if (MouseMode == SoulwheelMouseMode.Terraria || target?.NPC.active != true) return;
+		if (snapshot is not null) OpenContext(target, snapshot, savedCenter);
+		else if (MouseMode == SoulwheelMouseMode.Player) OpenPlayer(target);
+		else Open(target, WheelContext.Companion, null);
 	}
 
 	public void OpenContext(SoulboundCompanion target, Vector2 worldMouse, Vector2 uiMouse)
@@ -54,7 +60,7 @@ public sealed partial class CompanionWheelSystem
 
 	internal void OpenContext(SoulboundCompanion target, SoulwheelTarget snapshot, Vector2 uiMouse)
 	{
-		if (MouseMode == SoulwheelMouseMode.Terraria) return;
+		if (MouseMode == SoulwheelMouseMode.Terraria && !snapshot.CanOfferFallback) return;
 		Open(target, WheelContext.Contextual, null);
 		if (!open) return;
 		center = ClampCenter(uiMouse);
@@ -64,6 +70,9 @@ public sealed partial class CompanionWheelSystem
 			contextActions.Add(ContextAction.Emotes);
 		}
 		else {
+			if (snapshot.CanObserveNpc(target)) contextActions.Add(ContextAction.Look);
+			if (snapshot.CanInviteCritter(target)) contextActions.Add(ContextAction.Company);
+			if (snapshot.CanCollectCritter(target)) contextActions.Add(ContextAction.Collect);
 			foreach (CompanionTargetOrder order in PointModes)
 				if (snapshot.CanOrder(target, order)) contextActions.Add(order switch {
 					CompanionTargetOrder.Look => ContextAction.Look,
@@ -82,6 +91,9 @@ public sealed partial class CompanionWheelSystem
 		SoulboundCompanion target = companion;
 		ContextAction action = contextActions[index];
 		SoulwheelTarget? snapshot = contextTarget;
+		SoulmatesFeedbackSystem.Record("context_action_selected", ("mode", MouseMode.ToString()),
+			("action", action.ToString()), ("target_current", snapshot?.IsCurrent == true),
+			("npc_type", snapshot?.NpcType ?? 0), ("world_item", snapshot?.ItemSlot >= 0));
 		if (action == ContextAction.Emotes) { OpenEmotes(target); return; }
 		if (action == ContextAction.Tools) { OpenWorld(target); return; }
 		if (snapshot is null || !snapshot.IsCurrent) {
@@ -96,6 +108,19 @@ public sealed partial class CompanionWheelSystem
 			EmoteBubble.MakeLocalPlayerEmote(emote);
 			// Native emote observers handle NPC reactions; tile/drop inspection uses the normal order path.
 			if (snapshot.CanOrder(target, CompanionTargetOrder.Look)) ExecuteContextOrder(target, snapshot, CompanionTargetOrder.Look);
+			return;
+		}
+		if (snapshot.NpcSlot >= 0 && action is ContextAction.Look or ContextAction.Company or ContextAction.Collect) {
+			CompanionNpcAction npcAction = action == ContextAction.Company ? CompanionNpcAction.Company
+				: action == ContextAction.Collect ? CompanionNpcAction.Collect : CompanionNpcAction.Look;
+			Close();
+			if (Main.netMode == NetmodeID.MultiplayerClient)
+				global::Soulmates.Soulmates.SendNpcContextRequest(target.Profile.Id, npcAction, snapshot.NpcSlot, snapshot.NpcType);
+			else {
+				var result = target.PerformNpcContext(npcAction, snapshot.NpcSlot, snapshot.NpcType);
+				target.ShowSpeech(result.Reply);
+				SoundEngine.PlaySound(result.Accepted ? SoundID.Chat : SoundID.MenuClose);
+			}
 			return;
 		}
 		CompanionTargetOrder order = action switch {
@@ -128,6 +153,8 @@ public sealed partial class CompanionWheelSystem
 		ContextAction.Gather => new(IconKind.Item, ItemID.TreasureMagnet),
 		ContextAction.Mine => new(IconKind.Item, ItemID.CopperPickaxe),
 		ContextAction.Forest => new(IconKind.Emote, EmoteID.MiscTree),
+		ContextAction.Company => new(IconKind.Emote, EmoteID.EmotionLove),
+		ContextAction.Collect => new(IconKind.Item, ItemID.BugNet),
 		ContextAction.Emotes => new(IconKind.Emote, EmoteID.EmoteHappiness),
 		_ => new(IconKind.Emote, EmoteID.ItemCog)
 	};
@@ -135,7 +162,19 @@ public sealed partial class CompanionWheelSystem
 		: contextActions[index] is ContextAction.Emotes or ContextAction.Tools
 			? SoulmatesText.Get($"UI.CompanionWheel.MouseModes.{contextActions[index]}")
 			: SoulmatesText.Get("UI.CompanionWheel.MouseModes.Target",
-				SoulmatesText.Get($"UI.CompanionWheel.MouseModes.{contextActions[index]}"), contextTarget?.Name ?? "");
+				SoulmatesText.Get(contextActions[index] == ContextAction.Collect ? "UI.CompanionWheel.Actions.CritterCollect"
+					: contextActions[index] == ContextAction.Company ? "UI.CompanionWheel.Actions.CritterCompany"
+					: $"UI.CompanionWheel.MouseModes.{contextActions[index]}"), contextTarget?.Name ?? "");
+
+	private void DrawContextTarget(SpriteBatch spriteBatch, Color accent)
+	{
+		if (contextTarget is not { CanPoint: true } snapshot) return;
+		string name = snapshot.Name;
+		float scale = FitTextScale(name, 300f, 0.72f);
+		Vector2 size = Terraria.GameContent.FontAssets.MouseText.Value.MeasureString(name) * scale;
+		Vector2 position = new(center.X - size.X * 0.5f, center.Y + SoulwheelLayout.StatusOffset * LayoutScale);
+		Utils.DrawBorderString(spriteBatch, name, position, accent, scale);
+	}
 
 	private Vector2 MouseModePosition(int index) => SoulwheelLayout.ModePosition(center, index, SoulmatesUISpace.Viewport);
 	private static WheelIcon MouseModeIcon(SoulwheelMouseMode mode) => mode switch {

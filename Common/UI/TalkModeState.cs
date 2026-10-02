@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Soulmates.Common.Dialogue;
+using Soulmates.Common.Feedback;
 using Soulmates.Content.Items;
 using Soulmates.Content.NPCs;
 using Terraria;
@@ -25,6 +26,9 @@ public sealed class TalkModeState : UIState
 	private static float preferredHeight = 412f;
 	private readonly List<UITextPanel<string>> optionButtons = [];
 	private readonly List<(TalkCategory Category, TalkIconButton Button)> categoryButtons = [];
+	private readonly List<(CompanionItemTopic Topic, TalkItemButton Button)> itemTopicButtons = [];
+	private UIElement? itemTopics;
+	private CompanionItemTopic itemTopic;
 	private SoulboundSigil? sigil;
 	private SoulboundCompanion? companion;
 	private TalkCategory category;
@@ -120,6 +124,14 @@ public sealed class TalkModeState : UIState
 			TextColor = new Color(155, 174, 203)
 		};
 		panel.Append(chooseWordsLabel);
+		itemTopics = new UIElement { Height = new StyleDimension(28f, 0f) };
+		itemTopics.SetPadding(0f);
+		foreach (CompanionItemTopic topic in Enum.GetValues<CompanionItemTopic>()) {
+			var button = new TalkItemButton(CompanionItemTopics.Icon(topic));
+			button.OnLeftClick += (_, _) => SelectItemTopic(topic);
+			itemTopicButtons.Add((topic, button));
+			itemTopics.Append(button);
+		}
 
 		for (int i = 0; i < 3; i++) {
 			int option = i;
@@ -167,6 +179,9 @@ public sealed class TalkModeState : UIState
 		companion = boundCompanion;
 		sigil.Profile = companion.Profile.Clone();
 		category = Enum.IsDefined(initialCategory) ? initialCategory : TalkCategory.Care;
+		itemTopics?.Remove();
+		if (category == TalkCategory.Items && itemTopics is not null) rootPanel?.Append(itemTopics);
+		itemTopic = CompanionItemTopic.All;
 		memoryCursor = 0;
 		awaitingResponse = false;
 		responseWaitTicks = 0;
@@ -191,7 +206,7 @@ public sealed class TalkModeState : UIState
 	{
 		foreach ((TalkCategory buttonCategory, TalkIconButton button) in categoryButtons)
 			button.HoverText = SoulmatesText.EnumName(buttonCategory);
-		chooseWordsLabel?.SetText(SoulmatesText.Get("UI.Talk.ChooseWords"));
+		RefreshTopicLabel();
 		packLabel?.SetText(SoulmatesText.Get("UI.Talk.Pack"));
 		if (closeButton is not null)
 			closeButton.HoverText = SoulmatesText.Get("UI.Common.Close");
@@ -210,10 +225,33 @@ public sealed class TalkModeState : UIState
 
 	private void SelectCategory(TalkCategory selected)
 	{
+		if (awaitingResponse) return;
 		category = selected;
+		itemTopics?.Remove();
+		if (selected == TalkCategory.Items && itemTopics is not null) rootPanel?.Append(itemTopics);
 		SoundEngine.PlaySound(SoundID.MenuTick);
 		RefreshOptions();
 		RefreshCategoryStyles();
+		RefreshTopicLabel();
+		SoulmatesFeedbackSystem.Record("talk_category_selected", ("category", selected.ToString()));
+	}
+
+	private void SelectItemTopic(CompanionItemTopic selected)
+	{
+		if (awaitingResponse) return;
+		itemTopic = selected;
+		memoryCursor = 0;
+		RefreshCategoryStyles();
+		RefreshTopicLabel();
+		SoulmatesFeedbackSystem.Record("talk_item_topic_selected", ("topic", selected.ToString()));
+		Speak(0);
+	}
+
+	private void RefreshTopicLabel()
+	{
+		chooseWordsLabel?.SetText(category == TalkCategory.Items
+			? SoulmatesText.EnumName(category) + ": " + SoulmatesText.Get($"Items.Topics.{itemTopic}")
+			: SoulmatesText.EnumName(category));
 	}
 
 	public override void Update(GameTime gameTime)
@@ -269,7 +307,7 @@ public sealed class TalkModeState : UIState
 		float portraitHeight = height - 56f;
 		float rightLeft = portraitWidth + 26f;
 		float rightWidth = width - rightLeft - 12f;
-		float previewHeight = Math.Clamp(portraitHeight - 232f, 40f, 148f);
+		float previewHeight = Math.Clamp(portraitHeight - 266f, 40f, 114f);
 		bool changed = rootPanel.Width.Pixels != width || rootPanel.Height.Pixels != height
 			|| portraitPanel.Width.Pixels != portraitWidth;
 		if (!changed && !force)
@@ -286,10 +324,10 @@ public sealed class TalkModeState : UIState
 		previewElement.Height.Set(previewHeight, 0f);
 		if (response is not null) {
 			response.Top.Set(previewHeight + 6f, 0f);
-			response.Height.Set(56f, 0f);
+			response.Height.Set(90f, 0f);
 		}
-		vitalsElement.Top.Set(previewHeight + 66f, 0f);
-		vitalsElement.Height.Set(Math.Max(80f, portraitHeight - previewHeight - 70f), 0f);
+		vitalsElement.Top.Set(previewHeight + 100f, 0f);
+		vitalsElement.Height.Set(Math.Max(80f, portraitHeight - previewHeight - 104f), 0f);
 
 		float categorySize = Math.Min(40f, rightWidth / categoryButtons.Count - 4f);
 		float categoryStep = Math.Min(48f, (rightWidth - categorySize) / Math.Max(1, categoryButtons.Count - 1));
@@ -300,13 +338,26 @@ public sealed class TalkModeState : UIState
 			button.Height.Set(categorySize, 0f);
 		}
 		chooseWordsLabel?.Left.Set(rightLeft, 0f);
+		if (itemTopics is not null) {
+			itemTopics.Left.Set(rightLeft, 0f);
+			itemTopics.Top.Set(104f, 0f);
+			itemTopics.Width.Set(rightWidth, 0f);
+			float size = Math.Min(28f, rightWidth / itemTopicButtons.Count - 2f);
+			for (int i = 0; i < itemTopicButtons.Count; i++) {
+				var button = itemTopicButtons[i].Button;
+				button.Left.Set(i * (size + 2f), 0f);
+				button.Width.Set(size, 0f);
+				button.Height.Set(size, 0f);
+			}
+		}
 		for (int i = 0; i < optionButtons.Count; i++) {
 			UITextPanel<string> button = optionButtons[i];
 			button.Left.Set(rightLeft, 0f);
 			button.Width.Set(rightWidth, 0f);
-			float availableHeight = Math.Max(78f, height - 244f);
+			float topicOffset = category == TalkCategory.Items ? 32f : 0f;
+			float availableHeight = Math.Max(78f, height - 244f - topicOffset);
 			float step = Math.Min(49f, availableHeight / 3f);
-			button.Top.Set(106f + i * step, 0f);
+			button.Top.Set(106f + topicOffset + i * step, 0f);
 			button.Height.Set(step - 6f, 0f);
 			string text = button.Text;
 			float textWidth = FontAssets.MouseText.Value.MeasureString(text).X;
@@ -320,7 +371,7 @@ public sealed class TalkModeState : UIState
 		closeButton.Left.Set(width - 46f, 0f);
 		resizeHandle.Left.Set(width - 38f, 0f);
 		resizeHandle.Top.Set(height - 38f, 0f);
-		if (changed)
+		if (changed || force)
 			Recalculate();
 	}
 
@@ -336,12 +387,14 @@ public sealed class TalkModeState : UIState
 		if (Main.netMode == NetmodeID.MultiplayerClient) {
 			awaitingResponse = true;
 			responseWaitTicks = 0;
-			Soulmates.SendTalkRequest(category, option, memoryCursor++);
+			Soulmates.SendTalkRequest(category, option, memoryCursor++, itemTopic);
 			SoundEngine.PlaySound(SoundID.MenuTick);
 			return;
 		}
 
-		CompanionConversationResult result = companion.Converse(category, option, memoryCursor++);
+		CompanionConversationResult result = companion.Converse(category, option, memoryCursor++, itemTopic);
+		SoulmatesFeedbackSystem.Record("talk_option_selected", ("category", category.ToString()),
+			("topic", itemTopic.ToString()), ("option", option), ("accepted", result.Accepted));
 		sigil.Profile = companion.Profile.Clone();
 		SetResponse(result.Reply, result.Accepted);
 		SoundEngine.PlaySound(result.Accepted ? SoundID.Chat : SoundID.MenuClose);
@@ -409,6 +462,10 @@ public sealed class TalkModeState : UIState
 		}
 		foreach (UITextPanel<string> button in optionButtons)
 			button.BorderColor = Color.Lerp(new Color(58, 80, 122), accent, 0.35f);
+		foreach (var entry in itemTopicButtons) {
+			entry.Button.Selected = entry.Topic == itemTopic;
+			entry.Button.HoverText = SoulmatesText.Get($"Items.Topics.{entry.Topic}");
+		}
 	}
 
 	private static int CategoryIcon(TalkCategory category) => category switch {
@@ -417,6 +474,7 @@ public sealed class TalkModeState : UIState
 		TalkCategory.Work => EmoteID.ItemPickaxe,
 		TalkCategory.Bond => EmoteID.EmotionLove,
 		TalkCategory.Voice => EmoteID.EmoteNote,
+		TalkCategory.Items => EmoteID.ItemCog,
 		_ => EmoteID.ItemGoldpile
 	};
 
@@ -521,8 +579,16 @@ internal sealed class CompanionResponseElement : UIElement
 	private string cachedText = "";
 	private float cachedWidth;
 	private List<string> lines = [];
+	private int scrollLine;
 	public Color TextColor { get; set; } = Color.White;
-	public void SetText(string value) => text = value;
+	public void SetText(string value) { text = value; scrollLine = 0; }
+
+	public override void ScrollWheel(UIScrollWheelEvent evt)
+	{
+		base.ScrollWheel(evt);
+		int visible = Math.Max(1, (int)(GetDimensions().Height / 17f));
+		scrollLine = Math.Clamp(scrollLine - Math.Sign(evt.ScrollWheelValue), 0, Math.Max(0, lines.Count - visible));
+	}
 
 	protected override void DrawSelf(SpriteBatch spriteBatch)
 	{
@@ -534,8 +600,9 @@ internal sealed class CompanionResponseElement : UIElement
 				line => FontAssets.MouseText.Value.MeasureString(line).X * 0.58f);
 		}
 		int visibleLines = Math.Min(lines.Count, Math.Max(1, (int)(area.Height / 17f)));
+		scrollLine = Math.Clamp(scrollLine, 0, Math.Max(0, lines.Count - visibleLines));
 		for (int i = 0; i < visibleLines; i++) {
-			string line = i == visibleLines - 1 && lines.Count > visibleLines ? "..." : lines[i];
+			string line = lines[scrollLine + i];
 			float width = FontAssets.MouseText.Value.MeasureString(line).X * 0.58f;
 			Utils.DrawBorderString(spriteBatch, line, new Vector2(area.X + (area.Width - width) * 0.5f, area.Y + i * 17f),
 				TextColor, 0.58f);

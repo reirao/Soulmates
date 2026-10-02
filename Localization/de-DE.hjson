@@ -1,5 +1,65 @@
 Mods: {
 	Soulmates: {
+		Social.Critters.DirectBusy: Für diesen Besuch brauche ich aktive Autonomie und einen ruhigen Moment ohne Gefahr oder offene Frage.
+		Enums.CompanionQuickAction.Pause: Pausieren
+		Enums.CompanionQuickAction.Resume: Fortsetzen
+		Enums.CompanionQuickAction.Abort: Abbrechen
+		Enums.TalkCategory.Items: Gegenstände
+		Dialogue.Options.Items.Option0: Was trägst du aus dieser Kategorie?
+		Dialogue.Options.Items.Option1: Wofür ist das gut?
+		Dialogue.Options.Items.Option2: Erinnert dich das an etwas?
+		Items.Topics.All: Alles
+		Items.Topics.Food: Nahrung
+		Items.Topics.Ores: Erze
+		Items.Topics.Tools: Werkzeuge
+		Items.Topics.Weapons: Waffen
+		Items.Topics.Recovery: Erholung
+		Items.Topics.Materials: Materialien
+		Items.Topics.Critters: Kleintiere
+		Items.Topics.Other: Sonstiges
+		Items.Empty: Ich habe gerade nichts in der Kategorie {0} dabei.
+		Items.Carrying: Bei {0} habe ich: {1}.
+		Items.Example: "{0} gehört zu {1}."
+		Items.Uses.Food: Nahrung gibt einen Sättigungsbuff. Für einen längeren Ausflug lohnt sich ein Vorrat.
+		Items.Uses.Ores: Im Ofen werden Erze zu Barren. Die richtige Spitzhacke bleibt wichtig.
+		Items.Uses.Tools: Werkzeuge ermöglichen unterschiedliche Arbeiten. Zum Einfangen braucht es ein echtes Netz.
+		Items.Uses.Weapons: Das ist Kampfausrüstung, kein Baumaterial. Ich bewahre es für dich auf.
+		Items.Uses.Recovery: Das hilft bei Leben, Mana oder mit einem Buff. Die echte Wirkung zählt mehr als die Farbe.
+		Items.Uses.Materials: Das ist Bau- oder Handwerksmaterial. Stationen und Rezepte bestimmen, was daraus wird.
+		Items.Uses.Critters: Das ist ein eingefangenes Wesen. Freigelassen wird es wieder ein echter Bewohner.
+		Items.Uses.Other: Schauen wir auf den Tooltip oder fragen den Guide, bevor wir entscheiden.
+		Stories.ItemFound: Wir haben zusammen {0} eingesammelt.
+		Stories.CritterMet: Wir haben ein Wesen begrüßt: {0}.
+		Stories.CritterLost: Wir haben ein Wesen sterben sehen: {0}. Ich habe das Kleine nicht vergessen.
+		Stories.Beginning: Unsere gemeinsame Geschichte beginnt erst.
+		Stories.Intro.Line0: Erinnerst du dich daran?
+		Stories.Intro.Line1: Ein kleiner Moment ist mir geblieben.
+		Stories.Intro.Line2: Diesen Teil unserer Reise habe ich behalten.
+		Stories.Reflection.Work: Für mich war es nicht nur ein weiterer Gegenstand. Wir haben etwas gemeinsam getan.
+		Stories.Reflection.Protection: Einen Moment lang war am wichtigsten, aufeinander aufzupassen.
+		Stories.Reflection.Company: Kleine Begegnungen können einen Ort weniger leer machen.
+		Stories.Reflection.Beginning: Da begann unsere gemeinsame Zeit.
+		Stories.Reflection.Growth: Das gehört dazu, wie wir zusammen gewachsen sind.
+		Stories.Personality.Curious: Was werden wir wohl als Nächstes entdecken?
+		Stories.Personality.Loyal: Ich bin froh, dass ich bei dir war.
+		Stories.Personality.Brave: Ich würde wieder mit dir gehen.
+		Stories.Personality.Gentle: Auch kleine Dinge sind eine Erinnerung wert.
+		Stories.Personality.Mischievous: Kein schlechtes kleines Abenteuer, oder?
+		Stories.Playful: Ein winziges Kapitel. Unbedingt behalten!
+		Stories.Present.Threat: Da ist ein Gegner in der Nähe: {0}. Behalten wir ihn im Blick.
+		Stories.Present.Resident: "{0} ist in der Nähe. Wir sind hier nicht allein."
+		Stories.Present.Creature: Ich sehe ein Wesen in unserer Nähe: {0}.
+		Stories.Present.Item: Hier liegt {0} auf dem Boden.
+		Stories.Present.Quiet: Gerade ist es ruhig um uns. Schön, dass du hier bist.
+		Stories.Told: "{0}"
+		WorkControl.Pause: Ich pausiere und behalte den Auftrag. Beschützen kann ich dich weiterhin.
+		WorkControl.Resume: Ich mache mit dem behaltenen Auftrag weiter oder helfe, wenn keiner da ist.
+		WorkControl.Abort: Auftrag abgebrochen. Ich bleibe bei dir, bis du fortsetzt oder etwas Neues befiehlst.
+		WorkControl.Status: Arbeit pausiert
+		UI.CompanionWheel.Actions.Pause: Arbeit pausieren (Auftrag behalten)
+		UI.CompanionWheel.Actions.Resume: Arbeit fortsetzen
+		UI.CompanionWheel.Actions.Abort: Auftrag abbrechen
+		Social.Critters.CatchSelected: Ich lege den bisherigen Auftrag beiseite und versuche, das Wesen {0} mit meinem Netz zu fangen.
 		Conversation: {
 			Later: Natürlich. Wir können später reden.
 			Company: {
@@ -550,6 +610,10 @@ Mods: {
 		}
 
 		TargetOrders: {
+			LookCritter: "Ein {0}. Schauen wir seinem kleinen Abenteuer zu."
+			LookResident: "{0} lebt hier. Wollen wir Hallo sagen?"
+			LookThreat: "{0}. Diese Gefahr behalte ich im Blick."
+			LookCreature: "{0}. Lassen wir es sein eigenes Abenteuer erleben."
 			Invalid: Dieses Ziel habe ich nicht verstanden.
 			LowEnergy: Dafür brauche ich erst ein wenig Energie.
 			LowMood: Ich brauche einen Moment vor dem nächsten Auftrag.
@@ -775,8 +839,70 @@ Mods: {
 			}
 		}
 
+		Games.Rps: {
+			Title: Schere, Stein, Papier
+			Round: "Du: {0}. Ich: {1}. {2}"
+			Quiet: Eine kleine, ruhige Runde. Das war schön.
+			Moves: {
+				Rock: Stein
+				Paper: Papier
+				Scissors: Schere
+			}
+			Outcomes: {
+				PlayerWin: Du gewinnst!
+				CompanionWin: Mein Punkt!
+				Draw: Unentschieden!
+			}
+			Replies: {
+				PlayerWin: {
+					Curious: Interessant. Ich möchte eine andere Idee ausprobieren.
+					Loyal: Gut gespielt. Schön, dass wir uns kurz Zeit nehmen.
+					Brave: Ein fairer Sieg. Ich bin bereit für eine Revanche.
+					Gentle: Schön gemacht. Ich spiele gern mit dir.
+					Mischievous: Du hast wohl heimlich trainiert.
+				}
+				CompanionWin: {
+					Curious: Das hat geklappt! Was kommt wohl als Nächstes?
+					Loyal: Diesmal bin ich dran. Noch eine Runde?
+					Brave: Sieg! Nur ein winziger, aber immerhin.
+					Gentle: Oh, ich habe gewonnen. Noch eine kleine Runde?
+					Mischievous: Fürchtet mein gewaltiges Talent für Handspiele.
+				}
+				Draw: {
+					Curious: Dieselbe Idee im selben Moment!
+					Loyal: Wir scheinen auf einer Wellenlänge zu sein.
+					Brave: Niemand gibt nach. Noch mal?
+					Gentle: Ein gemeinsamer Punkt. Das fühlt sich schön an.
+					Mischievous: Ich habe ganz bestimmt nicht abgeschaut.
+				}
+			}
+		}
+
 		Social: {
 			Critters: {
+				Busy: Ich merke mir deine Wahl. Besuche brauchen Autonomie, Folgen, freie Zeit und genug Energie; Arbeit und Gefahr gehen vor.
+				Inviting: "Ich lege den bisherigen Auftrag beiseite und lade dieses Tier ein: {0}. Dann komme ich zurück."
+				Greeting: {
+					Curious: "Hallo, {0}! Wohin führt dein kleiner Pfad?"
+					Loyal: "Hallo, {0}. Neben uns ist Platz für kleine Schritte."
+					Brave: "Hallo, {0}. Ganz ruhig. Ich bin nicht dein Feind."
+					Gentle: "Hallo, {0}. Wir können diesen stillen Ort teilen."
+					Mischievous: "Hallo, {0}! Kennst du geheime Abkürzungen?"
+				}
+				Loss: {
+					Curious: "Du hattest noch einen Weg vor dir, {0}. Es tut mir leid, Kleines."
+					Loyal: "Es tut mir leid, {0}. Wir konnten dich nicht beschützen."
+					Brave: "Es tut mir leid, {0}. Klein zu sein sollte nicht bedeuten, allein zu sein."
+					Gentle: "Es tut mir so leid, {0}. Du hättest mehr Zeit verdient."
+					Mischievous: "Es tut mir leid, {0}. Ich scherze über vieles. Darüber nicht."
+				}
+				Harmed: {
+					Curious: "Dieses Wesen ({0}) war keine Gefahr. Können wir die Kleinen in Ruhe lassen?"
+					Loyal: "Dieses Wesen ({0}) brauchte Freundlichkeit, keine Waffe. Seid bitte sanft mit ihnen."
+					Brave: "Hey! Dieses Wesen ({0}) konnte sich nicht wehren. Lasst die Kleinen in Ruhe."
+					Gentle: "Es tut mir leid, kleines Wesen ({0}). Bitte verletzt die harmlosen Tiere nicht."
+					Mischievous: "Nicht lustig. Dieses Wesen ({0}) war kein Feind. Machen wir das nicht wieder."
+				}
 				NeedNet: Ich brauche einen Kescher in meiner Ausrüstung, bevor ich Tiere sammeln kann.
 				Full: Für ein weiteres kleines Tier ist kein Platz. Ich lasse es hier.
 				Caught: "Ein {0}! Ein echter Fang, sicher in meinem Pack."
@@ -834,7 +960,7 @@ Mods: {
 					Trade: "{0}, nützliche Dinge sind schön. Ich entscheide noch, welche es wert sind, getragen zu werden."
 					Rest: Ruhe klingt gut, {0}. Zwischen unseren Schritten darf ein wenig Stille bleiben.
 					Question: Ich frage mich auch, {0}. Wollen wir zusammen etwas genauer hinschauen?
-					Listening: Ich höre zu, {0}. Diese Geschichte kenne ich noch nicht, aber ich würde sie gern kennenlernen.
+					Listening: Ich höre zu, {0}. Was sollten wir über diesen Ort wissen?
 				}
 
 				Replies: {
@@ -1013,7 +1139,7 @@ Mods: {
 
 				Bond: {
 					Option0: Vertraust du mir?
-					Option1: Erzähl mir etwas über dich.
+					Option1: Erinnerst du dich?
 					Option2: Mit wem hast du dich hier angefreundet?
 				}
 

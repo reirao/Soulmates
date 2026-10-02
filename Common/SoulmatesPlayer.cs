@@ -231,13 +231,14 @@ public sealed class SoulmatesPlayer : ModPlayer
 		bool onCompanion = companion.NPC.Hitbox.Contains(mouseWorld)
 			&& (!selfInteractionBounds.Contains(mouseWorld) || CompanionIsCloser(companion, mouseWorld));
 		bool onPlayer = !onCompanion && selfInteractionBounds.Contains(mouseWorld);
+		var snapshot = !onCompanion && !onPlayer ? new SoulwheelTarget(mouseWorld.ToVector2(), companion.NPC.whoAmI) : null;
 		queuedSoulwheelMode = companionWheel.MouseMode;
 		if (queuedSoulwheelMode == SoulwheelMouseMode.Terraria
-			&& (!onCompanion && !onPlayer || Player.altFunctionUse == 2)) return;
+			&& (Player.altFunctionUse == 2 || !onCompanion && !onPlayer && snapshot?.CanOfferFallback != true)) return;
 
 		queuedSoulwheelUiPosition = SoulmatesUISpace.Mouse;
 		queuedSoulwheelKind = onCompanion ? (byte)1 : onPlayer ? (byte)0 : (byte)2;
-		queuedSoulwheelTarget = queuedSoulwheelKind == 2 ? new SoulwheelTarget(mouseWorld.ToVector2(), companion.NPC.whoAmI) : null;
+		queuedSoulwheelTarget = snapshot;
 		queuedSoulwheelProfile = companion.Profile.Id;
 		queuedChest = Player.chest;
 		queuedTalkNpc = Player.talkNPC;

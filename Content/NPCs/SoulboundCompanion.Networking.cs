@@ -52,6 +52,10 @@ public sealed partial class SoulboundCompanion
 		writer.Write((byte)pendingQuestion);
 		writer.Write(questionId.ToByteArray());
 		writer.Write((short)Math.Clamp(questionTicks, 0, InitiativeResponseTicks));
+		writer.Write(directedCritterVisit);
+		writer.Write((short)(critterTarget?.whoAmI ?? -1));
+		writer.Write(critterTarget?.type ?? 0);
+		writer.Write((short)Math.Clamp(critterVisitTicks, 0, 360));
 	}
 
 	public override void ReceiveExtraAI(BinaryReader reader)
@@ -90,6 +94,16 @@ public sealed partial class SoulboundCompanion
 		pendingQuestion = question;
 		questionId = id;
 		questionTicks = ticks;
+		directedCritterVisit = reader.ReadBoolean();
+		int critterIndex = reader.ReadInt16();
+		int critterType = reader.ReadInt32();
+		directedCritterType = critterType;
+		critterVisitTicks = reader.ReadInt16();
+		if (critterIndex < -1 || critterIndex >= Main.maxNPCs || critterVisitTicks is < 0 or > 360)
+			throw new InvalidDataException("Invalid critter visit.");
+		critterTarget = critterIndex >= 0 && Main.npc[critterIndex].active && Main.npc[critterIndex].type == critterType
+			? Main.npc[critterIndex] : null;
+		if (critterTarget is null) directedCritterVisit = false;
 		if (Main.netMode != NetmodeID.MultiplayerClient || !TryGetOwner(out Player owner) || owner.whoAmI != Main.myPlayer)
 			return;
 		foreach (Item item in owner.inventory) {

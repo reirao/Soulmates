@@ -72,8 +72,10 @@ public sealed class RecoveryPacketSpy : ModSystem
 	}
 }
 
-public sealed class EngineChecks : ModSystem
+public sealed partial class EngineChecks : ModSystem
 {
+	private static readonly string[] SupportedCultures = { "en-US", "de-DE", "it-IT", "fr-FR", "es-ES", "ru-RU", "pt-BR", "pl-PL", "zh-Hans" };
+
 	public override void PostAddRecipes()
 	{
 		if (!Main.dedServ)
@@ -87,7 +89,7 @@ public sealed class EngineChecks : ModSystem
 		}
 		try {
 			Mod soulmates = ModLoader.GetMod("Soulmates");
-			Version expectedVersion = Version.Parse(Environment.GetEnvironmentVariable("SOULMATES_EXPECTED_TEST_VERSION") ?? "0.17.1");
+			Version expectedVersion = Version.Parse(Environment.GetEnvironmentVariable("SOULMATES_EXPECTED_TEST_VERSION") ?? "0.19.1");
 			Check(soulmates.Version == expectedVersion, "Wrong packaged version: " + soulmates.Version);
 			Check(!soulmates.FileExists("icon_small.rawimg") && !soulmates.FileExists("icon_small.png"),
 				"Optional mini-icon reintroduced the installed packer's exhausted-stream conversion");
@@ -97,8 +99,15 @@ public sealed class EngineChecks : ModSystem
 			var core = new Item(ModContent.ItemType<Soulcore>());
 			Check(!core.consumable, "Soulcore marked consumable");
 			Check(!ItemLoader.ConsumeItem(core, new Player()), "Inventory right-click consumes the reusable Soulcore");
+			// Recipes load before a world exists; native projectile collision needs allocated tile storage.
+			Main.maxTilesX = Main.maxTilesY = 100;
+			Main.tile = (Tilemap)Activator.CreateInstance(typeof(Tilemap), BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+				null, new object[] { (ushort)100, (ushort)100 }, null)!;
+			Lighting.Initialize();
 			CheckMenuInput(Check, core);
 			CheckContextMouseModes(Check);
+			CheckTalkUiRouting(Check);
+			CheckRockPaperScissors(Check, soulmates);
 			CheckWorldPickup(Check);
 			CheckRevisionBoundaries(Check, soulmates);
 			CheckMultiplayerCreation(Check, soulmates);
@@ -114,8 +123,10 @@ public sealed class EngineChecks : ModSystem
 			CheckChoiceConversation(Check, soulmates);
 			CheckCritterModes(Check);
 			CheckResidentConversation(Check);
-			foreach (string culture in new[] { "en-US", "de-DE" }) {
+			CheckLivingBehavior(Check);
+			foreach (string culture in SupportedCultures) {
 				LanguageManager.Instance.SetLanguage(culture);
+				Check(Language.ActiveCulture.Name == culture, "Engine did not select language: " + culture);
 				JsonValue catalog = HjsonValue.Parse(Encoding.UTF8.GetString(soulmates.GetFileBytes("Localization/" + culture + ".hjson")));
 				void Walk(JsonValue value, string path)
 				{
@@ -858,12 +869,18 @@ public sealed class EngineChecks : ModSystem
 					return result;
 				}
 				void ResetCatch() => typeof(SoulboundCompanion).GetField("insectCatchCooldown", flags)!.SetValue(companion, 0);
-				bool Catch() => (bool)typeof(SoulboundCompanion).GetMethod("TryCatchCritter", flags)!.Invoke(companion, new object[] { false })!;
+				bool Catch() => (bool)typeof(SoulboundCompanion).GetMethod("TryCatchCritter", flags)!.Invoke(companion, new object?[] { false, null })!;
 				bool Join(NPC critter) => (bool)typeof(CompanionCritterCompany).GetMethod("TryJoin", flags)!
 					.Invoke(critter.GetGlobalNPC<CompanionCritterCompany>(), new object[] { critter, companion })!;
 				bool Belongs(CompanionCritterCompany company) => (bool)typeof(CompanionCritterCompany).GetMethod("BelongsTo", flags)!
 					.Invoke(company, new object[] { companion })!;
 				bool Activity() => (bool)typeof(SoulboundCompanion).GetMethod("UpdateCritterActivity", flags)!.Invoke(companion, null)!;
+				void Set(string field, object value) => typeof(SoulboundCompanion).GetField(field, flags)!.SetValue(companion, value);
+				object Get(string field) => typeof(SoulboundCompanion).GetField(field, flags)!.GetValue(companion)!;
+				void Watch() => typeof(SoulboundCompanion).GetMethod("UpdateCritterWatch", flags)!.Invoke(companion, null);
+				CompanionConversationResult NpcContext(CompanionNpcAction action, int index, int type) =>
+					(CompanionConversationResult)typeof(SoulboundCompanion).GetMethod("PerformNpcContext", flags)!
+						.Invoke(companion, new object[] { action, index, type })!;
 
 				foreach (CompanionCritterMode setting in Enum.GetValues<CompanionCritterMode>()) {
 					var profile = new CompanionProfile { CritterMode = setting };
@@ -911,9 +928,19 @@ public sealed class EngineChecks : ModSystem
 				companion.Profile.ClearCargo(); companion.Profile.Store(new Item(ItemID.BugNet));
 				companion.PerformQuickAction(CompanionQuickAction.CritterWatch);
 				Activity(); check(bunny.active && companion.Profile.ItemCount(caughtType) == 0, "Watch caught a critter");
+				Set("activeJob", CompanionJob.Mine);
+				Watch();
+				check((int)Get("critterWatchCooldown") == 600 && (int)Get("critterNoticeCooldown") == 0,
+					"Passive Watch failed during work or blocked an unheard speech line");
+				Set("critterWatchCooldown", 0); Set("speechTimer", 0); Set("greetedCritter", null!);
+				Watch();
+				check((string)Get("speechText") == SoulmatesText.Get($"Social.Critters.Greeting.{companion.Profile.Personality}", bunny.TypeName),
+					"First critter observation did not greet it");
+				Set("activeJob", CompanionJob.None);
 				companion.PerformQuickAction(CompanionQuickAction.CritterCompany);
-				check(Join(bunny), "Common bunny could not join native company");
 				var company = bunny.GetGlobalNPC<CompanionCritterCompany>();
+				npc.AI();
+				check(Belongs(company), "Full companion AI did not invite a nearby bunny without a net requirement");
 				NPC second = Critter(18);
 				check(!Join(second), "Ordinary companion exceeded one real critter friend");
 				companion.Profile.Name = "AETHER";
@@ -924,6 +951,14 @@ public sealed class EngineChecks : ModSystem
 				bunny.AI();
 				check(bunny.velocity.X > 0 && bunny.position == position && bunny.life == health && bunny.aiStyle == style
 					&& bunny.catchItem == drop && !bunny.noTileCollide, "Company replaced native physics, health or drop rules");
+				bunny.velocity.X = -2f;
+				company.PostAI(bunny);
+				check(bunny.velocity.X > 0 && bunny.velocity.X <= 1.8f && bunny.direction == 1,
+					"Native opposite walking direction overpowered company guidance");
+				NPC flyingFriend = Main.npc[17]; flyingFriend.velocity = new Vector2(-3, 0);
+				flyingFriend.GetGlobalNPC<CompanionCritterCompany>().PostAI(flyingFriend);
+				check(flyingFriend.velocity.X > 0 && flyingFriend.velocity.Length() <= 2.81f,
+					"Native flying direction overpowered company guidance");
 				using (var body = new MemoryStream()) {
 					var bits = new BitWriter();
 					using (var writer = new BinaryWriter(body, Encoding.UTF8, true)) company.SendExtraAI(bunny, bits, writer);
@@ -966,6 +1001,79 @@ public sealed class EngineChecks : ModSystem
 				int worldCount = 0;
 				foreach (Item item in Main.item) if (item.active && item.type == caughtType) worldCount += item.stack;
 				check(worldCount == 1 && companion.Profile.ItemCount(caughtType) == 0, "Native friend catch duplicated or generated companion cargo");
+				check((int)Get("critterLossCooldown") == 0, "A native net catch was reported as a critter death");
+				var bolt = new Projectile(); bolt.SetDefaults(ModContent.ProjectileType<SoulBolt>());
+				bunny = Critter(19);
+				check(((SoulBolt)bolt.ModProjectile).CanHitNPC(bunny) == false, "Soul Bolt could harm a harmless critter");
+				check(((SoulBolt)bolt.ModProjectile).CanHitNPC(Critter(16, NPCID.Zombie)) is null,
+					"Critter protection disabled ordinary hostile combat");
+				Main.npc[16].active = false;
+				int xp = companion.Profile.Experience, defeats = companion.Profile.DefeatedEnemies, mood = companion.Profile.Mood;
+				foreach (CompanionPersonality personality in Enum.GetValues<CompanionPersonality>()) {
+					foreach (bool attacked in new[] { false, true }) {
+						bunny = Critter(19); companion.Profile.Personality = personality;
+						Set("critterLossCooldown", 0); Set("speechTimer", 0);
+						if (attacked) { bunny.lastInteraction = 0; bunny.playerInteraction[0] = true; }
+						bunny.StrikeNPC(new NPC.HitInfo { Damage = 100, HitDirection = 1, HideCombatText = true }, noPlayerInteraction: true);
+						check((string)Get("speechText") == SoulmatesText.Get($"Social.Critters.{(attacked ? "Harmed" : "Loss")}.{personality}", bunny.TypeName),
+							"Native critter death did not select the correct reaction: " + personality + "/" + attacked);
+					}
+				}
+				check(companion.Profile.Experience == xp && companion.Profile.DefeatedEnemies == defeats && companion.Profile.Mood == mood,
+					"Critter loss generated progression or punished the player");
+				bunny = Critter(19); Set("critterLossCooldown", 0); Set("speechTimer", 600);
+				bunny.StrikeNPC(new NPC.HitInfo { Damage = 100, HitDirection = 1, HideCombatText = true }, noPlayerInteraction: true);
+				check(((string)Get("pendingCritterLossKey")).Length > 0 && (int)Get("speechTimer") == 600,
+					"Critter death interrupted an existing conversation instead of queueing its line");
+				Set("speechTimer", 0);
+				typeof(SoulboundCompanion).GetMethod("UpdateCritterLossSpeech", flags)!.Invoke(companion, null);
+				check(((string)Get("pendingCritterLossKey")).Length == 0, "Queued apology did not resume after speech ended");
+				Set("critterLossCooldown", 0);
+				Main.netMode = NetmodeID.MultiplayerClient;
+				new CompanionCritterLife().OnKill(bunny);
+				check((int)Get("critterLossCooldown") == 0, "Client duplicated the authority's critter death reaction");
+				Main.netMode = mode;
+				companion.PerformQuickAction(CompanionQuickAction.CritterOff);
+				bunny = Critter(19);
+				check(NpcContext(CompanionNpcAction.Look, 19, NPCID.Bunny).Accepted
+					&& companion.Profile.CritterMode == CompanionCritterMode.Off && Get("critterTarget") is null,
+					"Looking at a critter changed its mode or started a visit");
+				check(!NpcContext(CompanionNpcAction.Company, 19, NPCID.Squirrel).Accepted
+					&& !NpcContext(CompanionNpcAction.Company, -1, NPCID.Bunny).Accepted,
+					"Invalid NPC identity or slot accepted a company order");
+				bunny.Center += new Vector2(700, 0);
+				check(!NpcContext(CompanionNpcAction.Company, 19, NPCID.Bunny).Accepted, "Distant critter invitation accepted");
+				bunny.Center = npc.Center;
+				companion.Profile.ClearCargo();
+				check(NpcContext(CompanionNpcAction.Company, 19, NPCID.Bunny).Accepted
+					&& companion.Profile.CritterMode == CompanionCritterMode.Company
+					&& ReferenceEquals(Get("critterTarget"), bunny), "Direct no-net invitation lost the clicked critter");
+				companion.PerformQuickAction(CompanionQuickAction.CritterOff);
+				void ContextPacket(Guid profileId, byte action, int index, int type, int sender = 0) {
+					using var body = new MemoryStream();
+					using (var writer = new BinaryWriter(body, Encoding.UTF8, true)) {
+						writer.Write((byte)21); writer.Write(profileId.ToByteArray()); writer.Write(action);
+						writer.Write((short)index); writer.Write(type);
+					}
+					body.Position = 0; using var reader = new BinaryReader(body);
+					ModContent.GetInstance<global::Soulmates.Soulmates>().HandlePacket(reader, sender);
+				}
+				Main.netMode = NetmodeID.Server;
+				ContextPacket(Guid.NewGuid(), 1, 19, NPCID.Bunny);
+				ContextPacket(companion.Profile.Id, 255, 19, NPCID.Bunny);
+				ContextPacket(companion.Profile.Id, 1, 19, NPCID.Squirrel);
+				ContextPacket(companion.Profile.Id, 1, -1, NPCID.Bunny);
+				ContextPacket(companion.Profile.Id, 1, 19, NPCID.Bunny, 1);
+				check(companion.Profile.CritterMode == CompanionCritterMode.Off && Get("critterTarget") is null,
+					"Forged, invalid, stale or non-owner NPC context packet changed companion state");
+				Main.netMode = NetmodeID.MultiplayerClient;
+				ContextPacket(companion.Profile.Id, 1, 19, NPCID.Bunny);
+				check(companion.Profile.CritterMode == CompanionCritterMode.Off, "Wrong-direction context packet invited a critter");
+				Main.netMode = NetmodeID.Server;
+				ContextPacket(companion.Profile.Id, 1, 19, NPCID.Bunny);
+				check(companion.Profile.CritterMode == CompanionCritterMode.Company && ReferenceEquals(Get("critterTarget"), bunny),
+					"Authorized NPC context packet did not target the clicked critter");
+				Main.netMode = mode;
 				bunny = Critter(19); check(Join(bunny), "Friend join before recall failed");
 				companion.Recall();
 				check(bunny.active && !Belongs(bunny.GetGlobalNPC<CompanionCritterCompany>()), "Recall deleted its real critter or left a stale binding");
@@ -974,6 +1082,196 @@ public sealed class EngineChecks : ModSystem
 		finally {
 			Main.player[0] = oldPlayer; Main.npc = oldNpcs; Main.item = oldItems;
 			Main.tile = oldMap; Main.maxTilesX = oldWidth; Main.maxTilesY = oldHeight; Main.netMode = oldMode; Main.myPlayer = oldMyPlayer;
+			for (int i = 0; i < oldClients.Length; i++) Netplay.Clients[i] = oldClients[i];
+		}
+	}
+
+	private static void CheckLivingBehavior(Action<bool, string> check)
+	{
+		const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+		Player oldPlayer = Main.player[0]; NPC[] oldNpcs = Main.npc; Item[] oldItems = Main.item;
+		Tilemap oldMap = Main.tile;
+		int oldWidth = Main.maxTilesX, oldHeight = Main.maxTilesY, oldMode = Main.netMode, oldMyPlayer = Main.myPlayer;
+		RemoteClient[] oldClients = (RemoteClient[])Netplay.Clients.Clone();
+		try {
+			Main.maxTilesX = Main.maxTilesY = 100;
+			Main.tile = (Tilemap)Activator.CreateInstance(typeof(Tilemap), flags | BindingFlags.Public,
+				null, new object[] { (ushort)100, (ushort)100 }, null)!;
+			for (int i = 0; i < Netplay.Clients.Length; i++) Netplay.Clients[i] = new RemoteClient { Socket = new ProbeSocket() };
+			foreach (int mode in new[] { NetmodeID.SinglePlayer, NetmodeID.Server }) {
+				Main.netMode = mode; Main.myPlayer = mode == NetmodeID.Server ? 255 : 0;
+				Main.npc = Enumerable.Range(0, oldNpcs.Length).Select(i => new NPC { whoAmI = i }).ToArray();
+				Main.item = Enumerable.Range(0, oldItems.Length).Select(i => new Item { whoAmI = i }).ToArray();
+				var owner = new Player { whoAmI = 0, active = true, Center = new Vector2(400, 400) };
+				Main.player[0] = owner;
+				NPC npc = Main.npc[20]; npc.SetDefaults(ModContent.NPCType<SoulboundCompanion>());
+				npc.active = true; npc.ai[0] = 0; npc.Center = owner.Center;
+				var mate = (SoulboundCompanion)npc.ModNPC;
+				mate.Profile.Name = "Luma";
+				owner.inventory[0] = new Item(ModContent.ItemType<SoulboundSigil>());
+				owner.inventory[1] = new Item(ItemID.CopperPickaxe);
+				owner.inventory[2] = new Item(ItemID.CopperAxe);
+				((SoulboundSigil)owner.inventory[0].ModItem).Profile = mate.Profile.Clone();
+				void Set(string field, object? value) => typeof(SoulboundCompanion).GetField(field, flags)!.SetValue(mate, value);
+				object? Get(string field) => typeof(SoulboundCompanion).GetField(field, flags)!.GetValue(mate);
+				object? Call(string method, params object?[] args) => typeof(SoulboundCompanion).GetMethod(method,
+					flags | BindingFlags.Static)!.Invoke(mate, args);
+				void Tick(int count) { for (int i = 0; i < count; i++) { npc.AI(); npc.position += npc.velocity; } }
+				NPC Critter(int index) { NPC n = Main.npc[index]; n.SetDefaults(NPCID.Bunny); n.active = true; n.Center = npc.Center; return n; }
+				Set("speechTimer", 3000); Set("socialTimer", 10000); Set("ambientStoryCooldown", 10000);
+				Set("companyQuestionCooldown", 10000); Set("walletQuestionCooldown", 10000);
+				foreach (var example in new[] {
+					(ItemID.CookedFish, CompanionItemTopic.Food), (ItemID.CopperOre, CompanionItemTopic.Ores),
+					(ItemID.BugNet, CompanionItemTopic.Tools), (ItemID.CopperShortsword, CompanionItemTopic.Weapons),
+					(ItemID.LesserHealingPotion, CompanionItemTopic.Recovery), (ItemID.Wood, CompanionItemTopic.Materials),
+					(ItemID.Bunny, CompanionItemTopic.Critters), (ItemID.MagicMirror, CompanionItemTopic.Other)
+				}) check(CompanionItemTopics.Classify(new Item(example.Item1)) == example.Item2, "Native item topic: " + example.Item1);
+				mate.Profile.Store(new Item(ItemID.CookedFish, 2)); mate.Profile.Store(new Item(ItemID.CopperOre, 3));
+				int xp = mate.Profile.Experience, bond = mate.Profile.Bond, mood = mate.Profile.Mood, energy = mate.Profile.Energy;
+				string food = mate.Converse(TalkCategory.Items, 0, 0, CompanionItemTopic.Food).Reply;
+				check(food.Contains(Lang.GetItemNameValue(ItemID.CookedFish)) && !food.Contains(Lang.GetItemNameValue(ItemID.CopperOre)),
+					"Item conversation ignored its selected category");
+				mate.Profile.Memories.Clear();
+				string beginning = mate.Converse(TalkCategory.Bond, 1, int.MinValue).Reply;
+				check(beginning.Contains(SoulmatesText.Get("Stories.Beginning")), "Empty journal invented an event");
+				mate.Profile.Remember(CompanionMemoryKind.ItemFound, (int)CompanionItemTopic.Ores, "actual copper");
+				foreach (CompanionVoice voice in Enum.GetValues<CompanionVoice>()) {
+					mate.Profile.Voice = voice;
+					string story = mate.Converse(TalkCategory.Items, 2, int.MinValue, CompanionItemTopic.Ores).Reply;
+					check(story.Contains("actual copper") && !story.Contains("Mods.Soulmates"), "Story lost its factual memory or leaked a key");
+					if (voice != CompanionVoice.Direct) check(story.Length > mate.Profile.Memories[0].Describe().Length,
+						"Story did not reflect on the actual event");
+				}
+				check(mate.Profile.Experience == xp && mate.Profile.Bond == bond && mate.Profile.Mood == mood
+					&& mate.Profile.Energy == energy && mate.Profile.ItemCount(ItemID.CookedFish) == 2,
+					"Repeated item stories farmed progression or changed cargo");
+				foreach (CompanionMemoryKind kind in new[] { CompanionMemoryKind.ItemFound, CompanionMemoryKind.CritterMet, CompanionMemoryKind.CritterLost }) {
+					mate.Profile.Remember(kind, detail: "actual event");
+					check(CompanionProfile.Load(mate.Profile.Save()).Memories.Last().Kind == kind, "New memory did not survive native save/load");
+				}
+				mate.Profile.ClearCargo(); mate.Profile.Talent = CompanionTalent.Miner; mate.Profile.Energy = 100;
+				Point ore = new(28, 25); Tile oreTile = Main.tile[ore.X, ore.Y]; oreTile.HasTile = true; oreTile.TileType = TileID.Copper;
+				check(mate.PerformDirectOrder(CompanionTargetOrder.Mine, ore, -1).Accepted, "Directed mining fixture was rejected");
+				check(mate.PerformQuickAction(CompanionQuickAction.Pause).Accepted && mate.Profile.WorkPaused, "Pause did not activate");
+				mate.Profile.Energy = 30;
+				Tick(240);
+				check(Main.tile[ore.X, ore.Y].HasTile && (CompanionJob)Get("activeJob")! == CompanionJob.Mine
+					&& (int)Get("jobCount")! == 0 && mate.Profile.Energy > 30, "Paused AI worked, lost its assignment or failed to recover");
+				check(CompanionProfile.Load(mate.Profile.Save()).WorkPaused && mate.Profile.Clone().WorkPaused, "Paused state was not persistent");
+				using (var stream = new MemoryStream()) {
+					using (var writer = new BinaryWriter(stream, Encoding.UTF8, true)) mate.Profile.Write(writer);
+					stream.Position = 0; using var reader = new BinaryReader(stream);
+					check(CompanionProfile.Read(reader).WorkPaused, "Paused state was lost in profile transport");
+				}
+				TagCompound legacy = mate.Profile.Save(); legacy.Remove("workPaused");
+				check(!CompanionProfile.Load(legacy).WorkPaused, "Old Sigil was paused by migration");
+				mate.PerformQuickAction(CompanionQuickAction.Resume); Tick(360);
+				check(!mate.Profile.WorkPaused && !Main.tile[ore.X, ore.Y].HasTile, "Full AI failed to resume the retained mining target");
+				mate.StartJob(CompanionJob.Gather); mate.PerformQuickAction(CompanionQuickAction.Abort); Tick(240);
+				check(mate.Profile.WorkPaused && mate.Profile.Routine == CompanionJob.None && (CompanionJob)Get("activeJob")! == CompanionJob.None,
+					"Abort left an assignment or restarted autonomous work");
+				mate.SetCommand(stay: false); check(!mate.Profile.WorkPaused, "A fresh explicit command did not release the work hold");
+				foreach (Item drop in Main.item) drop.TurnToAir();
+				mate.StartJob(CompanionJob.Mine); mate.Profile.Energy = 3;
+				NPC bunny = Critter(19); bunny.Center += new Vector2(120, 0);
+				Type snapshotType = typeof(CompanionWheelSystem).Assembly.GetType("Soulmates.Common.UI.SoulwheelTarget")!;
+				object snapshot = Activator.CreateInstance(snapshotType, bunny.Center, npc.whoAmI)!;
+				check((bool)snapshotType.GetProperty("CanOfferFallback")!.GetValue(snapshot)!
+					&& (bool)snapshotType.GetMethod("CanInviteCritter")!.Invoke(snapshot, new object[] { mate })!
+					&& (bool)snapshotType.GetMethod("CanCollectCritter")!.Invoke(snapshot, new object[] { mate })!,
+					"Clicked critter actions disappeared behind energy or a current job");
+				var result = (CompanionConversationResult)Call("PerformNpcContext", CompanionNpcAction.Company, 19, NPCID.Bunny)!;
+				check(result.Accepted && mate.Profile.Routine == CompanionJob.None && (CompanionJob)Get("activeJob")! == CompanionJob.None,
+					"Direct Company did not replace existing work");
+				mate.PerformQuickAction(CompanionQuickAction.Pause); int visitTicks = (int)Get("critterVisitTicks")!;
+				Tick(30); check(ReferenceEquals(Get("critterTarget"), bunny) && (int)Get("critterVisitTicks")! == visitTicks,
+					"Pause discarded the selected critter or consumed its visit timeout");
+				mate.PerformQuickAction(CompanionQuickAction.Resume); Tick(100);
+				check((bool)typeof(CompanionCritterCompany).GetMethod("BelongsTo", flags)!
+					.Invoke(bunny.GetGlobalNPC<CompanionCritterCompany>(), new object[] { mate })!,
+					"Full low-energy AI never reached the directly invited critter");
+				mate.PerformQuickAction(CompanionQuickAction.CritterOff); bunny = Critter(19);
+				check(!((CompanionConversationResult)Call("PerformNpcContext", CompanionNpcAction.Collect, 19, NPCID.Bunny)!).Accepted && bunny.active,
+					"Clicked Collect caught without a real carried net");
+				mate.Profile.Store(new Item(ItemID.BugNet)); NPC other = Critter(18);
+				Set("insectCatchCooldown", 0);
+				check(((CompanionConversationResult)Call("PerformNpcContext", CompanionNpcAction.Collect, 19, NPCID.Bunny)!).Accepted,
+					"Clicked Collect did not start with a real net");
+				npc.AI();
+				check(!bunny.active && other.active && mate.Profile.ItemCount(ItemID.Bunny) == 1,
+					"Targeted native catch took a different critter or failed its real cargo transaction");
+				bunny = Critter(19); Set("insectCatchCooldown", 0);
+				Call("PerformNpcContext", CompanionNpcAction.Collect, 19, NPCID.Bunny);
+				bunny.SetDefaults(NPCID.Squirrel); bunny.active = true; bunny.Center = npc.Center;
+				Call("UpdateCritterActivity");
+				check(bunny.active && other.active && Get("critterTarget") is null && !(bool)Get("directedCritterVisit")!,
+					"Changed NPC slot silently redirected the selected catch");
+				bunny.active = false;
+				mate.PerformQuickAction(CompanionQuickAction.CritterOff); other.active = false;
+				mate.SetCommand(stay: false); mate.Profile.Energy = 100;
+				owner.selectedItem = 2; owner.controlUseItem = true; Set("learningObservationTimer", 0);
+				int insight = mate.Profile.GetInsight(LearnedBehavior.Forestry); Tick(61); owner.controlUseItem = false;
+				check(mate.Profile.GetInsight(LearnedBehavior.Forestry) > insight, "Full AI did not observe the owner's actual axe use");
+				mate.PerformQuickAction(CompanionQuickAction.Abort);
+				Set("speechTimer", 0); Set("ambientStoryCooldown", 0); Set("socialTimer", 10000);
+				npc.AI(); string ambient = (string)Get("speechText")!;
+				check(ambient.Length > 0 && !ambient.Contains("Mods.Soulmates"), "Full AI failed to verbalize its real surroundings");
+				Set("ambientStoryCooldown", 0); npc.AI();
+				check((string)Get("speechText")! == ambient, "Ambient speech interrupted a currently visible answer");
+				// A native-framed tree fixture has rooted central wood and only one bare side twig.
+				for (int x = 35; x <= 45; x++) for (int y = 45; y <= 50; y++) {
+					Tile ground = Main.tile[x, y]; ground.HasTile = true; ground.TileType = (ushort)(y == 45 ? TileID.Grass : TileID.Dirt);
+				}
+				for (int y = 20; y < 45; y++) {
+					Tile stem = Main.tile[40, y]; stem.HasTile = true; stem.TileType = TileID.Trees;
+					stem.TileFrameX = 0; stem.TileFrameY = 0;
+				}
+				foreach (bool left in new[] { true, false }) {
+					Point twig = new(left ? 39 : 41, 28);
+					Tile branch = Main.tile[twig.X, twig.Y]; branch.HasTile = true; branch.TileType = TileID.Trees;
+					branch.TileFrameX = (short)(left ? 66 : 88); branch.TileFrameY = (short)(left ? 22 : 88);
+					check((bool)Call("IsBareTreeBranch", twig)!, "Native bare branch frame was not recognized");
+					foreach (Item drop in Main.item) drop.TurnToAir();
+					check((bool)Call("PruneBranch", twig)! && !branch.HasTile, "Native branch pruning failed");
+					check(Enumerable.Range(20, 25).All(y => IsTreeTile(40, y)) && Main.tile[40, 45].TileType == TileID.Grass,
+						"Branch pruning destroyed the central stem or ground");
+					int nativeWood = Main.item.Where(item => item.active && item.type == ItemID.Wood).Sum(item => item.stack);
+					// KillTile_GetItemDrops adds one native bonus wood when KillTile_GetTreeDrops requests it.
+					check(!Main.item.Any(item => item.active && item.type is ItemID.DirtBlock or ItemID.Acorn)
+						&& nativeWood is 1 or 2,
+						"Pruning deviated from the native wood drop: mode=" + mode + ", left=" + left + ", drops="
+						+ string.Join(",", Main.item.Where(item => item.active).Select(item => item.type + "x" + item.stack)));
+					check(!(bool)Call("PruneBranch", twig)!, "Repeated pruning produced a second drop");
+					check(Main.item.Where(item => item.active && item.type == ItemID.Wood).Sum(item => item.stack) == nativeWood,
+						"Repeated pruning altered the native drop count");
+					branch.HasTile = true; branch.TileType = TileID.Trees; branch.TileFrameX = 44; branch.TileFrameY = 198;
+					check(!(bool)Call("PruneBranch", twig)! && branch.HasTile, "Leafy branch was cut");
+					branch.HasTile = false;
+				}
+				check(!(bool)Call("PruneBranch", new Point(40, 28))!, "Central stem was accepted as a side branch");
+				check(!(bool)Call("PruneBranch", new Point(40, 45))!, "Ground was accepted as a branch");
+				Point directedTwig = new(39, 30); Tile directedBranch = Main.tile[39, 30];
+				directedBranch.HasTile = true; directedBranch.TileType = TileID.Trees;
+				directedBranch.TileFrameX = 66; directedBranch.TileFrameY = 44;
+				check(mate.PerformDirectOrder(CompanionTargetOrder.Forest, directedTwig, -1).Accepted,
+					"Clicked dry branch did not start a real forestry assignment");
+				Tick(360);
+				check(!directedBranch.HasTile && IsTreeTile(40, 30), "Full forestry AI never pruned the directed branch or cut the stem");
+				mate.Profile.Name = "AETHER"; mate.Profile.Energy = 100; mate.Profile.Mood = 100;
+				mate.SetCommand(stay: false);
+				foreach (CompanionInitiativeKind kind in Enum.GetValues<CompanionInitiativeKind>())
+					mate.Profile.SetInitiativePolicy(kind, kind == CompanionInitiativeKind.Forestry
+						? CompanionInitiativePolicy.Always : CompanionInitiativePolicy.Never);
+				Tile automaticBranch = Main.tile[41, 32]; automaticBranch.HasTile = true; automaticBranch.TileType = TileID.Trees;
+				automaticBranch.TileFrameX = 88; automaticBranch.TileFrameY = 110;
+				Set("treeShakeCooldown", 10000); Set("autonomyDecisionTimer", 0); Tick(600);
+				check(!automaticBranch.HasTile && IsTreeTile(40, 32), "Actual autonomy scheduler failed to carry out permitted dry-branch work");
+				bool IsTreeTile(int x, int y) => Main.tile[x, y].HasTile && Main.tile[x, y].TileType == TileID.Trees;
+			}
+		}
+		finally {
+			Main.player[0] = oldPlayer; Main.npc = oldNpcs; Main.item = oldItems; Main.tile = oldMap;
+			Main.maxTilesX = oldWidth; Main.maxTilesY = oldHeight; Main.netMode = oldMode; Main.myPlayer = oldMyPlayer;
 			for (int i = 0; i < oldClients.Length; i++) Netplay.Clients[i] = oldClients[i];
 		}
 	}
@@ -1168,7 +1466,7 @@ public sealed class EngineChecks : ModSystem
 
 			foreach (int mode in new[] { NetmodeID.Server, NetmodeID.MultiplayerClient, NetmodeID.SinglePlayer }) {
 				Main.netMode = mode;
-				for (int type = -1; type <= 19; type++) {
+				for (int type = -1; type <= 21; type++) {
 					using var stream = new MemoryStream(type < 0 ? Array.Empty<byte>() : new[] { (byte)type });
 					using var reader = new BinaryReader(stream);
 					bool rejectedSafely = true;
@@ -1638,6 +1936,7 @@ public sealed class EngineChecks : ModSystem
 			var other = new NPC { whoAmI = 22 };
 			other.SetDefaults(ModContent.NPCType<SoulboundCompanion>());
 			other.active = true;
+			other.Center = npc.Center;
 			Main.npc[22] = other;
 			var duplicate = (SoulboundCompanion)other.ModNPC;
 			int unrelated = Projectile.NewProjectile(other.GetSource_FromAI(), other.Center, Vector2.UnitX,
@@ -1960,11 +2259,23 @@ public sealed class EngineChecks : ModSystem
 			wheel.ExitMouseMode();
 			check(wheel.MouseMode == SoulwheelMouseMode.Terraria && !wheel.IsOpen, "World did not start in native Terraria mode");
 			wheel.OpenContext(companion, Main.item[10].Center, new Vector2(400, 300));
-			check(!wheel.IsOpen, "Native Terraria mode intercepted a world target");
+			check(wheel.IsOpen && wheel.MouseMode == SoulwheelMouseMode.Terraria, "Direct drop context required a hidden mode switch");
+			wheel.ExitMouseMode();
 			FieldInfo bound = typeof(CompanionWheelSystem).GetField("companion", flags)!;
 			bound.SetValue(wheel, companion);
 			wheel.SelectMouseMode(SoulwheelMouseMode.Companion);
-			check(wheel.IsOpen && wheel.MouseMode == SoulwheelMouseMode.Companion, "Soulmate mode did not open its wheel");
+			check(!wheel.IsOpen && wheel.MouseMode == SoulwheelMouseMode.Companion, "Soulmate mode did not release the cursor for a context target");
+			Type wheelType = typeof(CompanionWheelSystem);
+			MethodInfo branchPosition = wheelType.GetMethod("BranchPosition", flags)!;
+			Type branchType = branchPosition.GetParameters()[0].ParameterType;
+			var commandActions = (CompanionQuickAction[])wheelType.GetField("CommandActions", flags | BindingFlags.Static)!.GetValue(null)!;
+			check(new[] { CompanionQuickAction.Pause, CompanionQuickAction.Resume, CompanionQuickAction.Abort }
+				.All(action => commandActions.Count(value => value == action) == 1), "Work controls missing or duplicated in Commands wheel");
+			for (int i = 0; i < commandActions.Length; i++) for (int j = i + 1; j < commandActions.Length; j++) {
+				Vector2 a = (Vector2)branchPosition.Invoke(wheel, new object[] { Enum.Parse(branchType, "Commands"), i, commandActions.Length })!;
+				Vector2 b = (Vector2)branchPosition.Invoke(wheel, new object[] { Enum.Parse(branchType, "Commands"), j, commandActions.Length })!;
+				check(Vector2.Distance(a, b) > 42f, "Commands wheel work controls overlap their click targets");
+			}
 			List<string> Actions() => ((System.Collections.IEnumerable)typeof(CompanionWheelSystem)
 				.GetField("contextActions", flags)!.GetValue(wheel)!).Cast<object>().Select(value => value.ToString()!).ToList();
 			void Context(Vector2 position) => wheel.OpenContext(companion, position, new Vector2(400, 300));
@@ -1993,9 +2304,22 @@ public sealed class EngineChecks : ModSystem
 			Context(new Vector2(32 * 16 + 8, 28 * 16 + 8));
 			check(!Actions().Contains("Mine"), "Protected furniture was offered as a mining target");
 			Context(Main.npc[1].Center);
-			check(Actions().Contains("Point") && !Actions().Contains("Mine") && !Actions().Contains("Gather"),
+			check(Actions().Contains("Look") && !Actions().Contains("Mine") && !Actions().Contains("Gather"),
 				"NPC context was treated as a tile or drop");
+			typeof(SoulboundCompanion).GetField("activeJob", flags)!.SetValue(companion, CompanionJob.None);
+			Context(Main.npc[1].Center);
+			check(Actions().Contains("Company"), "Available critter lacked a direct invitation action");
+			PlayerInput.MouseX = 0; PlayerInput.MouseY = 0;
+			Activate("Company");
+			check(ReferenceEquals(typeof(SoulboundCompanion).GetField("critterTarget", flags)!.GetValue(companion), Main.npc[1]),
+				"Company wheel action retargeted away from the clicked critter");
+			companion.PerformQuickAction(CompanionQuickAction.CritterWatch);
+			Context(Main.npc[1].Center); Activate("Look");
+			check(companion.Profile.CritterMode == CompanionCritterMode.Watch
+				&& typeof(SoulboundCompanion).GetField("critterTarget", flags)!.GetValue(companion) is null,
+				"NPC Look action changed critter behavior");
 			wheel.SelectMouseMode(SoulwheelMouseMode.Player);
+			Context(Main.npc[1].Center);
 			check(Actions().Contains("Point") && Actions().Contains("Emotes") && !Actions().Contains("Tools"),
 				"Me mode reused companion work commands");
 			typeof(SoulboundCompanion).GetField("nativeEmoteReactionCooldown", flags)!.SetValue(companion, 0);
@@ -2068,6 +2392,13 @@ public sealed class EngineChecks : ModSystem
 			check(!wheel.IsOpen && !(bool)queued.GetValue(controls)!, "Native empty-air right-click opened a mod wheel");
 			Aim(new Vector2(32 * 16 + 8, 28 * 16 + 8)); Queue(); Flush();
 			check(!wheel.IsOpen && !(bool)queued.GetValue(controls)!, "Native furniture right-click opened a mod wheel");
+			Aim(Main.item[10].Center); Queue(); Flush();
+			check(wheel.IsOpen && Actions().Contains("Gather") && wheel.MouseMode == SoulwheelMouseMode.Terraria,
+				"Default drop right-click did not open the actual target context");
+			wheel.Close(); player.mouseInterface = false; controls.SetControls();
+			Aim(Main.npc[1].Center); Queue(); Flush();
+			check(wheel.IsOpen && Actions().Contains("Look"), "Default NPC right-click lost its direct context");
+			wheel.Close(); player.mouseInterface = false; controls.SetControls();
 			Aim(player.Center); Queue(); Flush();
 			check(wheel.IsOpen && Convert.ToInt32(typeof(CompanionWheelSystem).GetField("context", flags)!.GetValue(wheel)) == 1,
 				"Default self-click failed to route to the player wheel");
@@ -2102,6 +2433,7 @@ public sealed class EngineChecks : ModSystem
 			MethodInfo findHover = typeof(CompanionWheelSystem).GetMethod("FindHoveredNode", flags)!;
 			MethodInfo activateHover = typeof(CompanionWheelSystem).GetMethod("ActivateHovered", flags)!;
 			foreach (int index in new[] { 1, 2, 0 }) {
+				wheel.OpenPlayer(companion);
 				Vector2 position = (Vector2)modePosition.Invoke(wheel, new object[] { index })!;
 				PlayerInput.MouseX = (int)(position.X * Main.UIScale);
 				PlayerInput.MouseY = (int)(position.Y * Main.UIScale);
@@ -2111,6 +2443,7 @@ public sealed class EngineChecks : ModSystem
 					"Visible mode button failed its hit test: " + index);
 				activateHover.Invoke(wheel, null);
 				check((int)wheel.MouseMode == index, "Mode button did not execute its selected mode: " + index);
+				check(!wheel.IsOpen, "Mode selection trapped the cursor in its previous wheel: " + index);
 			}
 			check(!wheel.IsOpen, "Terraria selector did not exit the wheel");
 			Main.mouseRight = true;
@@ -2150,6 +2483,190 @@ public sealed class EngineChecks : ModSystem
 			inputWidth.SetValue(null, oldInputWidth); inputHeight.SetValue(null, oldInputHeight);
 			Main.playerInventory = Main.mouseLeft = Main.mouseRight = false;
 			Main.mouseItem = new Item();
+		}
+	}
+
+	private static void CheckRockPaperScissors(Action<bool, string> check, Mod mod)
+	{
+		const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+		RpsOutcome[,] expected = {
+			{ RpsOutcome.Draw, RpsOutcome.CompanionWin, RpsOutcome.PlayerWin },
+			{ RpsOutcome.PlayerWin, RpsOutcome.Draw, RpsOutcome.CompanionWin },
+			{ RpsOutcome.CompanionWin, RpsOutcome.PlayerWin, RpsOutcome.Draw }
+		};
+		foreach (RpsMove playerMove in Enum.GetValues<RpsMove>()) {
+			check(CompanionRps.TryGetMove(CompanionRps.Emote(playerMove), out RpsMove decoded) && decoded == playerMove,
+				"Native RPS symbol did not round-trip: " + playerMove);
+			foreach (RpsMove companionMove in Enum.GetValues<RpsMove>())
+				check(CompanionRps.Resolve(playerMove, companionMove) == expected[(int)playerMove, (int)companionMove],
+					$"Incorrect RPS rule: {playerMove}/{companionMove}");
+		}
+		foreach (int symbol in new[] { -1, EmoteID.RPSWinRock, EmoteID.RPSWinPaper, EmoteID.RPSWinScissors, EmoteID.EmoteHappiness })
+			check(!CompanionRps.TryGetMove(symbol, out _), "Victory/unrelated emote became a game choice");
+		bool invalidRejected = false;
+		try { CompanionRps.Resolve((RpsMove)255, RpsMove.Rock); }
+		catch (ArgumentOutOfRangeException) { invalidRejected = true; }
+		check(invalidRejected, "Invalid RPS move was resolved");
+
+		Player oldPlayer = Main.player[0];
+		NPC[] oldNpcs = Main.npc;
+		int oldMode = Main.netMode, oldLocal = Main.myPlayer;
+		int oldMouseX = PlayerInput.MouseX, oldMouseY = PlayerInput.MouseY;
+		FieldInfo inputWidth = typeof(PlayerInput).GetField("_originalScreenWidth", BindingFlags.Static | BindingFlags.NonPublic)!;
+		FieldInfo inputHeight = typeof(PlayerInput).GetField("_originalScreenHeight", BindingFlags.Static | BindingFlags.NonPublic)!;
+		object oldInputWidth = inputWidth.GetValue(null)!, oldInputHeight = inputHeight.GetValue(null)!;
+		var oldRandom = Main.rand;
+		string oldCulture = Language.ActiveCulture.Name;
+		RemoteClient[] oldClients = (RemoteClient[])Netplay.Clients.Clone();
+		try {
+			for (int i = 0; i < Netplay.Clients.Length; i++) Netplay.Clients[i] = new RemoteClient { Socket = new ProbeSocket() };
+			Main.myPlayer = 0;
+			Main.player[0] = new Player { whoAmI = 0, active = true, Center = new Vector2(400, 400) };
+			Player owner = Main.player[0];
+			Main.npc = new NPC[oldNpcs.Length];
+			for (int i = 0; i < Main.npc.Length; i++) Main.npc[i] = new NPC { whoAmI = i };
+			NPC npc = Main.npc[20]; npc.SetDefaults(ModContent.NPCType<SoulboundCompanion>());
+			npc.ai[0] = 0; npc.active = true; npc.Center = owner.Center;
+			var companion = (SoulboundCompanion)npc.ModNPC;
+			companion.Profile.Voice = CompanionVoice.Direct;
+			owner.inventory[0] = new Item(ModContent.ItemType<SoulboundSigil>());
+			var sigil = (SoulboundSigil)owner.inventory[0].ModItem;
+			sigil.Profile = companion.Profile.Clone();
+			Type type = typeof(SoulboundCompanion);
+			void Set(string field, object value) => type.GetField(field, flags)!.SetValue(companion, value);
+			string Speech() => (string)type.GetField("speechText", flags)!.GetValue(companion)!;
+			void Ready() { Set("rpsCooldown", 0); Set("nativeEmoteReactionCooldown", 0); }
+			int xp = companion.Profile.Experience, bond = companion.Profile.Bond, mood = companion.Profile.Mood,
+				energy = companion.Profile.Energy, interactions = companion.Profile.Interactions;
+			Set("activeJob", CompanionJob.Gather); companion.Profile.Routine = CompanionJob.Gather;
+			foreach (int mode in new[] { NetmodeID.SinglePlayer, NetmodeID.Server }) {
+				Main.netMode = mode;
+				foreach (RpsMove move in Enum.GetValues<RpsMove>()) {
+					for (int seed = 0; seed < 12; seed++) {
+						Ready(); Main.rand = new Terraria.Utilities.UnifiedRandom(seed);
+						RpsMove answer = (RpsMove)new Terraria.Utilities.UnifiedRandom(seed).Next(3);
+						check(companion.PlayRockPaperScissors(move), "Authority refused a valid nearby round");
+						string result = SoulmatesText.Get("Games.Rps.Round", SoulmatesText.Get($"Games.Rps.Moves.{move}"),
+							SoulmatesText.Get($"Games.Rps.Moves.{answer}"), SoulmatesText.Get($"Games.Rps.Outcomes.{CompanionRps.Resolve(move, answer)}"));
+						check(Speech() == result, "Companion choice depended on player move or result was wrong");
+						check(!companion.PlayRockPaperScissors(move) && Speech() == result, "Duplicate round bypassed cooldown");
+						companion.ReactToNativeEmote(CompanionRps.Emote(move));
+						check(Speech() == result, "Duplicate native observer rerolled a result");
+					}
+				}
+				Ready(); companion.ReactToNativeEmote(EmoteID.RPSRock);
+				check((int)type.GetField("rpsCooldown", flags)!.GetValue(companion)! == 180,
+					"Native RPS emote did not start a real round");
+				for (int tick = 0; tick < 180; tick++) type.GetMethod("UpdateSocialState", flags)!.Invoke(companion, null);
+				check(companion.PlayRockPaperScissors(RpsMove.Paper), "Round cooldown never expired");
+			}
+			check(companion.Profile.Experience == xp && companion.Profile.Bond == bond && companion.Profile.Mood == mood
+				&& companion.Profile.Energy == energy && companion.Profile.Interactions == interactions
+				&& companion.CurrentJob == CompanionJob.Gather && companion.Profile.Routine == CompanionJob.Gather
+				&& sigil.Profile.Experience == xp, "RPS changed progression or interrupted an assignment");
+			Main.netMode = NetmodeID.MultiplayerClient; Ready();
+			check(!companion.PlayRockPaperScissors(RpsMove.Rock), "Client resolved a round independently");
+			Main.netMode = NetmodeID.SinglePlayer;
+			check(!companion.PlayRockPaperScissors((RpsMove)255), "Invalid choice was accepted");
+			owner.dead = true;
+			check(!companion.PlayRockPaperScissors(RpsMove.Rock), "Dead owner could play"); owner.dead = false;
+			npc.Center += new Vector2(600, 0);
+			check(!companion.PlayRockPaperScissors(RpsMove.Rock), "Distant companion played remotely"); npc.Center = owner.Center;
+			owner.inventory[0] = new Item();
+			check(!companion.PlayRockPaperScissors(RpsMove.Rock), "Unbound companion played");
+			owner.inventory[0] = new Item(ModContent.ItemType<SoulboundSigil>());
+			((SoulboundSigil)owner.inventory[0].ModItem).Profile = companion.Profile.Clone();
+			Set("activeJob", CompanionJob.None); companion.Profile.Routine = CompanionJob.None;
+			bool asked = (bool)type.GetMethod("BeginChoiceQuestion", flags)!.Invoke(companion, new object[] { CompanionQuestion.Company })!;
+			Guid question = companion.QuestionId;
+			check(asked && !companion.PlayRockPaperScissors(RpsMove.Rock) && companion.QuestionId == question,
+				"Game replaced an unanswered personal question");
+			type.GetMethod("ClearChoiceQuestion", flags)!.Invoke(companion, null);
+			Set("activeJob", CompanionJob.Gather); companion.Profile.Routine = CompanionJob.Gather;
+
+			foreach (string culture in SupportedCultures) {
+				LanguageManager.Instance.SetLanguage(culture);
+				foreach (CompanionPersonality personality in Enum.GetValues<CompanionPersonality>()) {
+					companion.Profile.Personality = personality;
+					foreach (CompanionVoice voice in Enum.GetValues<CompanionVoice>()) {
+						companion.Profile.Voice = voice;
+						foreach (RpsMove playerMove in Enum.GetValues<RpsMove>()) {
+							foreach (RpsMove companionMove in Enum.GetValues<RpsMove>()) {
+								companion.ShowRpsResult(playerMove, companionMove);
+								check(!Speech().Contains("Mods.Soulmates") && Speech().Length <= 180,
+									"RPS text was untranslated or truncated: " + culture + personality + voice);
+								if (voice != CompanionVoice.Direct)
+									check(Speech().Contains(SoulmatesText.Get($"Games.Rps.Replies.{CompanionRps.Resolve(playerMove, companionMove)}.{personality}")),
+										"RPS omitted personality reaction");
+							}
+						}
+					}
+				}
+				companion.Profile.Voice = CompanionVoice.Soft; companion.Profile.Energy = 0;
+				companion.ShowRpsResult(RpsMove.Rock, RpsMove.Paper);
+				check(Speech().Contains(SoulmatesText.Get("Games.Rps.Quiet")), "Tired companion did not use a quiet game reply");
+				companion.Profile.Energy = energy;
+			}
+
+			byte response = Convert.ToByte(Enum.Parse(mod.GetType().GetNestedType("MessageType", BindingFlags.NonPublic)!, "RpsResult"));
+			void Packet(Guid id, byte playerMove, byte companionMove) {
+				using var body = new MemoryStream();
+				using (var writer = new BinaryWriter(body, Encoding.UTF8, true)) {
+					writer.Write(response); writer.Write(id.ToByteArray()); writer.Write(playerMove); writer.Write(companionMove);
+				}
+				body.Position = 0; using var reader = new BinaryReader(body); mod.HandlePacket(reader, 0);
+			}
+			Main.netMode = NetmodeID.MultiplayerClient;
+			companion.ShowSpeech("unchanged"); Packet(Guid.NewGuid(), 0, 1);
+			check(Speech() == "unchanged", "Other companion's result was displayed");
+			Packet(companion.Profile.Id, 255, 0);
+			check(Speech() == "unchanged", "Invalid result move was displayed");
+			Packet(companion.Profile.Id, 0, 2);
+			check(Speech().Contains(SoulmatesText.Get("Games.Rps.Outcomes.PlayerWin")), "Client did not localize authoritative result");
+			Main.netMode = NetmodeID.Server; companion.ShowSpeech("unchanged"); Packet(companion.Profile.Id, 0, 2);
+			check(Speech() == "unchanged", "Server accepted a client-forged result");
+			Ready();
+			byte request = Convert.ToByte(Enum.Parse(mod.GetType().GetNestedType("MessageType", BindingFlags.NonPublic)!, "NativeEmoteRequest"));
+			void NativeRequest() {
+				using var body = new MemoryStream();
+				using (var writer = new BinaryWriter(body, Encoding.UTF8, true)) { writer.Write(request); writer.Write(EmoteID.RPSScissors); }
+				body.Position = 0; using var reader = new BinaryReader(body); mod.HandlePacket(reader, 0);
+			}
+			NativeRequest(); string authoritativeResult = Speech(); NativeRequest();
+			check(authoritativeResult != "unchanged" && Speech() == authoritativeResult
+				&& (int)type.GetField("rpsCooldown", flags)!.GetValue(companion)! == 180,
+				"Owner's native emote request did not resolve exactly one server round");
+
+			var wheel = new CompanionWheelSystem(); Type wheelType = typeof(CompanionWheelSystem);
+			wheelType.GetField("companion", flags)!.SetValue(wheel, companion);
+			wheelType.GetField("center", flags)!.SetValue(wheel, new Vector2(400, 300));
+			object bondBranch = Enum.Parse(wheelType.GetNestedType("RootBranch", BindingFlags.NonPublic)!, "Bond");
+			wheelType.GetMethod("ActivateRoot", flags)!.Invoke(wheel, new[] { bondBranch });
+			wheelType.GetMethod("ActivateBranch", flags)!.Invoke(wheel, new object[] { 6 });
+			check((bool)wheelType.GetField("rpsMenu", flags)!.GetValue(wheel)!, "Bond game button did not expand choices");
+			foreach ((int width, int height) in new[] { (800, 600), (1280, 720), (1920, 1080) }) {
+				inputWidth.SetValue(null, width); inputHeight.SetValue(null, height);
+				for (int index = 0; index < 3; index++) {
+					Vector2 position = (Vector2)wheelType.GetMethod("RpsPosition", flags)!.Invoke(wheel, new object[] { index })!;
+					PlayerInput.MouseX = (int)(position.X * Main.UIScale); PlayerInput.MouseY = (int)(position.Y * Main.UIScale);
+					wheelType.GetMethod("FindHoveredNode", flags)!.Invoke(wheel, null);
+					check(wheelType.GetField("hoverLayer", flags)!.GetValue(wheel)!.ToString() == "Rps"
+						&& (int)wheelType.GetField("hoverIndex", flags)!.GetValue(wheel)! == index,
+						"Game hit-test selected the wrong symbol: " + width + "/" + index);
+				}
+			}
+			wheelType.GetMethod("StepBack", flags)!.Invoke(wheel, null);
+			check(!(bool)wheelType.GetField("rpsMenu", flags)!.GetValue(wheel)!
+				&& wheelType.GetField("branch", flags)!.GetValue(wheel)!.ToString() == "Bond", "Back left Bond instead of only the game");
+			wheelType.GetMethod("ActivateBranch", flags)!.Invoke(wheel, new object[] { 6 }); wheel.Close();
+			check(!(bool)wheelType.GetField("rpsMenu", flags)!.GetValue(wheel)!, "Closing retained the game submenu");
+		}
+		finally {
+			Main.player[0] = oldPlayer; Main.npc = oldNpcs; Main.netMode = oldMode; Main.myPlayer = oldLocal; Main.rand = oldRandom;
+			PlayerInput.MouseX = oldMouseX; PlayerInput.MouseY = oldMouseY;
+			inputWidth.SetValue(null, oldInputWidth); inputHeight.SetValue(null, oldInputHeight);
+			LanguageManager.Instance.SetLanguage(oldCulture);
+			for (int i = 0; i < Netplay.Clients.Length; i++) Netplay.Clients[i] = oldClients[i];
 		}
 	}
 

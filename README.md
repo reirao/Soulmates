@@ -23,7 +23,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Talent-driven initiative: every companion retrieves nearby usable drops, Gatherers do so faster and farther, Miners help in short bursts and collect what they mine, Treasure Seekers investigate nearby chests, Guardians intercept danger, and Healers react to injuries.
 - Persistent learning insights adapt to the owner's gathering, mining, forestry, combat, and exploration habits.
 - All vanilla and modded ore families are recognized; companions remember safe natural materials they watch the owner mine and reuse discovered pickaxes for later mining assignments.
-- Terraria is the default mouse mode: ordinary world, NPC and item right-clicks stay native. Right-click your character or companion for their wheel, then choose Terraria, Me or Soulmate with native-symbol selectors. Me points out the cursor target or opens player emotes; Soulmate offers valid nearby Look, Gather, Mine and Forest tasks. The original target stays selected while moving onto the wheel. In an open wheel, right-click cycles Me, Soulmate and back to Terraria; X or Escape restores normal use. Inventory, text entry, NPC dialogue and cursor-held items retain priority.
+- Terraria is the default mouse mode: native interactions run first. If they do not handle a right-click on a nearby NPC, loose drop or natural resource, its context wheel opens directly with the target name and applicable actions. Empty air and furniture do not open a fallback wheel. Right-click your character or companion for their wheel, then choose Terraria, Me or Soulmate with native-symbol selectors. Selecting Me or Soulmate closes the wheel and arms the next world right-click. Me points or opens player emotes; Soulmate offers Look, Gather, Mine and Forest tasks, plus Company for eligible critters. The original target stays selected while moving onto the wheel. Right-click inside an open wheel cycles modes; X or Escape restores normal use. Inventory, typing, NPC dialogue, alternate item actions and cursor-held items retain priority.
 - Showing a nearby drop or tile invites a shared observation shaped by personality and chosen voice. Soft and Playful have distinct character replies; Direct stays factual. Tired or low-mood companions can look with you quietly. Inspection adds no XP, consumes nothing and changes no assignment or work permission.
 - Choose Look, Gather, Mine, or Forest to point at nearby targets repeatedly. Right-click an active tool opens the Area wheel; Escape exits targeting. Look reports an opportunity without changing the assignment, cargo, or terrain.
 - Opening the mining target reveals nearby ore families as their real Terraria item icons; choose one immediately or keep the pickaxe node for a manual world target.
@@ -37,18 +37,23 @@ Soulmates is an experimental project created with extensive AI assistance across
 - The learned Forester perk lets a companion shake trees, clear natural fallen logs, collect seeds, and carefully replant carried acorns.
 - Initiative answer wheels open at the player; the companion shows the task symbol, then a question mark. Their positions stay still while choosing.
 - A companion named **AETHER** is an Omni Soul with every starting talent instinct and learned perk available.
-- The Companion Soulwheel has a Critters branch with Watch, Company, Pet Collect and Off. Watch reacts with native emotes and quiet personality-specific observations. Pet Collect needs a bug net in Equipment and room in cargo; native catches retain lava-net requirements. Gold, statue-spawned and player-released creatures are left alone.
+- The Companion Soulwheel has a Critters branch with Watch, Company, Pet Collect and Off. Passive Watch greets nearby natural critters with native emotes and personality-specific observations, including during work, without moving toward or catching them. Pet Collect needs a bug net in Equipment and room in cargo; native catches retain lava-net requirements. Gold, statue-spawned and player-released creatures are excluded from automatic catching and company.
 - Company gently guides existing natural bunnies, squirrels, birds, butterflies, fireflies and lightning bugs. An ordinary companion invites one; AETHER invites up to three. These are temporary real world NPCs, not spawned copies or permanent saved pets: native collisions, damage, catching and despawning still apply. Stragglers are not teleported through terrain. Off and recall release them.
+- NPC context offers Look, Company and Collect for the clicked eligible critter. Direct visits replace current work and can gently approach at low energy; Collect requires a real carried net and cargo capacity. Automatic visits still yield to work and low energy. Autonomy, defense and open prompts remain respected; visits are bounded to six seconds and recheck the original NPC type.
+- Nearby visible critter deaths receive personality-specific sorrow or an apology, and stronger disapproval when Terraria records player attack credit. Unknown causes do not accuse a particular player. Native catches are not deaths; reactions are rate-limited, wait behind ongoing speech and grant no XP or penalties. Soul Bolts cannot accidentally hit harmless critters.
 - AETHER's existing cosmetic native-sprite flock still represents up to six real carried insects and disappears when withdrawn. No free critters, combat swarm, or extra vanity-pet slots are created.
 - Personality-driven autonomous moments add small surprises without overriding combat, Stay, explicit assignments, or low-energy recovery.
 - Persistent companion experience with 20 levels earned from combat, healing, work, and shared moments.
 - Use the compact Companion Soulwheel for commands, work, bonding, direct pack access, and details.
 - Right-click your own character for a separate Player wheel with Emotes, Point, and Mailbox buttons. Emotes unfolds all 151 vanilla Terraria emotes in crescent categories. The configurable **Player Emote Wheel** key (`G` by default) opens Emotes directly.
 - Native Terraria emote bubbles for shared gestures, with occasional context-aware speech instead of constant text.
+- Rock, paper, scissors unfolds three native symbols under Companion Soulwheel > Bond; ordinary player RPS emotes also start a real round. A nearby bound companion chooses independently, shows her move and reacts to the result. Games grant no XP and do not interrupt assignments or change work permissions.
 - Social encounters include a greeting, a native NPC emote, and a personality-aware reply. Resident relationships remember world, NPC type, and name, with wary, new, familiar, and friend states. Combat and explicit work interrupt the visit.
 - Talk Mode > Bond > "Who have you made friends with here?" cycles local resident relationships. Meeting someone and making a friend add chronicle memories; NPC conversation does not generate experience.
-- Personality-specific reactions to normal victories, bosses, and creature deaths.
-- Talk Mode with Care, Commands, Work, Bond, Voice, and Pack conversations.
+- Personality-specific reactions to normal victories, bosses, and nearby critter deaths.
+- Companion Soulwheel > Items opens the categorized conversation directly. Selecting Food, Ores, Tools or another native-symbol topic immediately gives a matching cargo reply. Talk Mode also has Care, Commands, Work, Bond, Voice and Pack; inspection does not consume or invent cargo.
+- "Do you remember?" tells short personality-aware chapters from actual saved events, with truthful present observations when no matching memory exists. Confirmed pickups, critter greetings and losses can enter the bounded chronicle. Long replies scroll in Talk Mode; ambient remarks wait behind speech and prompts.
+- Commands > Pause retains current work, Resume continues it, and Abort clears it and holds automatic work until resumed or replaced. Defense remains available. The hold persists on the Sigil; exact live directed targets do not persist across recall or reloading.
 - Mood-, energy-, bond-, and personality-aware replies, including clearly explained refusals.
 - Five visible bond ranks with growing work radius, role strength, and pack capacity.
 - Every companion continuously defends against nearby threats without spending work energy, while staying leashed to its owner or Stay anchor; Guardians react faster, reach farther, and hit harder, while Healers provide energy-limited support.
@@ -71,7 +76,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Press the configurable **Talk to Companion** hotkey (`V` by default) to open Talk Mode without selecting the Sigil.
 - Choose **Details** on the companion action wheel, or press `V`, to open the resizable Talk Mode with a real level bar, mining approach, bond, mood, energy, pack, memories, and conversations.
 - Stay is a true world anchor: companions defend that location without drifting back to the player.
-- Play in English or German; Soulmates follows Terraria's selected language automatically.
+- Play in all nine languages supported by Terraria 1.4.4: English, German, Italian, French, Spanish, Russian, Brazilian Portuguese, Polish, and Simplified Chinese. Soulmates follows the game's selected language; no separate language setting is needed.
 - Optional local **AETHER Field Notes** record anonymized gameplay events and compact behavior signals for playtesting; nothing is uploaded. Use `/soulfeedback on` to opt in, `/soulfeedback note <text>` for an observation, and `/soulfeedback bug <what happened>` to save a bug with its recent gameplay context.
 - Open the in-game **AETHER Mailbox** from the paper-plane icon on the Companion Soulwheel, or with `/soulfeedback`, to send ordinary feedback or a contextual bug report without leaving Terraria.
 
@@ -79,9 +84,15 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current Build
 
-**Soulmates 0.17.1 - Shared Discoveries** is the current growing-alpha release. It combines deliberate Terraria / Me / Soulmate mouse modes with personal observations when you show the companion a nearby drop or tile. Direct remains factual; inspection adds no XP and changes no work permission. The creator played the test build and reported a positive experience. Native-engine checks passed 10,787 assertions, and static/localization/layout checks passed 3,337 assertions. See [release notes](releases/0.17.1.md), the [input test report](tests/INPUT-MODES-2026-10-02.md), and the [shared-discoveries report](tests/SHARED-DISCOVERIES-2026-10-02.md) for the bounded scope and remaining live multiplayer and long-session tests.
+**Soulmates 0.19.1 - Clear Choices** is the current growing-alpha release. It fixes stale Talk Mode click bounds after category changes, puts Items directly on the companion wheel, and replies immediately to topic selections. Selecting a mouse-mode symbol closes the menu and arms the next world right-click; right-click cycling inside an open wheel remains available. This release also includes the previously local 0.17.2-0.19.0 work: rock, paper, scissors, nine languages, critter context, item conversations, real-memory stories, guarded branch pruning and Pause/Resume/Abort. See [release notes](releases/0.19.1.md).
 
-The pickup/task priorities, personal answers and wallet gifts from [0.16.1](releases/0.16.1.md), native critter company from [0.16.0](releases/0.16.0.md), and [0.15.3 delivery fix](releases/0.15.3.md) remain included. Existing Sigils stay compatible. Living tree-branch pruning remains disabled. Steam can hold an uploaded update for moderator review; that is separate from its GitHub availability.
+The packaged hotfix passed 36,161 native-engine assertions and 45,957 static/localization/layout assertions. These are bounded automated checks, not that many independent play sessions. All nine catalogs contain 810 keys. See [the UI/context report](tests/UI-CONTEXT-HOTFIX-2026-10-02.md) for scope, reproduced failures and package identity. Earlier [living-behavior](tests/LIVING-BEHAVIOR-2026-10-02.md), [critter/context](tests/CRITTER-CONTEXT-2026-10-02.md) and [localization](tests/LOCALIZATION-2026-10-02.md) reports retain their historical scope.
+
+The creator uploaded 0.19.1 to the existing Workshop item on October 2 and is playtesting it. Steam currently shows moderator review pending; upload, approval and subscriber delivery are separate states. The seven new translations are AI-authored and need native-speaker feedback, especially for terminology and character voice. Full progression, long sessions and live multiplayer tests remain outstanding. Some multiplayer conversation and work responses retain the server language; menus, local interactions, key-based speech and minigame results use the client's language. See [localization maintenance](tests/localization/README.md) and [the minigame report](tests/RPS-2026-10-02.md).
+
+Current player reports are being investigated: the player Emotes > Items branch still displays a flat symbol list rather than item subcategories, and automatic Company visits can be overshadowed by other activities. The categorized cargo conversation is a separate Companion wheel > Items entry. These reports are not marked fixed in 0.19.1.
+
+Earlier pickup priorities, personal answers, wallet gifts and Sigil delivery fixes remain included. Existing Sigils stay compatible. Dry vanilla side branches can be pruned with an axe; automatic pruning needs Forester/AETHER. Leafy branches, stems, ground, gem trees and unsupported tree families stay protected.
 
 The [0.14.0 client report](tests/PLAYTEST-2026-10-01.md) records a bounded real-client control pass and a subsequently fixed click conflict. The creator has begun playing 0.15.0 and confirmed a positive first impression; this is not a complete graphical or progression test. The current gallery uses the creator's own screenshots and unchanged frames from their gameplay video. Older galleries remain removed. Broader progression, long sessions, and live multiplayer still need testing.
 
@@ -115,10 +126,17 @@ For local playtests, open the paper-plane icon on the Companion Soulwheel or ent
 
 ## Languages
 
-- English
-- German / Deutsch
+- English (`en-US`)
+- German / Deutsch (`de-DE`)
+- Italian / Italiano (`it-IT`)
+- French / Français (`fr-FR`)
+- Spanish / Español (`es-ES`)
+- Russian (`ru-RU`)
+- Brazilian Portuguese / Português do Brasil (`pt-BR`)
+- Polish / Polski (`pl-PL`)
+- Simplified Chinese (`zh-Hans`)
 
-English is used as the fallback when Terraria is set to another language.
+All nine Terraria 1.4.4 languages have complete 810-key catalogs. Soulmates follows Terraria's language selection, with English as the fallback. The seven new translations are AI-authored; native-speaker corrections are welcome. Some server-formatted multiplayer replies still retain the server language. See [localization maintenance](tests/localization/README.md) for checks and limitations.
 
 ## Install for development
 

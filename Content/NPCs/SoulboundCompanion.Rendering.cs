@@ -24,6 +24,8 @@ public sealed partial class SoulboundCompanion
 	private string cachedSpeech = "";
 	private string cachedSpeechName = "";
 	private float cachedSpeechWidth;
+	private float cachedSpeechHeight;
+	private float speechTextScale = 0.8f;
 	private object? cachedSpeechFont;
 	private List<string> speechLines = [];
 	private Vector2 speechSize;
@@ -114,18 +116,22 @@ public sealed partial class SoulboundCompanion
 		if (speaker.X < -64f || speaker.X > viewport.X + 64f || speaker.Y < -64f || speaker.Y > viewport.Y + 64f)
 			return;
 		float maximumWidth = Math.Min(280f, Math.Max(60f, viewport.X - 44f));
+		float maximumHeight = Math.Max(40f, viewport.Y - 104f);
 		var font = FontAssets.MouseText.Value;
 		if (cachedSpeech != speechText || cachedSpeechName != Profile.Name
-			|| cachedSpeechWidth != maximumWidth || cachedSpeechFont != font) {
+			|| cachedSpeechWidth != maximumWidth || cachedSpeechHeight != maximumHeight || cachedSpeechFont != font) {
 			cachedSpeech = speechText;
 			cachedSpeechName = Profile.Name;
 			cachedSpeechWidth = maximumWidth;
+			cachedSpeechHeight = maximumHeight;
 			cachedSpeechFont = font;
-			speechLines = SoulmatesTextLayout.Wrap(speechText, maximumWidth, line => font.MeasureString(line).X * 0.8f);
+			speechTextScale = SoulmatesTextLayout.FitWrappedScale(speechText, maximumWidth, maximumHeight - 34f,
+				0.8f, 28.75f, line => font.MeasureString(line).X);
+			speechLines = SoulmatesTextLayout.Wrap(speechText, maximumWidth, line => font.MeasureString(line).X * speechTextScale);
 			float width = Math.Min(maximumWidth, font.MeasureString(Profile.Name).X * 0.62f);
 			foreach (string line in speechLines)
-				width = Math.Max(width, font.MeasureString(line).X * 0.8f);
-			speechSize = new Vector2(width + 24f, speechLines.Count * 23f + 34f);
+				width = Math.Max(width, font.MeasureString(line).X * speechTextScale);
+			speechSize = new Vector2(width + 24f, speechLines.Count * 28.75f * speechTextScale + 34f);
 		}
 		float elapsed = Math.Max(0, speechDuration - speechTimer);
 		float opacity = Math.Min(MathHelper.Clamp(elapsed / 12f, 0f, 1f),
@@ -175,8 +181,8 @@ public sealed partial class SoulboundCompanion
 		Utils.DrawBorderString(spriteBatch, Profile.Name, position + new Vector2(12f, 7f),
 			Color.Lerp(Profile.EssenceColor, Color.White, 0.3f) * opacity, nameScale);
 		for (int i = 0; i < speechLines.Count; i++)
-			Utils.DrawBorderString(spriteBatch, speechLines[i], position + new Vector2(12f, 27f + i * 23f),
-				Color.White * opacity, 0.8f);
+			Utils.DrawBorderString(spriteBatch, speechLines[i], position + new Vector2(12f, 27f + i * 28.75f * speechTextScale),
+				Color.White * opacity, speechTextScale);
 	}
 
 	private void DrawJobOrbit(SpriteBatch spriteBatch, Vector2 center)

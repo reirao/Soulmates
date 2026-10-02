@@ -175,20 +175,27 @@ public sealed class FeedbackMailboxState : UIState
 	{
 		if (context is null || feedbackButton is null || bugButton is null || recordingButton is null || sendButton is null)
 			return;
-		title?.SetText(SoulmatesText.Get("UI.Mailbox.Title"));
-		recipient?.SetText(SoulmatesText.Get("UI.Mailbox.Recipient"));
-		feedbackButton.SetText(SoulmatesText.Get("UI.Mailbox.Feedback"));
-		bugButton.SetText(SoulmatesText.Get("UI.Mailbox.Bug"));
-		closeButton?.SetText(SoulmatesText.Get("UI.Common.Close"));
+		if (title is not null) {
+			string text = SoulmatesText.Get("UI.Mailbox.Title");
+			Vector2 size = FontAssets.DeathText.Value.MeasureString(text);
+			title.SetText(text, Math.Min(SoulmatesTextLayout.FitScale(size.X, 524f, 1.05f), 34f / Math.Max(1f, size.Y)), true);
+		}
+		if (recipient is not null) {
+			string text = SoulmatesText.Get("UI.Mailbox.Recipient");
+			recipient.SetText(text, SoulmatesTextLayout.FitScale(FontAssets.MouseText.Value.MeasureString(text).X, 524f, 0.68f), false);
+		}
+		SetButtonText(feedbackButton, SoulmatesText.Get("UI.Mailbox.Feedback"));
+		SetButtonText(bugButton, SoulmatesText.Get("UI.Mailbox.Bug"));
+		if (closeButton is not null) SetButtonText(closeButton, SoulmatesText.Get("UI.Common.Close"));
 		feedbackButton.BackgroundColor = mailKind == MailKind.Feedback ? new Color(69, 109, 157) : new Color(42, 60, 88);
 		bugButton.BackgroundColor = mailKind == MailKind.Bug ? new Color(151, 76, 82) : new Color(78, 50, 61);
-		context.SetText(SoulmatesText.Get(mailKind == MailKind.Bug
-			? "UI.Mailbox.BugContext" : "UI.Mailbox.FeedbackContext"));
-		recordingButton.SetText(SoulmatesText.Get(SoulmatesFeedbackSystem.Enabled
+		SetWrappedText(context, SoulmatesText.Get(mailKind == MailKind.Bug
+			? "UI.Mailbox.BugContext" : "UI.Mailbox.FeedbackContext"), 24f, 0.66f);
+		SetButtonText(recordingButton, SoulmatesText.Get(SoulmatesFeedbackSystem.Enabled
 			? "UI.Mailbox.RecordingOn" : "UI.Mailbox.RecordingOff"));
 		recordingButton.BackgroundColor = SoulmatesFeedbackSystem.Enabled
 			? new Color(54, 107, 87) : new Color(83, 69, 75);
-		sendButton.SetText(SoulmatesText.Get(SoulmatesFeedbackSystem.Enabled
+		SetButtonText(sendButton, SoulmatesText.Get(SoulmatesFeedbackSystem.Enabled
 			? "UI.Mailbox.Send" : "UI.Mailbox.EnableAndSend"));
 	}
 
@@ -196,8 +203,19 @@ public sealed class FeedbackMailboxState : UIState
 	{
 		if (status is null)
 			return;
-		status.SetText(text);
+		SetWrappedText(status, text, 28f, 0.67f);
 		status.TextColor = color;
+	}
+
+	private static void SetButtonText(UITextPanel<string> button, string text) => button.SetText(text,
+		SoulmatesTextLayout.FitScale(FontAssets.MouseText.Value.MeasureString(text).X, button.Width.Pixels - 24f, 0.75f), false);
+
+	private static void SetWrappedText(UIText label, string text, float maximumHeight, float preferredScale)
+	{
+		var font = FontAssets.MouseText.Value;
+		float scale = SoulmatesTextLayout.FitWrappedScale(text, 524f, maximumHeight, preferredScale, font.MeasureString("M").Y,
+			line => font.MeasureString(line).X);
+		label.SetText(string.Join("\n", SoulmatesTextLayout.Wrap(text, 524f / scale, line => font.MeasureString(line).X)), scale, false);
 	}
 
 	private static UITextPanel<string> Button(string text, float top, float left, float width, Color color)
@@ -210,6 +228,7 @@ public sealed class FeedbackMailboxState : UIState
 			BackgroundColor = color,
 			BorderColor = color * 1.3f
 		};
+		SetButtonText(button, text);
 		return button;
 	}
 
@@ -258,7 +277,10 @@ internal sealed class MailboxInputElement(Func<string> placeholder) : UIElement
 		string displayed = string.IsNullOrEmpty(Text) ? placeholder() : Text;
 		if (Focused && (int)(Main.GlobalTimeWrappedHourly * 2f) % 2 == 0)
 			displayed += " |";
-		string wrapped = FontAssets.MouseText.Value.CreateWrappedText(displayed, (area.Width - 24f) / 0.72f);
+		var font = FontAssets.MouseText.Value;
+		var lines = SoulmatesTextLayout.Wrap(displayed, (area.Width - 24f) / 0.72f, line => font.MeasureString(line).X);
+		int visibleLines = Math.Max(1, (int)((area.Height - 34f) / Math.Max(1f, font.MeasureString("M").Y * 0.72f)));
+		string wrapped = string.Join("\n", lines.GetRange(Math.Max(0, lines.Count - visibleLines), Math.Min(lines.Count, visibleLines)));
 		Color color = string.IsNullOrEmpty(Text) ? new Color(121, 139, 164) : Color.White;
 		Utils.DrawBorderString(spriteBatch, wrapped, new Vector2(area.X + 12f, area.Y + 10f), color, 0.72f);
 		string counter = $"{Text.Length}/{MaximumLength}";

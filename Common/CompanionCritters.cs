@@ -12,8 +12,13 @@ using Terraria.ModLoader.IO;
 
 namespace Soulmates.Common;
 
+public enum CompanionNpcAction : byte { Look, Company, Collect }
+
 public static class CompanionCritters
 {
+	public static bool IsCritter(NPC npc) => npc.catchItem > 0 || npc.type > NPCID.None
+		&& npc.type < NPCID.Sets.CountsAsCritter.Length && NPCID.Sets.CountsAsCritter[npc.type];
+
 	public static bool IsNatural(NPC npc) => npc.active && npc.life > 0 && npc.catchItem > 0 && npc.catchItem < ItemLoader.ItemCount
 		&& npc.type > NPCID.None && npc.type < NPCID.Sets.CountsAsCritter.Length && NPCID.Sets.CountsAsCritter[npc.type]
 		&& npc.friendly && !npc.townNPC && !npc.boss && npc.damage == 0 && !npc.SpawnedFromStatue && npc.releaseOwner == 255;
@@ -32,6 +37,20 @@ public static class CompanionCritters
 		NPCID.Butterfly or NPCID.GoldButterfly or NPCID.Firefly or NPCID.LightningBug => EmoteID.CritterButterfly,
 		_ => EmoteID.EmotionLove
 	};
+}
+
+public sealed class CompanionCritterLife : GlobalNPC
+{
+	public override void OnKill(NPC npc)
+	{
+		if (Main.netMode == NetmodeID.MultiplayerClient || !CompanionCritters.IsCritter(npc)
+			|| !npc.friendly || npc.damage > 0 || npc.SpawnedFromStatue) return;
+		bool playerAttack = npc.lastInteraction >= 0 && npc.lastInteraction < Main.maxPlayers
+			&& npc.playerInteraction[npc.lastInteraction];
+		foreach (NPC candidate in Main.ActiveNPCs)
+			if (candidate.ModNPC is SoulboundCompanion companion)
+				companion.ObserveCritterLoss(npc, playerAttack);
+	}
 }
 
 // Guide existing native critters only. Their normal AI, collisions, health and catch drops stay intact.
@@ -82,10 +101,11 @@ public sealed class CompanionCritterCompany : GlobalNPC
 		if (Collision.CanHitLine(npc.Center, 1, 1, companion.NPC.Center, 1, 1)) {
 			if (npc.noGravity) {
 				Vector2 desired = offset.SafeNormalize(Vector2.Zero) * Math.Min(2.8f, Math.Max(0f, offset.Length() - 42f) / 32f);
-				npc.velocity = Vector2.Lerp(npc.velocity, desired, 0.08f);
+				npc.velocity = desired;
 			}
 			else if (MathF.Abs(offset.X) > 48f)
-				npc.velocity.X = MathHelper.Lerp(npc.velocity.X, MathF.Sign(offset.X) * 1.8f, 0.1f);
+				// Native walking AI can set an opposing velocity every tick; a weak blend never reverses it.
+				npc.velocity.X = MathF.Sign(offset.X) * Math.Min(1.8f, (MathF.Abs(offset.X) - 32f) / 40f);
 			if (MathF.Abs(npc.velocity.X) > 0.2f)
 				npc.direction = npc.velocity.X < 0 ? -1 : 1;
 		}

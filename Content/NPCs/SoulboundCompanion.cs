@@ -52,7 +52,8 @@ public sealed partial class SoulboundCompanion : ModNPC
 		None,
 		ShakeTree,
 		ClearDeadwood,
-		PlantAcorn
+		PlantAcorn,
+		PruneBranch
 	}
 
 	private const float FollowCommand = 0f;
@@ -166,7 +167,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 	public CompanionInitiativeKind PendingInitiativeKind => InitiativeKindFor(pendingAutonomyActivity);
 	public int PendingInitiativeTicks => Math.Max(0, pendingInitiativeTimer);
 	public bool IsDefending => guardianTarget >= 0;
-	public string CurrentJobName => activeJob != CompanionJob.None
+	public string CurrentJobName => Profile.WorkPaused ? SoulmatesText.Get("WorkControl.Status") : activeJob != CompanionJob.None
 		? jobRecoveryPaused
 			? jobPlannedTotal > 0
 				? SoulmatesText.Get("Status.AssignmentPausedProgress", SoulmatesText.EnumName(activeJob), jobCount, jobPlannedTotal)
@@ -274,11 +275,14 @@ public sealed partial class SoulboundCompanion : ModNPC
 		UpdateSocialState();
 		UpdateLearningFromOwner();
 		UpdateAttentionClock();
-		UpdateNearbyPickup();
-		UpdateChoiceConversation();
+		if (!Profile.WorkPaused) {
+			UpdateNearbyPickup();
+			UpdateChoiceConversation();
+		}
 		UpdateAutonomousSocialBehavior();
-		UpdateResourcefulness();
+		if (!Profile.WorkPaused) UpdateResourcefulness();
 		UpdateNatureCompanions();
+		UpdateAmbientStories();
 		if (attackCooldown > 0)
 			attackCooldown--;
 		if (healingCooldown > 0)
@@ -291,11 +295,18 @@ public sealed partial class SoulboundCompanion : ModNPC
 			return;
 		}
 		if (activeJob != CompanionJob.None) {
+			if (Profile.WorkPaused) { UpdateStoppedWork(); return; }
 			if (!jobRecoveryPaused)
 				recoveryTimer = 0;
 			guardianTarget = -1;
 			UpdateJob();
 			NPC.rotation = MathHelper.Lerp(NPC.rotation, NPC.velocity.X * 0.025f, 0.08f);
+			UpdateFacing();
+			return;
+		}
+		if (Profile.WorkPaused) { UpdateStoppedWork(); return; }
+		if (directedCritterVisit && UpdateCritterActivity()) {
+			RecoverEnergy(180, 1, recoverMood: false);
 			UpdateFacing();
 			return;
 		}

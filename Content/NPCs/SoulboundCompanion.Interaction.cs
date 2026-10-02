@@ -24,6 +24,7 @@ public sealed partial class SoulboundCompanion
 {
 	public void ToggleCommand()
 	{
+		Profile.WorkPaused = false;
 		CancelAssignment();
 		Command = Command == StayCommand ? FollowCommand : StayCommand;
 		brainState = Command == StayCommand ? BrainState.Stay : BrainState.Follow;
@@ -35,6 +36,7 @@ public sealed partial class SoulboundCompanion
 
 	public void SetCommand(bool stay)
 	{
+		Profile.WorkPaused = false;
 		CancelAssignment();
 		Command = stay ? StayCommand : FollowCommand;
 		brainState = stay ? BrainState.Stay : BrainState.Follow;
@@ -47,6 +49,7 @@ public sealed partial class SoulboundCompanion
 
 	public void AskToExplore()
 	{
+		Profile.WorkPaused = false;
 		CancelAssignment();
 		Command = FollowCommand;
 		brainState = BrainState.Inspect;
@@ -65,6 +68,16 @@ public sealed partial class SoulboundCompanion
 
 	public CompanionConversationResult PerformQuickAction(CompanionQuickAction action)
 	{
+		if (action is CompanionQuickAction.Pause or CompanionQuickAction.Resume or CompanionQuickAction.Abort) {
+			if (Main.netMode == NetmodeID.MultiplayerClient) return new(SoulmatesText.Get("TargetOrders.Invalid"), false);
+			if (action == CompanionQuickAction.Abort) { CancelAssignment(); ReleaseCritterCompany(); }
+			Profile.WorkPaused = action != CompanionQuickAction.Resume;
+			if (Profile.WorkPaused) { ClearChoiceQuestion(); ClearPendingInitiative(120); ClearTownNpcInteraction(); }
+			SyncProfileToBoundSigil();
+			NPC.netUpdate = true;
+			SoulmatesFeedbackSystem.Record("work_control", ("action", action.ToString()));
+			return new(SoulmatesText.Get($"WorkControl.{action}"), true);
+		}
 		if (TrySetCritterMode(action, out CompanionConversationResult critterResult))
 			return critterResult;
 		CompanionInitiativeKind? policyKind = action switch {
@@ -149,8 +162,10 @@ public sealed partial class SoulboundCompanion
 			or CompanionQuickAction.MiningVein or CompanionQuickAction.MiningSurface;
 	}
 
-	public CompanionConversationResult Converse(TalkCategory category, int option, int memoryCursor)
+	public CompanionConversationResult Converse(TalkCategory category, int option, int memoryCursor,
+		CompanionItemTopic itemTopic = CompanionItemTopic.All)
 	{
+		if (category == TalkCategory.Items) return DiscussItems(itemTopic, option, memoryCursor);
 		DialogueResult result = CompanionDialogueEngine.Speak(Profile, category, option);
 		Profile.ChangeBond(result.BondDelta);
 		Profile.Mood = Math.Clamp(Profile.Mood + result.MoodDelta, 0, 100);
@@ -161,7 +176,7 @@ public sealed partial class SoulboundCompanion
 			SpeechAction.ShowPack => Profile.DescribePack(),
 			SpeechAction.StoreHeldItem => StoreSelectedItem(),
 			SpeechAction.UnloadPack => UnloadPack(),
-			SpeechAction.RecallMemory => Profile.RecallMemory(memoryCursor),
+			SpeechAction.RecallMemory => TellRememberedStory(memoryCursor),
 			SpeechAction.RecallResident => Profile.RecallResident(Main.ActiveWorldFileData.UniqueId, memoryCursor),
 			_ => result.Reply
 		};
@@ -214,6 +229,7 @@ public sealed partial class SoulboundCompanion
 			return;
 		}
 		CancelAutonomousActivity();
+		Profile.WorkPaused = false;
 		ClearTownNpcInteraction();
 		ClearDirectedJob();
 		activeJob = job;
@@ -239,6 +255,8 @@ public sealed partial class SoulboundCompanion
 
 	private void CancelAssignment()
 	{
+		critterTarget = null;
+		directedCritterVisit = false;
 		ClearChoiceQuestion();
 		ClearTownNpcInteraction();
 		CancelAutonomousActivity();
@@ -275,9 +293,9 @@ public sealed partial class SoulboundCompanion
 	public void ShowSpeech(string text)
 	{
 		speechText = string.IsNullOrWhiteSpace(text) ? "..." : text.Trim();
-		if (speechText.Length > 180)
-			speechText = speechText[..180];
-		speechDuration = Math.Clamp(420 + speechText.Length * 3, 540, 780);
+		if (speechText.Length > 360)
+			speechText = speechText[..360].TrimEnd() + "...";
+		speechDuration = Math.Clamp(420 + speechText.Length * 3, 540, 1500);
 		speechTimer = speechDuration;
 		speechAnchorWorld = SpeechAnchorTarget();
 		speechTrailWorld = NPC.Center;
@@ -292,6 +310,10 @@ public sealed partial class SoulboundCompanion
 			|| emoteId >= EmoteBubbleLoader.EmoteBubbleCount
 			|| nativeEmoteReactionCooldown > 0)
 			return;
+		if (CompanionRps.TryGetMove(emoteId, out RpsMove move)) {
+			PlayRockPaperScissors(move);
+			return;
+		}
 		nativeEmoteReactionCooldown = 45;
 		SocialReply reply = CompanionSocialDialogue.Respond(emoteId, Profile.Personality);
 		if (reply.Key == "Anger") {
@@ -358,38 +380,26 @@ public sealed partial class SoulboundCompanion
 	{
 		if (Main.netMode == NetmodeID.MultiplayerClient || defeated.type == NPCID.TargetDummy)
 			return;
-		bool creature = defeated.catchItem > 0 || defeated.type != NPCID.None && defeated.type < NPCID.Sets.CountsAsCritter.Length
-			&& NPCID.Sets.CountsAsCritter[defeated.type];
-		int experience = defeated.boss ? 12 : creature ? 1 : Math.Clamp(1 + defeated.lifeMax / 120, 1, 7);
+		if (CompanionCritters.IsCritter(defeated)) {
+			ObserveCritterLoss(defeated, playerAttack: false);
+			return;
+		}
+		int experience = defeated.boss ? 12 : Math.Clamp(1 + defeated.lifeMax / 120, 1, 7);
 		Profile.DefeatedEnemies++;
 		bool leveledUp = Profile.GainExperience(experience, out int newLevel);
 
-		if (creature) {
-			Profile.Remember(CompanionMemoryKind.CreatureEncounter, detail: defeated.TypeName);
-			int moodDelta = Profile.Personality switch {
-				CompanionPersonality.Gentle => -5,
-				CompanionPersonality.Curious => -1,
-				CompanionPersonality.Mischievous => -1,
-				_ => 0
-			};
-			Profile.Mood = Math.Clamp(Profile.Mood + moodDelta, 0, 100);
-		}
-		else {
-			if (Profile.HasTalent(CompanionTalent.Guardian))
-				Profile.Remember(CompanionMemoryKind.GuardianVictory, detail: defeated.TypeName);
-			Profile.Mood = Math.Min(100, Profile.Mood + 1);
-		}
+		if (Profile.HasTalent(CompanionTalent.Guardian))
+			Profile.Remember(CompanionMemoryKind.GuardianVictory, detail: defeated.TypeName);
+		Profile.Mood = Math.Min(100, Profile.Mood + 1);
 
-		if (combatReactionCooldown <= 0 || defeated.boss || creature) {
-			string kind = defeated.boss ? "Boss" : creature ? "Creature" : "Victory";
-			CompanionEmote reaction = creature && Profile.Personality == CompanionPersonality.Gentle
-				? CompanionEmote.Comfort
-				: CompanionEmote.Cheer;
+		if (combatReactionCooldown <= 0 || defeated.boss) {
+			string kind = defeated.boss ? "Boss" : "Victory";
+			CompanionEmote reaction = CompanionEmote.Cheer;
 			StartEmote(reaction, 130);
 			ShowNativeEmote(reaction, 140);
 			if (defeated.boss || Main.rand.NextBool(5))
 				SpeakLocalized($"Social.Combat.{kind}.{Profile.Personality}");
-			combatReactionCooldown = creature ? 360 : 240;
+			combatReactionCooldown = 240;
 		}
 
 		SyncProfileToBoundSigil();

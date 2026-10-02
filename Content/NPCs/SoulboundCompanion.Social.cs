@@ -55,6 +55,8 @@ public sealed partial class SoulboundCompanion
 			interactionRewardCooldown--;
 		if (nativeEmoteReactionCooldown > 0)
 			nativeEmoteReactionCooldown--;
+		if (rpsCooldown > 0)
+			rpsCooldown--;
 		if (combatReactionCooldown > 0)
 			combatReactionCooldown--;
 		if (townNpcInteractionCooldown > 0)
@@ -79,7 +81,7 @@ public sealed partial class SoulboundCompanion
 		int minimum = Profile.Personality == CompanionPersonality.Mischievous ? 1200 : 1500;
 		int maximum = Profile.Personality == CompanionPersonality.Gentle ? 3000 : 2600;
 		socialTimer = Main.rand.Next(minimum, maximum);
-		if (!Profile.AutonomyEnabled || HasPendingInitiative || HasPendingQuestion
+		if (!Profile.AutonomyEnabled || Profile.WorkPaused || speechTimer > 0 || HasPendingInitiative || HasPendingQuestion
 			|| activeJob != CompanionJob.None || autonomyActivity != AutonomyActivity.None
 			|| guardianTarget >= 0 || socialNpcTarget >= 0 || Owner.dead
 			|| Vector2.DistanceSquared(NPC.Center, Owner.Center) > 520f * 520f)

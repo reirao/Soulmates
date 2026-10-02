@@ -1,61 +1,63 @@
 [h1]Soulmates[/h1]
-Erschaffe einen Companion mit Seele. Der wiederverwendbare Soulcore öffnet einen Editor in Terraria; jedes Soulbound Sigil bewahrt Namen, Aussehen, Persönlichkeit, Fortschritt, Erinnerungen und Fracht.
+Erstelle deinen Companion mit dem Soulcore. Jedes Soulbound Sigil bewahrt Namen, Aussehen, Persönlichkeit, Fortschritt, Erinnerungen und Fracht.
 
-[b]Version: 0.17.1 - Shared Discoveries | Gewachsene Alpha[/b]
-[b]Sprachen:[/b] Englisch und Deutsch, passend zur Terraria-Sprache.
+[b]Version: 0.19.1 - Clear Choices | Gewachsene Alpha[/b]
+[b]Sprachen:[/b] EN, DE, IT, FR, ES, RU, PT-BR, PL, vereinfachtes Chinesisch. Folgt Terraria. Neue Übersetzungen sind KI-verfasst; Korrekturen willkommen. Einige MP-Antworten nutzen noch die Serversprache.
 [url=https://github.com/reirao/Soulmates]Quellcode und Versionshinweise[/url]
 
 [h2]Zusammen Anfangen[/h2]
-Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils. Wähle Namen, Starttalent, Persönlichkeit, Farben, Aura und eine animierte Soulkin-, Hasen-, Schleim-, Vogel- oder Eichhörnchen-Muse. Binde ein Sigil und beschwöre. Pro Spieler ist ein Companion aktiv; ein Sigil-Wechsel beendet den vorherigen Companion und seine Effekte. Behalte das aktive Sigil im Inventar; beim Herausnehmen wird sie zurückgerufen. Bestehende Sigils bleiben kompatibel.
+Neue Charaktere erhalten einmalig einen Soulcore und drei Blank Sigils. Wähle Namen, Talent, Persönlichkeit, Farben, Aura und eine animierte Soulkin-, Hasen-, Schleim-, Vogel- oder Eichhörnchen-Muse. Ein Companion pro Spieler; Sigil-Wechsel beendet alte Effekte. Das aktive Sigil bleibt im Inventar, sonst wird sie zurückgerufen. Alte Sigils bleiben kompatibel.
 
 [h2]Kleine Räder, Direkte Entscheidungen[/h2]
 [list]
 [*]Rechtsklick auf den Companion: Befehle, Arbeit, Bindung, Fracht, Einstellungen, Details und Briefkasten.
+[*]Bindung > Schere, Stein, Papier: echte Runden mit Terraria-Emotes und Reaktionen nach Persönlichkeit. Keine XP-Farm.
 [*]Rechtsklick auf dich: Spielerrad mit Emotes, Zeigen und Briefkasten. Alle 151 Vanilla-Emotes öffnen sich in Halbmond-Kategorien; G öffnet sie direkt.
-[*]Terraria bleibt der Standard für normale Welt- und Item-Aktionen. Native Symbole auf beiden Rädern wählen Terraria, Ich oder Soulmate. Ich zeigt, was die Maus sieht; Soulmate bietet passende Ansehen-, Holen-, Bergbau- und Forstaktionen für das ursprünglich angeklickte Ziel.
+[*]Terraria bleibt Standard. Unbehandelte Klicks auf NPCs, Drops und Naturressourcen öffnen deren Kontext; Luft und Möbel nicht. Ich/Soulmate schließt das Rad und aktiviert den nächsten Welt-Rechtsklick. Das angeklickte Ziel bleibt erhalten.
 [*]Rechtsklick im offenen Rad wechselt die Modi; X oder Escape stellt normale Bedienung wieder her. Inventar, Texteingabe, NPC-Dialog und Items am Cursor behalten Vorrang. Veränderte Ziele werden abgelehnt, statt den Auftrag umzulenken.
 [*]Nahe Erzarten erscheinen als echte Item-Symbole. Bergbaumodi sind Adaptive, Tunnel, Vein und Surface. Werkzeugstärke, Energie, Reichweite und geschützte Blöcke begrenzen die Arbeit weiterhin.
 [*]Antworte auf Initiativen mit Ja, Nein, Immer oder Nie. Das Antwortrad erscheint beim Spieler, während sie Aufgabe und Fragezeichen zeigt. Befehle > Initiativregeln setzt Fragen / Immer / Nie getrennt für Sammeln, Bergbau, Forstpflege und Schatzsuche.
-[*]Talk Mode behält Gespräche, Erinnerungen, Stimmung, Energie, Level und Fracht in einer größenveränderbaren Detailansicht.
+[*]Befehle > Pause behält den Auftrag; Fortsetzen führt ihn weiter. Abbrechen löscht ihn und hält Automatismen bis zum Fortsetzen oder neuen Auftrag. Verteidigung bleibt möglich.
+[*]Companion-Rad > Items öffnet Essen, Erze, Werkzeuge und weitere Kategorien mit Terraria-Symbolen. Die Auswahl antwortet sofort. Talk Mode zeigt Geschichten, Stimmung, Energie, Level und Fracht.
 [/list]
 
 [h2]Vertraute Gesichter[/h2]
-Companions begrüßen Bewohner und antworten auf native Emotes passend zu Persönlichkeit und Bedeutung, auch mit Trost oder Widerspruch. Bewohner werden Bekannte, Freunde oder jemand, dem man vorsichtig begegnet. Beziehungen und Meilensteine bleiben im Sigil erhalten, getrennt nach Welt, NPC-Typ und Namen. Talk Mode > Bindung erinnert an lokale Bekanntschaften.
+Companions begrüßen Bewohner und antworten passend auf native Emotes, auch mit Trost oder Widerspruch. Beziehungen bleiben im Sigil, getrennt nach Welt, NPC-Typ und Namen. Talk Mode > Bindung erinnert an Bekanntschaften und Freunde.
 
-Bewohnerrollen haben eigene Dialoge. Besuche respektieren abgeschaltete Autonomie und weichen Arbeit oder Verteidigung. Benannte Texte folgen ihr mit sanftem Nachhall; native Emotes halten ruhige Momente lebendig.
+Bewohnerrollen haben eigene Dialoge. Besuche weichen Arbeit oder Verteidigung und brauchen Autonomie. Texte folgen ihr mit sanftem Nachhall; Emotes halten ruhige Momente lebendig.
 
-Zeigst du ihr einen nahen Drop oder Block, reagiert sie passend zu Persönlichkeit und Stimme: sanft, verspielt oder sachlich. Müde darf sie ruhig mit dir schauen. Ansehen verändert weder Auftrag, Energie, Fracht, Gelände, XP noch Arbeitserlaubnis.
+"Erinnerst du dich?" erzählt kleine Kapitel aus echten gemeinsamen Ereignissen. Items bespricht vorhandene Fracht oder gehaltene Beispiele nach Nahrung, Erzen, Werkzeugen, Waffen, Erholung, Materialien und Tieren. Bemerkungen beziehen sich auf Sichtbares und warten hinter Gesprächen. Ansehen und Geschichten ändern weder Auftrag, Fracht, Gelände, XP noch Erlaubnisse.
 
 [h2]Eine Hilfreiche Kleine Seele[/h2]
 Sie verteidigt nahe Bedrohungen, heilt abhängig vom Talent, sammelt nutzbare Drops, sucht Schätze und bearbeitet erreichbare Erze sowie sichere erlernte Materialien. Bleiben setzt einen echten Weltanker. Energie regeneriert natürlich; Arbeit kann pausieren und fortgesetzt werden. Abschlüsse und Hindernisse werden gemeldet.
 
-Aufmerksamkeit gewichtet Abstand, Talent, erlernte Gewohnheiten und Wartezeit mit getrennten Aufgabenpausen. Lernen adaptiert wiederholtes Sammeln, Bergbauen, Forsten, Kämpfen und Erkunden. Es ist lokale Spiellogik, kein Online-KI-Dienst.
+Aufmerksamkeit gewichtet Abstand, Talent, Gewohnheiten und Wartezeit. Lernen adaptiert Sammeln, Bergbau, Forsten, Kampf und Erkunden. Lokale Spiellogik, kein Online-KI-Dienst.
 
-Hilfreiche Arbeit hat Vorrang vor Tierbesuchen. Beim Folgen werden bereits genehmigte nahe Drops über dieselbe sichere Frachttransaktion eingesammelt. Fragen / Immer / Nie bestimmt weiterhin die Erlaubnis; Itemreservierungen, Aufnahmepausen, Frachtgrenzen und Bleiben werden beachtet.
+Automatische Tierbesuche weichen Arbeit. Beim Folgen sammelt sie genehmigte nahe Drops über die sichere Frachttransaktion. Fragen / Immer / Nie, Itemreservierungen, Aufnahmepausen, Frachtgrenzen und Bleiben gelten weiterhin.
 
-Forstpflege schüttelt Bäume und räumt natürliche umgestürzte Stämme. Der Forester-Perk pflanzt echte mitgeführte Eicheln nach. Das Beschneiden lebender Baumäste ist nicht aktiviert. Nützliche Fracht unterstützt Waffen, Licht, Nahrung, Erholung und gelegentliche Crafting-Vorschläge.
+Forstpflege schüttelt Bäume, räumt tote Stämme und pflanzt mit Forester echte Eicheln nach. Mit Axt sind trockene Vanilla-Seitenäste beschneidbar; Forester/AETHER kann das autonom. Belaubte Äste, Stamm, Boden und andere Baumarten bleiben geschützt. Fracht unterstützt Waffen, Licht, Nahrung, Erholung und Crafting-Ideen.
 
 [h2]Tiere und Gesellschaft[/h2]
-Der Tiere-Zweig bietet Beobachten, Gesellschaft, Pet Collect und Aus. Beobachten fängt nichts. Pet Collect nutzt bei jedem Companion einen mitgeführten Kescher und freien Frachtplatz; Lava-Kescher-Regeln gelten. Goldene, statuenbeschworene und spielerfreigelassene Tiere bleiben unangetastet. Fangen ist ein eigener Modus, keine versteckte Forstaktion.
+Tiere bietet Beobachten, Gesellschaft, Pet Collect und Aus. Beobachten begrüßt natürliche Tiere auch während der Arbeit. Pet Collect braucht Kescher und Frachtplatz; Lava-Regeln gelten. Goldene, statuenbeschworene und freigelassene Tiere werden nicht automatisch gefangen oder eingeladen.
 
-Gesellschaft begleitet natürliche Hasen, Eichhörnchen, Vögel, Schmetterlinge und Leuchtkäfer: eines beim normalen Companion, bis zu drei bei AETHER. Echte Welt-NPCs behalten Kollision, Gesundheit, Fangbarkeit und Despawning. Aus oder Rückruf beendet die Begleitung; kein Erzeugen oder Teleportieren durch Gelände.
+Gesellschaft begleitet echte Hasen, Eichhörnchen, Vögel, Schmetterlinge und Leuchtkäfer: eines normal, bis zu drei bei AETHER. Physik, Fangbarkeit und Despawning bleiben. Aus oder Rückruf beendet die Begleitung; kein Erzeugen oder Teleportieren.
+
+Angeklickte Tiere bieten Ansehen, Gesellschaft und Fangen. Direkte Besuche ersetzen den Auftrag; automatische warten auf freie Aufmerksamkeit und Energie. Autonomie, Verteidigung und offene Fragen bleiben berücksichtigt. Sichtbare Tode lösen Bedauern oder Missbilligung aus; Fang ist kein Tod. Reaktionen warten hinter Sprache, geben keine XP oder Strafen. Soul Bolts verschonen harmlose Tiere.
 
 Ein Companion namens AETHER hat alle Starttalent-Instinkte und Perks. Bis zu sechs mitgeführte Insekten bilden einen kosmetischen Schwarm mit nativen Sprites; Entnahme entfernt ihn. Keine Kampfarmee; Vanilla-Pets bleiben spielergebunden.
 
 [h2]Antworten mit Wirkung[/h2]
-Vier Symbolantworten auf persönliche Fragen bieten fortlaufendes Sammeln, verspielte oder sanfte Gesellschaft oder späteres Reden. Sie beeinflussen Tonfall, Stimmung und Bindung. Nur die Sammelantwort erlaubt weiteres Sammeln, nicht Bergbau oder Forstpflege. Später hat keinen Nachteil.
+Vier Symbolantworten bieten Sammeln, verspielte oder sanfte Gesellschaft oder späteres Reden. Sie beeinflussen Tonfall, Stimmung und Bindung. Die Sammelantwort erlaubt weder Bergbau noch Forstpflege; Später hat keinen Nachteil.
 
 [h2]Wachsen und Tragen[/h2]
-Erfahrung unterstützt 20 Level und fünf Bindungsränge. Ausrüstung behält 8 Plätze, durch Bindung oder Hearth Ribbon bis zu 12, und maximal 99 Stück pro Typ. Ressourcen haben 60 Stapelplätze und 50 Stück pro Level und Typ: 500 auf Level 10, 1.000 auf Level 20. Gesammelte Münzen nutzen eine separate unbegrenzte Geldtasche ohne Itemplätze.
+20 Level, fünf Bindungsränge. Ausrüstung hat 8-12 Plätze und 99 Stück pro Typ. Ressourcen haben 60 Stapelplätze und 50 Stück pro Level und Typ: 500 auf Level 10, 1.000 auf Level 20. Münzen nutzen eine separate unbegrenzte Geldtasche.
 
-Fracht bietet Item-Symbole, Seiten, Tooltips, Stapel- oder Einzelentnahme und Münzumrechnung. Was nicht ins Inventar passt, bleibt beim Companion. Bestehende Sigils geben überschüssige Level-Reserven beim Beschwören sicher zurück.
-
-Gelegentlich bietet sie Ersparnisse mit „Hier für dich!“-Varianten an: annehmen, sparen, verspielt antworten oder verschieben. Nur passende Münzen gelangen ins Inventar; der Rest bleibt sicher. Geschenke statt Voll-Warnung: Die Geldtasche ist unbegrenzt.
+Item-Symbole, Seiten, Tooltips und Stapel-/Einzelentnahme machen Fracht zugänglich. Was nicht ins Inventar passt, bleibt sicher; alte Sigils geben überschüssige Level-Reserven beim Beschwören zurück. „Hier für dich!“-Varianten bieten Ersparnisse: annehmen, sparen, verspielt antworten oder verschieben. Geld hat kein Limit.
 
 [h2]Feldnotizen und Feedback[/h2]
 Der AETHER-Briefkasten öffnet über das Papierflieger-Symbol oder /soulfeedback. Optionale Feldnotizen und kontextuelle Bugberichte bleiben auf diesem Computer, sind standardmäßig aus und laden nichts hoch. Automatische Einträge enthalten keine Namen, Chats oder exakten Positionen; selbst geschriebene Notizen behalten deinen Text.
 
-Gewachsene Alpha: 0.17.1 besteht 10.787 native Engine- und 3.337 statische Prüfungen, wurde im echten Client geladen und vom Entwickler gespielt. Vollständiger Fortschritt, lange Sitzungen und Live-Multiplayer bleiben Testarbeit. Alle Mitspieler brauchen dieselbe Version. Der Entwickler hat wenig Spielzeit: Bitte beschreibt das Verhalten und ob es Solo oder Multiplayer war. Wir freuen uns genauso, wenn ein Companion jemanden zum Lächeln bringt.
+Alpha: Fortschritt, lange Sitzungen und Live-MP brauchen Tests. Alle brauchen dieselbe Version. Aktuelle Hinweise: Emotes > Items ist noch flach; Arbeit kann Tierbesuche verdrängen. Bitte nennt Aktion, Ergebnis und Solo/MP. Der Entwickler hat wenig Spielzeit; wir freuen uns auch über schöne Momente.
 
 [h2]Entwicklungshinweis[/h2]
 Soulmates entstand mit umfangreicher KI-Unterstützung bei Code, Texten, Oberflächen und visueller Entwicklung. Workshop-Icon, Mod-Icon und Soulkin-Sprite wurden KI-generiert. Terraria-Sprites, Items, Inventarsymbole, Emotes und Navigation bleiben in Verwendung. Das Spiel nutzt keinen Online-KI-Dienst.

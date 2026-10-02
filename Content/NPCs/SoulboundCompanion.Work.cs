@@ -54,7 +54,9 @@ public sealed partial class SoulboundCompanion
 		if (!WorldGen.InWorld(cursor.X, cursor.Y, 10)
 			|| Vector2.DistanceSquared(Owner.Center, cursor.ToWorldCoordinates()) > 560f * 560f) return false;
 		Tile tile = Main.tile[cursor.X, cursor.Y];
-		if (tile.HasTile && IsTreeTrunk(tile.TileType)) {
+		if (HasPruningAxe() && IsBareTreeBranch(cursor))
+			action = ForestAction.PruneBranch;
+		else if (tile.HasTile && IsTreeTrunk(tile.TileType)) {
 			WorldGen.GetTreeBottom(cursor.X, cursor.Y, out int x, out int y);
 			target = new Point(x, y);
 			action = ForestAction.ShakeTree;
@@ -308,7 +310,7 @@ public sealed partial class SoulboundCompanion
 
 	private void ResumeAssignment()
 	{
-		if (Main.netMode == NetmodeID.MultiplayerClient)
+		if (Main.netMode == NetmodeID.MultiplayerClient || Profile.WorkPaused)
 			return;
 		if (activeJob != CompanionJob.None || Profile.Routine == CompanionJob.None)
 			return;
@@ -814,6 +816,8 @@ public sealed partial class SoulboundCompanion
 			return 0;
 
 		int itemType = worldItem.type;
+		CompanionItemTopic foundTopic = CompanionItemTopics.Classify(worldItem);
+		string foundName = worldItem.Name;
 		int worldStackBefore = worldItem.stack;
 		int available = AvailableCarryAmount(worldItem);
 		if (available <= 0)
@@ -836,6 +840,7 @@ public sealed partial class SoulboundCompanion
 		}
 
 		worldItem.stack -= moved;
+		if (coinValue == 0) RememberFoundItem(foundTopic, foundName);
 		if (worldItem.stack <= 0) {
 			worldItem.TurnToAir();
 			worldItem.active = false;
