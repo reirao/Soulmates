@@ -1,6 +1,22 @@
 {
   "Mods": {
     "Soulmates": {
+      "UI.CompanionWheel.MiningFilter.Title": "Extraction automatique",
+      "UI.CompanionWheel.MiningFilter.Ores": "Minerais",
+      "UI.CompanionWheel.MiningFilter.Blocks": "Blocs observés",
+      "UI.CompanionWheel.MiningFilter.AllOres": "Tous les minerais",
+      "UI.CompanionWheel.MiningFilter.AllBlocks": "Tous les blocs observés",
+      "UI.CompanionWheel.MiningFilter.Enabled": "Autorisé",
+      "UI.CompanionWheel.MiningFilter.Disabled": "Bloqué",
+      "UI.CompanionWheel.MiningFilter.Empty": "Aucun matériau à extraire observé.",
+      "UI.CompanionWheel.MiningFilter.Rule": "{0}: {1}",
+      "UI.CompanionWheel.ItemGroups.Food": "Nourriture et boissons",
+      "UI.CompanionWheel.ItemGroups.Recovery": "Récupération",
+      "UI.CompanionWheel.ItemGroups.Tools": "Outils",
+      "UI.CompanionWheel.ItemGroups.Weapons": "Armes",
+      "UI.CompanionWheel.ItemGroups.Materials": "Matériaux",
+      "UI.CompanionWheel.ItemGroups.Valuables": "Argent et objets précieux",
+      "UI.CompanionWheel.ItemGroups.Party": "Fête",
       "Social.Critters.DirectBusy": "Pour cette visite, il faut l'autonomie activée et un moment sans danger ni question en attente.",
       "Enums.CompanionQuickAction.Pause": "Pause",
       "Enums.CompanionQuickAction.Resume": "Reprendre",

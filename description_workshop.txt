@@ -1,7 +1,7 @@
 [h1]Soulmates[/h1]
 Create a companion with a soul. The reusable Soulcore opens a creator inside Terraria; every Soulbound Sigil keeps one companion's name, appearance, personality, growth, memories, and cargo.
 
-[b]Version: 0.19.1 - Clear Choices | Growing Alpha[/b]
+[b]Version: 0.19.3 - Steady Hands | Growing Alpha[/b]
 [b]Languages:[/b] EN, DE, IT, FR, ES, RU, PT-BR, PL, Simplified Chinese. Follows Terraria's language. New translations are AI-authored; corrections welcome. Some multiplayer replies still use the server language.
 [url=https://github.com/reirao/Soulmates]Source and release notes[/url]
 
@@ -12,33 +12,33 @@ New characters receive one Soulcore and three Blank Sigils once. Choose name, ta
 [list]
 [*]Right-click the companion for commands, work, bonding, cargo, settings, full details, and the feedback mailbox.
 [*]Bond > Rock, paper, scissors unfolds three native symbols for real rounds and personality-aware reactions. No XP farming or interrupted assignments.
-[*]Right-click yourself for a Player wheel with Emotes, Point, and Mailbox. All 151 vanilla emotes unfold in crescent categories; G opens Emotes directly.
+[*]Right-click yourself for Emotes, Point and Mailbox. All 151 vanilla emotes remain available; G opens them directly. Emotes > Items opens Food, Recovery, Tools, Weapons, Materials, Valuables and Party before the symbols. Ore conversations use Companion > Items > Ores.
 [*]Terraria stays the default. Unhandled clicks on nearby NPCs, drops and resources open their context; air and furniture do not. Selecting Me or Soulmate closes the wheel and arms the next world right-click. Actions retain the clicked target; eligible critters offer Company without a net.
 [*]Right-click inside an open wheel cycles modes; X or Escape restores normal use. Inventory, typing, NPC dialogue, and cursor-held items retain priority. Changed targets are rejected rather than silently redirecting orders.
-[*]Nearby mining expands into real ore-family icons. Mining approaches include Adaptive, Tunnel, Vein, and Surface, with tool-strength, energy, reach, and protected-tile checks.
+[*]Work > Mining approach offers Adaptive, Tunnel, Vein and Surface. Automatic mining adds paged ore/block switches: ores start allowed, observed terrain needs opt-in. Choices persist per Sigil. Direct orders bypass automatic filters, never plant/decor protection or tool requirements.
 [*]Answer initiative with Yes, No, Always, or Never. The answer wheel opens at the player while she shows the task and a question mark. Commands > Initiative Rules sets Ask / Always / Never separately for gathering, mining, forestry, and treasure.
 [*]Commands > Pause retains work; Resume continues it; Abort clears it and holds automatic work until resumed or replaced. Defense stays available.
 [*]Companion wheel > Items opens native-icon Food, Ores, Tools and other topics. Topic clicks answer immediately. Talk Mode includes scrollable stories, mood, energy, levels and cargo.
 [/list]
 
 [h2]Familiar Faces[/h2]
-Companions greet townsfolk and answer native emotes according to personality and meaning, including comfort and disagreement. Residents become acquaintances, friends, or someone to approach cautiously. Relationships and milestones persist on the Sigil, scoped by world, NPC type, and name. Talk Mode > Bond recalls her local acquaintances.
+Companions greet townsfolk and answer emotes with comfort, disagreement and personality. Relationships persist per world, NPC type and name. Talk Mode > Bond recalls acquaintances.
 
-Resident roles have their own dialogue. Visits respect disabled autonomy and give way to work or defense. Named speech follows her with a fading trail; native emotes keep quiet moments expressive.
+Resident roles have their own dialogue. Visits need autonomy and yield to work or defense. Named speech follows her with a fading trail.
 
 "Do you remember?" recalls real shared events with personality-aware reflections. Items discusses actual cargo or held examples by food, ore, tool, weapon, recovery, material and critter categories. Occasional remarks reflect visible surroundings and wait behind speech. Inspection and stories change no assignment, cargo, terrain, XP or permissions.
 
 [h2]A Helpful Little Soul[/h2]
-She defends nearby threats, heals according to talent, retrieves usable drops, investigates treasure, and mines reachable ore and safe learned materials. Stay keeps a true world anchor. Energy recovers naturally; demanding work can pause and resume. Work reports completion or blockers.
+She defends, heals according to talent, gathers, investigates treasure and mines safe materials. Stay is a world anchor. Energy costs one per eight retrieved stacks, four blocks or two forestry actions. Follow recovers two per two seconds; work one per three seconds. Exhaustion rebuilds a 30-point reserve before resuming. Combat has priority, not free recovery.
 
 Attention weighs distance, talent, habits and waiting time. Learning adapts to gathering, mining, forestry, combat and exploration. Local game logic, not online AI.
 
-Automatic critter visits yield to work. During Follow, approved nearby drops use the shared cargo transaction. Ask / Always / Never, native item reservations, pickup delays, cargo limits and Stay remain respected.
+Running work retains priority. Between automatic tasks, a bounded critter visit gets a turn before more work. Follow collects approved drops through the shared cargo transaction. Ask / Always / Never, reservations, pickup delays, cargo limits and Stay remain respected.
 
 Forestry shakes trees, clears fallen logs and replants carried acorns with Forester. A real axe allows pruning dry vanilla side branches; Forester/AETHER can do it autonomously. Leafy branches, stems, ground and unsupported tree families stay protected. Cargo can supply weapons, light, food, recovery and crafting suggestions.
 
 [h2]Critters and Company[/h2]
-Critters offers Watch, Company, Pet Collect and Off. Passive Watch greets natural creatures even during work. Pet Collect needs a carried net and cargo room; lava-net rules apply. Gold, statue-spawned and released critters are excluded from automatic catches and company.
+Critters offers Watch, Company, Pet Collect and Off. Enabled modes notice natural creatures during work. Greetings wait behind speech and discard stale targets. Pet Collect needs a carried net and cargo room; lava-net rules apply. Gold, statue-spawned and released critters are excluded from automatic catches and company.
 
 Company guides natural bunnies, squirrels, birds, butterflies, fireflies, and lightning bugs: one normally, up to three for AETHER. Real world NPCs retain collision, health, catching, and despawning. Off or recall releases them; no spawning or teleporting through terrain.
 
@@ -57,7 +57,7 @@ Native item icons, paging, tooltips and stack/single-item withdrawals keep cargo
 [h2]Field Notes and Feedback[/h2]
 The in-game AETHER Mailbox opens from the paper-plane icon or /soulfeedback. Optional Field Notes and contextual bug reports stay on this computer, are off by default, and never upload data. Automatic records omit names, chat, and exact positions; your typed notes retain what you write.
 
-Growing alpha: progression, long sessions and live multiplayer need tests. All players need the same version. Current reports: Emotes > Items is still flat; Company visits can be overshadowed by work. The creator has little playtime: report the action, result and solo/MP. We also love hearing that a companion made you smile.
+Growing alpha: progression, long sessions and live multiplayer need tests. All players need the same version. The creator has little playtime: report the action, result and solo/MP. We also love hearing that a companion made you smile.
 
 [h2]Development Disclosure[/h2]
 Soulmates uses extensive AI assistance in code, writing, interfaces and visuals. Workshop and mod icons and the custom Soulkin sprite were AI-generated. Terraria sprites, items, inventory icons, emotes and navigation remain in use. Gameplay uses no online AI service.

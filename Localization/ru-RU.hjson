@@ -1,6 +1,22 @@
 {
   "Mods": {
     "Soulmates": {
+      "UI.CompanionWheel.MiningFilter.Title": "Автоматическая добыча",
+      "UI.CompanionWheel.MiningFilter.Ores": "Руды",
+      "UI.CompanionWheel.MiningFilter.Blocks": "Наблюдавшиеся блоки",
+      "UI.CompanionWheel.MiningFilter.AllOres": "Все руды",
+      "UI.CompanionWheel.MiningFilter.AllBlocks": "Все наблюдавшиеся блоки",
+      "UI.CompanionWheel.MiningFilter.Enabled": "Разрешено",
+      "UI.CompanionWheel.MiningFilter.Disabled": "Запрещено",
+      "UI.CompanionWheel.MiningFilter.Empty": "Материалы для добычи ещё не наблюдались.",
+      "UI.CompanionWheel.MiningFilter.Rule": "{0}: {1}",
+      "UI.CompanionWheel.ItemGroups.Food": "Еда и напитки",
+      "UI.CompanionWheel.ItemGroups.Recovery": "Восстановление",
+      "UI.CompanionWheel.ItemGroups.Tools": "Инструменты",
+      "UI.CompanionWheel.ItemGroups.Weapons": "Оружие",
+      "UI.CompanionWheel.ItemGroups.Materials": "Материалы",
+      "UI.CompanionWheel.ItemGroups.Valuables": "Деньги и ценности",
+      "UI.CompanionWheel.ItemGroups.Party": "Праздник",
       "Social.Critters.DirectBusy": "Для этого визита нужна включённая автономия и момент без опасности или неотвеченных вопросов.",
       "Enums.CompanionQuickAction.Pause": "Пауза",
       "Enums.CompanionQuickAction.Resume": "Продолжить",

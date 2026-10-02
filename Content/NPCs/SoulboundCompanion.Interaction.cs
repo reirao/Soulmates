@@ -466,7 +466,7 @@ public sealed partial class SoulboundCompanion
 			|| key.StartsWith("Autonomy.Surprise.", StringComparison.Ordinal);
 		if (ambient && speechTimer > 180)
 			return false;
-		ShowSpeech(string.IsNullOrEmpty(argument) ? SoulmatesText.Get(key) : SoulmatesText.Get(key, argument));
+		ShowSpeech(SoulmatesText.Get(key, argument));
 		return true;
 	}
 

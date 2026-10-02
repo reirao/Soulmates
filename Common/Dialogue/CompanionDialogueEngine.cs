@@ -56,11 +56,10 @@ public static class CompanionDialogueEngine
 
 	public static int GetEnergyChange(TalkCategory category, int option) => (category, Math.Clamp(option, 0, 2)) switch {
 		(TalkCategory.Care, 2) => 30,
-		(TalkCategory.Commands, 0) => -1,
 		(TalkCategory.Commands, 2) => -4,
-		(TalkCategory.Work, 0) => -6,
-		(TalkCategory.Work, 1) => -8,
-		(TalkCategory.Work, 2) => -5,
+		(TalkCategory.Work, 0) => -2,
+		(TalkCategory.Work, 1) => -2,
+		(TalkCategory.Work, 2) => -1,
 		_ => 0
 	};
 

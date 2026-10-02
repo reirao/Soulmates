@@ -1,6 +1,22 @@
 {
   "Mods": {
     "Soulmates": {
+      "UI.CompanionWheel.MiningFilter.Title": "Automatyczne wydobycie",
+      "UI.CompanionWheel.MiningFilter.Ores": "Rudy",
+      "UI.CompanionWheel.MiningFilter.Blocks": "Zaobserwowane bloki",
+      "UI.CompanionWheel.MiningFilter.AllOres": "Wszystkie rudy",
+      "UI.CompanionWheel.MiningFilter.AllBlocks": "Wszystkie zaobserwowane bloki",
+      "UI.CompanionWheel.MiningFilter.Enabled": "Dozwolone",
+      "UI.CompanionWheel.MiningFilter.Disabled": "Zablokowane",
+      "UI.CompanionWheel.MiningFilter.Empty": "Nie zaobserwowano jeszcze materiałów do wydobycia.",
+      "UI.CompanionWheel.MiningFilter.Rule": "{0}: {1}",
+      "UI.CompanionWheel.ItemGroups.Food": "Jedzenie i napoje",
+      "UI.CompanionWheel.ItemGroups.Recovery": "Regeneracja",
+      "UI.CompanionWheel.ItemGroups.Tools": "Narzędzia",
+      "UI.CompanionWheel.ItemGroups.Weapons": "Broń",
+      "UI.CompanionWheel.ItemGroups.Materials": "Materiały",
+      "UI.CompanionWheel.ItemGroups.Valuables": "Pieniądze i kosztowności",
+      "UI.CompanionWheel.ItemGroups.Party": "Impreza",
       "Social.Critters.DirectBusy": "Do tej wizyty potrzebuję włączonej autonomii i chwili bez zagrożeń lub pytań bez odpowiedzi.",
       "Enums.CompanionQuickAction.Pause": "Pauza",
       "Enums.CompanionQuickAction.Resume": "Wznów",

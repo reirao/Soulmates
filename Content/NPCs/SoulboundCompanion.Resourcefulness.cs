@@ -80,7 +80,7 @@ public sealed partial class SoulboundCompanion
 			return false;
 		bool knownMaterial = IsOreTile(tile.TileType)
 			|| includeLearnedMaterials && Profile.KnowsMiningMaterial(tile.TileType);
-		if (!knownMaterial || !WorldGen.CanKillTile(x, y))
+		if (!knownMaterial || HasMiningDecorationNeighbour(x, y) || !WorldGen.CanKillTile(x, y))
 			return false;
 
 		int pickPower = EffectivePickPower(out _);
@@ -104,22 +104,12 @@ public sealed partial class SoulboundCompanion
 		return power;
 	}
 
-	private static bool IsOreTile(ushort type)
-		=> type < TileID.Sets.Ore.Length && TileID.Sets.Ore[type]
-			|| type < Main.tileOreFinderPriority.Length && Main.tileOreFinderPriority[type] > 0;
+	private static bool IsOreTile(ushort type) => CompanionMiningRules.IsOre(type);
 
 	private static bool IsLearnableMiningMaterial(ushort type)
 		=> IsOreTile(type) || IsSafeMiningMaterial(type);
 
-	private static bool IsSafeMiningMaterial(ushort type)
-	{
-		if (type >= Main.tileSolid.Length || !Main.tileSolid[type] || Main.tileFrameImportant[type]
-			|| Main.tileAxe[type] || Main.tileContainer[type])
-			return false;
-		if (type < TileID.Sets.IsAContainer.Length && TileID.Sets.IsAContainer[type])
-			return false;
-		return type >= TileID.Sets.IsATreeTrunk.Length || !TileID.Sets.IsATreeTrunk[type];
-	}
+	private static bool IsSafeMiningMaterial(ushort type) => CompanionMiningRules.IsSafeMaterial(type);
 
 	private static int RequiredPickPower(ushort type) => type switch {
 		TileID.Meteorite => 50,

@@ -89,7 +89,7 @@ public sealed partial class EngineChecks : ModSystem
 		}
 		try {
 			Mod soulmates = ModLoader.GetMod("Soulmates");
-			Version expectedVersion = Version.Parse(Environment.GetEnvironmentVariable("SOULMATES_EXPECTED_TEST_VERSION") ?? "0.19.1");
+			Version expectedVersion = Version.Parse(Environment.GetEnvironmentVariable("SOULMATES_EXPECTED_TEST_VERSION") ?? "0.19.3");
 			Check(soulmates.Version == expectedVersion, "Wrong packaged version: " + soulmates.Version);
 			Check(!soulmates.FileExists("icon_small.rawimg") && !soulmates.FileExists("icon_small.png"),
 				"Optional mini-icon reintroduced the installed packer's exhausted-stream conversion");
@@ -112,6 +112,7 @@ public sealed partial class EngineChecks : ModSystem
 			CheckRevisionBoundaries(Check, soulmates);
 			CheckMultiplayerCreation(Check, soulmates);
 			CheckRecoveryAndLifecycle(Check, soulmates);
+			CheckEnergyAndMiningRules(Check, soulmates);
 			CheckCombatAndSwitching(Check, soulmates);
 			CheckCargoGrowthAndWallet(Check);
 			CheckCargoLayout(Check);
@@ -932,6 +933,13 @@ public sealed partial class EngineChecks : ModSystem
 				Watch();
 				check((int)Get("critterWatchCooldown") == 600 && (int)Get("critterNoticeCooldown") == 0,
 					"Passive Watch failed during work or blocked an unheard speech line");
+				check(ReferenceEquals(Get("pendingCritterNotice"), bunny), "A busy speech line discarded the critter greeting");
+				Set("speechTimer", 0);
+				typeof(SoulboundCompanion).GetMethod("UpdateCritterNoticeSpeech", flags)!.Invoke(companion, null);
+				check(Get("pendingCritterNotice") is null && (string)Get("speechText") ==
+					SoulmatesText.Get($"Social.Critters.Greeting.{companion.Profile.Personality}", bunny.TypeName),
+					"Queued first greeting did not speak after the existing line ended");
+				Set("critterNoticeCooldown", 0);
 				Set("critterWatchCooldown", 0); Set("speechTimer", 0); Set("greetedCritter", null!);
 				Watch();
 				check((string)Get("speechText") == SoulmatesText.Get($"Social.Critters.Greeting.{companion.Profile.Personality}", bunny.TypeName),
@@ -939,8 +947,20 @@ public sealed partial class EngineChecks : ModSystem
 				Set("activeJob", CompanionJob.None);
 				companion.PerformQuickAction(CompanionQuickAction.CritterCompany);
 				var company = bunny.GetGlobalNPC<CompanionCritterCompany>();
+				Set("activeJob", CompanionJob.Mine); Set("speechTimer", 600);
+				Watch();
+				check(ReferenceEquals(Get("pendingCritterNotice"), bunny) && Get("critterTarget") is null,
+					"Company failed to passively notice critters while explicit work had priority");
+				Set("activeJob", CompanionJob.None);
+				Main.item[12] = new Item(ItemID.CopperOre, 2) { active = true, playerIndexTheItemIsReservedFor = 255 };
+				Main.item[12].Center = npc.Center + new Vector2(120, 0);
+				companion.Profile.GatheringInitiative = CompanionInitiativePolicy.Always;
+				Set("autonomyDecisionTimer", 0);
 				npc.AI();
-				check(Belongs(company), "Full companion AI did not invite a nearby bunny without a net requirement");
+				check(Belongs(company), "New gathering work starved a nearby Company invitation in full companion AI");
+				check((int)Get("critterDecisionTimer") == 300, "Completed critter visit did not leave a bounded work interval");
+				Main.item[12].active = false;
+				Set("autonomyActivity", Enum.ToObject(typeof(SoulboundCompanion).GetField("autonomyActivity", flags)!.FieldType, 0));
 				NPC second = Critter(18);
 				check(!Join(second), "Ordinary companion exceeded one real critter friend");
 				companion.Profile.Name = "AETHER";

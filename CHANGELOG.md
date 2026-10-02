@@ -1,5 +1,21 @@
 # Soulmates Development History
 
+## Soulmates 0.19.3 - Steady Hands
+
+- Protect blocks next to plants, saplings, trees, furniture and decorations in every mining path. Recheck already planned targets and direct orders; use native multi-tile data in the conservative support check.
+- Add Work > Mining approach > Automatic mining: paged native-icon ore and observed-block toggles and all-type switches. Ores start allowed; learned terrain needs explicit opt-in. Persist stable tile keys on the Sigil and validate owner/profile/type permissions on multiplayer authority. Direct jobs retain safeguards but do not inherit automatic filters.
+- Settle work effort in batches: eight retrieved stacks, four mined blocks or two successful forestry actions per energy point. Reduce work-command entry fees and healer energy cost; UI costs use the same dialogue policy.
+- Restore two energy per two seconds while following and one per three seconds during work. Preserve recovery progress between tasks. Rebuild a 30-energy reserve after exhaustion before restarting autonomous or retained work; synchronize the recovery status.
+- Scan sooner and shorten gathering/mining/forestry revisit delays. Keep permissions, cargo transactions, catch rules, completed-tree tracking, combat, Stay and explicit work priority.
+- Old Sigils load with compatible default rules; multiplayer peers need the same version. The creator uploaded 0.19.3 to the existing Workshop item on October 2 at 21:08 CEST. Moderator approval and subscriber delivery are separate from upload. Engine fixtures are not a graphical or live multiplayer playtest.
+
+## Soulmates 0.19.2 - Small Encounters
+
+- Put a real subgroup layer before native item emotes: Food, Recovery, Tools, Weapons, Materials, Valuables and Party. Preserve all 151 vanilla symbols and stepwise Back navigation without adding an extra ring.
+- Run passive critter observations in every non-Off mode, including during work. Queue greeting speech instead of silently dropping it while another line is active; reject stale creatures and clear disabled observations.
+- Give a bounded critter visit a turn before selecting another automatic task when no current work is active. Keep active jobs, ongoing automatic work, combat, Stay, prompts, energy and native catch protections intact; add a five-second visit interval.
+- Translate the seven subgroup labels in all nine catalogs, bringing each to 817 keys. Extend native click-routing and critter-priority checks. Initially prepared and tested locally; the creator then uploaded it to the existing Workshop item on October 2 at 20:32 CEST. Included in GitHub release 0.19.3.
+
 ## Soulmates 0.19.1 - Clear Choices
 
 - Recalculate native UI click bounds whenever conversation categories rearrange controls. Item-topic buttons and reply buttons no longer retain overlapping positions from the previous category.

@@ -56,6 +56,7 @@ public sealed partial class SoulboundCompanion
 		writer.Write((short)(critterTarget?.whoAmI ?? -1));
 		writer.Write(critterTarget?.type ?? 0);
 		writer.Write((short)Math.Clamp(critterVisitTicks, 0, 360));
+		writer.Write(autonomyRecoveryPaused);
 	}
 
 	public override void ReceiveExtraAI(BinaryReader reader)
@@ -104,6 +105,7 @@ public sealed partial class SoulboundCompanion
 		critterTarget = critterIndex >= 0 && Main.npc[critterIndex].active && Main.npc[critterIndex].type == critterType
 			? Main.npc[critterIndex] : null;
 		if (critterTarget is null) directedCritterVisit = false;
+		autonomyRecoveryPaused = reader.ReadBoolean();
 		if (Main.netMode != NetmodeID.MultiplayerClient || !TryGetOwner(out Player owner) || owner.whoAmI != Main.myPlayer)
 			return;
 		foreach (Item item in owner.inventory) {

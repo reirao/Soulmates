@@ -1,6 +1,22 @@
 {
   "Mods": {
     "Soulmates": {
+      "UI.CompanionWheel.MiningFilter.Title": "自动采矿",
+      "UI.CompanionWheel.MiningFilter.Ores": "矿石",
+      "UI.CompanionWheel.MiningFilter.Blocks": "已观察的方块",
+      "UI.CompanionWheel.MiningFilter.AllOres": "全部矿石",
+      "UI.CompanionWheel.MiningFilter.AllBlocks": "全部已观察的方块",
+      "UI.CompanionWheel.MiningFilter.Enabled": "允许",
+      "UI.CompanionWheel.MiningFilter.Disabled": "禁止",
+      "UI.CompanionWheel.MiningFilter.Empty": "尚未观察到可开采材料。",
+      "UI.CompanionWheel.MiningFilter.Rule": "{0}: {1}",
+      "UI.CompanionWheel.ItemGroups.Food": "食物与饮料",
+      "UI.CompanionWheel.ItemGroups.Recovery": "恢复",
+      "UI.CompanionWheel.ItemGroups.Tools": "工具",
+      "UI.CompanionWheel.ItemGroups.Weapons": "武器",
+      "UI.CompanionWheel.ItemGroups.Materials": "材料",
+      "UI.CompanionWheel.ItemGroups.Valuables": "钱币与贵重物品",
+      "UI.CompanionWheel.ItemGroups.Party": "派对",
       "Social.Critters.DirectBusy": "这次拜访需要开启自主行动，并且没有危险或尚未回答的问题。",
       "Enums.CompanionQuickAction.Pause": "暂停",
       "Enums.CompanionQuickAction.Resume": "继续",

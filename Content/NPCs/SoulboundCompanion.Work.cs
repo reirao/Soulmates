@@ -283,7 +283,7 @@ public sealed partial class SoulboundCompanion
 	{
 		MoveTo(idleTarget + new Vector2(0f, IdleBob()), 1.6f, 0.028f);
 		RecoverEnergy(120, Profile.Trinket == CompanionTrinket.HearthRibbon ? 5 : 3, recoverMood: true);
-		if (Profile.Energy < 12 || Profile.Mood < 20)
+		if (Profile.Energy < RecoveryReserve || Profile.Mood < 20)
 			return;
 
 		jobRecoveryPaused = false;
@@ -395,7 +395,7 @@ public sealed partial class SoulboundCompanion
 			jobCount++;
 			SoulmatesFeedbackSystem.Record("companion_mined_tile", ("tile_type", minedTileType),
 				("pick_power", pickPower), ("pick_item_type", pickItemType), ("autonomous", false));
-			Profile.Energy = Math.Max(0, Profile.Energy - 1);
+			SpendWorkEnergy(2);
 			CollectNearbyLooseItems(target, 96f, 6);
 			SyncProfileToBoundSigil();
 			NPC.netUpdate = true;
@@ -465,7 +465,7 @@ public sealed partial class SoulboundCompanion
 				return;
 			}
 			jobCount += moved;
-			Profile.Energy = Math.Max(0, Profile.Energy - 1);
+			SpendWorkEnergy(1);
 			if (Main.netMode == NetmodeID.Server)
 				NetMessage.SendData(MessageID.SyncItem, -1, -1, null, jobTargetItem);
 			SyncPackState();
@@ -500,7 +500,7 @@ public sealed partial class SoulboundCompanion
 		if (directedJob) {
 			if (success) {
 				jobCount++;
-				Profile.Energy = Math.Max(0, Profile.Energy - 1);
+				SpendWorkEnergy(4);
 				CollectNearbyLooseItems(target, 96f, 6);
 				ShowNativeEmote(EmoteID.MiscTree, 90);
 			}
@@ -511,7 +511,7 @@ public sealed partial class SoulboundCompanion
 			return;
 
 		jobCount++;
-		Profile.Energy = Math.Max(0, Profile.Energy - 1);
+		SpendWorkEnergy(4);
 		Profile.GainExperience(Profile.ForesterUnlocked ? 2 : 1, out _);
 		ShowNativeEmote(EmoteID.MiscTree, 75);
 		SyncPackState();

@@ -28,6 +28,9 @@ public sealed partial class SoulboundCompanion
 	private string pendingCritterLossName = "";
 	private NPC? greetedCritter;
 	private int greetedCritterType;
+	private NPC? pendingCritterNotice;
+	private int pendingCritterNoticeType;
+	private string pendingCritterNoticeKey = "";
 	private NPC? critterTarget;
 	private bool directedCritterVisit;
 	private int directedCritterType;
@@ -42,6 +45,7 @@ public sealed partial class SoulboundCompanion
 		if (critterLossCooldown > 0) critterLossCooldown--;
 		if (critterLossCooldown == 0) pendingCritterLossKey = pendingCritterLossName = "";
 		UpdateCritterLossSpeech();
+		UpdateCritterNoticeSpeech();
 		if (!Profile.WorkPaused && (!CanAttendCritters() || critterTarget is not null && --critterVisitTicks <= 0)) {
 			critterTarget = null;
 			directedCritterVisit = false;
@@ -136,7 +140,7 @@ public sealed partial class SoulboundCompanion
 	private void UpdateCritterWatch()
 	{
 		if (Main.netMode == NetmodeID.MultiplayerClient || !Profile.AutonomyEnabled
-			|| Profile.CritterMode != CompanionCritterMode.Watch || critterWatchCooldown > 0
+			|| Profile.CritterMode == CompanionCritterMode.Off || critterWatchCooldown > 0 || pendingCritterNotice is not null
 			|| guardianTarget >= 0 || HasPendingInitiative || HasPendingQuestion || !Owner.active || Owner.dead)
 			return;
 		NPC? nearest = null;
@@ -153,8 +157,29 @@ public sealed partial class SoulboundCompanion
 		bool greeting = IsFirstCritterGreeting(nearest);
 		ShowNativeEmote(greeting ? EmoteID.EmoteWink : CompanionCritters.EmoteFor(nearest), 120);
 		critterWatchCooldown = 600;
-		CritterFeedback($"Social.Critters.{(greeting ? "Greeting" : "Notice")}.{Profile.Personality}", nearest.TypeName);
+		pendingCritterNotice = nearest;
+		pendingCritterNoticeType = nearest.type;
+		pendingCritterNoticeKey = $"Social.Critters.{(greeting ? "Greeting" : "Notice")}.{Profile.Personality}";
+		UpdateCritterNoticeSpeech();
 		SoulmatesFeedbackSystem.Record("critter_observed", ("npc_type", nearest.type));
+	}
+
+	private void UpdateCritterNoticeSpeech()
+	{
+		if (Main.netMode == NetmodeID.MultiplayerClient || pendingCritterNotice is not { } target) return;
+		if (Profile.CritterMode == CompanionCritterMode.Off || !Profile.AutonomyEnabled
+			|| target.type != pendingCritterNoticeType || !CompanionCritters.IsNatural(target)
+			|| Vector2.DistanceSquared(target.Center, NPC.Center) > 400f * 400f
+			|| !Owner.active || Owner.dead) {
+			pendingCritterNotice = null;
+			pendingCritterNoticeKey = "";
+			return;
+		}
+		if (speechTimer > 0 || critterNoticeCooldown > 0 || guardianTarget >= 0
+			|| HasPendingQuestion || HasPendingInitiative || pendingCritterLossKey.Length > 0) return;
+		CritterFeedback(pendingCritterNoticeKey, target.TypeName);
+		pendingCritterNotice = null;
+		pendingCritterNoticeKey = "";
 	}
 
 	private bool UpdateCritterActivity()
@@ -208,6 +233,7 @@ public sealed partial class SoulboundCompanion
 		}
 		critterTarget = null;
 		directedCritterVisit = false;
+		critterDecisionTimer = 300;
 		NPC.netUpdate = true;
 		return false;
 	}
@@ -283,6 +309,8 @@ public sealed partial class SoulboundCompanion
 		if (mode != CompanionCritterMode.Company) ReleaseCritterCompany();
 		critterTarget = null;
 		directedCritterVisit = false;
+		pendingCritterNotice = null;
+		pendingCritterNoticeKey = "";
 		critterDecisionTimer = critterNoticeCooldown = critterWatchCooldown = 0;
 		SyncPackState();
 		SoulmatesFeedbackSystem.Record("critter_mode", ("mode", mode.ToString()));

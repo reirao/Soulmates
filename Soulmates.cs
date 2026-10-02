@@ -40,7 +40,8 @@ public sealed class Soulmates : Mod
 		OwnerInventoryUpdate,
 		ChoiceResponseRequest,
 		RpsResult,
-		NpcContextRequest
+		NpcContextRequest,
+		MiningRuleRequest
 	}
 
 	internal static ModKeybind TalkKeybind { get; private set; } = null!;
@@ -146,6 +147,18 @@ public sealed class Soulmates : Mod
 		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
 		packet.Write((byte)MessageType.BehaviorObservationRequest);
 		packet.Write((byte)behavior);
+		packet.Send();
+	}
+
+	internal static void SendMiningRuleRequest(Guid profileId, bool ores, int tileType, bool enabled)
+	{
+		if (Main.netMode != NetmodeID.MultiplayerClient) return;
+		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
+		packet.Write((byte)MessageType.MiningRuleRequest);
+		packet.Write(profileId.ToByteArray());
+		packet.Write(ores);
+		packet.Write(tileType);
+		packet.Write(enabled);
 		packet.Send();
 	}
 
@@ -285,6 +298,7 @@ public sealed class Soulmates : Mod
 			MessageType.ChoiceResponseRequest => 33,
 			MessageType.RpsResult => 18,
 			MessageType.NpcContextRequest => 23,
+			MessageType.MiningRuleRequest => 22,
 			_ => 1
 		};
 		if (reader.BaseStream.CanSeek && reader.BaseStream.Length - reader.BaseStream.Position < minimumBytes)
@@ -343,6 +357,9 @@ public sealed class Soulmates : Mod
 				break;
 			case MessageType.NpcContextRequest:
 				HandleNpcContextRequest(reader, whoAmI);
+				break;
+			case MessageType.MiningRuleRequest:
+				HandleMiningRuleRequest(reader, whoAmI);
 				break;
 			case MessageType.ManaRecovery:
 				int amount = reader.ReadInt32();
@@ -665,6 +682,17 @@ public sealed class Soulmates : Mod
 		packet.Write(result.Reply);
 		companion.Profile.Write(packet);
 		packet.Send(whoAmI);
+	}
+
+	private void HandleMiningRuleRequest(BinaryReader reader, int whoAmI)
+	{
+		var profileId = new Guid(reader.ReadBytes(16));
+		bool ores = reader.ReadBoolean();
+		int tileType = reader.ReadInt32();
+		bool enabled = reader.ReadBoolean();
+		if (Main.netMode != NetmodeID.Server || FindRequestCompanion(Main.player[whoAmI]) is not { } companion
+			|| companion.Profile.Id != profileId || !companion.SetAutomaticMiningRule(ores, tileType, enabled)) return;
+		SendProfileUpdate(Main.player[whoAmI], companion);
 	}
 
 	private void HandleDirectOrderRequest(BinaryReader reader, int whoAmI)

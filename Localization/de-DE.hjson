@@ -475,6 +475,26 @@ Mods: {
 					Creatures: Wesen
 					Dangers: Gefahren
 				}
+				MiningFilter: {
+					Title: Automatischer Bergbau
+					Ores: Erze
+					Blocks: Beobachtete Blöcke
+					AllOres: Alle Erze
+					AllBlocks: Alle beobachteten Blöcke
+					Enabled: Erlaubt
+					Disabled: Gesperrt
+					Empty: Noch keine Bergbaumaterialien beobachtet.
+					Rule: "{0}: {1}"
+				}
+				ItemGroups: {
+					Food: Essen & Getränke
+					Recovery: Erholung
+					Tools: Werkzeuge
+					Weapons: Waffen
+					Materials: Materialien
+					Valuables: Geld & Wertsachen
+					Party: Party
+				}
 
 				Actions: {
 					CritterWatch: TIERE BEOBACHTEN

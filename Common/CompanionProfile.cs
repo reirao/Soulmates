@@ -369,6 +369,8 @@ public sealed partial class CompanionProfile
 		set => lastMemory = value;
 	}
 	public List<int> LearnedMiningTiles { get; set; } = [];
+	public List<string> BlockedAutoMiningTiles { get; set; } = [];
+	public List<string> AllowedAutoMiningMaterials { get; set; } = [];
 	public List<Item> Pack { get; set; } = [];
 	public List<Item> Resources { get; set; } = [];
 	public BigInteger WalletCopper { get; private set; }
@@ -474,6 +476,8 @@ public sealed partial class CompanionProfile
 		ObservedPickPower = ObservedPickPower,
 		LastMemory = LastMemory,
 		LearnedMiningTiles = LearnedMiningTiles.ToList(),
+		BlockedAutoMiningTiles = BlockedAutoMiningTiles.ToList(),
+		AllowedAutoMiningMaterials = AllowedAutoMiningMaterials.ToList(),
 		Pack = Pack.Where(item => !item.IsAir).Select(item => item.Clone()).ToList(),
 		Resources = Resources.Where(item => !item.IsAir).Select(item => item.Clone()).ToList(),
 		WalletCopper = WalletCopper,
@@ -516,6 +520,8 @@ public sealed partial class CompanionProfile
 		["observedPickPower"] = ObservedPickPower,
 		["lastMemory"] = LastMemory,
 		["learnedMiningTiles"] = LearnedMiningTiles.ToList(),
+		["blockedAutoMiningTiles"] = BlockedAutoMiningTiles.ToList(),
+		["allowedAutoMiningMaterials"] = AllowedAutoMiningMaterials.ToList(),
 		["pack"] = Pack.Where(item => !item.IsAir).Select(ItemIO.Save).ToList(),
 		["resources"] = Resources.Where(item => !item.IsAir).Select(ItemIO.Save).ToList(),
 		["walletCopper"] = WalletCopper.ToString(CultureInfo.InvariantCulture),
@@ -571,6 +577,10 @@ public sealed partial class CompanionProfile
 				? tag.GetList<int>("learnedMiningTiles").ToList()
 				: [],
 			Pack = tag.ContainsKey("pack") ? tag.GetList<TagCompound>("pack").Select(ItemIO.Load).Where(item => !item.IsAir).ToList() : [],
+			BlockedAutoMiningTiles = tag.ContainsKey("blockedAutoMiningTiles")
+				? tag.GetList<string>("blockedAutoMiningTiles").ToList() : [],
+			AllowedAutoMiningMaterials = tag.ContainsKey("allowedAutoMiningMaterials")
+				? tag.GetList<string>("allowedAutoMiningMaterials").ToList() : [],
 			Resources = tag.ContainsKey("resources")
 				? tag.GetList<TagCompound>("resources").Select(ItemIO.Load).Where(item => !item.IsAir).ToList() : [],
 			WalletCopper = tag.ContainsKey("walletCopper") ? ParseWallet(tag.GetString("walletCopper")) : BigInteger.Zero,
@@ -634,6 +644,8 @@ public sealed partial class CompanionProfile
 			relation.Write(writer);
 		writer.Write((byte)CritterMode);
 		writer.Write(WorkPaused);
+		WriteMiningRules(writer, BlockedAutoMiningTiles);
+		WriteMiningRules(writer, AllowedAutoMiningMaterials);
 	}
 
 	public static CompanionProfile Read(BinaryReader reader)
@@ -685,6 +697,8 @@ public sealed partial class CompanionProfile
 			profile.Relationships.Add(CompanionRelationship.Read(reader));
 		profile.CritterMode = (CompanionCritterMode)reader.ReadByte();
 		profile.WorkPaused = reader.ReadBoolean();
+		profile.BlockedAutoMiningTiles = ReadMiningRules(reader);
+		profile.AllowedAutoMiningMaterials = ReadMiningRules(reader);
 		profile.Normalize();
 		return profile;
 	}
@@ -970,6 +984,7 @@ public sealed partial class CompanionProfile
 		NormalizePack();
 		LearnedMiningTiles = LearnedMiningTiles.Where(type => type >= 0 && type <= ushort.MaxValue)
 			.Distinct().Take(MaximumLearnedMiningTiles).ToList();
+		NormalizeMiningRules();
 		Memories = Memories.Where(memory => memory is not null).TakeLast(MaximumMemories).ToList();
 		NormalizeRelationships();
 	}

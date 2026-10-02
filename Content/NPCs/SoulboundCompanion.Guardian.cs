@@ -158,7 +158,7 @@ public sealed partial class SoulboundCompanion
 		amount = HealOwner(amount);
 		if (amount == 0)
 			return;
-		Profile.Energy = Math.Max(0, Profile.Energy - 4);
+		Profile.Energy = Math.Max(0, Profile.Energy - 2);
 		Profile.Remember(CompanionMemoryKind.HealerAid, amount);
 		SoulmatesFeedbackSystem.Record("companion_heal", ("amount", amount),
 			("life_percent_after", Owner.statLifeMax2 <= 0 ? 0 : Owner.statLife * 100 / Owner.statLifeMax2));

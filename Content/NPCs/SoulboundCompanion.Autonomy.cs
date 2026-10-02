@@ -31,6 +31,7 @@ public sealed partial class SoulboundCompanion
 			return;
 		}
 		attention.Tick();
+		UpdateAutonomyRecovery();
 		if (autonomyAnnouncementCooldown > 0) autonomyAnnouncementCooldown--;
 		if (autonomyDecisionTimer > 0) autonomyDecisionTimer--;
 		if (autonomyDiscoveryCooldown > 0)
@@ -61,7 +62,7 @@ public sealed partial class SoulboundCompanion
 	{
 		if (HasPendingQuestion) return false;
 		if (critterTarget is not null && CanAttendCritters()) return false;
-		if (!Profile.AutonomyEnabled || Command == StayCommand || Profile.Energy < 16 || Profile.Mood < 15) {
+		if (!Profile.AutonomyEnabled || Command == StayCommand || autonomyRecoveryPaused || Profile.Energy < 16 || Profile.Mood < 15) {
 			if ((autonomyActivity != AutonomyActivity.None || pendingAutonomyActivity != AutonomyActivity.None)
 				&& Main.netMode != NetmodeID.MultiplayerClient)
 				CancelAutonomousActivity();
@@ -87,8 +88,8 @@ public sealed partial class SoulboundCompanion
 			&& (canAsk || Profile.GetInitiativePolicy(kind) == CompanionInitiativePolicy.Always);
 
 		bool eagerGatherer = EagerGatherer;
-		int minimum = eagerGatherer ? 60 : 90;
-		int maximum = eagerGatherer ? 120 : 180;
+		int minimum = eagerGatherer ? 30 : 60;
+		int maximum = eagerGatherer ? 60 : 90;
 		autonomyDecisionTimer = Main.rand.Next(minimum, maximum);
 		if (Vector2.DistanceSquared(NPC.Center, Owner.Center) > 440f * 440f)
 			return false;
@@ -195,7 +196,7 @@ public sealed partial class SoulboundCompanion
 		int moved = StoreLooseItem(item);
 		if (moved > 0) {
 			autonomyWorkCount++;
-			Profile.Energy = Math.Max(0, Profile.Energy - 1);
+			SpendWorkEnergy(1);
 			Profile.GainExperience(EagerGatherer ? 2 : 1, out _);
 			SyncPackState();
 			if (Main.netMode == NetmodeID.Server)
@@ -245,7 +246,7 @@ public sealed partial class SoulboundCompanion
 
 		if (!WorldGen.InWorld(autonomyTargetTile.X, autonomyTargetTile.Y, 10)
 			|| !Main.tile[autonomyTargetTile.X, autonomyTargetTile.Y].HasTile
-			|| !CanMineTile(autonomyTargetTile.X, autonomyTargetTile.Y, includeLearnedMaterials: false)) {
+			|| !CanAutomaticallyMineTile(autonomyTargetTile.X, autonomyTargetTile.Y)) {
 			if (!FindAutonomousOre(out autonomyTargetTile))
 				FinishAutonomousMining();
 			NPC.netUpdate = true;
@@ -259,7 +260,7 @@ public sealed partial class SoulboundCompanion
 			autonomyWorkCount++;
 			SoulmatesFeedbackSystem.Record("companion_mined_tile", ("tile_type", minedTileType),
 				("pick_power", pickPower), ("pick_item_type", pickItemType), ("autonomous", true));
-			Profile.Energy = Math.Max(0, Profile.Energy - 1);
+			SpendWorkEnergy(2);
 			CollectNearbyLooseItems(target, 96f, 6);
 			if (Main.netMode == NetmodeID.Server)
 				NetMessage.SendData(MessageID.TileManipulation, -1, -1, null, 0, autonomyTargetTile.X, autonomyTargetTile.Y);
@@ -317,7 +318,7 @@ public sealed partial class SoulboundCompanion
 		tendedForestTargets.Add(autonomyTargetTile);
 		if (success) {
 			autonomyWorkCount++;
-			Profile.Energy = Math.Max(0, Profile.Energy - 1);
+			SpendWorkEnergy(4);
 			Profile.GainExperience(2, out _);
 			ShowNativeEmote(EmoteID.MiscTree, 75);
 			SyncPackState();
@@ -523,7 +524,7 @@ public sealed partial class SoulboundCompanion
 				if (!WorldGen.InWorld(x, y, 10))
 					continue;
 				Tile tile = Main.tile[x, y];
-				if (!tile.HasTile || !CanMineTile(x, y, includeLearnedMaterials: false))
+				if (!tile.HasTile || !CanAutomaticallyMineTile(x, y))
 					continue;
 				var candidate = new Point(x, y);
 				float score = Vector2.DistanceSquared(candidate.ToWorldCoordinates(), NPC.Center);
@@ -710,7 +711,7 @@ public sealed partial class SoulboundCompanion
 			return false;
 		return activity switch {
 			AutonomyActivity.AssistMining => MiningInstinct
-				&& CanMineTile(tile.X, tile.Y, includeLearnedMaterials: false),
+				&& CanAutomaticallyMineTile(tile.X, tile.Y),
 			AutonomyActivity.InspectTreasure => TreasureInstinct
 				&& Main.chest.Any(chest => chest is not null && chest.x == tile.X && chest.y == tile.Y),
 			AutonomyActivity.TendForest => forestAction switch {
@@ -846,9 +847,9 @@ public sealed partial class SoulboundCompanion
 		bool changed = autonomyActivity != AutonomyActivity.None || pendingAutonomyActivity != AutonomyActivity.None;
 		if (autonomyActivity != AutonomyActivity.None)
 			attention.Defer(InitiativeKindFor(autonomyActivity), autonomyActivity switch {
-				AutonomyActivity.FetchItem => 180,
-				AutonomyActivity.AssistMining => 600,
-				AutonomyActivity.TendForest => 900,
+				AutonomyActivity.FetchItem => 60,
+				AutonomyActivity.AssistMining => 180,
+				AutonomyActivity.TendForest => 300,
 				_ => 2400
 			});
 		if (autonomyActivity != AutonomyActivity.None)

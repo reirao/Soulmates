@@ -185,7 +185,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 			? SoulmatesText.Get($"Status.Autonomy.{autonomyActivity}")
 		: guardianTarget >= 0
 			? SoulmatesText.Get("Status.Guarding")
-			: Profile.Energy < 12
+			: autonomyRecoveryPaused || Profile.Energy < 12
 			? SoulmatesText.Get("Status.Recovering")
 			: Profile.Routine != CompanionJob.None
 			? SoulmatesText.Get("Status.Assignment", SoulmatesText.EnumName(Profile.Routine))
@@ -235,7 +235,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 		bobSeed = Main.rand.NextFloat(MathHelper.TwoPi);
 		socialTimer = Main.rand.Next(1000, 1800);
 		townNpcInteractionCooldown = Main.rand.Next(1200, 2200);
-		autonomyDecisionTimer = Main.rand.Next(90, 180);
+		autonomyDecisionTimer = Main.rand.Next(30, 90);
 		tendedForestResetTimer = Main.rand.Next(1800, 3600);
 		previousDaytime = Main.dayTime;
 	}
@@ -297,7 +297,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 		if (activeJob != CompanionJob.None) {
 			if (Profile.WorkPaused) { UpdateStoppedWork(); return; }
 			if (!jobRecoveryPaused)
-				recoveryTimer = 0;
+				RecoverEnergy(180, 1, recoverMood: false);
 			guardianTarget = -1;
 			UpdateJob();
 			NPC.rotation = MathHelper.Lerp(NPC.rotation, NPC.velocity.X * 0.025f, 0.08f);
@@ -305,25 +305,20 @@ public sealed partial class SoulboundCompanion : ModNPC
 			return;
 		}
 		if (Profile.WorkPaused) { UpdateStoppedWork(); return; }
-		if (directedCritterVisit && UpdateCritterActivity()) {
-			RecoverEnergy(180, 1, recoverMood: false);
+		// Between completed autonomous tasks, give a bounded critter visit a turn before selecting more work.
+		if (UpdateCritterActivity()) {
+			RecoverEnergy(120, 2, recoverMood: false);
 			UpdateFacing();
 			return;
 		}
 		if (UpdateHelpfulAutonomy()) {
-			recoveryTimer = 0;
-			NPC.rotation = MathHelper.Lerp(NPC.rotation, NPC.velocity.X * 0.025f, 0.08f);
-			UpdateFacing();
-			return;
-		}
-		if (UpdateCritterActivity()) {
 			RecoverEnergy(180, 1, recoverMood: false);
 			NPC.rotation = MathHelper.Lerp(NPC.rotation, NPC.velocity.X * 0.025f, 0.08f);
 			UpdateFacing();
 			return;
 		}
 		if (UpdateTownNpcInteraction()) {
-			RecoverEnergy(180, Profile.Trinket == CompanionTrinket.HearthRibbon ? 2 : 1, recoverMood: false);
+			RecoverEnergy(120, Profile.Trinket == CompanionTrinket.HearthRibbon ? 3 : 2, recoverMood: false);
 			NPC.rotation = MathHelper.Lerp(NPC.rotation, NPC.velocity.X * 0.025f, 0.08f);
 			UpdateFacing();
 			return;
@@ -336,7 +331,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 			UpdateFacing();
 			return;
 		}
-		RecoverEnergy(180, Profile.Trinket == CompanionTrinket.HearthRibbon ? 2 : 1, recoverMood: false);
+		RecoverEnergy(120, Profile.Trinket == CompanionTrinket.HearthRibbon ? 3 : 2, recoverMood: false);
 
 		Vector2 followTarget = Owner.Center + new Vector2(-Owner.direction * 66f, -58f);
 		float distance = Vector2.Distance(NPC.Center, followTarget);

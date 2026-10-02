@@ -14,6 +14,7 @@ using Soulmates.Content.NPCs;
 using Terraria;
 using Terraria.GameContent;
 using Terraria.GameInput;
+using Terraria.GameContent.UI;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.UI;
@@ -54,7 +55,7 @@ public sealed partial class EngineChecks
 			inputWidth.SetValue(null, 1280); inputHeight.SetValue(null, 720);
 			UserInterface.ActiveInstance = new UserInterface();
 			Terraria.Localization.LanguageManager.Instance.SetLanguage("en-US");
-			Main.player[0] = new Player { whoAmI = 0, active = true };
+			Main.player[0] = new Player { whoAmI = 0, active = true, name = "UI QA" };
 			Main.player[0].SetTalkNPC(-1);
 			Main.npc[0] = new NPC(); Main.npc[0].SetDefaults(ModContent.NPCType<SoulboundCompanion>());
 			Main.npc[0].whoAmI = 0; Main.npc[0].active = true; Main.npc[0].ai[0] = 0;
@@ -118,6 +119,8 @@ public sealed partial class EngineChecks
 			}
 			Terraria.Localization.LanguageManager.Instance.SetLanguage("en-US");
 			talk.Close();
+			CheckNativeItemWheel(check, mate);
+			CheckMiningFilterWheel(check, mate);
 			CheckContextClickFlow(check, mate);
 		}
 		finally {
@@ -129,6 +132,75 @@ public sealed partial class EngineChecks
 			Main.screenWidth = oldWidth; Main.screenHeight = oldHeight; UserInterface.ActiveInstance = oldInterface;
 			inputWidth.SetValue(null, oldInputWidth); inputHeight.SetValue(null, oldInputHeight);
 			Terraria.Localization.LanguageManager.Instance.SetLanguage(oldCulture);
+		}
+	}
+
+	private static void CheckNativeItemWheel(Action<bool, string> check, SoulboundCompanion mate)
+	{
+		const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
+		Type type = typeof(CompanionWheelSystem);
+		var wheel = ModContent.GetInstance<CompanionWheelSystem>();
+		var categories = ((IEnumerable)type.GetField("NativeCategories", flags)!.GetValue(null)!).Cast<object>().ToArray();
+		var groups = ((IEnumerable)type.GetField("NativeItemCategories", flags)!.GetValue(null)!).Cast<object>().ToArray();
+		string Key(object group) => (string)group.GetType().GetProperty("Key", flags)!.GetValue(group)!;
+		int[] Entries(object group) => (int[])group.GetType().GetProperty("Entries", flags)!.GetValue(group)!;
+		int items = Array.FindIndex(categories, category => Key(category) == "Items");
+		int[] all = categories.SelectMany(Entries).ToArray();
+		check(all.Length == EmoteID.Count && all.Distinct().Count() == EmoteID.Count
+			&& all.Order().SequenceEqual(Enumerable.Range(0, EmoteID.Count)), "Item regrouping lost or duplicated native emotes");
+		check(groups.Length == 7 && groups.SelectMany(Entries).Distinct().Count() == 22,
+			"Native item groups do not partition all 22 item symbols");
+		object branch = Enum.Parse(type.GetNestedType("RootBranch", flags)!, "Emotes");
+		Vector2 Position(string method, params object[] args) => (Vector2)type.GetMethod(method, flags)!.Invoke(wheel, args)!;
+		void Click(Vector2 point) {
+			PlayerInput.MouseX = (int)(point.X * Main.UIScale); PlayerInput.MouseY = (int)(point.Y * Main.UIScale);
+			Main.mouseLeft = false; wheel.UpdateUI(new GameTime());
+			Main.mouseLeft = true; wheel.UpdateUI(new GameTime());
+			Main.mouseLeft = false; wheel.UpdateUI(new GameTime());
+		}
+		float oldScale = Main.UIScale;
+		try {
+			foreach (float scale in new[] { 1f, 1.5f, 2f }) {
+				Main.UIScale = scale;
+				foreach (string culture in SupportedCultures) {
+					Terraria.Localization.LanguageManager.Instance.SetLanguage(culture);
+					for (int groupIndex = 0; groupIndex < groups.Length; groupIndex++) {
+						Main.mouseLeft = Main.mouseRight = false;
+						wheel.OpenEmotes(mate);
+						Click(Position("BranchPosition", branch, items, categories.Length));
+						check((bool)type.GetField("nativeItemGroups", flags)!.GetValue(wheel)!
+							&& (int)type.GetField("nativeCategory", flags)!.GetValue(wheel)! == -1,
+							"Items mouse click emitted a symbol instead of opening groups");
+						Click(Position("BranchPosition", branch, groupIndex, groups.Length));
+						check((int)type.GetField("nativeCategory", flags)!.GetValue(wheel)! == groupIndex,
+							"Native item group mouse click missed: " + Key(groups[groupIndex]));
+						string label = (string)type.GetMethod("BranchLabel", flags)!.Invoke(wheel, new object[] { groupIndex })!;
+						check(label == SoulmatesText.Get("UI.CompanionWheel.ItemGroups." + Key(groups[groupIndex])),
+							"Item group has the wrong localized hover label");
+						object icon = type.GetMethod("NativeIcon", flags)!.Invoke(wheel, new object[] { 0 })!;
+						check((int)icon.GetType().GetProperty("Value", flags)!.GetValue(icon)! == Entries(groups[groupIndex])[0],
+							"Item group displays another category's symbol");
+						int count = (int)type.GetMethod("NativeNodeCount", flags)!.Invoke(wheel, null)!;
+						Click(Position("NativePosition", 0, count));
+						check(!wheel.IsOpen, "Native item symbol click did not finish the emote selection");
+					}
+					wheel.OpenEmotes(mate);
+					Click(Position("BranchPosition", branch, items, categories.Length));
+					Click(Position("BranchPosition", branch, 0, groups.Length));
+					Click((Vector2)type.GetField("center", flags)!.GetValue(wheel)!);
+					check(wheel.IsOpen && (bool)type.GetField("nativeItemGroups", flags)!.GetValue(wheel)!
+						&& (int)type.GetField("nativeCategory", flags)!.GetValue(wheel)! == -1, "Back skipped item groups");
+					Click((Vector2)type.GetField("center", flags)!.GetValue(wheel)!);
+					check(wheel.IsOpen && !(bool)type.GetField("nativeItemGroups", flags)!.GetValue(wheel)!,
+						"Back did not return to the original emote categories");
+					wheel.Close();
+				}
+			}
+		}
+		finally {
+			wheel.ExitMouseMode(); Main.UIScale = oldScale;
+			Terraria.Localization.LanguageManager.Instance.SetLanguage("en-US");
+			Main.mouseLeft = Main.mouseRight = false;
 		}
 	}
 

@@ -475,6 +475,26 @@ Mods: {
 					Creatures: Creatures
 					Dangers: Dangers
 				}
+				MiningFilter: {
+					Title: Automatic mining
+					Ores: Ores
+					Blocks: Observed blocks
+					AllOres: All ores
+					AllBlocks: All observed blocks
+					Enabled: Allowed
+					Disabled: Blocked
+					Empty: No observed mining materials yet.
+					Rule: "{0}: {1}"
+				}
+				ItemGroups: {
+					Food: Food & Drinks
+					Recovery: Recovery
+					Tools: Tools
+					Weapons: Weapons
+					Materials: Materials
+					Valuables: Money & Valuables
+					Party: Party
+				}
 
 				Actions: {
 					CritterWatch: WATCH CRITTERS

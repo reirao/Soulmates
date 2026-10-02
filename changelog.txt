@@ -1,9 +1,10 @@
-Soulmates 0.19.1 - Clear Choices
+Soulmates 0.19.3 - Steady Hands
 
-- Fix stale native click bounds after changing conversation categories.
-- Add direct Items access on the companion wheel. Selecting Food, Ores, Tools or another topic immediately gives a matching reply.
-- Selecting Me or Soulmate closes the wheel and arms the next world right-click. Keep right-click cycling and X/Escape returning to normal Terraria controls.
-- Record category, topic, mode and context-action decisions in opt-in local field notes.
-- Add native UI hit-test/event and production input-hook regression checks.
+- Protect soil and other support blocks next to saplings, plants, trees and decorations. Recheck planned targets and direct orders.
+- Add Companion wheel > Work > Mining approach > Automatic mining: individually allow/block ore and observed-block types using paged native item symbols and all-type switches. Ores start allowed; learned terrain requires opt-in. Save choices per Sigil; validate multiplayer requests on authority.
+- Dose work costs: one energy per eight retrieved stacks, four mined blocks or two successful forestry actions. Reduce work-command and healing costs.
+- Recover during Follow and work; preserve recovery progress between tasks. Rebuild a 30-energy reserve after exhaustion before automatically resuming.
+- Respond sooner to approved opportunities while retaining Ask/Never, combat, Stay, cargo limits, protected terrain and catch rules.
+- Include 0.19.2's item-emote groups and queued critter observations. Translate mining controls in all nine languages.
 
-Growing-alpha hotfix. Includes the existing 0.19.0 systems, nine languages and rock, paper, scissors; Sigils remain compatible. Full progression, long sessions and live multiplayer still need testing. Please report the action, observed result and whether it was solo or multiplayer.
+Growing alpha. Existing Sigils remain compatible; multiplayer peers need the same version. Full graphical, long-session and live multiplayer tests remain outstanding. Please report the action, result and solo/MP context.

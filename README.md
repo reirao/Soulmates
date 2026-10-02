@@ -4,7 +4,7 @@ Soulmates is a tModLoader mod about creating companions that feel personal. The 
 
 ## AI-assisted development disclosure
 
-Soulmates is an experimental project created with extensive AI assistance across programming, writing, interface work, and visual development. The Workshop icon, mod icon, and custom Soulkin sprite were AI-generated and then integrated into the mod. Bunny, Blue Slime, Bird, Squirrel, item, inventory, and emote visuals reuse Terraria assets. The released build was reviewed and tested in-game by the creator.
+Soulmates is an experimental project created with extensive AI assistance across programming, writing, interface work, and visual development. The Workshop icon, mod icon, and custom Soulkin sprite were AI-generated and then integrated into the mod. Bunny, Blue Slime, Bird, Squirrel, item, inventory, and emote visuals reuse Terraria assets. The creator playtests the mod; automated checks and their remaining scope are documented separately for each version.
 
 ## Features
 
@@ -28,6 +28,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Choose Look, Gather, Mine, or Forest to point at nearby targets repeatedly. Right-click an active tool opens the Area wheel; Escape exits targeting. Look reports an opportunity without changing the assignment, cargo, or terrain.
 - Opening the mining target reveals nearby ore families as their real Terraria item icons; choose one immediately or keep the pickaxe node for a manual world target.
 - Choose a persistent mining approach per companion: Adaptive priorities, a narrow Tunnel to ore or the next opening, ore-only Vein work, or exposed-only Surface work. Unstable sand-like materials are skimmed only from open edges.
+- Work > Mining approach > Automatic mining selects individual ore and observed-block permissions with paged Terraria item icons. Ores start allowed; observed terrain requires opt-in. Rules persist per Sigil and govern autonomous mining, not direct orders. Every mining route preserves blocks touching plants, saplings, trees or placed decorations, including targets that change after planning.
 - Useful pack contents matter in the world: weapons strengthen companion attacks, torches add light, and food or recovery items can be used at an appropriate moment.
 - Near a crafting opportunity, a companion may occasionally suggest a recipe inspired by carried materials.
 - Contextual initiative prompts let you answer opportunities with Terraria emotes: Yes, No, Always, or Never. Commands > Initiative Rules also lets you cycle Ask, Always, and Never separately for gathering, mining, forestry, and treasure hunting.
@@ -46,6 +47,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Persistent companion experience with 20 levels earned from combat, healing, work, and shared moments.
 - Use the compact Companion Soulwheel for commands, work, bonding, direct pack access, and details.
 - Right-click your own character for a separate Player wheel with Emotes, Point, and Mailbox buttons. Emotes unfolds all 151 vanilla Terraria emotes in crescent categories. The configurable **Player Emote Wheel** key (`G` by default) opens Emotes directly.
+- Player Emotes > Items first offers Food, Recovery, Tools, Weapons, Materials, Valuables and Party groups, then their native symbols. All vanilla emotes remain reachable with stepwise Back. Ore conversations are separate under Companion > Items > Ores.
 - Native Terraria emote bubbles for shared gestures, with occasional context-aware speech instead of constant text.
 - Rock, paper, scissors unfolds three native symbols under Companion Soulwheel > Bond; ordinary player RPS emotes also start a real round. A nearby bound companion chooses independently, shows her move and reacts to the result. Games grant no XP and do not interrupt assignments or change work permissions.
 - Social encounters include a greeting, a native NPC emote, and a personality-aware reply. Resident relationships remember world, NPC type, and name, with wary, new, familiar, and friend states. Combat and explicit work interrupt the visit.
@@ -57,7 +59,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 - Mood-, energy-, bond-, and personality-aware replies, including clearly explained refusals.
 - Five visible bond ranks with growing work radius, role strength, and pack capacity.
 - Every companion continuously defends against nearby threats without spending work energy, while staying leashed to its owner or Stay anchor; Guardians react faster, reach farther, and hit harder, while Healers provide energy-limited support.
-- Energy returns naturally outside work and combat, with faster recovery while waiting; the Care > Rest conversation is an optional boost rather than a required chore.
+- Energy returns during following and work, with faster recovery while waiting; combat pauses recovery. Work effort costs one energy per eight retrieved stacks, four mined blocks or two forestry actions. After exhaustion, automatic or retained work rebuilds a 30-energy reserve before resuming. Care > Rest is an optional boost.
 - Area assignments: locate nearby chests, clear every reachable ore vein and learned material in range, and retrieve every loose item in range.
 - Right-clicking a workbench opens Terraria's inventory and refreshed crafting list as a small quality-of-life interaction.
 - A persistent memory chronicle covering creation, work, protection, healing, equipment, and bond milestones.
@@ -84,17 +86,19 @@ The current release supports single-player and server-authoritative multiplayer 
 
 ## Current Build
 
-**Soulmates 0.19.1 - Clear Choices** is the current growing-alpha release. It fixes stale Talk Mode click bounds after category changes, puts Items directly on the companion wheel, and replies immediately to topic selections. Selecting a mouse-mode symbol closes the menu and arms the next world right-click; right-click cycling inside an open wheel remains available. This release also includes the previously local 0.17.2-0.19.0 work: rock, paper, scissors, nine languages, critter context, item conversations, real-memory stories, guarded branch pruning and Pause/Resume/Abort. See [release notes](releases/0.19.1.md).
+**Soulmates 0.19.3 - Steady Hands** is the current growing-alpha release. It adds Work > Mining approach > Automatic mining: per-type ore and observed-block permissions with native icons, paging and all-type switches. Ores start allowed; observed terrain needs opt-in. Choices persist per Sigil. Direct orders bypass only these automatic filters, never plant/decor support protection or tool requirements. Work costs are lighter, recovery continues during work, and exhausted work rebuilds a 30-energy reserve before restarting. See [release notes](releases/0.19.3.md).
 
-The packaged hotfix passed 36,161 native-engine assertions and 45,957 static/localization/layout assertions. These are bounded automated checks, not that many independent play sessions. All nine catalogs contain 810 keys. See [the UI/context report](tests/UI-CONTEXT-HOTFIX-2026-10-02.md) for scope, reproduced failures and package identity. Earlier [living-behavior](tests/LIVING-BEHAVIOR-2026-10-02.md), [critter/context](tests/CRITTER-CONTEXT-2026-10-02.md) and [localization](tests/LOCALIZATION-2026-10-02.md) reports retain their historical scope.
+The exact released package passed 37,865 native-engine assertions and 46,851 static/localization/layout assertions, with zero compiler warnings or errors. These are bounded automated checks, not independent play sessions. All nine catalogs contain 826 keys. See [the energy/mining report](tests/ENERGY-MINING-2026-10-02.md) for scope and package identity. No new graphical client playthrough or live multiplayer session is claimed for 0.19.3.
 
-The creator uploaded 0.19.1 to the existing Workshop item on October 2 and is playtesting it. Steam currently shows moderator review pending; upload, approval and subscriber delivery are separate states. The seven new translations are AI-authored and need native-speaker feedback, especially for terminology and character voice. Full progression, long sessions and live multiplayer tests remain outstanding. Some multiplayer conversation and work responses retain the server language; menus, local interactions, key-based speech and minigame results use the client's language. See [localization maintenance](tests/localization/README.md) and [the minigame report](tests/RPS-2026-10-02.md).
+The creator uploaded 0.19.3 to the existing Workshop item on October 2 at 21:08 CEST. At the publication check, Steam still showed moderator review pending; upload, approval and subscriber delivery are separate states. The seven new translations are AI-authored and need native-speaker feedback, especially for terminology and character voice. Full progression, long sessions and live multiplayer tests remain outstanding. Some multiplayer conversation and work responses retain the server language; menus, local interactions, key-based speech and minigame results use the client's language. See [localization maintenance](tests/localization/README.md) and [the minigame report](tests/RPS-2026-10-02.md).
 
-Current player reports are being investigated: the player Emotes > Items branch still displays a flat symbol list rather than item subcategories, and automatic Company visits can be overshadowed by other activities. The categorized cargo conversation is a separate Companion wheel > Items entry. These reports are not marked fixed in 0.19.1.
+This release includes **0.19.2 - Small Encounters**: the missing Player Emotes > Items subgroup step, passive observations in all enabled critter modes, queued greetings and a bounded Company turn between completed automatic tasks. Running work, combat, Stay, prompts and catch protections retain priority. The creator also uploaded 0.19.2 at 20:32 CEST before 0.19.3. See [the item-wheel/critter report](tests/ITEM-WHEEL-CRITTERS-2026-10-02.md).
+
+The earlier **0.19.1 - Clear Choices** input and conversation hotfix remains included: refreshed Talk Mode click bounds, direct Items access and mouse-mode selection that arms the next world right-click. Historical verification is in [the UI/context report](tests/UI-CONTEXT-HOTFIX-2026-10-02.md); it should not be mistaken for current unresolved subgroup behavior.
 
 Earlier pickup priorities, personal answers, wallet gifts and Sigil delivery fixes remain included. Existing Sigils stay compatible. Dry vanilla side branches can be pruned with an axe; automatic pruning needs Forester/AETHER. Leafy branches, stems, ground, gem trees and unsupported tree families stay protected.
 
-The [0.14.0 client report](tests/PLAYTEST-2026-10-01.md) records a bounded real-client control pass and a subsequently fixed click conflict. The creator has begun playing 0.15.0 and confirmed a positive first impression; this is not a complete graphical or progression test. The current gallery uses the creator's own screenshots and unchanged frames from their gameplay video. Older galleries remain removed. Broader progression, long sessions, and live multiplayer still need testing.
+The [0.14.0 client report](tests/PLAYTEST-2026-10-01.md) records a bounded real-client control pass and a subsequently fixed click conflict. Earlier positive playtest reports are not complete progression tests. The current gallery uses the creator's own screenshots and unchanged frames from their gameplay video; it is not new 0.19.3 imagery. Older galleries remain removed.
 
 The maturity gates for Alpha, Beta, release candidate, and 1.0 are defined in [VERSIONING.md](VERSIONING.md). The former `9.9.x` values were experimental build counters and remain in the changelog only as project history.
 
@@ -136,7 +140,7 @@ For local playtests, open the paper-plane icon on the Companion Soulwheel or ent
 - Polish / Polski (`pl-PL`)
 - Simplified Chinese (`zh-Hans`)
 
-All nine Terraria 1.4.4 languages have complete 810-key catalogs. Soulmates follows Terraria's language selection, with English as the fallback. The seven new translations are AI-authored; native-speaker corrections are welcome. Some server-formatted multiplayer replies still retain the server language. See [localization maintenance](tests/localization/README.md) for checks and limitations.
+All nine Terraria 1.4.4 languages have complete 826-key catalogs in 0.19.3. Soulmates follows Terraria's language selection, with English as the fallback. The seven new translations are AI-authored; native-speaker corrections are welcome. Some server-formatted multiplayer replies still retain the server language. See [localization maintenance](tests/localization/README.md) for checks and limitations.
 
 ## Install for development
 
