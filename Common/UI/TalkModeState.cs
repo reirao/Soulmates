@@ -387,7 +387,7 @@ public sealed class TalkModeState : UIState
 		if (Main.netMode == NetmodeID.MultiplayerClient) {
 			awaitingResponse = true;
 			responseWaitTicks = 0;
-			Soulmates.SendTalkRequest(category, option, memoryCursor++, itemTopic);
+			Soulmates.SendTalkRequest(companion.Profile.Id, category, option, memoryCursor++, itemTopic);
 			SoundEngine.PlaySound(SoundID.MenuTick);
 			return;
 		}
@@ -420,7 +420,7 @@ public sealed class TalkModeState : UIState
 		if (Main.netMode == NetmodeID.MultiplayerClient) {
 			awaitingResponse = true;
 			responseWaitTicks = 0;
-			Soulmates.SendPackWithdrawRequest(index, singleItem, storage);
+			Soulmates.SendPackWithdrawRequest(companion.Profile, index, singleItem, storage);
 		}
 		else {
 			string reply = companion.WithdrawStorageSlot(storage, index, singleItem);

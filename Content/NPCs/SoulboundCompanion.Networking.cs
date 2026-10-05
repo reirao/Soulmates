@@ -23,7 +23,7 @@ public sealed partial class SoulboundCompanion
 {
 	public override void SendExtraAI(BinaryWriter writer)
 	{
-		Profile.Write(writer);
+		CompanionInventorySync.VisibleProfile(this).Write(writer);
 		writer.Write((byte)activeJob);
 		writer.Write(jobCount);
 		writer.Write(jobPlannedTotal);
@@ -49,6 +49,7 @@ public sealed partial class SoulboundCompanion
 		writer.Write((short)pendingTargetTile.X);
 		writer.Write((short)pendingTargetTile.Y);
 		writer.Write((byte)pendingForestAction);
+		writer.Write(initiativeId.ToByteArray());
 		writer.Write((byte)pendingQuestion);
 		writer.Write(questionId.ToByteArray());
 		writer.Write((short)Math.Clamp(questionTicks, 0, InitiativeResponseTicks));
@@ -57,11 +58,15 @@ public sealed partial class SoulboundCompanion
 		writer.Write(critterTarget?.type ?? 0);
 		writer.Write((short)Math.Clamp(critterVisitTicks, 0, 360));
 		writer.Write(autonomyRecoveryPaused);
+		writer.Write((byte)brainState);
+		writer.Write((short)Math.Clamp(stateTimer, 0, 600));
+		writer.Write((sbyte)facing);
 	}
 
 	public override void ReceiveExtraAI(BinaryReader reader)
 	{
-		Profile = CompanionProfile.Read(reader);
+		CompanionProfile incoming = CompanionProfile.Read(reader);
+		if (!CompanionInventorySync.IsAwaiting(incoming.Id)) Profile = incoming;
 		activeJob = (CompanionJob)reader.ReadByte();
 		jobCount = reader.ReadInt32();
 		jobPlannedTotal = reader.ReadInt32();
@@ -84,6 +89,13 @@ public sealed partial class SoulboundCompanion
 		pendingTargetItem = reader.ReadInt16();
 		pendingTargetTile = new Point(reader.ReadInt16(), reader.ReadInt16());
 		pendingForestAction = (ForestAction)reader.ReadByte();
+		byte[] initiativeToken = reader.ReadBytes(16);
+		if (initiativeToken.Length != 16) throw new EndOfStreamException();
+		initiativeId = new Guid(initiativeToken);
+		if (!Enum.IsDefined(pendingAutonomyActivity) || pendingInitiativeTimer < 0 || pendingInitiativeTimer > InitiativeResponseTicks
+			|| (HasPendingInitiative ? initiativeId == Guid.Empty || pendingInitiativeTimer == 0
+				: initiativeId != Guid.Empty || pendingInitiativeTimer != 0))
+			throw new InvalidDataException("Invalid companion initiative.");
 		CompanionQuestion question = (CompanionQuestion)reader.ReadByte();
 		byte[] token = reader.ReadBytes(16);
 		if (token.Length != 16) throw new EndOfStreamException();
@@ -106,6 +118,14 @@ public sealed partial class SoulboundCompanion
 			? Main.npc[critterIndex] : null;
 		if (critterTarget is null) directedCritterVisit = false;
 		autonomyRecoveryPaused = reader.ReadBoolean();
+		BrainState synchronizedState = (BrainState)reader.ReadByte();
+		int synchronizedTicks = reader.ReadInt16();
+		int synchronizedFacing = reader.ReadSByte();
+		if (!Enum.IsDefined(synchronizedState) || synchronizedTicks is < 0 or > 600 || synchronizedFacing is not (-1 or 1))
+			throw new InvalidDataException("Invalid companion movement state.");
+		brainState = synchronizedState;
+		stateTimer = synchronizedTicks;
+		facing = synchronizedFacing;
 		if (Main.netMode != NetmodeID.MultiplayerClient || !TryGetOwner(out Player owner) || owner.whoAmI != Main.myPlayer)
 			return;
 		foreach (Item item in owner.inventory) {

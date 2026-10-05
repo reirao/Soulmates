@@ -68,11 +68,22 @@ public sealed partial class SoulboundCompanion
 
 	public CompanionConversationResult PerformQuickAction(CompanionQuickAction action)
 	{
+		if (Main.netMode == NetmodeID.MultiplayerClient || !Enum.IsDefined(action)
+			|| action is CompanionQuickAction.Details or CompanionQuickAction.QuestionSettings)
+			return new(SoulmatesText.Get("TargetOrders.Invalid"), false);
+		if (QuestionCadenceFor(action) is CompanionQuestionCadence cadence) {
+			Profile.QuestionCadence = cadence;
+			ClearChoiceQuestion();
+			personalQuestionCooldown = PersonalQuestionInterval;
+			SyncProfileToBoundSigil();
+			NPC.netUpdate = true;
+			SoulmatesFeedbackSystem.Record("question_cadence", ("cadence", cadence.ToString()));
+			return new(SoulmatesText.Get("Conversation.Settings.Selected", SoulmatesText.EnumName(cadence)), true);
+		}
 		if (action is CompanionQuickAction.Pause or CompanionQuickAction.Resume or CompanionQuickAction.Abort) {
-			if (Main.netMode == NetmodeID.MultiplayerClient) return new(SoulmatesText.Get("TargetOrders.Invalid"), false);
 			if (action == CompanionQuickAction.Abort) { CancelAssignment(); ReleaseCritterCompany(); }
 			Profile.WorkPaused = action != CompanionQuickAction.Resume;
-			if (Profile.WorkPaused) { ClearChoiceQuestion(); ClearPendingInitiative(120); ClearTownNpcInteraction(); }
+			if (Profile.WorkPaused) { ClearNativeExpression(); ClearChoiceQuestion(); ClearPendingInitiative(120); ClearTownNpcInteraction(); }
 			SyncProfileToBoundSigil();
 			NPC.netUpdate = true;
 			SoulmatesFeedbackSystem.Record("work_control", ("action", action.ToString()));
@@ -80,16 +91,12 @@ public sealed partial class SoulboundCompanion
 		}
 		if (TrySetCritterMode(action, out CompanionConversationResult critterResult))
 			return critterResult;
-		CompanionInitiativeKind? policyKind = action switch {
-			CompanionQuickAction.GatheringPolicy => CompanionInitiativeKind.Gathering,
-			CompanionQuickAction.MiningPolicy => CompanionInitiativeKind.Mining,
-			CompanionQuickAction.ForestryPolicy => CompanionInitiativeKind.Forestry,
-			CompanionQuickAction.TreasurePolicy => CompanionInitiativeKind.Treasure,
-			_ => null
-		};
-		if (policyKind is CompanionInitiativeKind kind) {
+		if (CompanionAbilityRegistry.Find(action) is { } ability) {
+			CompanionInitiativeKind kind = ability.Kind;
 			CompanionInitiativePolicy policy = (CompanionInitiativePolicy)(((int)Profile.GetInitiativePolicy(kind) + 1) % 3);
 			Profile.SetInitiativePolicy(kind, policy);
+			if (!directedCritterVisit && kind == (Profile.CritterMode == CompanionCritterMode.Collect
+				? CompanionInitiativeKind.CritterCollect : CompanionInitiativeKind.CritterCompany)) critterTarget = null;
 			if (autonomyActivity != AutonomyActivity.None && InitiativeKindFor(autonomyActivity) == kind)
 				CancelAutonomousActivity(90);
 			if (HasPendingInitiative && PendingInitiativeKind == kind) ClearPendingInitiative(90);
@@ -132,7 +139,8 @@ public sealed partial class SoulboundCompanion
 		if (action == CompanionQuickAction.ResetInitiativeRules) {
 			Profile.ResetInitiativePolicies();
 			attention.Reset();
-			ClearPendingInitiative(120);
+			CancelAutonomousActivity(120);
+			if (!directedCritterVisit) critterTarget = null;
 			SyncProfileToBoundSigil();
 			NPC.netUpdate = true;
 			return new CompanionConversationResult(SoulmatesText.Get("Autonomy.Initiative.RulesReset"), true);
@@ -224,6 +232,8 @@ public sealed partial class SoulboundCompanion
 
 	private void BeginJob(CompanionJob job)
 	{
+		ClearNativeExpression();
+		ClearChoiceQuestion();
 		if (!TryGetOwner(out Player owner)) {
 			CancelAssignment();
 			return;
@@ -255,6 +265,7 @@ public sealed partial class SoulboundCompanion
 
 	private void CancelAssignment()
 	{
+		ClearNativeExpression();
 		critterTarget = null;
 		directedCritterVisit = false;
 		ClearChoiceQuestion();
@@ -281,6 +292,7 @@ public sealed partial class SoulboundCompanion
 
 	public void EquipTrinket(CompanionTrinket trinket)
 	{
+		if (CompanionInventorySync.IsPending(Owner)) return;
 		Profile.Trinket = trinket;
 		if (trinket == CompanionTrinket.None)
 			Profile.Remember(CompanionMemoryKind.TrinketRemoved);
@@ -292,9 +304,12 @@ public sealed partial class SoulboundCompanion
 
 	public void ShowSpeech(string text)
 	{
-		speechText = string.IsNullOrWhiteSpace(text) ? "..." : text.Trim();
-		if (speechText.Length > 360)
-			speechText = speechText[..360].TrimEnd() + "...";
+		string nextText = string.IsNullOrWhiteSpace(text) ? "..." : text.Trim();
+		if (nextText.Length > 360)
+			nextText = nextText[..360].TrimEnd() + "...";
+		if (speechTimer > 0 && speechText == nextText)
+			return;
+		speechText = nextText;
 		speechDuration = Math.Clamp(420 + speechText.Length * 3, 540, 1500);
 		speechTimer = speechDuration;
 		speechAnchorWorld = SpeechAnchorTarget();
@@ -306,10 +321,27 @@ public sealed partial class SoulboundCompanion
 
 	public void ReactToNativeEmote(int emoteId)
 	{
+		if (TryGetOwner(out Player pendingOwner) && CompanionInventorySync.IsPending(pendingOwner)) return;
 		if (Main.netMode == NetmodeID.MultiplayerClient || emoteId < 0
-			|| emoteId >= EmoteBubbleLoader.EmoteBubbleCount
-			|| nativeEmoteReactionCooldown > 0)
+			|| emoteId >= EmoteBubbleLoader.EmoteBubbleCount)
 			return;
+		if (HasPendingQuestion) {
+			for (int i = 0; i < 4; i++)
+				if (QuestionAnswerEmote(pendingQuestion, i) == emoteId) {
+					RespondToQuestion(questionId, (CompanionAnswer)i);
+					return;
+				}
+			return;
+		}
+		if (HasPendingInitiative) {
+			foreach (CompanionInitiativeResponse response in Enum.GetValues<CompanionInitiativeResponse>())
+				if (InitiativeResponseEmote(response) == emoteId) {
+					RespondToInitiative(InitiativeId, response);
+					return;
+				}
+			return;
+		}
+		if (nativeEmoteReactionCooldown > 0) return;
 		if (CompanionRps.TryGetMove(emoteId, out RpsMove move)) {
 			PlayRockPaperScissors(move);
 			return;
@@ -335,6 +367,7 @@ public sealed partial class SoulboundCompanion
 	{
 		if (Main.netMode == NetmodeID.MultiplayerClient || !Enum.IsDefined(emote))
 			return;
+		ClearNativeExpression();
 
 		bool rewarded = interactionRewardCooldown <= 0;
 		bool leveledUp = false;
@@ -384,20 +417,28 @@ public sealed partial class SoulboundCompanion
 			ObserveCritterLoss(defeated, playerAttack: false);
 			return;
 		}
-		int experience = defeated.boss ? 12 : Math.Clamp(1 + defeated.lifeMax / 120, 1, 7);
+		bool boss = defeated.boss;
+		int life = defeated.lifeMax;
+		string name = defeated.TypeName;
+		CompanionInventorySync.RespondOrDefer(Owner.whoAmI, _ => RecordVictory(boss, life, name));
+	}
+
+	private void RecordVictory(bool boss, int life, string name)
+	{
+		int experience = boss ? 12 : Math.Clamp(1 + life / 120, 1, 7);
 		Profile.DefeatedEnemies++;
 		bool leveledUp = Profile.GainExperience(experience, out int newLevel);
 
 		if (Profile.HasTalent(CompanionTalent.Guardian))
-			Profile.Remember(CompanionMemoryKind.GuardianVictory, detail: defeated.TypeName);
+			Profile.Remember(CompanionMemoryKind.GuardianVictory, detail: name);
 		Profile.Mood = Math.Min(100, Profile.Mood + 1);
 
-		if (combatReactionCooldown <= 0 || defeated.boss) {
-			string kind = defeated.boss ? "Boss" : "Victory";
+		if (combatReactionCooldown <= 0 || boss) {
+			string kind = boss ? "Boss" : "Victory";
 			CompanionEmote reaction = CompanionEmote.Cheer;
 			StartEmote(reaction, 130);
 			ShowNativeEmote(reaction, 140);
-			if (defeated.boss || Main.rand.NextBool(5))
+			if (boss || Main.rand.NextBool(5))
 				SpeakLocalized($"Social.Combat.{kind}.{Profile.Personality}");
 			combatReactionCooldown = 240;
 		}
@@ -446,12 +487,6 @@ public sealed partial class SoulboundCompanion
 		ShowNativeEmote(emoteId, duration);
 	}
 
-	private void ShowNativeEmote(int emoteId, int duration)
-	{
-		if (emoteId >= 0 && emoteId < EmoteBubbleLoader.EmoteBubbleCount)
-			EmoteBubble.NewBubble(emoteId, new WorldUIAnchor(NPC), duration);
-	}
-
 	private void SpeakLocalized(string key, string argument = "")
 	{
 		if (!ShowLocalizedSpeech(key, argument))
@@ -464,7 +499,7 @@ public sealed partial class SoulboundCompanion
 	{
 		bool ambient = key.StartsWith("Social.", StringComparison.Ordinal)
 			|| key.StartsWith("Autonomy.Surprise.", StringComparison.Ordinal);
-		if (ambient && speechTimer > 180)
+		if (ambient && (speechTimer > 180 || HasPendingQuestion || HasPendingInitiative))
 			return false;
 		ShowSpeech(SoulmatesText.Get(key, argument));
 		return true;

@@ -1,11 +1,34 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Terraria.ID;
+using Terraria.ModLoader;
 
 namespace Soulmates.Common;
 
 public sealed partial class CompanionProfile
 {
+	private List<string> missingMiningKnowledge = [];
+
+	private List<string> MiningKnowledgeKeys() => LearnedMiningTiles.Select(CompanionMiningRules.Key)
+		.Concat(missingMiningKnowledge).Where(CompanionMiningRules.ValidKey).Distinct()
+		.Take(MaximumLearnedMiningTiles).ToList();
+
+	private void LoadMiningKnowledge(IEnumerable<string> keys)
+	{
+		LearnedMiningTiles.Clear();
+		missingMiningKnowledge.Clear();
+		foreach (string key in keys.Where(key => key is not null && CompanionMiningRules.ValidKey(key))
+			.Distinct().Take(MaximumLearnedMiningTiles)) {
+			if (key.StartsWith("Terraria/", System.StringComparison.Ordinal)
+				&& int.TryParse(key.AsSpan(9), out int vanilla) && vanilla >= 0 && vanilla < TileID.Count)
+				LearnedMiningTiles.Add(vanilla);
+			else if (ModContent.TryFind(key, out ModTile tile)) LearnedMiningTiles.Add(tile.Type);
+			else missingMiningKnowledge.Add(key);
+		}
+	}
+
 	public bool AllowsAutomaticMining(int tileType) => tileType is >= 0 and <= ushort.MaxValue
 		&& (CompanionMiningRules.IsOre((ushort)tileType)
 			? !BlockedAutoMiningTiles.Contains(CompanionMiningRules.Key(tileType))

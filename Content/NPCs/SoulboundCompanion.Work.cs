@@ -810,6 +810,9 @@ public sealed partial class SoulboundCompanion
 	}
 
 	private int StoreLooseItem(Item worldItem)
+		=> StoreLooseItemCore(worldItem, nativeCatch: false);
+
+	private int StoreLooseItemCore(Item worldItem, bool nativeCatch)
 	{
 		if (Main.netMode == NetmodeID.MultiplayerClient || !TryGetOwner(out Player owner) || owner.dead
 			|| !worldItem.active || worldItem.IsAir || worldItem.stack <= 0)
@@ -819,7 +822,9 @@ public sealed partial class SoulboundCompanion
 		CompanionItemTopic foundTopic = CompanionItemTopics.Classify(worldItem);
 		string foundName = worldItem.Name;
 		int worldStackBefore = worldItem.stack;
-		int available = AvailableCarryAmount(worldItem);
+		Item eligibility = worldItem;
+		if (nativeCatch) { eligibility = worldItem.Clone(); eligibility.noGrabDelay = 0; }
+		int available = AvailableCarryAmount(eligibility);
 		if (available <= 0)
 			return 0;
 		int matchingItemsBefore = Profile.ItemCount(worldItem.type);

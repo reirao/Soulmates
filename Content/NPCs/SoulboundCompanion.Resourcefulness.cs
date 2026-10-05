@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Soulmates.Common;
 using Soulmates.Common.Feedback;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.GameContent.UI;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -39,29 +40,31 @@ public sealed partial class SoulboundCompanion
 		UpdateCraftingSuggestions();
 	}
 
-	private void ObserveMiningEnvironment(Item pickaxe)
+	internal bool ObserveMiningTarget(Point target, int toolType)
 	{
-		if (Main.netMode == NetmodeID.MultiplayerClient || pickaxe.pick <= 0)
-			return;
-		int x = Player.tileTargetX;
-		int y = Player.tileTargetY;
-		if (!WorldGen.InWorld(x, y, 10))
-			return;
-		Tile tile = Main.tile[x, y];
-		if (!tile.HasTile || !IsLearnableMiningMaterial(tile.TileType))
-			return;
+		if (TryGetOwner(out Player pendingOwner) && CompanionInventorySync.IsPending(pendingOwner)) return false;
+		if (Main.netMode == NetmodeID.MultiplayerClient || !TryGetOwner(out Player owner) || owner.dead
+			|| FindBoundSigil() is null || Vector2.DistanceSquared(NPC.Center, owner.Center) > 520f * 520f
+			|| !WorldGen.InWorld(target.X, target.Y, 10)
+			|| !owner.IsInTileInteractionRange(target.X, target.Y, TileReachCheckSettings.Simple)) return false;
+		Item pickaxe = owner.HeldItem;
+		if (pickaxe.type != toolType || pickaxe.pick <= 0 || !(owner.controlUseItem || owner.itemAnimation > 0)) return false;
+		Tile tile = Main.tile[target.X, target.Y];
+		if (!tile.HasTile || !IsLearnableMiningMaterial(tile.TileType)
+			|| !WorldGen.CanKillTile(target.X, target.Y)
+			|| !CompanionNativeRules.CanPick(owner, target.X, target.Y, pickaxe.pick)) return false;
 
 		int previousPower = Profile.ObservedPickPower;
 		bool learned = Profile.LearnMiningMaterial(tile.TileType, pickaxe.pick);
 		if (!learned && Profile.ObservedPickPower == previousPower)
-			return;
+			return true;
 
 		SoulmatesFeedbackSystem.Record("mining_material_observed", ("tile_type", tile.TileType),
 			("pick_power", pickaxe.pick), ("new_material", learned));
 		SyncProfileToBoundSigil();
 		NPC.netUpdate = true;
 		if (!learned)
-			return;
+			return true;
 
 		int dropType = TileLoader.GetItemDropFromTypeAndStyle(tile.TileType, 0);
 		string materialName = dropType > ItemID.None
@@ -69,6 +72,7 @@ public sealed partial class SoulboundCompanion
 			: SoulmatesText.Get("Resourcefulness.UnknownMaterial");
 		ShowNativeEmote(EmoteID.ItemPickaxe, 110);
 		SpeakLocalized("Resourcefulness.LearnedMaterial", materialName);
+		return true;
 	}
 
 	private bool CanMineTile(int x, int y, bool includeLearnedMaterials)
@@ -83,12 +87,7 @@ public sealed partial class SoulboundCompanion
 		if (!knownMaterial || HasMiningDecorationNeighbour(x, y) || !WorldGen.CanKillTile(x, y))
 			return false;
 
-		int pickPower = EffectivePickPower(out _);
-		if (pickPower < RequiredPickPower(tile.TileType))
-			return false;
-		int damage = 1;
-		TileLoader.PickPowerCheck(tile, pickPower, ref damage);
-		return damage > 0;
+		return CompanionNativeRules.CanPick(Owner, x, y, EffectivePickPower(out _));
 	}
 
 	private int EffectivePickPower(out int itemType)
@@ -110,19 +109,6 @@ public sealed partial class SoulboundCompanion
 		=> IsOreTile(type) || IsSafeMiningMaterial(type);
 
 	private static bool IsSafeMiningMaterial(ushort type) => CompanionMiningRules.IsSafeMaterial(type);
-
-	private static int RequiredPickPower(ushort type) => type switch {
-		TileID.Meteorite => 50,
-		TileID.Demonite or TileID.Crimtane => 55,
-		TileID.Obsidian or TileID.Ebonstone or TileID.Crimstone or TileID.Pearlstone
-			or TileID.Hellstone or TileID.DesertFossil => 65,
-		TileID.Cobalt or TileID.Palladium => 100,
-		TileID.Mythril or TileID.Orichalcum => 110,
-		TileID.Adamantite or TileID.Titanium => 150,
-		TileID.Chlorophyte => 200,
-		TileID.LihzahrdBrick => 210,
-		_ => 0
-	};
 
 	private Item? BestPackWeapon()
 	{
@@ -164,10 +150,13 @@ public sealed partial class SoulboundCompanion
 
 	private bool TryUsePackConsumable()
 	{
+		if (Main.netMode == NetmodeID.MultiplayerClient || !TryGetOwner(out Player owner) || owner.dead
+			|| owner.cursed || owner.CCed || CompanionInventorySync.IsPending(owner)) return false;
 		int index = -1;
 		PackUseKind kind = PackUseKind.None;
 		int bestValue = 0;
-		bool needsLife = Owner.statLife * 100 <= Owner.statLifeMax2 * 40 && !Owner.HasBuff(BuffID.PotionSickness);
+		bool needsLife = Owner.statLife * 100 <= Owner.statLifeMax2 * 40 && Owner.potionDelay <= 0
+			&& !Owner.HasBuff(BuffID.PotionSickness);
 		bool needsMana = Owner.statManaMax2 > 0 && Owner.statMana * 100 <= Owner.statManaMax2 * 25
 			&& !Owner.HasBuff(BuffID.ManaSickness);
 
@@ -175,7 +164,7 @@ public sealed partial class SoulboundCompanion
 			Item item = Profile.Pack[i];
 			if (item.IsAir || item.stack <= 0 || !item.consumable)
 				continue;
-			if (needsLife && item.healLife > bestValue) {
+			if (needsLife && item.healLife > bestValue && CombinedHooks.CanUseItem(Owner, item)) {
 				index = i;
 				kind = PackUseKind.Healing;
 				bestValue = item.healLife;
@@ -184,7 +173,8 @@ public sealed partial class SoulboundCompanion
 		if (index < 0 && needsMana) {
 			for (int i = 0; i < Profile.Pack.Count; i++) {
 				Item item = Profile.Pack[i];
-				if (item.IsAir || item.stack <= 0 || !item.consumable || item.healMana <= bestValue)
+				if (item.IsAir || item.stack <= 0 || !item.consumable || item.healMana <= bestValue
+					|| !CombinedHooks.CanUseItem(Owner, item))
 					continue;
 				index = i;
 				kind = PackUseKind.Mana;
@@ -196,7 +186,7 @@ public sealed partial class SoulboundCompanion
 				Item item = Profile.Pack[i];
 				if (item.IsAir || item.stack <= 0 || !item.consumable || item.buffType <= 0
 					|| item.rare > ItemRarityID.Blue || item.buffType >= BuffID.Sets.IsWellFed.Length
-					|| !BuffID.Sets.IsWellFed[item.buffType])
+					|| !BuffID.Sets.IsWellFed[item.buffType] || !CombinedHooks.CanUseItem(Owner, item))
 					continue;
 				index = i;
 				kind = PackUseKind.Food;
@@ -207,15 +197,20 @@ public sealed partial class SoulboundCompanion
 			return false;
 
 		Item used = Profile.Pack[index];
-		if (!ItemLoader.CanUseItem(used, Owner) || !ItemLoader.ConsumeItem(used, Owner))
-			return false;
 		string itemName = used.Name;
 		int itemType = used.type;
+		if (kind == PackUseKind.Healing) {
+			CompanionNativeRules.ApplyHealingDelay(Owner, used);
+			int sicknessSlot = Owner.FindBuffIndex(BuffID.PotionSickness);
+			if (Main.netMode == NetmodeID.Server && sicknessSlot >= 0)
+				NetMessage.SendData(MessageID.AddPlayerBuff, Owner.whoAmI, -1, null,
+					Owner.whoAmI, BuffID.PotionSickness, Owner.buffTime[sicknessSlot]);
+		}
+		ItemLoader.UseItem(used, Owner);
 		switch (kind) {
 			case PackUseKind.Healing:
 				int healed = Math.Min(Owner.statLifeMax2 - Owner.statLife, Owner.GetHealLife(used, true));
 				HealOwner(healed);
-				AddOwnerBuff(BuffID.PotionSickness, Item.potionDelay > 0 ? Item.potionDelay : 3600);
 				ShowNativeEmote(EmoteID.ItemLifePotion, 100);
 				break;
 			case PackUseKind.Mana:
@@ -234,10 +229,11 @@ public sealed partial class SoulboundCompanion
 				break;
 		}
 
-		ItemLoader.OnConsumeItem(used, Owner);
-		used.stack--;
-		if (used.stack <= 0)
-			Profile.Pack.RemoveAt(index);
+		// ConsumeItem invokes OnConsumeItem itself; false permits use without consuming a unit.
+		if (ItemLoader.ConsumeItem(used, Owner)) {
+			used.stack--;
+			if (used.stack <= 0) Profile.Pack.RemoveAt(index);
+		}
 		packItemUseCooldown = 900;
 		SoulmatesFeedbackSystem.Record("pack_item_used", ("item_type", itemType),
 			("use", kind.ToString()), ("pack_load", Profile.PackLoad));
@@ -269,7 +265,8 @@ public sealed partial class SoulboundCompanion
 	{
 		if (Main.dedServ || Owner.whoAmI != Main.myPlayer || !Profile.AutonomyEnabled
 			|| activeJob != CompanionJob.None || autonomyActivity != AutonomyActivity.None
-			|| pendingAutonomyActivity != AutonomyActivity.None || HasPendingQuestion || guardianTarget >= 0 || speechTimer > 0)
+			|| pendingAutonomyActivity != AutonomyActivity.None || HasPendingQuestion || guardianTarget >= 0 || speechTimer > 0
+			|| pendingCritterNotice is not null || pendingCritterLossKey.Length > 0)
 			return;
 		if (craftingSuggestionCooldown > 0) {
 			craftingSuggestionCooldown--;

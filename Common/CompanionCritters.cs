@@ -59,6 +59,7 @@ public sealed class CompanionCritterCompany : GlobalNPC
 	private short companionIndex = -1;
 	private Guid companionId;
 	private int syncTicks;
+	private bool catchingUp;
 	public override bool InstancePerEntity => true;
 	public override bool AppliesToEntity(NPC entity, bool lateInstantiation) => CompanionCritters.SupportsCompany(entity.type);
 	internal bool IsAssigned => companionIndex >= 0;
@@ -72,6 +73,7 @@ public sealed class CompanionCritterCompany : GlobalNPC
 			return false;
 		companionIndex = (short)companion.NPC.whoAmI;
 		companionId = companion.Profile.Id;
+		catchingUp = false;
 		critter.netUpdate = true;
 		return true;
 	}
@@ -81,6 +83,7 @@ public sealed class CompanionCritterCompany : GlobalNPC
 		if (!IsAssigned || Main.netMode == NetmodeID.MultiplayerClient) return;
 		companionIndex = -1;
 		companionId = Guid.Empty;
+		catchingUp = false;
 		npc.netUpdate = true;
 	}
 
@@ -98,12 +101,16 @@ public sealed class CompanionCritterCompany : GlobalNPC
 			return;
 		}
 		Vector2 offset = companion.NPC.Center - npc.Center;
-		if (Collision.CanHitLine(npc.Center, 1, 1, companion.NPC.Center, 1, 1)) {
+		float separation = npc.noGravity ? offset.Length() : MathF.Abs(offset.X);
+		if (separation > 140f) catchingUp = true;
+		else if (separation < 64f) catchingUp = false;
+		if (catchingUp && Collision.CanHitLine(npc.position, npc.width, npc.height,
+			companion.NPC.position, companion.NPC.width, companion.NPC.height)) {
 			if (npc.noGravity) {
 				Vector2 desired = offset.SafeNormalize(Vector2.Zero) * Math.Min(2.8f, Math.Max(0f, offset.Length() - 42f) / 32f);
 				npc.velocity = desired;
 			}
-			else if (MathF.Abs(offset.X) > 48f)
+			else if (MathF.Abs(offset.X) > 64f)
 				// Native walking AI can set an opposing velocity every tick; a weak blend never reverses it.
 				npc.velocity.X = MathF.Sign(offset.X) * Math.Min(1.8f, (MathF.Abs(offset.X) - 32f) / 40f);
 			if (MathF.Abs(npc.velocity.X) > 0.2f)
@@ -125,11 +132,13 @@ public sealed class CompanionCritterCompany : GlobalNPC
 
 	public override void ReceiveExtraAI(NPC npc, BitReader bitReader, BinaryReader reader)
 	{
-		if (!bitReader.ReadBit()) { companionIndex = -1; companionId = Guid.Empty; return; }
+		if (!bitReader.ReadBit()) { companionIndex = -1; companionId = Guid.Empty; catchingUp = false; return; }
 		short index = reader.ReadInt16();
 		byte[] id = reader.ReadBytes(16);
 		if (index < 0 || index >= Main.maxNPCs || id.Length != 16) throw new InvalidDataException("Invalid critter company binding.");
+		Guid identity = new(id);
+		if (companionIndex != index || companionId != identity) catchingUp = false;
 		companionIndex = index;
-		companionId = new Guid(id);
+		companionId = identity;
 	}
 }

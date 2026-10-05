@@ -19,6 +19,12 @@ public sealed class SoulmatesPlayer : ModPlayer
 	private bool starterKitClaimed;
 	private int pickupObservationCooldown;
 	private int serverGatheringObservationCooldown;
+	private int serverMiningObservationCooldown;
+	private Point observedMiningTarget;
+	private int observedMiningTool;
+	private int observedMiningType = -1;
+	private Guid observedMiningProfile;
+	private int miningObservationCooldown;
 	private int feedbackActivityCooldown;
 	private bool rightMouseDown;
 	private bool soulmatesCapturedInput;
@@ -45,6 +51,10 @@ public sealed class SoulmatesPlayer : ModPlayer
 		queuedSelfSoulwheel = false;
 		feedbackProfileId = Guid.Empty;
 		feedbackPackCounts.Clear();
+		observedMiningType = -1;
+		observedMiningProfile = Guid.Empty;
+		miningObservationCooldown = 0;
+		serverMiningObservationCooldown = 0;
 	}
 
 	public override void UpdateDead()
@@ -63,6 +73,9 @@ public sealed class SoulmatesPlayer : ModPlayer
 			pickupObservationCooldown--;
 		if (serverGatheringObservationCooldown > 0)
 			serverGatheringObservationCooldown--;
+		if (serverMiningObservationCooldown > 0)
+			serverMiningObservationCooldown--;
+		if (miningObservationCooldown > 0) miningObservationCooldown--;
 		if (Player.whoAmI == Main.myPlayer) {
 			SoulboundCompanion? companion = SoulboundCompanion.FindFor(Player);
 			OpenQueuedSelfSoulwheel(companion);
@@ -146,6 +159,32 @@ public sealed class SoulmatesPlayer : ModPlayer
 		return true;
 	}
 
+	internal bool TryAcceptMiningObservation()
+	{
+		if (serverMiningObservationCooldown > 0) return false;
+		serverMiningObservationCooldown = 10;
+		return true;
+	}
+
+	internal void ObserveMiningTarget(Point target, int toolType)
+	{
+		if (!WorldGen.InWorld(target.X, target.Y, 10) || !Main.tile[target.X, target.Y].HasTile
+			|| SoulboundCompanion.FindFor(Player) is not { } companion) return;
+		int type = Main.tile[target.X, target.Y].TileType;
+		if (miningObservationCooldown > 0 && observedMiningProfile == companion.Profile.Id
+			&& observedMiningType == type && observedMiningTarget == target && observedMiningTool == toolType) return;
+		if (Main.netMode == NetmodeID.MultiplayerClient) {
+			if (Player.whoAmI != Main.myPlayer) return;
+			Soulmates.SendMiningObservation(companion.Profile.Id, target, toolType);
+		}
+		else if (!companion.ObserveMiningTarget(target, toolType)) return;
+		observedMiningType = type;
+		observedMiningProfile = companion.Profile.Id;
+		miningObservationCooldown = 10;
+		observedMiningTarget = target;
+		observedMiningTool = toolType;
+	}
+
 	public override bool OnPickup(Item item)
 	{
 		if (Player.whoAmI != Main.myPlayer || item.type is ItemID.Heart or ItemID.Star)
@@ -154,10 +193,12 @@ public sealed class SoulmatesPlayer : ModPlayer
 		if (pickupObservationCooldown > 0)
 			return true;
 		pickupObservationCooldown = 20;
-		if (Main.netMode == NetmodeID.MultiplayerClient)
-			Soulmates.SendBehaviorObservation(LearnedBehavior.Gathering);
-		else
-			SoulboundCompanion.FindFor(Player)?.ObserveOwnerActivity(LearnedBehavior.Gathering);
+		if (SoulboundCompanion.FindFor(Player) is { } companion) {
+			if (Main.netMode == NetmodeID.MultiplayerClient)
+				Soulmates.SendBehaviorObservation(companion.Profile.Id, LearnedBehavior.Gathering);
+			else
+				companion.ObserveOwnerActivity(LearnedBehavior.Gathering);
+		}
 		return true;
 	}
 
@@ -226,6 +267,8 @@ public sealed class SoulmatesPlayer : ModPlayer
 			return;
 
 		Point mouseWorld = SoulmatesUISpace.WorldMouse.ToPoint();
+		if (companionWheel.MouseMode == SoulwheelMouseMode.Terraria
+			&& SoulwheelTarget.HasPlacedObject(mouseWorld.ToVector2().ToTileCoordinates())) return;
 		Rectangle selfInteractionBounds = Player.Hitbox;
 		selfInteractionBounds.Inflate(14, 8);
 		bool onCompanion = companion.NPC.Hitbox.Contains(mouseWorld)

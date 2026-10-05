@@ -1,0 +1,5 @@
+displayName = Soulmates Audit Probe (TEST ONLY)
+author = Local Soulmates audit
+version = 0.0.1
+modReferences = Soulmates
+buildIgnore = *.csproj, bin/*, obj/*

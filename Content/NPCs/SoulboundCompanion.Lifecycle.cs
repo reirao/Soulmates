@@ -23,8 +23,8 @@ public sealed partial class SoulboundCompanion
 {
 	public void Recall()
 	{
-		using var inventorySync = new CompanionInventorySync(Owner);
 		SyncProfileToBoundSigil();
+		if (Main.netMode == NetmodeID.Server) global::Soulmates.Soulmates.SendProfileUpdate(Owner, this);
 		StopOwnedEffects();
 		if (Owner.active)
 			Owner.GetModPlayer<SoulmatesPlayer>().ActiveCompanionWhoAmI = -1;
@@ -77,7 +77,16 @@ public sealed partial class SoulboundCompanion
 
 	private void StopOwnedEffects()
 	{
+		activityCoordinator?.Reset();
+		ClearNativeExpression();
+		RetireNativeBubble();
 		ClearChoiceQuestion();
+		pendingCritterLossKey = pendingCritterLossName = pendingCritterCareName = "";
+		pendingCritterLossTicks = pendingCritterCareTicks = 0;
+		pendingCritterNotice = null;
+		pendingCritterNoticeKey = "";
+		deferredCritter = null;
+		deferredCritterTicks = 0;
 		ReleaseCritterCompany();
 		for (int i = 0; i < Main.maxProjectiles; i++) {
 			Projectile projectile = Main.projectile[i];

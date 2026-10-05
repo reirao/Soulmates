@@ -1,5 +1,76 @@
 # Soulmates Development History
 
+## Soulmates 0.20.0 - Shared Instincts (Beta Candidate)
+
+- Introduce one ability registry for policy access, legacy save keys, stable activity codes, task/rule emotes and stamina thresholds. Profile clone/save/load/network operations and the rule wheel use it. Preserve the complete 0.19.9 binary field order and existing Sigil tags.
+- Extract task dispatch into a per-instance activity coordinator with explicit priority and exclusive movement ownership. Defense preempts Pause and retained assignments; completed critter visits and terminated automatic work retain their final frame before following or resident visits resume. Existing activity-specific state remains in the NPC partial class; this is a bounded modularization, not a claim that every subsystem is independently pluggable.
+- Correct task status for active critter visits and interrupted defense. Add activity-lane diagnostics to opt-in, local-only Field Notes without names, chat or exact positions.
+- Reuse one initiative eligibility gate for offers, pending validity and answers. Recovery holds, changed routines and Never reject stale consent. Gate every quick-action mutation on authority; reject undefined and UI-only actions instead of falling through into care dialogue. Normal client UI continues to send server requests.
+- Include the preceding 0.19.9 Games, basic-net, critter-consent, greeting and tree-context changes and repair candidates.
+- Freeze features and define repeatable beta acceptance evidence. Automated controller, legacy-wire and engine checks remain distinct from outstanding graphical, long-session, progression and connected multiplayer acceptance.
+- Install the exact tested package in the normal client on October 5, 2026, with verified backups and a practical playtest checklist. The creator subsequently reports that the first pass broadly works and the version was published to the existing Workshop item. This is not completed beta acceptance or proof of every subscriber's installed package.
+
+## Soulmates 0.19.9 - Games and Little Greetings (Local Candidate)
+
+- Move the existing fair Rock, paper, scissors game into its own Games branch, retaining native symbols and stepwise navigation. Bond keeps its six gestures; no additional minigames are claimed.
+- Provide a cached basic Bug Net capability rather than a free equipment item. Carried lava-proof upgrades still matter; native catches and actual-drop cargo receipts retain capacity and protected-critter checks.
+- Give automatic Company and Collect independent Ask / Always / Never rules and the shared Yes / No / Always / Never answer flow. Preserve one-target consent, persisted settings and authority-validated target identity. Reset stops automatic work; explicit target orders do not grant future consent. Remove the forestry-specific idle-catching shortcut; regression registration checks cover all autonomous abilities.
+- Pair delivered critter greetings with native bubbles from both companion and creature. Queue encounters during personal questions without overwriting their expression; let queued observations precede new idle chatter and discard departed targets.
+- Keep tree context available during shake cooldowns and unsupported forestry actions. Use native trunk classification plus mushroom trees for context symbols and validate native shakeable trunks/soil before scheduling automatic work. Retain the restricted safe pruning frames.
+- Verification and client installation status are tracked separately. This is a growing-alpha candidate, not a graphical or connected multiplayer certification; all multiplayer peers must use 0.19.9.
+
+## Soulmates 0.19.8 - Native Boundaries (Local Candidate)
+
+- Repair all five reproduced findings and the modded-resident identity inconsistency from the fresh 0.19.7 review. Preserve eligible resident observations across accepted/rejected inventory transfers without mutating the frozen profile; revalidate companion, owner, world and resident before replay.
+- Use the installed native pickaxe rules for learning, planning and execution eligibility, including location-sensitive progression. Native helpers bind once to cached delegates; protected/frame-important terrain remains excluded.
+- Respect combined player/item use gates when selecting recovery supplies, including a permitted alternative when the strongest candidate is forbidden. Native healing delay handles item-specific timing, player modifiers and hook vetoes.
+- Correct use-versus-consumption behavior and remove the double consumption callback discovered during the critical recheck. Cursed/incapacitated owners and pending inventory transfers cannot use cargo consumables.
+- Accept unchanged empty-space multiplayer planting targets without weakening replacement checks for mining or forestry.
+- Save and transmit resident identity by stable NPC content name. Preserve unavailable history without aliasing current content; migrate native legacy IDs and retain unidentified legacy modded records as history-only.
+- Remove the unreachable equipped-message branch in the removal-only custom trinket handler. Intentionally supported public wrappers remain; no feature group was disabled.
+- Repeated native counterchecks, general regression and source review are recorded separately. This prepares a local candidate only: no normal installation, player/world save, publication or Git push. All multiplayer peers must use 0.19.8; graphical and connected multiplayer behavior remain separate test work.
+
+## Soulmates 0.19.7 - Confirmed Transfers (Local Candidate)
+
+- Replace blind multiplayer inventory replacement with acknowledged, identity-bound transfers. Compare affected slots with their before-images, preserve intervening owner changes, restore cargo after a rejected transfer, and deduplicate proposals, receipts and completion messages. Keep the cursor untouched and synchronize Sigil metadata by companion identity.
+- Defer transfer responses until resolution and keep in-flight native profile synchronization from undoing the owner's accepted cargo state. Preserve legitimate victory and witnessed critter-loss events while an inventory transfer awaits acknowledgement.
+- Restrict the custom trinket request to removal; equipping continues through real reusable items. Retire the unused custom native-emote request without shifting other packet identifiers.
+- Use full-width native prefix metadata for direct item orders. Bind destructive terrain orders to the originally selected material and reject replacements.
+- Enforce the native pickup grace period at the common transfer boundary. Only the validated receipt of an actual native net catch has an immediate-collection exception.
+- Retain queued critter-care questions behind the longer personal-question cooldown without suppressing ordinary ambient conversation throughout the wait.
+- Bound failed automatic feedback writes to 64 pending records, with a 30-second retry backoff and drop accounting. Save typed notes separately in local notes-inbox.jsonl; retain the entered text when saving fails.
+- Save and transmit learned material knowledge using stable content keys. Preserve unavailable content by name and count it toward the 48-material limit. Legacy vanilla IDs migrate; unidentified legacy modded IDs must be relearned rather than guessed.
+- Remove the unused private activity helper; retain public convenience/compatibility APIs deliberately. The second review also caught and repaired a Sigil favorite-cache regression and a missing-content knowledge-limit edge case.
+- This pass prepares, but does not install or publish, 0.19.7. All multiplayer peers must use the same version. Native fixtures and disconnected packet replay are not graphical or connected multiplayer playtests; see tests/COMPLETE-REPAIRS-2026-10-04.md.
+
+## Soulmates 0.19.6 - Careful Repairs (Local Candidate)
+
+- Preserve saved cargo when an item's native stack maximum decreases. Split into available slots without discarding remainder; full cargo retains the remainder until space or withdrawal is available. Reconciliation and inventory returns use legal native stack sizes.
+- Bind mutating multiplayer requests to the companion originally clicked, including talk, recall, trinkets, withdrawals, gestures, direct orders and activity observations. Reject changed storage slots, quantities, network item metadata and wallet balances rather than withdrawing from an old view.
+- Give each work-permission question a unique token. Bind answers and UI acknowledgement waits to that token and the companion; reject replaced, expired and repeated answers. Delayed prompt notifications cannot recreate completed work.
+- Observe the actual native mining target before a one-hit block disappears. Remote observations carry a target and tool identity, with owner, binding, distance, native reach, tool power and tile checks on authority. Local server mouse coordinates are not used for material learning.
+- Continue already approved automatic work while a personal question awaits an answer. Do not bypass Ask/Never permissions or cancel the question simply because approved work starts.
+- Keep the independent audit's original findings as historical evidence and add focused counterchecks. Old Sigils remain compatible; multiplayer peers must all use 0.19.6. Not published or installed by this repair pass; no graphical or connected multiplayer playtest is claimed.
+
+## Soulmates 0.19.5 - Gentle Encounters (Local Candidate)
+
+- Protect native placed-torch and furniture clicks before overlapping player/companion/drop hitboxes in Terraria mode. Explicit Me/Soulmate inspection remains available.
+- Save Quiet / Calm / Chatty personal-question preferences on the Sigil, with native-symbol choices under Commands. Use a common five-minute Calm or two-minute Chatty interval; remove the curiosity bypass. Quiet does not change work-permission prompts.
+- Retain directed critter visits through brief combat and Pause. Direct invitations replace pending personal questions. Report directed timeouts and briefly defer unreachable critters instead of immediately selecting them again.
+- Authority selects automatic critter targets and requests native NPC synchronization. Full hitboxes govern sight. Separate catch-up and settling distances give native critters room to wander without constantly reversing.
+- Preserve native critter AI, collisions, drops, player catches, protected species and one/three Company limits. Translate ten new keys in all nine catalogs.
+- Player feedback also requests learnable wall deconstruction and trap warnings. Those are not implemented in this candidate. No public-release or graphical/live-multiplayer playtest claim.
+
+## Soulmates 0.19.4 - Little Replies (Local Candidate)
+
+- Keep queued critter grief separate from the 15-second reaction cooldown, with a bounded two-minute pending lifetime. Use full hitboxes for visibility, including nearby owner-witnessed loss, and replay the reaction emote at delivery. A net catch is still not a death.
+- Offer occasional answerable critter-care questions after genuine observed loss. Native symbols select gentle Watch, Company, practical Watch or Later; accepted choices persist tone and mode. No catching/mining permission or automatic death reward is added.
+- Accepted personal and initiative answers show native player reply bubbles without re-entering general emote rewards. Matching native emotes can also answer. Remove the client echo of server-broadcast player emotes; native Terraria message 120 already observes the original on authority.
+- Preserve personal questions through brief combat while hiding their UI and refusing combat-time answers. Keep the original deadline; explicit jobs, Stay, disabled autonomy, recall and changed binding cancel them. Prevent ambient lines from replacing their speech and reject changed prompt context.
+- Synchronize idle state, remaining duration and facing from authority. Stop clients choosing independent random destinations, damp short action/idle animation gaps and wait calmly near the owner for answers. Clear pending nature events on recall.
+- Do not restart the fade, timer or anchor for repeated active speech. Keep speech above the companion with stable viewport clamping. Present bounded native emote sequences for permission questions, wallet offers and observed grief, holding each symbol for three seconds. Retire replaced NPC bubbles on authority and clients; explicit answers, interaction and recall interrupt sequences.
+- Add nine keys to all nine catalogs and keep translation authoring data synchronized. The local candidate is not a public-release, graphical-playtest or live-multiplayer claim.
+
 ## Soulmates 0.19.3 - Steady Hands
 
 - Protect blocks next to plants, saplings, trees, furniture and decorations in every mining path. Recheck already planned targets and direct orders; use native multi-tile data in the conservative support check.

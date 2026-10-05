@@ -20,6 +20,7 @@ public sealed partial class SoulboundCompanion
 			return false;
 
 		// Draw independently of the player's move; only authority resolves a round.
+		ClearNativeExpression();
 		RpsMove companionMove = (RpsMove)Main.rand.Next(3);
 		rpsCooldown = 180;
 		nativeEmoteReactionCooldown = 180;

@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-	<DefaultItemExcludes>$(DefaultItemExcludes);SoulmatesRegressionProbe\**</DefaultItemExcludes>
+	<DefaultItemExcludes>$(DefaultItemExcludes);SoulmatesRegressionProbe\**;SoulmatesAuditProbe\**</DefaultItemExcludes>
     <TML_PATH Condition="'$(TML_PATH)' == ''">C:\Program Files (x86)\Steam\steamapps\common\tModLoader</TML_PATH>
   </PropertyGroup>
   <ItemGroup>
@@ -13,6 +13,7 @@
     <Reference Include="Microsoft.CodeAnalysis.CSharp" HintPath="$(MSBuildSDKsPath)\..\Roslyn\bincore\Microsoft.CodeAnalysis.CSharp.dll" />
     <Reference Include="FNA" HintPath="$(TML_PATH)\Libraries\FNA\1.0.0\FNA.dll" />
     <Compile Include="..\Common\SoulmatesTextLayout.cs" Link="SoulmatesTextLayout.cs" />
+    <Compile Include="..\Common\CompanionActivityCoordinator.cs" Link="CompanionActivityCoordinator.cs" />
     <Compile Include="..\Common\UI\SoulmatesUISpace.cs" Link="SoulmatesUISpace.cs" />
     <Compile Include="..\Common\UI\SoulwheelLayout.cs" Link="SoulwheelLayout.cs" />
   </ItemGroup>

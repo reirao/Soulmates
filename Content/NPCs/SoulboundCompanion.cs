@@ -44,7 +44,9 @@ public sealed partial class SoulboundCompanion : ModNPC
 		FetchItem,
 		AssistMining,
 		InspectTreasure,
-		TendForest
+		TendForest,
+		InviteCritter,
+		CatchCritter
 	}
 
 	internal enum ForestAction : byte
@@ -69,6 +71,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 	private int stateTimer;
 	private int facing = 1;
 	private int facingCooldown;
+	private int actionAnimationTicks;
 	private Vector2 idleTarget;
 	private float bobSeed;
 	private CompanionJob activeJob;
@@ -126,6 +129,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 	private int autonomyDiscoveryCooldown;
 	private ForestAction autonomyForestAction;
 	private int pendingInitiativeTimer;
+	private Guid initiativeId;
 	private int pendingTargetItem = -1;
 	private Point pendingTargetTile;
 	private ForestAction pendingForestAction;
@@ -155,19 +159,23 @@ public sealed partial class SoulboundCompanion : ModNPC
 	private ref float Command => ref NPC.ai[1];
 	public string CommandName => SoulmatesText.Get(Command == StayCommand ? "Status.Stay" : "Status.Follow");
 	internal string FeedbackCommand => Command == StayCommand ? "stay" : "follow";
-	internal string FeedbackActivity => activeJob != CompanionJob.None ? $"job_{activeJob}"
+	internal string FeedbackActivity => guardianTarget >= 0 ? "guarding"
+		: Profile.WorkPaused ? "paused"
+		: activeJob != CompanionJob.None ? $"job_{activeJob}"
 		: HasPendingQuestion ? $"conversation_{PendingQuestion}"
 		: pendingAutonomyActivity != AutonomyActivity.None ? $"awaiting_{InitiativeKindFor(pendingAutonomyActivity)}"
 		: autonomyActivity != AutonomyActivity.None ? $"autonomy_{autonomyActivity}"
-		: guardianTarget >= 0 ? "guarding"
+		: IsAttendingCritter ? $"critter_{Profile.CritterMode}"
 		: socialNpcTarget >= 0 ? "socializing"
 		: brainState.ToString();
 	public CompanionJob CurrentJob => activeJob;
 	public bool HasPendingInitiative => pendingAutonomyActivity != AutonomyActivity.None;
 	public CompanionInitiativeKind PendingInitiativeKind => InitiativeKindFor(pendingAutonomyActivity);
 	public int PendingInitiativeTicks => Math.Max(0, pendingInitiativeTimer);
+	public Guid InitiativeId => initiativeId;
 	public bool IsDefending => guardianTarget >= 0;
-	public string CurrentJobName => Profile.WorkPaused ? SoulmatesText.Get("WorkControl.Status") : activeJob != CompanionJob.None
+	public string CurrentJobName => guardianTarget >= 0 ? SoulmatesText.Get("Status.Guarding")
+		: Profile.WorkPaused ? SoulmatesText.Get("WorkControl.Status") : activeJob != CompanionJob.None
 		? jobRecoveryPaused
 			? jobPlannedTotal > 0
 				? SoulmatesText.Get("Status.AssignmentPausedProgress", SoulmatesText.EnumName(activeJob), jobCount, jobPlannedTotal)
@@ -183,8 +191,9 @@ public sealed partial class SoulboundCompanion : ModNPC
 			? SoulmatesText.Get("Status.AwaitingAnswer", SoulmatesText.EnumName(PendingInitiativeKind))
 		: autonomyActivity != AutonomyActivity.None
 			? SoulmatesText.Get($"Status.Autonomy.{autonomyActivity}")
-		: guardianTarget >= 0
-			? SoulmatesText.Get("Status.Guarding")
+		: IsAttendingCritter
+			? SoulmatesText.Get("Status.Assignment", SoulmatesText.EnumName(Profile.CritterMode == CompanionCritterMode.Collect
+				? CompanionInitiativeKind.CritterCollect : CompanionInitiativeKind.CritterCompany))
 			: autonomyRecoveryPaused || Profile.Energy < 12
 			? SoulmatesText.Get("Status.Recovering")
 			: Profile.Routine != CompanionJob.None
@@ -257,6 +266,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 			return;
 		}
 		if (Main.netMode != NetmodeID.MultiplayerClient) {
+			if (CompanionInventorySync.IsPending(owner)) { NPC.velocity *= 0.8f; return; }
 			if (!ClaimActiveSlot(owner))
 				return;
 			if (FindBoundSigil() is null) {
@@ -287,92 +297,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 			attackCooldown--;
 		if (healingCooldown > 0)
 			healingCooldown--;
-		if (UpdateTalentBehavior()) {
-			if (!jobRecoveryPaused)
-				recoveryTimer = 0;
-			NPC.rotation = MathHelper.Lerp(NPC.rotation, NPC.velocity.X * 0.025f, 0.08f);
-			UpdateFacing();
-			return;
-		}
-		if (activeJob != CompanionJob.None) {
-			if (Profile.WorkPaused) { UpdateStoppedWork(); return; }
-			if (!jobRecoveryPaused)
-				RecoverEnergy(180, 1, recoverMood: false);
-			guardianTarget = -1;
-			UpdateJob();
-			NPC.rotation = MathHelper.Lerp(NPC.rotation, NPC.velocity.X * 0.025f, 0.08f);
-			UpdateFacing();
-			return;
-		}
-		if (Profile.WorkPaused) { UpdateStoppedWork(); return; }
-		// Between completed autonomous tasks, give a bounded critter visit a turn before selecting more work.
-		if (UpdateCritterActivity()) {
-			RecoverEnergy(120, 2, recoverMood: false);
-			UpdateFacing();
-			return;
-		}
-		if (UpdateHelpfulAutonomy()) {
-			RecoverEnergy(180, 1, recoverMood: false);
-			NPC.rotation = MathHelper.Lerp(NPC.rotation, NPC.velocity.X * 0.025f, 0.08f);
-			UpdateFacing();
-			return;
-		}
-		if (UpdateTownNpcInteraction()) {
-			RecoverEnergy(120, Profile.Trinket == CompanionTrinket.HearthRibbon ? 3 : 2, recoverMood: false);
-			NPC.rotation = MathHelper.Lerp(NPC.rotation, NPC.velocity.X * 0.025f, 0.08f);
-			UpdateFacing();
-			return;
-		}
-		if (Command == StayCommand) {
-			if (brainState != BrainState.Stay)
-				brainState = BrainState.Stay;
-			MoveTo(idleTarget + new Vector2(0f, IdleBob()), 1.8f, 0.032f);
-			RecoverEnergy(120, Profile.Trinket == CompanionTrinket.HearthRibbon ? 5 : 3, recoverMood: true);
-			UpdateFacing();
-			return;
-		}
-		RecoverEnergy(120, Profile.Trinket == CompanionTrinket.HearthRibbon ? 3 : 2, recoverMood: false);
-
-		Vector2 followTarget = Owner.Center + new Vector2(-Owner.direction * 66f, -58f);
-		float distance = Vector2.Distance(NPC.Center, followTarget);
-		if (distance > 1200f) {
-			NPC.Center = followTarget;
-			NPC.velocity = Vector2.Zero;
-			brainState = BrainState.Follow;
-			stateTimer = 60;
-			NPC.netUpdate = true;
-			return;
-		}
-
-		if (distance > 340f) {
-			brainState = BrainState.CatchUp;
-			stateTimer = 45;
-		}
-
-		if (stateTimer-- <= 0)
-			ChooseNextState(distance, followTarget);
-
-		switch (brainState) {
-			case BrainState.Idle:
-				MoveTo(followTarget + new Vector2(0f, IdleBob()), 2f, 0.03f);
-				break;
-			case BrainState.Wander:
-				MoveTo(idleTarget + new Vector2(0f, IdleBob() * 0.5f), 3f, 0.045f);
-				break;
-			case BrainState.Inspect:
-				Vector2 inspectOffset = new Vector2(MathF.Sin((stateTimer + bobSeed) * 0.035f) * 26f, -82f + IdleBob());
-				MoveTo(Owner.Center + inspectOffset, 2.8f, 0.04f);
-				break;
-			case BrainState.CatchUp:
-				MoveTo(followTarget, 11f, 0.11f);
-				break;
-			default:
-				MoveTo(followTarget, 6.5f, 0.065f);
-				break;
-		}
-
-		NPC.rotation = MathHelper.Lerp(NPC.rotation, NPC.velocity.X * 0.025f, 0.08f);
-		UpdateFacing();
+		Activities.Tick();
 	}
 
 }

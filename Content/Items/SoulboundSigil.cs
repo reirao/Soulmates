@@ -47,7 +47,7 @@ public sealed class SoulboundSigil : ModItem
 	public override bool CanUseItem(Player player)
 	{
 		Item.UseSound = player.altFunctionUse == 2 ? SoundID.MenuTick : SoundID.Item8;
-		return !ModContent.GetInstance<TalkModeSystem>().IsOpen;
+		return !CompanionInventorySync.IsPending(player) && !ModContent.GetInstance<TalkModeSystem>().IsOpen;
 	}
 
 	public override bool? UseItem(Player player)
@@ -59,7 +59,7 @@ public sealed class SoulboundSigil : ModItem
 			if (companion is not null) {
 				SoulmatesFeedbackSystem.Record("companion_recalled");
 				if (Main.netMode == NetmodeID.MultiplayerClient)
-					Soulmates.SendRecallRequest();
+					Soulmates.SendRecallRequest(companion.Profile.Id);
 				else
 					SoulboundCompanion.RecallAllFor(player);
 				Main.NewText(SoulmatesText.Get("Messages.Recalled", Profile.Name), Profile.EssenceColor);
@@ -88,7 +88,7 @@ public sealed class SoulboundSigil : ModItem
 
 	internal bool SummonCompanion(Player player)
 	{
-		if (Main.netMode == NetmodeID.MultiplayerClient || !player.active || player.dead)
+		if (Main.netMode == NetmodeID.MultiplayerClient || !player.active || player.dead || CompanionInventorySync.IsPending(player))
 			return false;
 		Profile.Normalize();
 		SoulboundCompanion.RecallAllFor(player);

@@ -71,10 +71,22 @@ internal sealed class SoulwheelTarget
 
 	public bool CanPoint => IsCurrent && (item is not null || npc is not null || hasTile);
 	public bool CanOfferFallback => CanPoint && (item is not null || npc is not null
-		|| !Main.tileFrameImportant[tileType] || TileID.Sets.IsATreeTrunk[tileType] || tileType == TileID.FallenLog);
+		|| !Main.tileFrameImportant[tileType] || SoulboundCompanion.IsTreeTrunk(tileType) || tileType == TileID.FallenLog)
+		&& !HasPlacedObject(Tile);
+
+	internal static bool HasPlacedObject(Point tilePosition)
+	{
+		if (!WorldGen.InWorld(tilePosition.X, tilePosition.Y, 1)) return false;
+		Terraria.Tile tile = Main.tile[tilePosition.X, tilePosition.Y];
+		return tile.HasTile && (Main.tileFrameImportant[tile.TileType] || TileID.Sets.Torch[tile.TileType])
+			&& !SoulboundCompanion.IsTreeTrunk(tile.TileType) && tile.TileType != TileID.FallenLog;
+	}
 	public bool CanObserveNpc(SoulboundCompanion companion) => IsCurrent && npc is not null && companion.CanTargetNpc(npcSlot);
 	public bool CanInviteCritter(SoulboundCompanion companion) => IsCurrent && npc is not null && companion.CanTargetCritterCompany(npcSlot);
 	public bool CanCollectCritter(SoulboundCompanion companion) => IsCurrent && npc is not null && companion.CanTargetCritterCollect(npcSlot);
+	public bool CanDiscussForestry(SoulboundCompanion companion) => IsCurrent && npc is null && item is null
+		&& hasTile && (SoulboundCompanion.IsTreeTrunk(tileType) || tileType == TileID.FallenLog)
+		&& companion.CanTargetLook(Tile, -1);
 	public bool CanOrder(SoulboundCompanion companion, CompanionTargetOrder order) => IsCurrent && npc is null && order switch {
 		CompanionTargetOrder.Look => companion.CanTargetLook(Tile, ItemSlot),
 		CompanionTargetOrder.Gather => item is not null && companion.CanTargetGathering(ItemSlot),
@@ -92,7 +104,7 @@ internal sealed class SoulwheelTarget
 			: npc.catchItem > 0 ? CompanionCritters.EmoteFor(npc) : npc.friendly ? EmoteID.EmotionAlert : EmoteID.EmoteFear
 		: item is not null ? itemType is >= ItemID.CopperCoin and <= ItemID.PlatinumCoin
 			? EmoteID.ItemGoldpile : EmoteID.ItemCog
-		: tileType is TileID.Trees or TileID.PalmTree ? EmoteID.MiscTree : EmoteID.ItemPickaxe;
+		: SoulboundCompanion.IsTreeTrunk(tileType) || tileType == TileID.FallenLog ? EmoteID.MiscTree : EmoteID.ItemPickaxe;
 
 	internal static int FindHoveredItem(Vector2 worldMouse)
 	{

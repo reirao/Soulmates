@@ -41,6 +41,8 @@ Dictionary<string, string> Catalog(string culture)
 	return result;
 }
 
+Soulmates.Regression.ActivityCoordinatorChecks.Run(Check);
+
 var english = Catalog("en-US");
 string[] cultures = { "en-US", "de-DE", "it-IT", "fr-FR", "es-ES", "ru-RU", "pt-BR", "pl-PL", "zh-Hans" };
 if (args.Contains("--catalog")) {
@@ -81,7 +83,9 @@ foreach (var (culture, catalog) in catalogs) {
 		var lines = SoulmatesTextLayout.Wrap(translation, 40f, text => new StringInfo(text).LengthInTextElements);
 		Check(lines.All(line => new StringInfo(line).LengthInTextElements <= 40), culture + " long text did not wrap: " + key);
 		int index = Array.IndexOf(addedCultures, culture);
-		if (index >= 0) Check(translation == translations[key["Mods.Soulmates.".Length..]][index], culture + " generated translation out of date: " + key);
+		if (index >= 0 && translations.TryGetValue(key["Mods.Soulmates.".Length..], out string[]? values)
+			&& values.Length > index)
+			Check(translation == values[index], culture + " generated translation out of date: " + key);
 	}
 	foreach (string key in catalog.Keys) Check(english.ContainsKey(key), culture + " unknown key: " + key);
 }
@@ -130,6 +134,7 @@ foreach (string category in new[] { "Care", "Commands", "Work", "Bond", "Voice",
 
 foreach (string move in new[] { "Rock", "Paper", "Scissors" })
 	Check(keys.Contains("Games.Rps.Moves." + move), "RPS move missing: " + move);
+Check(keys.Contains("UI.CompanionWheel.Categories.Games"), "Companion Games category missing");
 foreach (string outcome in new[] { "PlayerWin", "CompanionWin", "Draw" }) {
 	Check(keys.Contains("Games.Rps.Outcomes." + outcome), "RPS outcome missing: " + outcome);
 	foreach (string personality in new[] { "Curious", "Loyal", "Brave", "Gentle", "Mischievous" })

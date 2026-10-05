@@ -21,7 +21,7 @@ namespace Soulmates.Common.UI;
 
 public sealed partial class CompanionWheelSystem : ModSystem
 {
-	private enum RootBranch : byte { Commands, Work, Bond, Emotes, Pack, Details, Mailbox, Point, Critters, Items }
+	private enum RootBranch : byte { Commands, Work, Bond, Emotes, Pack, Details, Mailbox, Point, Critters, Items, Games }
 	private enum HoverLayer : byte { None, Center, Root, Branch, Native, MiningApproach, OreTarget, InitiativeRule, MouseMode, ContextAction, Rps, MiningFilter }
 	private enum IconKind : byte { Emote, Item, Back, Forward, Close }
 	private enum WheelContext : byte { Companion, Player, World, Contextual }
@@ -32,7 +32,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 	private sealed record NativeCategory(string Key, int Icon, int[] Entries);
 
 	private static readonly RootBranch[] CompanionRoots = [
-		RootBranch.Commands, RootBranch.Work, RootBranch.Critters, RootBranch.Bond, RootBranch.Pack, RootBranch.Items, RootBranch.Details, RootBranch.Mailbox
+		RootBranch.Commands, RootBranch.Work, RootBranch.Critters, RootBranch.Bond, RootBranch.Games, RootBranch.Pack, RootBranch.Items, RootBranch.Details, RootBranch.Mailbox
 	];
 	private static readonly RootBranch[] PlayerRoots = [RootBranch.Emotes, RootBranch.Point, RootBranch.Mailbox];
 	private static readonly CompanionTargetOrder[] PointModes = [
@@ -42,7 +42,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		CompanionQuickAction.Follow, CompanionQuickAction.Stay,
 		CompanionQuickAction.Explore, CompanionQuickAction.ToggleAutonomy,
 		CompanionQuickAction.ResetInitiativeRules, CompanionQuickAction.Pause,
-		CompanionQuickAction.Resume, CompanionQuickAction.Abort
+		CompanionQuickAction.Resume, CompanionQuickAction.Abort, CompanionQuickAction.QuestionSettings
 	];
 	private static readonly CompanionQuickAction[] CritterActions = [
 		CompanionQuickAction.CritterWatch, CompanionQuickAction.CritterCompany,
@@ -53,11 +53,12 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		WheelWorkAction.MineTarget, WheelWorkAction.GatherTarget, WheelWorkAction.MiningApproach,
 		WheelWorkAction.LookTarget, WheelWorkAction.ForestTarget
 	];
-	private static readonly CompanionQuickAction[] InitiativeRules = [
-		CompanionQuickAction.GatheringPolicy, CompanionQuickAction.MiningPolicy,
-		CompanionQuickAction.ForestryPolicy, CompanionQuickAction.TreasurePolicy,
-		CompanionQuickAction.ResetInitiativeRules
+	private static readonly CompanionQuickAction[] InitiativeRules = CompanionAbilityRegistry.All
+		.Select(ability => ability.PolicyAction).Append(CompanionQuickAction.ResetInitiativeRules).ToArray();
+	private static readonly CompanionQuickAction[] QuestionRules = [
+		CompanionQuickAction.QuestionsQuiet, CompanionQuickAction.QuestionsCalm, CompanionQuickAction.QuestionsChatty
 	];
+	private CompanionQuickAction[] ActiveRules => questionSettingsMenu ? QuestionRules : InitiativeRules;
 	private static Asset<Texture2D>? backTexture;
 	private static Asset<Texture2D>? forwardTexture;
 	private static Asset<Texture2D>? closeTexture;
@@ -158,6 +159,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 	private bool miningApproachMenu;
 	private bool nearbyOreMenu;
 	private bool initiativeRulesMenu;
+	private bool questionSettingsMenu;
 	private bool rpsMenu;
 	private readonly List<NearbyOreChoice> nearbyOreChoices = [];
 	private HoverLayer hoverLayer;
@@ -203,6 +205,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		miningApproachMenu = false;
 		nearbyOreMenu = false;
 		initiativeRulesMenu = false;
+		questionSettingsMenu = false;
 		rpsMenu = false;
 		nearbyOreChoices.Clear();
 		contextTarget = null;
@@ -229,6 +232,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		miningApproachMenu = false;
 		nearbyOreMenu = false;
 		initiativeRulesMenu = false;
+		questionSettingsMenu = false;
 		rpsMenu = false;
 		nearbyOreChoices.Clear();
 		contextTarget = null;
@@ -319,7 +323,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 			}
 		}
 		if (initiativeRulesMenu) {
-			for (int i = 0; i < InitiativeRules.Length; i++) {
+			for (int i = 0; i < ActiveRules.Length; i++) {
 				if (!Hit(mouse, InitiativeRulePosition(i), 19f)) continue;
 				hoverLayer = HoverLayer.InitiativeRule;
 				hoverIndex = i;
@@ -450,6 +454,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		miningApproachMenu = false;
 		nearbyOreMenu = false;
 		initiativeRulesMenu = false;
+		questionSettingsMenu = false;
 		rpsMenu = false;
 		nearbyOreChoices.Clear();
 		SoundEngine.PlaySound(SoundID.MenuTick with { Volume = 0.55f, Pitch = 0.18f });
@@ -465,8 +470,10 @@ public sealed partial class CompanionWheelSystem : ModSystem
 				break;
 			case RootBranch.Commands:
 				if (index >= 0 && index < CommandActions.Length) {
-					if (CommandActions[index] == CompanionQuickAction.ResetInitiativeRules) {
-						initiativeRulesMenu = !initiativeRulesMenu;
+					if (CommandActions[index] is CompanionQuickAction.ResetInitiativeRules or CompanionQuickAction.QuestionSettings) {
+						bool questions = CommandActions[index] == CompanionQuickAction.QuestionSettings;
+						initiativeRulesMenu = !initiativeRulesMenu || questionSettingsMenu != questions;
+						questionSettingsMenu = questions;
 						SoundEngine.PlaySound(SoundID.MenuTick);
 					}
 					else ExecuteQuickAction(CommandActions[index]);
@@ -486,11 +493,13 @@ public sealed partial class CompanionWheelSystem : ModSystem
 				}
 				break;
 			case RootBranch.Bond:
-				if (index == BondEmotes.Length) {
+				if (index >= 0 && index < BondEmotes.Length) ExecuteCompanionEmote(BondEmotes[index]);
+				break;
+			case RootBranch.Games:
+				if (index == 0) {
 					rpsMenu = !rpsMenu;
 					SoundEngine.PlaySound(SoundID.MenuTick);
 				}
-				else if (index >= 0 && index < BondEmotes.Length) ExecuteCompanionEmote(BondEmotes[index]);
 				break;
 			case RootBranch.Emotes:
 				if (index >= 0 && index < ActiveNativeCategories.Length) {
@@ -532,7 +541,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		SoulmatesFeedbackSystem.Record("nearby_ore_selected", ("item_type", choice.ItemType));
 		Close();
 		if (Main.netMode == NetmodeID.MultiplayerClient)
-			global::Soulmates.Soulmates.SendDirectOrderRequest(CompanionTargetOrder.Mine, choice.Tile, -1);
+			global::Soulmates.Soulmates.SendDirectOrderRequest(selected.Profile.Id, CompanionTargetOrder.Mine, choice.Tile, -1);
 		else {
 			CompanionConversationResult result = selected.PerformDirectOrder(CompanionTargetOrder.Mine, choice.Tile, -1);
 			selected.ShowSpeech(result.Reply);
@@ -542,10 +551,10 @@ public sealed partial class CompanionWheelSystem : ModSystem
 
 	private void ActivateInitiativeRule(int index)
 	{
-		if (companion?.NPC.active != true || index < 0 || index >= InitiativeRules.Length) return;
-		CompanionQuickAction action = InitiativeRules[index];
+		if (companion?.NPC.active != true || index < 0 || index >= ActiveRules.Length) return;
+		CompanionQuickAction action = ActiveRules[index];
 		if (Main.netMode == NetmodeID.MultiplayerClient)
-			global::Soulmates.Soulmates.SendQuickActionRequest(action);
+			global::Soulmates.Soulmates.SendQuickActionRequest(companion.Profile.Id, action);
 		else {
 			CompanionConversationResult result = companion.PerformQuickAction(action);
 			companion.ShowSpeech(result.Reply);
@@ -647,7 +656,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		if (target?.NPC.active != true)
 			return;
 		if (Main.netMode == NetmodeID.MultiplayerClient)
-			global::Soulmates.Soulmates.SendQuickActionRequest(action);
+			global::Soulmates.Soulmates.SendQuickActionRequest(target.Profile.Id, action);
 		else {
 			CompanionConversationResult result = target.PerformQuickAction(action);
 			target.ShowSpeech(result.Reply);
@@ -670,7 +679,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		if (target?.NPC.active != true)
 			return;
 		if (Main.netMode == NetmodeID.MultiplayerClient)
-			global::Soulmates.Soulmates.SendEmoteRequest(emote);
+			global::Soulmates.Soulmates.SendEmoteRequest(target.Profile.Id, emote);
 		else
 			target.PerformEmote(emote);
 		SoundEngine.PlaySound(SoundID.Chat with { Volume = 0.55f, Pitch = 0.18f });
@@ -701,6 +710,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		}
 		if (initiativeRulesMenu) {
 			initiativeRulesMenu = false;
+			questionSettingsMenu = false;
 			SoundEngine.PlaySound(SoundID.MenuTick);
 			return;
 		}
@@ -793,17 +803,19 @@ public sealed partial class CompanionWheelSystem : ModSystem
 				Vector2 position = Vector2.Lerp(parent, destination, reveal);
 				bool hovered = hoverLayer == HoverLayer.Branch && hoverIndex == i;
 				bool active = activeBranch == RootBranch.Critters && (int)companion.Profile.CritterMode == i
-					|| activeBranch == RootBranch.Bond && i == BondEmotes.Length && rpsMenu
+					|| activeBranch == RootBranch.Games && i == 0 && rpsMenu
 					|| activeBranch == RootBranch.Emotes && nativeCategory == i
 					|| activeBranch == RootBranch.Work && WorkActions[i] == WheelWorkAction.MiningApproach
 						&& (miningApproachMenu || miningFilterMenu)
 					|| activeBranch == RootBranch.Work && WorkActions[i] == WheelWorkAction.MineTarget
-						&& nearbyOreMenu;
+						&& nearbyOreMenu
+					|| activeBranch == RootBranch.Commands && initiativeRulesMenu && CommandActions[i] == (questionSettingsMenu
+						? CompanionQuickAction.QuestionSettings : CompanionQuickAction.ResetInitiativeRules);
 				DrawNode(spriteBatch, position, hovered ? 41f * pulse : 36f, accent, hovered, active, BranchIcon(activeBranch, i));
 			}
 		}
-		if (rpsMenu && branch == RootBranch.Bond) {
-			Vector2 parent = BranchPosition(RootBranch.Bond, BondEmotes.Length, BondEmotes.Length + 1);
+		if (rpsMenu && branch == RootBranch.Games) {
+			Vector2 parent = BranchPosition(RootBranch.Games, 0, 1);
 			for (int i = 0; i < RpsMoves.Length; i++)
 				DrawNode(spriteBatch, Vector2.Lerp(parent, RpsPosition(i), reveal), 34f, accent,
 					hoverLayer == HoverLayer.Rps && hoverIndex == i, false,
@@ -842,16 +854,24 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		}
 		if (miningFilterMenu && branch == RootBranch.Work) DrawMiningFilter(spriteBatch, accent, reveal);
 		if (initiativeRulesMenu && branch == RootBranch.Commands) {
-			for (int i = 0; i < InitiativeRules.Length; i++) {
-				CompanionInitiativePolicy policy = i < 4
-					? companion.Profile.GetInitiativePolicy((CompanionInitiativeKind)i) : CompanionInitiativePolicy.Ask;
+			for (int i = 0; i < ActiveRules.Length; i++) {
+				if (questionSettingsMenu) {
+					CompanionQuestionCadence cadence = SoulboundCompanion.QuestionCadenceFor(ActiveRules[i])!.Value;
+					DrawNode(spriteBatch, InitiativeRulePosition(i), hoverLayer == HoverLayer.InitiativeRule && hoverIndex == i ? 36f : 32f,
+						accent, hoverLayer == HoverLayer.InitiativeRule && hoverIndex == i, companion.Profile.QuestionCadence == cadence,
+						new WheelIcon(IconKind.Emote, cadence switch {
+							CompanionQuestionCadence.Quiet => EmoteID.EmoteSleep,
+							CompanionQuestionCadence.Calm => EmoteID.EmotionLove, _ => EmoteID.EmoteLaugh
+						}));
+					continue;
+				}
+				CompanionInitiativePolicy policy = i < InitiativeRules.Length - 1
+					? companion.Profile.GetInitiativePolicy(CompanionAbilityRegistry.All[i].Kind) : CompanionInitiativePolicy.Ask;
 				DrawNode(spriteBatch, InitiativeRulePosition(i), hoverLayer == HoverLayer.InitiativeRule && hoverIndex == i ? 36f : 32f,
 					policy == CompanionInitiativePolicy.Never ? Color.Gray : accent,
 					hoverLayer == HoverLayer.InitiativeRule && hoverIndex == i, policy == CompanionInitiativePolicy.Always,
-					new WheelIcon(IconKind.Emote, i switch {
-						0 => EmoteID.ItemGoldpile, 1 => EmoteID.ItemPickaxe, 2 => EmoteID.MiscTree,
-						3 => EmoteID.ItemDiamondRing, _ => EmoteID.EmoteConfused
-					}));
+					new WheelIcon(IconKind.Emote, i < CompanionAbilityRegistry.All.Count
+						? CompanionAbilityRegistry.All[i].RuleEmote : EmoteID.EmoteConfused));
 			}
 		}
 		DrawCenter(spriteBatch, accent, pulse);
@@ -917,9 +937,11 @@ public sealed partial class CompanionWheelSystem : ModSystem
 			=> SoulmatesText.Get("UI.CompanionWheel.MiningFilter.Title"),
 		HoverLayer.MiningFilter => MiningFilterLabel(hoverIndex),
 		HoverLayer.OreTarget => OreTargetLabel(hoverIndex),
-		HoverLayer.InitiativeRule => hoverIndex >= 0 && hoverIndex < 4
-			? SoulmatesText.Get("UI.CompanionWheel.RuleState", SoulmatesText.EnumName((CompanionInitiativeKind)hoverIndex),
-				SoulmatesText.EnumName(companion!.Profile.GetInitiativePolicy((CompanionInitiativeKind)hoverIndex)))
+		HoverLayer.InitiativeRule when questionSettingsMenu && hoverIndex >= 0 && hoverIndex < QuestionRules.Length
+			=> SoulmatesText.EnumName(SoulboundCompanion.QuestionCadenceFor(QuestionRules[hoverIndex])!.Value),
+		HoverLayer.InitiativeRule => hoverIndex >= 0 && hoverIndex < InitiativeRules.Length - 1
+			? SoulmatesText.Get("UI.CompanionWheel.RuleState", SoulmatesText.EnumName(CompanionAbilityRegistry.All[hoverIndex].Kind),
+				SoulmatesText.EnumName(companion!.Profile.GetInitiativePolicy(CompanionAbilityRegistry.All[hoverIndex].Kind)))
 			: SoulmatesText.Get("UI.CompanionWheel.Actions.ResetInitiativeRules"),
 		_ => context == WheelContext.Contextual ? MouseModeLabel(MouseMode)
 			: context == WheelContext.World ? SoulmatesText.Get(worldPage == 0 ? "UI.CompanionWheel.PointTitle" : "UI.CompanionWheel.AreaTitle")
@@ -937,7 +959,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 			RootBranch.Work when index >= 0 && index < WorkActions.Length
 				=> SoulmatesText.Get($"UI.CompanionWheel.WorkActions.{WorkActions[index]}"),
 			RootBranch.Bond when index >= 0 && index < BondEmotes.Length => SoulmatesText.EnumName(BondEmotes[index]),
-			RootBranch.Bond when index == BondEmotes.Length => SoulmatesText.Get("Games.Rps.Title"),
+			RootBranch.Games when index == 0 => SoulmatesText.Get("Games.Rps.Title"),
 			RootBranch.Emotes when index >= 0 && index < ActiveNativeCategories.Length
 				=> SoulmatesText.Get(nativeItemGroups
 					? $"UI.CompanionWheel.ItemGroups.{ActiveNativeCategories[index].Key}"
@@ -982,6 +1004,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		RootBranch.Commands => new WheelIcon(IconKind.Emote, EmoteID.EmoteFight),
 		RootBranch.Work => new WheelIcon(IconKind.Emote, EmoteID.ItemPickaxe),
 		RootBranch.Bond => new WheelIcon(IconKind.Emote, EmoteID.EmotionLove),
+		RootBranch.Games => new WheelIcon(IconKind.Emote, EmoteID.RPSRock),
 		RootBranch.Emotes => new WheelIcon(IconKind.Emote, EmoteID.EmoteHappiness),
 		RootBranch.Pack => new WheelIcon(IconKind.Item, ItemID.PiggyBank),
 		RootBranch.Mailbox => new WheelIcon(IconKind.Item, ItemID.PaperAirplaneA),
@@ -1020,7 +1043,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 				WheelWorkAction.ForestTarget => new WheelIcon(IconKind.Item, ItemID.CopperAxe),
 				_ => new WheelIcon(IconKind.Item, ItemID.TreasureMagnet)
 			};
-		if (activeBranch == RootBranch.Bond && index == BondEmotes.Length)
+		if (activeBranch == RootBranch.Games && index == 0)
 			return new WheelIcon(IconKind.Emote, EmoteID.RPSScissors);
 		if (activeBranch == RootBranch.Bond && index >= 0 && index < BondEmotes.Length)
 			return new WheelIcon(IconKind.Emote, BondEmotes[index] switch {
@@ -1069,6 +1092,8 @@ public sealed partial class CompanionWheelSystem : ModSystem
 
 	private string QuickActionLabel(CompanionQuickAction action)
 	{
+		if (action == CompanionQuickAction.QuestionSettings)
+			return SoulmatesText.Get("UI.CompanionWheel.QuestionSettingsState", SoulmatesText.EnumName(companion!.Profile.QuestionCadence));
 		if (action == CompanionQuickAction.ResetInitiativeRules)
 			return SoulmatesText.Get("UI.CompanionWheel.InitiativeSettings");
 		if (action == CompanionQuickAction.ToggleAutonomy)
@@ -1080,7 +1105,8 @@ public sealed partial class CompanionWheelSystem : ModSystem
 	private int BranchNodeCount(RootBranch activeBranch) => activeBranch switch {
 		RootBranch.Critters => CritterActions.Length,
 		RootBranch.Commands => CommandActions.Length, RootBranch.Work => WorkActions.Length,
-		RootBranch.Bond => BondEmotes.Length + 1, RootBranch.Emotes => ActiveNativeCategories.Length, _ => 0
+		RootBranch.Bond => BondEmotes.Length, RootBranch.Games => 1,
+		RootBranch.Emotes => ActiveNativeCategories.Length, _ => 0
 	};
 
 	private int NativeNodeCount()
@@ -1133,7 +1159,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		float rootAngle = context == WheelContext.Player
 			? -MathHelper.PiOver2
 			: RootAngle(Array.IndexOf(ActiveRoots, activeBranch));
-		float angle = FanAngle(rootAngle, index, count, MathHelper.ToRadians(136f));
+		float angle = FanAngle(rootAngle, index, count, BranchSpread(activeBranch));
 		return center + angle.ToRotationVector2() * BranchRadius * LayoutScale;
 	}
 
@@ -1159,8 +1185,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 
 	private Vector2 RpsPosition(int index)
 	{
-		float rootAngle = RootAngle(Array.IndexOf(ActiveRoots, RootBranch.Bond));
-		float branchAngle = FanAngle(rootAngle, BondEmotes.Length, BondEmotes.Length + 1, MathHelper.ToRadians(136f));
+		float branchAngle = RootAngle(Array.IndexOf(ActiveRoots, RootBranch.Games));
 		float angle = FanAngle(branchAngle, index, RpsMoves.Length, MathHelper.ToRadians(90f));
 		return center + angle.ToRotationVector2() * NativeRadius * LayoutScale;
 	}
@@ -1168,9 +1193,10 @@ public sealed partial class CompanionWheelSystem : ModSystem
 	private Vector2 InitiativeRulePosition(int index)
 	{
 		float rootAngle = RootAngle(Array.IndexOf(ActiveRoots, RootBranch.Commands));
-		float branchAngle = FanAngle(rootAngle, Array.IndexOf(CommandActions, CompanionQuickAction.ResetInitiativeRules),
-			CommandActions.Length, MathHelper.ToRadians(136f));
-		float angle = FanAngle(branchAngle, index, InitiativeRules.Length, MathHelper.ToRadians(132f));
+		float branchAngle = FanAngle(rootAngle, Array.IndexOf(CommandActions, questionSettingsMenu
+			? CompanionQuickAction.QuestionSettings : CompanionQuickAction.ResetInitiativeRules),
+			CommandActions.Length, BranchSpread(RootBranch.Commands));
+		float angle = FanAngle(branchAngle, index, ActiveRules.Length, MathHelper.ToRadians(132f));
 		return center + angle.ToRotationVector2() * NativeRadius * LayoutScale;
 	}
 
@@ -1183,6 +1209,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		return center + angle.ToRotationVector2() * NativeRadius * LayoutScale;
 	}
 
+	private static float BranchSpread(RootBranch branch) => MathHelper.ToRadians(branch == RootBranch.Commands ? 160f : 136f);
 	private float RootAngle(int index) => -MathHelper.PiOver2 + MathHelper.TwoPi * index / ActiveRoots.Length;
 	private static float FanAngle(float centerAngle, int index, int count, float spread)
 		=> count <= 1 ? centerAngle : centerAngle - spread * 0.5f + spread * index / (count - 1f);

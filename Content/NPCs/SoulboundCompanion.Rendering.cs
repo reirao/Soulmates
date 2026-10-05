@@ -49,8 +49,7 @@ public sealed partial class SoulboundCompanion
 	public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
 	{
 		CompanionMuse muse = Enum.IsDefined(Profile.Muse) ? Profile.Muse : CompanionMuse.Soulkin;
-		bool actionFrame = guardianTarget >= 0 || activeJob != CompanionJob.None
-			|| autonomyActivity != AutonomyActivity.None || NPC.velocity.LengthSquared() > 20f;
+		bool actionFrame = actionAnimationTicks > 0;
 		Texture2D texture = CompanionVisuals.GetTexture(muse, actionFrame);
 		Rectangle source = CompanionVisuals.GetFrame(muse, texture, actionFrame);
 		Vector2 center = NPC.Center - screenPos + new Vector2(0f, IdleBob() * 0.18f) + EmoteDrawOffset();
@@ -150,13 +149,7 @@ public sealed partial class SoulboundCompanion
 	{
 		if (opacity <= 0.01f)
 			return;
-		Vector2 viewport = SoulmatesUISpace.Viewport;
-		Vector2 position = new(anchor.X + speechSide * (speechSize.X * 0.5f + 36f) - speechSize.X * 0.5f,
-			anchor.Y - 88f - speechSize.Y);
-		if (position.Y < 52f)
-			position.Y = anchor.Y + 64f;
-		position.X = Math.Clamp(position.X, 8f, Math.Max(8f, viewport.X - speechSize.X - 8f));
-		position.Y = Math.Clamp(position.Y, 52f, Math.Max(52f, viewport.Y - speechSize.Y - 10f));
+		Vector2 position = SpeechBubblePosition(anchor, speechSize, SoulmatesUISpace.Viewport, speechSide);
 		Rectangle background = new((int)position.X, (int)position.Y, (int)speechSize.X, (int)speechSize.Y);
 		Texture2D pixel = TextureAssets.MagicPixel.Value;
 		if (drawTail) {
@@ -184,6 +177,10 @@ public sealed partial class SoulboundCompanion
 			Utils.DrawBorderString(spriteBatch, speechLines[i], position + new Vector2(12f, 27f + i * 28.75f * speechTextScale),
 				Color.White * opacity, speechTextScale);
 	}
+
+	internal static Vector2 SpeechBubblePosition(Vector2 anchor, Vector2 size, Vector2 viewport, float side) => new(
+		Math.Clamp(anchor.X + side * (size.X * 0.5f + 36f) - size.X * 0.5f, 8f, Math.Max(8f, viewport.X - size.X - 8f)),
+		Math.Clamp(anchor.Y - 88f - size.Y, 52f, Math.Max(52f, viewport.Y - size.Y - 10f)));
 
 	private void DrawJobOrbit(SpriteBatch spriteBatch, Vector2 center)
 	{

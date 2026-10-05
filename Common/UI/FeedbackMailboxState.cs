@@ -153,11 +153,7 @@ public sealed class FeedbackMailboxState : UIState
 		bool saved;
 		if (mailKind == MailKind.Bug)
 			saved = SoulmatesFeedbackSystem.RecordBug(input.Text);
-		else {
-			SoulmatesFeedbackSystem.RecordNote(input.Text);
-			SoulmatesFeedbackSystem.Flush();
-			saved = string.IsNullOrEmpty(SoulmatesFeedbackSystem.LastError);
-		}
+		else saved = SoulmatesFeedbackSystem.RecordNote(input.Text);
 		if (!saved) {
 			SetStatus(SoulmatesText.Get("Feedback.Error", SoulmatesFeedbackSystem.LastError), Color.IndianRed);
 			SoundEngine.PlaySound(SoundID.MenuClose);

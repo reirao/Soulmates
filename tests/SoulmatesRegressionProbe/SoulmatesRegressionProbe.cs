@@ -89,7 +89,7 @@ public sealed partial class EngineChecks : ModSystem
 		}
 		try {
 			Mod soulmates = ModLoader.GetMod("Soulmates");
-			Version expectedVersion = Version.Parse(Environment.GetEnvironmentVariable("SOULMATES_EXPECTED_TEST_VERSION") ?? "0.19.3");
+			Version expectedVersion = Version.Parse(Environment.GetEnvironmentVariable("SOULMATES_EXPECTED_TEST_VERSION") ?? "0.20.0");
 			Check(soulmates.Version == expectedVersion, "Wrong packaged version: " + soulmates.Version);
 			Check(!soulmates.FileExists("icon_small.rawimg") && !soulmates.FileExists("icon_small.png"),
 				"Optional mini-icon reintroduced the installed packer's exhausted-stream conversion");
@@ -122,7 +122,14 @@ public sealed partial class EngineChecks : ModSystem
 			CheckNature(Check);
 			CheckSaplingPlacement(Check);
 			CheckChoiceConversation(Check, soulmates);
+			CheckAnswerableMoments(Check);
+			CheckGentleEncounters(Check);
 			CheckCritterModes(Check);
+			CheckGamesAndCritters(Check);
+			CheckAbilityRegistry(Check);
+			CheckActivityDispatch(Check);
+			CheckTreeContext(Check);
+			CheckCritterPermissions(Check);
 			CheckResidentConversation(Check);
 			CheckLivingBehavior(Check);
 			foreach (string culture in SupportedCultures) {
@@ -300,7 +307,7 @@ public sealed partial class EngineChecks : ModSystem
 			object Get(string field) => type.GetField(field, flags)!.GetValue(companion)!;
 			void Tick() => type.GetMethod("UpdateAttentionClock", flags)!.Invoke(companion, null);
 			bool Ask() => (bool)type.GetMethod("ConsiderInitiative", flags)!.Invoke(companion,
-				new object[] { Activity(1), 10, Point.Zero, Forest(0) })!;
+				new object?[] { Activity(1), 10, Point.Zero, Forest(0), null })!;
 			Item Drop(int count = 7) => new Item(ItemID.Gel, count) {
 				active = true, playerIndexTheItemIsReservedFor = 255, position = new Vector2(450f, 400f)
 			};
@@ -308,12 +315,12 @@ public sealed partial class EngineChecks : ModSystem
 			check(!Ask() && companion.HasPendingInitiative, "Ask did not wait for an answer");
 			check((int)Get("autonomyDecisionTimer") < 3600, "Prompt incurred a full minute of decision debt");
 			Main.item[10] = Drop();
-			check(!companion.RespondToInitiative(CompanionInitiativeResponse.Always), "Reused world-item slot accepted stale Yes");
+			check(!companion.RespondToInitiative(companion.InitiativeId, CompanionInitiativeResponse.Always), "Reused world-item slot accepted stale Yes");
 			check(companion.Profile.GatheringInitiative == CompanionInitiativePolicy.Ask,
 				"Stale answer changed saved permission");
 			((CompanionAttention)Get("attention")).Reset();
 			Ask();
-			check(companion.RespondToInitiative(CompanionInitiativeResponse.Yes), "Valid answer did not start work");
+			check(companion.RespondToInitiative(companion.InitiativeId, CompanionInitiativeResponse.Yes), "Valid answer did not start work");
 			check(!companion.HasPendingInitiative && Convert.ToInt32(Get("autonomyActivity")) == 1,
 				"Accepted work retained pending prompt");
 			companion.PerformQuickAction(CompanionQuickAction.GatheringPolicy);
@@ -342,7 +349,7 @@ public sealed partial class EngineChecks : ModSystem
 			((CompanionAttention)Get("attention")).Reset();
 			Ask();
 			companion.Profile.Energy = 15;
-			check(!companion.RespondToInitiative(CompanionInitiativeResponse.Yes), "Low energy accepted stale permission");
+			check(!companion.RespondToInitiative(companion.InitiativeId, CompanionInitiativeResponse.Yes), "Low energy accepted stale permission");
 			companion.Profile.Energy = 100;
 			((CompanionAttention)Get("attention")).Reset();
 			Ask();
@@ -353,7 +360,7 @@ public sealed partial class EngineChecks : ModSystem
 			((CompanionAttention)Get("attention")).Reset();
 			Ask();
 			companion.Profile.AutonomyEnabled = false;
-			check(!companion.RespondToInitiative(CompanionInitiativeResponse.Always), "Disabled autonomy accepted an automatic order");
+			check(!companion.RespondToInitiative(companion.InitiativeId, CompanionInitiativeResponse.Always), "Disabled autonomy accepted an automatic order");
 
 			int energy = companion.Profile.Energy, experience = companion.Profile.Experience;
 			Set("activeJob", CompanionJob.Mine);
@@ -512,7 +519,7 @@ public sealed partial class EngineChecks : ModSystem
 				var companion = (SoulboundCompanion)npc.ModNPC;
 				companion.Profile.Name = "AETHER";
 				typeof(SoulboundCompanion).GetField("speechTimer", flags)!.SetValue(companion, 1000);
-				bool Catch() => (bool)typeof(SoulboundCompanion).GetMethod("TryCatchNearbyInsect", flags)!.Invoke(companion, null)!;
+				bool Catch() => (bool)typeof(SoulboundCompanion).GetMethod("TryCatchCritter", flags)!.Invoke(companion, new object?[] { true, null })!;
 				void ResetCooldown() => typeof(SoulboundCompanion).GetField("insectCatchCooldown", flags)!.SetValue(companion, 0);
 				var insect = new NPC { whoAmI = 19 };
 				insect.SetDefaults(NPCID.Firefly);
@@ -521,8 +528,9 @@ public sealed partial class EngineChecks : ModSystem
 				Main.npc[19] = insect;
 				int catchType = insect.catchItem;
 				check(CompanionInsects.CanCatch(insect), "Natural firefly was excluded");
-				check(!Catch() && insect.active, "AETHER caught an insect without a carried net");
-				companion.Profile.Store(new Item(ItemID.BugNet));
+				var baselineNet = (Item)typeof(SoulboundCompanion).GetMethod("EffectiveCritterNet", flags)!.Invoke(companion, null)!;
+				check(baselineNet.type == ItemID.BugNet && companion.Profile.ItemCount(ItemID.BugNet) == 0,
+					"Built-in net was missing or appeared as withdrawable cargo");
 				ResetCooldown();
 				insect.SpawnedFromStatue = true;
 				check(!Catch() && insect.active, "Caught a statue-spawned insect");
@@ -548,7 +556,7 @@ public sealed partial class EngineChecks : ModSystem
 				check(!Catch() && insect.active, "Full cargo consumed a living insect");
 				companion.Profile.Name = "Luma";
 				ResetCooldown();
-				check(!Catch() && insect.active, "Non-AETHER companion gained insect collection");
+					check(!Catch() && insect.active, "Changing a companion name bypassed full insect cargo");
 				companion.Profile.Name = "AETHER";
 				bool oldDedicated = Main.dedServ;
 				Main.dedServ = false;
@@ -654,7 +662,11 @@ public sealed partial class EngineChecks : ModSystem
 				sigil.Profile = companion.Profile.Clone();
 				void Set(string field, object value) => type.GetField(field, flags)!.SetValue(companion, value);
 				void Tick(string method) => type.GetMethod(method, flags)!.Invoke(companion, null);
-				bool Begin(CompanionQuestion question) => (bool)type.GetMethod("BeginChoiceQuestion", flags)!.Invoke(companion, new object[] { question })!;
+				bool Begin(CompanionQuestion question) {
+					SettleServerInventory(mod);
+					Set("personalQuestionCooldown", 0);
+					return (bool)type.GetMethod("BeginChoiceQuestion", flags)!.Invoke(companion, new object[] { question })!;
+				}
 				void Wallet(BigInteger amount) {
 					TagCompound saved = companion.Profile.Save(); saved["walletCopper"] = amount.ToString();
 					companion.Profile = CompanionProfile.Load(saved);
@@ -704,9 +716,12 @@ public sealed partial class EngineChecks : ModSystem
 					if (mode == NetmodeID.Server) continue;
 					Begin(CompanionQuestion.Company);
 					promptType.GetField("companion", flags)!.SetValue(prompt, companion);
+					promptType.GetField("openProfileId", flags)!.SetValue(prompt, companion.Profile.Id);
 					promptType.GetField("conversation", flags)!.SetValue(prompt, true);
 					promptType.GetField("openQuestionId", flags)!.SetValue(prompt, companion.QuestionId);
+					Main.myPlayer = 0;
 					promptType.GetMethod("Respond", flags)!.Invoke(prompt, new object[] { index });
+					Main.myPlayer = 255;
 					check(!companion.HasPendingQuestion, "Radial answer did not reach the companion: " + index);
 					if (index < 3) check(companion.Profile.Voice == (index == 0 ? CompanionVoice.Direct
 						: index == 1 ? CompanionVoice.Playful : CompanionVoice.Soft), "Radial answer changed the wrong preference: " + index);
@@ -720,7 +735,10 @@ public sealed partial class EngineChecks : ModSystem
 				companion.SetCommand(stay: false);
 				Begin(CompanionQuestion.Company); Set("guardianTarget", 21);
 				Tick("UpdateChoiceConversation");
-				check(!companion.HasPendingQuestion, "Conversation blocked combat"); Set("guardianTarget", -1);
+				check(companion.HasPendingQuestion && !companion.RespondToQuestion(companion.QuestionId, CompanionAnswer.First),
+					"Combat discarded a question or allowed its answer to interrupt defense");
+				Set("guardianTarget", -1);
+				companion.RespondToQuestion(companion.QuestionId, CompanionAnswer.Later);
 
 				Wallet(1234567);
 				companion.Profile.Store(new Item(ItemID.Gel, 7));
@@ -794,7 +812,7 @@ public sealed partial class EngineChecks : ModSystem
 				companion.PerformQuickAction(CompanionQuickAction.GatheringPolicy);
 				companion.Profile.GatheringInitiative = CompanionInitiativePolicy.Always;
 				if (mode == NetmodeID.Server) {
-					Set("walletQuestionCooldown", 0); Set("companyQuestionCooldown", 1000);
+					Set("walletQuestionCooldown", 0); Set("companyQuestionCooldown", 1000); Set("personalQuestionCooldown", 0);
 					Set("lastOfferedWallet", BigInteger.Zero); Set("speechTimer", 0);
 					Tick("UpdateChoiceConversation");
 					check(companion.PendingQuestion == CompanionQuestion.Wallet, "Accumulated coins did not trigger an automatic offer");
@@ -897,9 +915,9 @@ public sealed partial class EngineChecks : ModSystem
 				check(CompanionProfile.Load(legacy).CritterMode == CompanionCritterMode.Watch, "Legacy Sigil enabled catching by default");
 				var invalid = new CompanionProfile { CritterMode = (CompanionCritterMode)255 }; invalid.Normalize();
 				check(invalid.CritterMode == CompanionCritterMode.Watch, "Invalid critter mode survived normalization");
-				check(!companion.PerformQuickAction(CompanionQuickAction.CritterCollect).Accepted
-					&& companion.Profile.CritterMode == CompanionCritterMode.Watch, "Collect activated without a carried net");
-				companion.Profile.Store(new Item(ItemID.BugNet));
+				check(companion.PerformQuickAction(CompanionQuickAction.CritterCollect).Accepted
+					&& companion.Profile.CritterMode == CompanionCritterMode.Collect && companion.Profile.ItemCount(ItemID.BugNet) == 0,
+					"Collect could not activate with the built-in net or fabricated equipment");
 				check(companion.PerformQuickAction(CompanionQuickAction.CritterCollect).Accepted
 					&& ((SoulboundSigil)owner.inventory[0].ModItem).Profile.CritterMode == CompanionCritterMode.Collect,
 					"Collect choice was not saved to the bound Sigil");
@@ -917,7 +935,7 @@ public sealed partial class EngineChecks : ModSystem
 				}
 				check(!CompanionCritters.IsCommon(Critter(19, NPCID.GoldBunny)), "Gold critter lost its automatic-catch protection");
 				Critter(19, NPCID.GoldButterfly); companion.Profile.Name = "AETHER"; ResetCatch();
-				check(!(bool)typeof(SoulboundCompanion).GetMethod("TryCatchNearbyInsect", flags)!.Invoke(companion, null)!
+				check(!(bool)typeof(SoulboundCompanion).GetMethod("TryCatchCritter", flags)!.Invoke(companion, new object?[] { true, null })!
 					&& Main.npc[19].active, "Forestry's insect shortcut bypassed gold-critter protection");
 				companion.Profile.Name = "Luma";
 				NPC lava = Critter(19, NPCID.Lavafly);
@@ -941,11 +959,13 @@ public sealed partial class EngineChecks : ModSystem
 					"Queued first greeting did not speak after the existing line ended");
 				Set("critterNoticeCooldown", 0);
 				Set("critterWatchCooldown", 0); Set("speechTimer", 0); Set("greetedCritter", null!);
+				typeof(SoulboundCompanion).GetMethod("ClearNativeExpression", flags)!.Invoke(companion, null);
 				Watch();
 				check((string)Get("speechText") == SoulmatesText.Get($"Social.Critters.Greeting.{companion.Profile.Personality}", bunny.TypeName),
 					"First critter observation did not greet it");
 				Set("activeJob", CompanionJob.None);
 				companion.PerformQuickAction(CompanionQuickAction.CritterCompany);
+				companion.Profile.CritterCompanyInitiative = CompanionInitiativePolicy.Always;
 				var company = bunny.GetGlobalNPC<CompanionCritterCompany>();
 				Set("activeJob", CompanionJob.Mine); Set("speechTimer", 600);
 				Watch();
@@ -967,7 +987,7 @@ public sealed partial class EngineChecks : ModSystem
 				check(Join(second) && Join(Critter(17, NPCID.Firefly)) && !Join(Critter(16)), "AETHER company limit was not three");
 				int health = bunny.life, style = bunny.aiStyle, drop = bunny.catchItem;
 				Vector2 position = bunny.position;
-				npc.Center += new Vector2(140, 0); bunny.velocity = Vector2.Zero;
+				npc.Center += new Vector2(180, 0); bunny.velocity = Vector2.Zero;
 				bunny.AI();
 				check(bunny.velocity.X > 0 && bunny.position == position && bunny.life == health && bunny.aiStyle == style
 					&& bunny.catchItem == drop && !bunny.noTileCollide, "Company replaced native physics, health or drop rules");
@@ -1211,12 +1231,12 @@ public sealed partial class EngineChecks : ModSystem
 					.Invoke(bunny.GetGlobalNPC<CompanionCritterCompany>(), new object[] { mate })!,
 					"Full low-energy AI never reached the directly invited critter");
 				mate.PerformQuickAction(CompanionQuickAction.CritterOff); bunny = Critter(19);
-				check(!((CompanionConversationResult)Call("PerformNpcContext", CompanionNpcAction.Collect, 19, NPCID.Bunny)!).Accepted && bunny.active,
-					"Clicked Collect caught without a real carried net");
-				mate.Profile.Store(new Item(ItemID.BugNet)); NPC other = Critter(18);
+				check(((CompanionConversationResult)Call("PerformNpcContext", CompanionNpcAction.Collect, 19, NPCID.Bunny)!).Accepted && bunny.active
+					&& mate.Profile.ItemCount(ItemID.BugNet) == 0, "Clicked Collect rejected the built-in net or fabricated equipment");
+				NPC other = Critter(18);
 				Set("insectCatchCooldown", 0);
 				check(((CompanionConversationResult)Call("PerformNpcContext", CompanionNpcAction.Collect, 19, NPCID.Bunny)!).Accepted,
-					"Clicked Collect did not start with a real net");
+					"Clicked Collect did not start with the built-in net");
 				npc.AI();
 				check(!bunny.active && other.active && mate.Profile.ItemCount(ItemID.Bunny) == 1,
 					"Targeted native catch took a different critter or failed its real cargo transaction");
@@ -1536,8 +1556,9 @@ public sealed partial class EngineChecks : ModSystem
 			check(!lines[0].Contains("tile_x") && !lines[0].Contains("tile_y") && lines[0].Contains("item_type"),
 				"Field notes retained exact coordinates or dropped useful item metadata");
 			string note = new('n', 360);
-			SoulmatesFeedbackSystem.RecordNote(note);
-			check(lines[1].Contains(note), "Mailbox note was silently truncated below its 360-character input limit");
+			check(SoulmatesFeedbackSystem.RecordNote(note)
+				&& File.ReadAllLines(Path.Combine(SoulmatesFeedbackSystem.FeedbackFolder, "notes-inbox.jsonl")).Last().Contains(note),
+				"Durable mailbox note was silently truncated below its 360-character input limit");
 		}
 		finally {
 			active.SetValue(null, oldActive); sequence.SetValue(null, oldSequence);
@@ -1553,6 +1574,7 @@ public sealed partial class EngineChecks : ModSystem
 		int oldMode = Main.netMode, oldMyPlayer = Main.myPlayer;
 		bool oldServerCharacters = Main.ServerSideCharacter;
 		ISocket oldSocket = Netplay.Clients[0].Socket;
+		ISocket oldClientSocket = Netplay.Connection.Socket;
 		int oldState = Netplay.Clients[0].State;
 		NPC oldNpc = Main.npc[20];
 		try {
@@ -1583,6 +1605,7 @@ public sealed partial class EngineChecks : ModSystem
 			Main.myPlayer = 255;
 			Main.netMode = NetmodeID.Server;
 			Netplay.Clients[0].Socket = new ProbeSocket();
+			Netplay.Connection.Socket = new ProbeSocket();
 			Netplay.Clients[0].State = 10;
 			ProbeSocket.Sent.Clear(); ProbeSocket.Recording = true;
 			Type messageType = mod.GetType().GetNestedType("MessageType", BindingFlags.NonPublic)!;
@@ -1596,7 +1619,6 @@ public sealed partial class EngineChecks : ModSystem
 				using var reader = new BinaryReader(request);
 				mod.HandlePacket(reader, 0);
 			}
-			ProbeSocket.Recording = false;
 			check(server.inventory[1].ModItem is SoulboundSigil && server.inventory[5].stack == 2,
 				"Server creation did not produce one orb and consume one blank");
 			check(ProbeSocket.Sent.Count > 0, "Creation transport fixture captured no actual packets");
@@ -1608,18 +1630,8 @@ public sealed partial class EngineChecks : ModSystem
 			RecoveryPacketSpy.Packets.Clear();
 			using var header = mod.GetPacket();
 			int payloadOffset = (int)header.BaseStream.Position;
-			foreach (byte[] packet in ProbeSocket.Sent) {
-				if (packet[2] == MessageID.SyncEquipment) {
-					Array.Copy(packet, 2, native.readBuffer, 0, packet.Length - 2);
-					native.GetData(0, packet.Length - 2, out _);
-				}
-				else if (packet[2] == MessageID.ModPacket) {
-					using var stream = new MemoryStream(packet);
-					stream.Position = payloadOffset;
-					using var reader = new BinaryReader(stream);
-					mod.HandlePacket(reader, 256);
-				}
-			}
+			FlushInventoryPackets(mod, server, client, payloadOffset);
+			ProbeSocket.Recording = false;
 			check(client.inventory[1].ModItem is SoulboundSigil delivered
 				&& server.inventory[1].ModItem is SoulboundSigil created && delivered.Profile.Id == created.Profile.Id,
 				"Successful multiplayer creation never delivered the bound orb to its owning client");
@@ -1632,9 +1644,9 @@ public sealed partial class EngineChecks : ModSystem
 				&& cached.Profile.Id == ((SoulboundSigil)client.inventory[1].ModItem).Profile.Id
 				&& Main.clientPlayer.inventory[5].stack == 2,
 				"Delivered creation did not update the native client inventory cache");
-			check(RecoveryPacketSpy.Packets.Count == 2 && RecoveryPacketSpy.Packets.TrueForAll(packet =>
-				packet.Type == MessageID.SyncEquipment && packet.Player == 0 && packet.Amount is 1 or 5),
-				"Owner did not acknowledge exactly the two changed creation slots");
+			byte receiptType = Convert.ToByte(Enum.Parse(messageType, "InventoryReceipt"));
+			check(ProbeSocket.Sent.Count(packet => packet[2] == MessageID.ModPacket && packet[payloadOffset] == receiptType) == 1,
+				"Owner did not acknowledge the atomic creation transaction exactly once");
 			Item savedOrb = ItemIO.Load(ItemIO.Save(client.inventory[1]));
 			check(savedOrb.ModItem is SoulboundSigil saved && saved.Profile.Id == ((SoulboundSigil)client.inventory[1].ModItem).Profile.Id,
 				"Delivered orb did not survive native item save/load");
@@ -1657,17 +1669,13 @@ public sealed partial class EngineChecks : ModSystem
 			RecoveryPacketSpy.Watching = false;
 			ProbeSocket.Sent.Clear(); ProbeSocket.Recording = true;
 			companion.WithdrawStorageSlot(CompanionStorage.Wallet, 3, true);
+			FlushInventoryPackets(mod, server, client, payloadOffset);
+			ProbeSocket.Sent.Clear();
+			Main.player[0] = server; Main.myPlayer = 255; Main.netMode = NetmodeID.Server;
 			companion.WithdrawStorageSlot(CompanionStorage.Resources, 0, true);
-			ProbeSocket.Recording = false;
-			Main.player[0] = client; Main.myPlayer = 0; Main.netMode = NetmodeID.MultiplayerClient;
 			RecoveryPacketSpy.Watching = true;
-			foreach (byte[] packet in ProbeSocket.Sent) {
-				if (packet[2] != MessageID.ModPacket) continue;
-				using var stream = new MemoryStream(packet);
-				stream.Position = payloadOffset;
-				using var reader = new BinaryReader(stream);
-				mod.HandlePacket(reader, 256);
-			}
+			FlushInventoryPackets(mod, server, client, payloadOffset);
+			ProbeSocket.Recording = false;
 			int gel = 0, copper = 0;
 			foreach (Item item in client.inventory) {
 				if (item.type == ItemID.Gel) gel += item.stack;
@@ -1685,14 +1693,18 @@ public sealed partial class EngineChecks : ModSystem
 				using var stream = new MemoryStream();
 				using (var writer = new BinaryWriter(stream, Encoding.UTF8, true)) {
 					writer.Write(updateType);
+					writer.Write(Guid.NewGuid().ToByteArray());
 					writer.Write((byte)(invalid == "too_many" ? 59 : invalid == "cursor" ? 1 : 2));
 					if (invalid == "cursor") writer.Write((byte)58);
 					else if (invalid != "too_many") {
-						writer.Write((byte)27); ItemIO.Send(new Item(ItemID.StoneBlock, 99), writer, writeStack: true, writeFavorite: true);
+						writer.Write((byte)27); ItemIO.Send(new Item(ItemID.Gel, 7), writer, writeStack: true, writeFavorite: true);
+						ItemIO.Send(new Item(ItemID.StoneBlock, 99), writer, writeStack: true, writeFavorite: true);
 						if (invalid == "duplicate") {
-							writer.Write((byte)27); ItemIO.Send(new Item(ItemID.Wood, 4), writer, writeStack: true, writeFavorite: true);
+							writer.Write((byte)27); ItemIO.Send(new Item(ItemID.Gel, 7), writer, writeStack: true, writeFavorite: true);
+							ItemIO.Send(new Item(ItemID.Wood, 4), writer, writeStack: true, writeFavorite: true);
 						}
 					}
+					writer.Write(false);
 				}
 				stream.Position = 0;
 				using var reader = new BinaryReader(stream);
@@ -1709,6 +1721,8 @@ public sealed partial class EngineChecks : ModSystem
 		}
 		finally {
 			ProbeSocket.Recording = false; ProbeSocket.Sent.Clear(); RecoveryPacketSpy.Watching = false;
+			ResetInventoryTransactions();
+			Netplay.Connection.Socket = oldClientSocket;
 			Main.player[0] = oldPlayer; Main.clientPlayer = oldClientPlayer;
 			Main.netMode = oldMode; Main.myPlayer = oldMyPlayer; Main.ServerSideCharacter = oldServerCharacters;
 			Netplay.Clients[0].Socket = oldSocket; Netplay.Clients[0].State = oldState;
@@ -1810,9 +1824,13 @@ public sealed partial class EngineChecks : ModSystem
 			var prompt = ModContent.GetInstance<InitiativePromptSystem>();
 			typeof(SoulboundCompanion).GetField("pendingAutonomyActivity", flags)!.SetValue(companion,
 				Enum.ToObject(typeof(SoulboundCompanion).GetField("pendingAutonomyActivity", flags)!.FieldType, 1));
+			Guid initiativeToken = Guid.NewGuid();
+			typeof(SoulboundCompanion).GetField("initiativeId", flags)!.SetValue(companion, initiativeToken);
+			typeof(SoulboundCompanion).GetField("pendingInitiativeTimer", flags)!.SetValue(companion, 3600);
 			typeof(InitiativePromptSystem).GetField("replyWaitTicks", flags)!.SetValue(prompt, 600);
 			typeof(InitiativePromptSystem).GetField("replyProfileId", flags)!.SetValue(prompt, companion.Profile.Id);
 			typeof(InitiativePromptSystem).GetField("replyKind", flags)!.SetValue(prompt, CompanionInitiativeKind.Gathering);
+			typeof(InitiativePromptSystem).GetField("replyInitiativeId", flags)!.SetValue(prompt, initiativeToken);
 			MethodInfo awaiting = typeof(InitiativePromptSystem).GetMethod("IsAwaitingReply", flags)!;
 			check((bool)awaiting.Invoke(prompt, new object[] { companion })!, "Answered prompt was allowed to reopen before server acknowledgement");
 			typeof(SoulboundCompanion).GetField("pendingAutonomyActivity", flags)!.SetValue(companion,
@@ -1933,13 +1951,19 @@ public sealed partial class EngineChecks : ModSystem
 			check(Defend(), "Follow did not switch defense back to the owner");
 			Main.netMode = NetmodeID.Server;
 			Main.myPlayer = 255;
-			MethodInfo requestCompanion = mod.GetType().GetMethod("FindRequestCompanion", BindingFlags.Static | BindingFlags.NonPublic)!;
+			MethodInfo requestCompanion = mod.GetType().GetMethod("FindRequestCompanion", BindingFlags.Static | BindingFlags.NonPublic,
+				null, new[] { typeof(Player) }, null)!;
 			check(ReferenceEquals(requestCompanion.Invoke(null, new object[] { owner }), companion),
 				"Valid carried companion was rejected by the request boundary");
 			owner.inventory[0] = new Item();
 			bool autonomyBefore = companion.Profile.AutonomyEnabled;
 			byte quickAction = Convert.ToByte(Enum.Parse(mod.GetType().GetNestedType("MessageType", BindingFlags.NonPublic)!, "QuickActionRequest"));
-			using (var stream = new MemoryStream(new byte[] { quickAction, (byte)CompanionQuickAction.ToggleAutonomy })) {
+			using (var stream = new MemoryStream()) {
+				using (var writer = new BinaryWriter(stream, Encoding.UTF8, true)) {
+					writer.Write(quickAction); writer.Write(companion.Profile.Id.ToByteArray());
+					writer.Write((byte)CompanionQuickAction.ToggleAutonomy);
+				}
+				stream.Position = 0;
 				using var reader = new BinaryReader(stream);
 				mod.HandlePacket(reader, 0);
 			}
@@ -2412,6 +2436,14 @@ public sealed partial class EngineChecks : ModSystem
 			check(!wheel.IsOpen && !(bool)queued.GetValue(controls)!, "Native empty-air right-click opened a mod wheel");
 			Aim(new Vector2(32 * 16 + 8, 28 * 16 + 8)); Queue(); Flush();
 			check(!wheel.IsOpen && !(bool)queued.GetValue(controls)!, "Native furniture right-click opened a mod wheel");
+			foreach (Vector2 overlap in new[] { player.Center, companion.NPC.Center, Main.item[10].Center }) {
+				Point tilePosition = overlap.ToTileCoordinates();
+				Tile torch = Main.tile[tilePosition.X, tilePosition.Y];
+				torch.HasTile = true; torch.TileType = TileID.Torches;
+				Aim(new Vector2(tilePosition.X * 16 + 8, tilePosition.Y * 16 + 8)); Queue(); Flush();
+				check(!wheel.IsOpen && !(bool)queued.GetValue(controls)!, "Placed torch lost native priority to a nearby wheel hitbox");
+				torch.HasTile = false;
+			}
 			Aim(Main.item[10].Center); Queue(); Flush();
 			check(wheel.IsOpen && Actions().Contains("Gather") && wheel.MouseMode == SoulwheelMouseMode.Terraria,
 				"Default drop right-click did not open the actual target context");
@@ -2452,6 +2484,66 @@ public sealed partial class EngineChecks : ModSystem
 			MethodInfo modePosition = typeof(CompanionWheelSystem).GetMethod("MouseModePosition", flags)!;
 			MethodInfo findHover = typeof(CompanionWheelSystem).GetMethod("FindHoveredNode", flags)!;
 			MethodInfo activateHover = typeof(CompanionWheelSystem).GetMethod("ActivateHovered", flags)!;
+			float questionScale = Main.UIScale; string questionCulture = Language.ActiveCulture.Name;
+			object questionWidth = inputWidth.GetValue(null)!, questionHeight = inputHeight.GetValue(null)!;
+			try {
+				foreach (string culture in SupportedCultures)
+				foreach (float scale in new[] { 0.85f, 1f, 1.5f })
+				foreach ((int width, int height) in new[] { (640, 360), (800, 600), (1280, 720), (1920, 1080) }) {
+					Main.UIScale = scale; LanguageManager.Instance.SetLanguage(culture);
+					inputWidth.SetValue(null, width); inputHeight.SetValue(null, height);
+					wheel.Open(companion);
+					wheelType.GetMethod("ActivateRoot", flags)!.Invoke(wheel, new object[] { Enum.Parse(branchType, "Commands") });
+					wheelType.GetMethod("ActivateBranch", flags)!.Invoke(wheel, new object[] { Array.IndexOf(commandActions, CompanionQuickAction.QuestionSettings) });
+					foreach (int index in new[] { 0, 2, 1 }) {
+						Vector2 position = (Vector2)wheelType.GetMethod("InitiativeRulePosition", flags)!.Invoke(wheel, new object[] { index })!;
+						PlayerInput.MouseX = (int)(position.X * Main.UIScale); PlayerInput.MouseY = (int)(position.Y * Main.UIScale);
+						findHover.Invoke(wheel, null);
+						check(wheelType.GetField("hoverLayer", flags)!.GetValue(wheel)!.ToString() == "InitiativeRule"
+							&& (int)wheelType.GetField("hoverIndex", flags)!.GetValue(wheel)! == index,
+							"Personal-question symbol did not own its native click target: " + width + "/" + scale);
+						check(!((string)wheelType.GetMethod("HoverLabel", flags)!.Invoke(wheel, null)!).StartsWith("Mods."),
+							"Question symbol displayed a localization key instead of its label: " + culture);
+						activateHover.Invoke(wheel, null);
+						check(companion.Profile.QuestionCadence == (CompanionQuestionCadence)index,
+							"Personal-question symbol did not change its actual setting");
+					}
+					wheelType.GetMethod("StepBack", flags)!.Invoke(wheel, null);
+					check(!(bool)wheelType.GetField("questionSettingsMenu", flags)!.GetValue(wheel)!
+						&& wheelType.GetField("branch", flags)!.GetValue(wheel)!.ToString() == "Commands",
+						"Question Back left Commands or retained its child menu");
+					wheelType.GetMethod("ActivateBranch", flags)!.Invoke(wheel, new object[] { Array.IndexOf(commandActions, CompanionQuickAction.QuestionSettings) });
+					wheelType.GetMethod("ActivateBranch", flags)!.Invoke(wheel, new object[] { Array.IndexOf(commandActions, CompanionQuickAction.ResetInitiativeRules) });
+					check((bool)wheelType.GetField("initiativeRulesMenu", flags)!.GetValue(wheel)!
+						&& !(bool)wheelType.GetField("questionSettingsMenu", flags)!.GetValue(wheel)!,
+						"Question settings leaked into the work-permission submenu");
+					var rules = (CompanionQuickAction[])wheelType.GetField("InitiativeRules", flags | BindingFlags.Static)!.GetValue(null)!;
+					check(rules.Length == Enum.GetValues<CompanionInitiativeKind>().Length + 1,
+						"A registered ability has no independent rule button");
+					foreach (CompanionInitiativeKind kind in Enum.GetValues<CompanionInitiativeKind>()) {
+						int index = (int)kind;
+						check(rules[index].ToString() == kind + "Policy", "Rule button controls the wrong ability: " + kind);
+						Vector2 position = (Vector2)wheelType.GetMethod("InitiativeRulePosition", flags)!.Invoke(wheel, new object[] { index })!;
+						PlayerInput.MouseX = (int)(position.X * Main.UIScale); PlayerInput.MouseY = (int)(position.Y * Main.UIScale);
+						findHover.Invoke(wheel, null);
+						check(wheelType.GetField("hoverLayer", flags)!.GetValue(wheel)!.ToString() == "InitiativeRule"
+							&& (int)wheelType.GetField("hoverIndex", flags)!.GetValue(wheel)! == index,
+							"Permission symbol selected another button: " + kind + "/" + width + "/" + scale);
+						check(!((string)wheelType.GetMethod("HoverLabel", flags)!.Invoke(wheel, null)!).StartsWith("Mods."),
+							"Permission label displayed a localization key: " + kind + "/" + culture);
+						CompanionInitiativePolicy before = companion.Profile.GetInitiativePolicy(kind);
+						activateHover.Invoke(wheel, null);
+						check(companion.Profile.GetInitiativePolicy(kind) == (CompanionInitiativePolicy)(((int)before + 1) % 3),
+							"Permission button did not cycle the real saved ability: " + kind);
+					}
+				}
+			}
+			finally {
+				Main.UIScale = questionScale; LanguageManager.Instance.SetLanguage(questionCulture);
+				inputWidth.SetValue(null, questionWidth); inputHeight.SetValue(null, questionHeight);
+			}
+			wheel.Close();
+			check(!(bool)wheelType.GetField("questionSettingsMenu", flags)!.GetValue(wheel)!, "Question submenu survived closing the wheel");
 			foreach (int index in new[] { 1, 2, 0 }) {
 				wheel.OpenPlayer(companion);
 				Vector2 position = (Vector2)modePosition.Invoke(wheel, new object[] { index })!;
@@ -2597,6 +2689,7 @@ public sealed partial class EngineChecks : ModSystem
 			owner.inventory[0] = new Item(ModContent.ItemType<SoulboundSigil>());
 			((SoulboundSigil)owner.inventory[0].ModItem).Profile = companion.Profile.Clone();
 			Set("activeJob", CompanionJob.None); companion.Profile.Routine = CompanionJob.None;
+			type.GetField("personalQuestionCooldown", flags)!.SetValue(companion, 0);
 			bool asked = (bool)type.GetMethod("BeginChoiceQuestion", flags)!.Invoke(companion, new object[] { CompanionQuestion.Company })!;
 			Guid question = companion.QuestionId;
 			check(asked && !companion.PlayRockPaperScissors(RpsMove.Rock) && companion.QuestionId == question,
@@ -2649,21 +2742,34 @@ public sealed partial class EngineChecks : ModSystem
 			byte request = Convert.ToByte(Enum.Parse(mod.GetType().GetNestedType("MessageType", BindingFlags.NonPublic)!, "NativeEmoteRequest"));
 			void NativeRequest() {
 				using var body = new MemoryStream();
-				using (var writer = new BinaryWriter(body, Encoding.UTF8, true)) { writer.Write(request); writer.Write(EmoteID.RPSScissors); }
+				using (var writer = new BinaryWriter(body, Encoding.UTF8, true)) {
+					writer.Write(request); writer.Write(companion.Profile.Id.ToByteArray()); writer.Write(EmoteID.RPSScissors);
+				}
 				body.Position = 0; using var reader = new BinaryReader(body); mod.HandlePacket(reader, 0);
 			}
-			NativeRequest(); string authoritativeResult = Speech(); NativeRequest();
+			companion.ShowSpeech("unchanged"); NativeRequest();
+			check(Speech() == "unchanged", "Retired custom emote channel still executed a server round");
+			companion.ReactToNativeEmote(EmoteID.RPSScissors); string authoritativeResult = Speech();
+			companion.ReactToNativeEmote(EmoteID.RPSScissors);
 			check(authoritativeResult != "unchanged" && Speech() == authoritativeResult
 				&& (int)type.GetField("rpsCooldown", flags)!.GetValue(companion)! == 180,
-				"Owner's native emote request did not resolve exactly one server round");
+				"Native emote observer did not resolve exactly one server round");
 
 			var wheel = new CompanionWheelSystem(); Type wheelType = typeof(CompanionWheelSystem);
 			wheelType.GetField("companion", flags)!.SetValue(wheel, companion);
 			wheelType.GetField("center", flags)!.SetValue(wheel, new Vector2(400, 300));
-			object bondBranch = Enum.Parse(wheelType.GetNestedType("RootBranch", BindingFlags.NonPublic)!, "Bond");
-			wheelType.GetMethod("ActivateRoot", flags)!.Invoke(wheel, new[] { bondBranch });
-			wheelType.GetMethod("ActivateBranch", flags)!.Invoke(wheel, new object[] { 6 });
-			check((bool)wheelType.GetField("rpsMenu", flags)!.GetValue(wheel)!, "Bond game button did not expand choices");
+			Type rootType = wheelType.GetNestedType("RootBranch", BindingFlags.NonPublic)!;
+			object gamesBranch = Enum.Parse(rootType, "Games"), bondBranch = Enum.Parse(rootType, "Bond");
+			var companionRoots = (Array)wheelType.GetField("CompanionRoots", flags | BindingFlags.Static)!.GetValue(null)!;
+			var playerRoots = (Array)wheelType.GetField("PlayerRoots", flags | BindingFlags.Static)!.GetValue(null)!;
+			check(companionRoots.Cast<object>().Contains(gamesBranch) && !playerRoots.Cast<object>().Contains(gamesBranch),
+				"Games was missing from the companion wheel or leaked into the player wheel");
+			check((int)wheelType.GetMethod("BranchNodeCount", flags)!.Invoke(wheel, new[] { bondBranch })! == 6
+				&& (int)wheelType.GetMethod("BranchNodeCount", flags)!.Invoke(wheel, new[] { gamesBranch })! == 1,
+				"Bond retained a hidden game or Games lost its real game entry");
+			wheelType.GetMethod("ActivateRoot", flags)!.Invoke(wheel, new[] { gamesBranch });
+			wheelType.GetMethod("ActivateBranch", flags)!.Invoke(wheel, new object[] { 0 });
+			check((bool)wheelType.GetField("rpsMenu", flags)!.GetValue(wheel)!, "Games button did not expand choices");
 			foreach ((int width, int height) in new[] { (800, 600), (1280, 720), (1920, 1080) }) {
 				inputWidth.SetValue(null, width); inputHeight.SetValue(null, height);
 				for (int index = 0; index < 3; index++) {
@@ -2677,8 +2783,11 @@ public sealed partial class EngineChecks : ModSystem
 			}
 			wheelType.GetMethod("StepBack", flags)!.Invoke(wheel, null);
 			check(!(bool)wheelType.GetField("rpsMenu", flags)!.GetValue(wheel)!
-				&& wheelType.GetField("branch", flags)!.GetValue(wheel)!.ToString() == "Bond", "Back left Bond instead of only the game");
-			wheelType.GetMethod("ActivateBranch", flags)!.Invoke(wheel, new object[] { 6 }); wheel.Close();
+				&& wheelType.GetField("branch", flags)!.GetValue(wheel)!.ToString() == "Games", "Back left Games instead of only the game");
+			wheelType.GetMethod("StepBack", flags)!.Invoke(wheel, null);
+			check(wheelType.GetField("branch", flags)!.GetValue(wheel) is null, "Back did not return from Games to the root wheel");
+			wheelType.GetMethod("ActivateRoot", flags)!.Invoke(wheel, new[] { gamesBranch });
+			wheelType.GetMethod("ActivateBranch", flags)!.Invoke(wheel, new object[] { 0 }); wheel.Close();
 			check(!(bool)wheelType.GetField("rpsMenu", flags)!.GetValue(wheel)!, "Closing retained the game submenu");
 		}
 		finally {

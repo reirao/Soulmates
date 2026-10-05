@@ -123,6 +123,7 @@ public sealed partial class SoulboundCompanion
 		if (ambientStoryCooldown > 0) ambientStoryCooldown--;
 		if (Main.netMode == NetmodeID.MultiplayerClient || !Profile.AutonomyEnabled || speechTimer > 0
 			|| HasPendingQuestion || HasPendingInitiative || guardianTarget >= 0 || socialNpcTarget >= 0
+			|| pendingCritterNotice is not null
 			|| ambientStoryCooldown > 0 || !Owner.active || Owner.dead
 			|| Vector2.DistanceSquared(NPC.Center, Owner.Center) > 520f * 520f) return;
 		var observation = PresentObservation();

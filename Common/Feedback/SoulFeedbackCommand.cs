@@ -49,9 +49,9 @@ public sealed class SoulFeedbackCommand : ModCommand
 				else {
 					if (!SoulmatesFeedbackSystem.SessionActive)
 						SoulmatesFeedbackSystem.BeginSession(caller.Player);
-					SoulmatesFeedbackSystem.RecordNote(note);
-					SoulmatesFeedbackSystem.Flush();
-					Reply(caller, SoulmatesText.Get("Feedback.NoteSaved"));
+					Reply(caller, SoulmatesFeedbackSystem.RecordNote(note)
+						? SoulmatesText.Get("Feedback.NoteSaved")
+						: SoulmatesText.Get("Feedback.Error", SoulmatesFeedbackSystem.LastError));
 				}
 				break;
 			case "bug":

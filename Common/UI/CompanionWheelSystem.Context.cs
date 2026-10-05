@@ -74,7 +74,8 @@ public sealed partial class CompanionWheelSystem
 			if (snapshot.CanInviteCritter(target)) contextActions.Add(ContextAction.Company);
 			if (snapshot.CanCollectCritter(target)) contextActions.Add(ContextAction.Collect);
 			foreach (CompanionTargetOrder order in PointModes)
-				if (snapshot.CanOrder(target, order)) contextActions.Add(order switch {
+				if (snapshot.CanOrder(target, order) || order == CompanionTargetOrder.Forest && snapshot.CanDiscussForestry(target))
+					contextActions.Add(order switch {
 					CompanionTargetOrder.Look => ContextAction.Look,
 					CompanionTargetOrder.Gather => ContextAction.Gather,
 					CompanionTargetOrder.Mine => ContextAction.Mine,
@@ -130,14 +131,15 @@ public sealed partial class CompanionWheelSystem
 			_ => CompanionTargetOrder.Forest
 		};
 		Close();
-		if (snapshot.CanOrder(target, order)) ExecuteContextOrder(target, snapshot, order);
+		if (snapshot.CanOrder(target, order) || order == CompanionTargetOrder.Forest && snapshot.CanDiscussForestry(target))
+			ExecuteContextOrder(target, snapshot, order);
 		else target.ShowSpeech(SoulmatesText.Get($"UI.DirectOrder.Invalid.{order}"));
 	}
 
 	private static void ExecuteContextOrder(SoulboundCompanion target, SoulwheelTarget snapshot, CompanionTargetOrder order)
 	{
 		if (Main.netMode == NetmodeID.MultiplayerClient)
-			global::Soulmates.Soulmates.SendDirectOrderRequest(order, snapshot.Tile, snapshot.ItemSlot);
+			global::Soulmates.Soulmates.SendDirectOrderRequest(target.Profile.Id, order, snapshot.Tile, snapshot.ItemSlot);
 		else {
 			var result = target.PerformDirectOrder(order, snapshot.Tile, snapshot.ItemSlot);
 			target.ShowSpeech(result.Reply);

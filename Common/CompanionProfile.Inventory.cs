@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using BigInteger = System.Numerics.BigInteger;
 using Terraria;
 using Terraria.ID;
@@ -33,6 +35,23 @@ public sealed partial class CompanionProfile
 		CompanionStorage.Pack => Pack,
 		_ => throw new ArgumentOutOfRangeException(nameof(storage))
 	};
+
+	internal byte[] StorageToken(CompanionStorage storage, int index)
+	{
+		using var stream = new MemoryStream();
+		using (var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true)) {
+			writer.Write((byte)storage);
+			writer.Write(index);
+			if (storage == CompanionStorage.Wallet)
+				writer.Write(WalletCopper.ToString(CultureInfo.InvariantCulture));
+			else {
+				List<Item> items = StorageItems(storage);
+				ItemIO.Send(index >= 0 && index < items.Count ? items[index] : new Item(), writer,
+					writeStack: true, writeFavorite: false);
+			}
+		}
+		return SHA256.HashData(stream.ToArray());
+	}
 
 	public static int CoinValue(int itemType) => itemType switch {
 		ItemID.CopperCoin => 1,

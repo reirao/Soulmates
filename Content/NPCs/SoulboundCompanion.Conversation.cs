@@ -21,18 +21,26 @@ public sealed partial class SoulboundCompanion
 	private BigInteger lastOfferedWallet;
 	private int nearbyPickupTimer;
 	private int walletLine;
+	private int critterCareCooldown;
+	private int personalQuestionCooldown = 7200;
+	private int PersonalQuestionInterval => Profile.QuestionCadence == CompanionQuestionCadence.Chatty ? 7200 : 18000;
+	private int pendingCritterCareTicks;
+	private string pendingCritterCareName = "";
 
 	public bool HasPendingQuestion => pendingQuestion != CompanionQuestion.None && questionTicks > 0;
 	public CompanionQuestion PendingQuestion => pendingQuestion;
 	public Guid QuestionId => questionId;
 	public int QuestionTicks => Math.Max(0, questionTicks);
 
-	private bool CanHoldQuestion() => Profile.AutonomyEnabled && Command != StayCommand
-		&& Owner.active && !Owner.dead && FindBoundSigil() is not null && Profile.Energy >= 20 && Profile.Mood >= 15
+	private bool CanKeepQuestion() => Profile.AutonomyEnabled && !Profile.WorkPaused && Command != StayCommand
+		&& Owner.active && !Owner.dead && FindBoundSigil() is not null
 		&& activeJob == CompanionJob.None && Profile.Routine == CompanionJob.None
-		&& autonomyActivity == AutonomyActivity.None && !HasPendingInitiative
-		&& guardianTarget < 0 && socialNpcTarget < 0 && !IsAttendingCritter
-		&& Vector2.DistanceSquared(NPC.Center, Owner.Center) <= 400f * 400f;
+		&& !HasPendingInitiative
+		&& socialNpcTarget < 0 && !IsAttendingCritter
+		&& Vector2.DistanceSquared(NPC.Center, Owner.Center) <= 560f * 560f;
+
+	private bool CanHoldQuestion() => CanKeepQuestion() && autonomyActivity == AutonomyActivity.None
+		&& guardianTarget < 0 && Profile.Energy >= 20 && Profile.Mood >= 15;
 
 	private void UpdateChoiceConversation()
 	{
@@ -42,15 +50,22 @@ public sealed partial class SoulboundCompanion
 		}
 		if (companyQuestionCooldown > 0) companyQuestionCooldown--;
 		if (walletQuestionCooldown > 0) walletQuestionCooldown--;
+		if (critterCareCooldown > 0) critterCareCooldown--;
+		if (personalQuestionCooldown > 0) personalQuestionCooldown--;
+		if (pendingCritterCareTicks > 0 && personalQuestionCooldown <= 0 && CanHoldQuestion()
+			&& speechTimer <= 0 && pendingCritterLossKey.Length == 0) pendingCritterCareTicks--;
 		if (lastOfferedWallet > Profile.WalletCopper) lastOfferedWallet = Profile.WalletCopper;
 		if (HasPendingQuestion) {
-			if (!CanHoldQuestion() || --questionTicks <= 0) ClearChoiceQuestion();
+			if (!CanKeepQuestion() || --questionTicks <= 0) ClearChoiceQuestion();
 			return;
 		}
-		if (!CanHoldQuestion() || speechTimer > 0
+		if (Profile.QuestionCadence == CompanionQuestionCadence.Quiet || personalQuestionCooldown > 0
+			|| !CanHoldQuestion() || speechTimer > 0 || pendingCritterLossKey.Length > 0 || pendingCritterNotice is not null
 			|| Main.netMode == NetmodeID.SinglePlayer && !SoulmatesUIInput.CanPresentInitiative)
 			return;
-		if (walletQuestionCooldown <= 0 && Profile.WalletCopper - lastOfferedWallet >= 100)
+		if (pendingCritterCareTicks > 0 && critterCareCooldown <= 0)
+			BeginChoiceQuestion(CompanionQuestion.CritterCare);
+		else if (walletQuestionCooldown <= 0 && Profile.WalletCopper - lastOfferedWallet >= 100)
 			BeginChoiceQuestion(CompanionQuestion.Wallet);
 		else if (companyQuestionCooldown <= 0)
 			BeginChoiceQuestion(CompanionQuestion.Company);
@@ -59,18 +74,28 @@ public sealed partial class SoulboundCompanion
 	private bool BeginChoiceQuestion(CompanionQuestion question)
 	{
 		if (Main.netMode == NetmodeID.MultiplayerClient || HasPendingQuestion || !CanHoldQuestion()
-			|| question is not (CompanionQuestion.Company or CompanionQuestion.Wallet)
+			|| Profile.QuestionCadence == CompanionQuestionCadence.Quiet || personalQuestionCooldown > 0
+			|| question is not (CompanionQuestion.Company or CompanionQuestion.Wallet or CompanionQuestion.CritterCare)
+			|| question == CompanionQuestion.CritterCare && (pendingCritterCareTicks <= 0 || pendingCritterCareName.Length == 0)
 			|| question == CompanionQuestion.Wallet && Profile.WalletCopper.IsZero)
 			return false;
 		pendingQuestion = question;
 		questionId = Guid.NewGuid();
 		questionTicks = InitiativeResponseTicks;
+		personalQuestionCooldown = PersonalQuestionInterval;
 		// Offers are spaced even if unanswered; the wallet has no artificial "full" state.
 		if (question == CompanionQuestion.Wallet) {
 			lastOfferedWallet = Profile.WalletCopper;
 			walletQuestionCooldown = 10800;
 			SpeakLocalized($"Conversation.Wallet.{Profile.Personality}.Line{walletLine++ % 2}", Profile.DescribeWallet());
-			ShowNativeEmote(EmoteID.ItemGoldpile, 180);
+			ShowNativeExpression(EmoteID.ItemGoldpile, EmoteID.EmotionLove, EmoteID.EmoteConfused);
+		}
+		else if (question == CompanionQuestion.CritterCare) {
+			critterCareCooldown = 10800;
+			pendingCritterCareTicks = 0;
+			SpeakLocalized("Conversation.CritterCare.Question", pendingCritterCareName);
+			pendingCritterCareName = "";
+			ShowNativeExpression(EmoteID.CritterBunny, EmoteID.EmoteConfused);
 		}
 		else {
 			companyQuestionCooldown = 14400;
@@ -82,8 +107,16 @@ public sealed partial class SoulboundCompanion
 		return true;
 	}
 
+	internal static CompanionQuestionCadence? QuestionCadenceFor(CompanionQuickAction action) => action switch {
+		CompanionQuickAction.QuestionsQuiet => CompanionQuestionCadence.Quiet,
+		CompanionQuickAction.QuestionsCalm => CompanionQuestionCadence.Calm,
+		CompanionQuickAction.QuestionsChatty => CompanionQuestionCadence.Chatty,
+		_ => null
+	};
+
 	private void ClearChoiceQuestion()
 	{
+		if (HasPendingQuestion) ClearNativeExpression();
 		pendingQuestion = CompanionQuestion.None;
 		questionId = Guid.Empty;
 		questionTicks = 0;
@@ -92,12 +125,15 @@ public sealed partial class SoulboundCompanion
 
 	public bool RespondToQuestion(Guid token, CompanionAnswer answer)
 	{
+		if (CompanionInventorySync.IsPending(Owner)) return false;
 		if (Main.netMode == NetmodeID.MultiplayerClient || !Enum.IsDefined(answer)
 			|| !HasPendingQuestion || token == Guid.Empty || token != questionId)
 			return false;
-		if (!CanHoldQuestion()) { ClearChoiceQuestion(); return false; }
+		if (!CanKeepQuestion()) { ClearChoiceQuestion(); return false; }
+		if (guardianTarget >= 0) return false;
 		CompanionQuestion question = pendingQuestion;
 		ClearChoiceQuestion();
+		SoulmateEmoteObserver.ShowReply(Owner, QuestionAnswerEmote(question, (int)answer));
 		string reply;
 		bool reward = answer != CompanionAnswer.Later;
 		if (answer == CompanionAnswer.Later)
@@ -120,6 +156,19 @@ public sealed partial class SoulboundCompanion
 				reply = answer == CompanionAnswer.Second ? "Conversation.Wallet.Saving" : "Conversation.Wallet.TreasureHunters";
 			}
 			lastOfferedWallet = Profile.WalletCopper;
+		}
+		else if (question == CompanionQuestion.CritterCare) {
+			Profile.Voice = answer switch {
+				CompanionAnswer.First => CompanionVoice.Soft,
+				CompanionAnswer.Second => CompanionVoice.Playful,
+				_ => CompanionVoice.Direct
+			};
+			Profile.CritterMode = answer == CompanionAnswer.Second ? CompanionCritterMode.Company : CompanionCritterMode.Watch;
+			if (Profile.CritterMode != CompanionCritterMode.Company) ReleaseCritterCompany();
+			critterDecisionTimer = 0;
+			reward = interactionRewardCooldown <= 0;
+			if (reward) interactionRewardCooldown = 300;
+			reply = $"Conversation.CritterCare.Reply.{answer}";
 		}
 		else {
 			Profile.Voice = answer switch {
@@ -145,6 +194,18 @@ public sealed partial class SoulboundCompanion
 			("answer", answer.ToString()), ("voice", Profile.Voice.ToString()), ("mood", Profile.Mood), ("bond", Profile.Bond));
 		return true;
 	}
+
+	internal static int QuestionAnswerEmote(CompanionQuestion question, int index) => question switch {
+		CompanionQuestion.CritterCare => index switch {
+			0 => EmoteID.EmotionLove, 1 => EmoteID.CritterBunny, 2 => EmoteID.EmotionAlert, _ => EmoteID.EmoteSleep
+		},
+		_ => index switch {
+			0 => EmoteID.ItemGoldpile,
+			1 => question == CompanionQuestion.Wallet ? EmoteID.EmoteWink : EmoteID.EmoteLaugh,
+			2 => question == CompanionQuestion.Wallet ? EmoteID.EmoteLaugh : EmoteID.EmotionLove,
+			_ => EmoteID.EmoteSleep
+		}
+	};
 
 	private void UpdateNearbyPickup()
 	{

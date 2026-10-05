@@ -23,6 +23,8 @@ public sealed partial class SoulboundCompanion
 {
 	private void ChooseNextState(float distance, Vector2 followTarget)
 	{
+		if (Main.netMode == NetmodeID.MultiplayerClient) return;
+		NPC.netUpdate = true;
 		if (distance > 170f || Owner.velocity.LengthSquared() > 9f) {
 			brainState = BrainState.Follow;
 			stateTimer = 70;
@@ -61,8 +63,14 @@ public sealed partial class SoulboundCompanion
 
 	private void UpdateFacing()
 	{
+		if (Main.netMode == NetmodeID.MultiplayerClient) {
+			NPC.spriteDirection = facing;
+			return;
+		}
+		int previousFacing = facing;
 		if (TryFaceTrackedTarget()) {
 			NPC.spriteDirection = facing;
+			if (facing != previousFacing) NPC.netUpdate = true;
 			return;
 		}
 
@@ -77,10 +85,17 @@ public sealed partial class SoulboundCompanion
 			}
 		}
 		NPC.spriteDirection = facing;
+		if (facing != previousFacing) NPC.netUpdate = true;
 	}
 
 	private bool TryFaceTrackedTarget()
 	{
+		if (guardianTarget < 0 && (HasPendingQuestion || HasPendingInitiative)
+			&& MathF.Abs(Owner.Center.X - NPC.Center.X) >= 12f) {
+			facing = Owner.Center.X < NPC.Center.X ? -1 : 1;
+			facingCooldown = 8;
+			return true;
+		}
 		int targetIndex = guardianTarget >= 0 ? guardianTarget : socialNpcTarget >= 0 ? socialNpcTarget
 			: IsAttendingCritter ? critterTarget!.whoAmI : -1;
 		if (targetIndex < 0 || targetIndex >= Main.maxNPCs)

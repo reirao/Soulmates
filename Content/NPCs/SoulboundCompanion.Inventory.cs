@@ -25,6 +25,7 @@ public sealed partial class SoulboundCompanion
 {
 	public string StoreSelectedItem()
 	{
+		if (CompanionInventorySync.IsPending(Owner)) return SoulmatesText.Get("TargetOrders.TargetLost");
 		using var inventorySync = new CompanionInventorySync(Owner);
 		Item selected = Owner.inventory[Owner.selectedItem];
 		if (selected.IsAir)
@@ -49,18 +50,19 @@ public sealed partial class SoulboundCompanion
 
 	public string UnloadPack()
 	{
+		if (CompanionInventorySync.IsPending(Owner)) return SoulmatesText.Get("TargetOrders.TargetLost");
 		using var inventorySync = new CompanionInventorySync(Owner);
 		int moved = 0;
 		foreach (List<Item> storage in new[] { Profile.Pack, Profile.Resources }) {
 			for (int i = storage.Count - 1; i >= 0; i--) {
 				Item stored = storage[i];
-				int originalStack = stored.stack;
-				Item leftover = Owner.GetItem(Owner.whoAmI, stored.Clone(), GetItemSettings.InventoryEntityToPlayerInventorySettings);
-				moved += originalStack - (leftover.IsAir ? 0 : leftover.stack);
-				if (leftover.IsAir)
+				while (!stored.IsAir) {
+					int transferred = TransferStoredStack(stored, singleItem: false);
+					if (transferred <= 0) break;
+					moved += transferred;
+				}
+				if (stored.IsAir)
 					storage.RemoveAt(i);
-				else
-					storage[i] = leftover;
 			}
 		}
 		for (int slot = 0; slot < 4; slot++)
@@ -79,6 +81,7 @@ public sealed partial class SoulboundCompanion
 
 	public string WithdrawStorageSlot(CompanionStorage storageKind, int index, bool singleItem)
 	{
+		if (CompanionInventorySync.IsPending(Owner)) return SoulmatesText.Get("TargetOrders.TargetLost");
 		using var inventorySync = new CompanionInventorySync(Owner);
 		if (!Enum.IsDefined(storageKind))
 			return SoulmatesText.Get("Pack.SlotEmpty");
@@ -100,15 +103,10 @@ public sealed partial class SoulboundCompanion
 
 		Item stored = storage[index];
 		int itemType = stored.type;
-		int requested = singleItem ? 1 : stored.stack;
-		Item transfer = stored.Clone();
-		transfer.stack = requested;
-		Item leftover = Owner.GetItem(Owner.whoAmI, transfer, GetItemSettings.InventoryEntityToPlayerInventorySettings);
-		int moved = requested - (leftover.IsAir ? 0 : leftover.stack);
+		int moved = TransferStoredStack(stored, singleItem);
 		if (moved <= 0)
 			return SoulmatesText.Get("Pack.InventoryFull");
 
-		stored.stack -= moved;
 		if (stored.stack <= 0)
 			storage.RemoveAt(index);
 		SyncProfileToBoundSigil();
@@ -116,6 +114,17 @@ public sealed partial class SoulboundCompanion
 		SoulmatesFeedbackSystem.Record("pack_withdrawn", ("item_type", itemType), ("amount", moved),
 			("pack_load", Profile.PackLoad));
 		return SoulmatesText.Get("Storage.Withdrawn", moved, SoulmatesText.EnumName(storageKind));
+	}
+
+	private int TransferStoredStack(Item stored, bool singleItem)
+	{
+		int requested = Math.Min(stored.stack, singleItem ? 1 : Math.Max(1, stored.maxStack));
+		Item transfer = stored.Clone();
+		transfer.stack = requested;
+		Item leftover = Owner.GetItem(Owner.whoAmI, transfer, GetItemSettings.InventoryEntityToPlayerInventorySettings);
+		int moved = requested - (leftover.IsAir ? 0 : leftover.stack);
+		stored.stack -= moved;
+		return moved;
 	}
 
 	private int TransferWalletCoins(int itemType, bool singleItem)
@@ -138,6 +147,7 @@ public sealed partial class SoulboundCompanion
 	private bool CanCollectLooseItem(Item item) => AvailableCarryAmount(item) > 0;
 
 	private bool IsEligibleLooseItem(Item item) => item.active && !item.IsAir && item.stack > 0
+		&& item.noGrabDelay <= 0
 		&& CanCarry(item) && !IsRecoveryPickup(item)
 		&& (item.playerIndexTheItemIsReservedFor == 255 || item.playerIndexTheItemIsReservedFor == Owner.whoAmI);
 
@@ -153,7 +163,6 @@ public sealed partial class SoulboundCompanion
 	{
 		if (packReconciled)
 			return;
-		using var inventorySync = new CompanionInventorySync(Owner);
 		packReconciled = true;
 		Profile.Normalize();
 		var excessItems = new List<Item>();
@@ -167,7 +176,8 @@ public sealed partial class SoulboundCompanion
 		}
 
 		foreach (Item returned in excessItems) {
-			Item leftover = Owner.GetItem(Owner.whoAmI, returned.Clone(), GetItemSettings.InventoryEntityToPlayerInventorySettings);
+			Item leftover = Main.netMode == NetmodeID.Server ? returned.Clone()
+				: Owner.GetItem(Owner.whoAmI, returned.Clone(), GetItemSettings.InventoryEntityToPlayerInventorySettings);
 			if (leftover.IsAir)
 				continue;
 			int itemIndex = Item.NewItem(Owner.GetSource_Misc("SoulmatesPackRepair"), Owner.Hitbox, leftover);

@@ -24,6 +24,8 @@ public sealed class SoulmatesFeedbackSystem : ModSystem
 	private static readonly JsonSerializerOptions CompactJson = new();
 	private static readonly JsonSerializerOptions PrettyJson = new() { WriteIndented = true };
 	private static readonly List<string> PendingLines = [];
+	private const int MaximumPendingLines = 64;
+	private static DateTime retryAfterUtc;
 	private static readonly Queue<string> RecentEvents = new();
 	private static readonly Dictionary<string, long> Metrics = new(StringComparer.Ordinal);
 	private static readonly Dictionary<string, object?> LatestSnapshot = new(StringComparer.Ordinal);
@@ -104,6 +106,7 @@ public sealed class SoulmatesFeedbackSystem : ModSystem
 			sequence = 0;
 			rawLogCapped = false;
 			lastError = "";
+			retryAfterUtc = DateTime.MinValue;
 			PendingLines.Clear();
 			RecentEvents.Clear();
 			Metrics.Clear();
@@ -160,19 +163,31 @@ public sealed class SoulmatesFeedbackSystem : ModSystem
 				Increment($"{eventName}.{safeValue}");
 		}
 		Increment(eventName);
+		if (PendingLines.Count >= MaximumPendingLines) {
+			PendingLines.RemoveAt(0);
+			Increment("events_dropped_after_io_failure");
+		}
 		PendingLines.Add(JsonSerializer.Serialize(entry, CompactJson));
 		RecentEvents.Enqueue(eventName);
 		while (RecentEvents.Count > 16)
 			RecentEvents.Dequeue();
-		if (PendingLines.Count >= 64)
+		if (PendingLines.Count >= MaximumPendingLines)
 			Flush();
 	}
 
-	public static void RecordNote(string note)
+	public static bool RecordNote(string note)
 	{
 		string safeNote = Sanitize(note, MaximumNoteCharacters);
-		if (!string.IsNullOrWhiteSpace(safeNote))
-			Record("player_note", ("note", safeNote));
+		if (!sessionActive || string.IsNullOrWhiteSpace(safeNote)) return false;
+		try {
+			Directory.CreateDirectory(FeedbackFolder);
+			File.AppendAllText(Path.Combine(FeedbackFolder, "notes-inbox.jsonl"),
+				JsonSerializer.Serialize(new { schema = 1, utc = DateTime.UtcNow.ToString("O"), session_id = sessionId, note = safeNote }, CompactJson)
+				+ Environment.NewLine, Encoding.UTF8);
+			Record("player_note_saved");
+			return true;
+		}
+		catch (Exception exception) { lastError = exception.Message; return false; }
 	}
 
 	public static bool RecordBug(string note)
@@ -204,7 +219,7 @@ public sealed class SoulmatesFeedbackSystem : ModSystem
 
 	public static void Flush()
 	{
-		if (!sessionActive)
+		if (!sessionActive || DateTime.UtcNow < retryAfterUtc)
 			return;
 		try {
 			Directory.CreateDirectory(FeedbackFolder);
@@ -219,9 +234,11 @@ public sealed class SoulmatesFeedbackSystem : ModSystem
 			PendingLines.Clear();
 			WriteSummary();
 			lastError = "";
+			retryAfterUtc = DateTime.MinValue;
 		}
 		catch (Exception exception) {
 			lastError = exception.Message;
+			retryAfterUtc = DateTime.UtcNow.AddSeconds(30);
 		}
 	}
 
@@ -252,6 +269,7 @@ public sealed class SoulmatesFeedbackSystem : ModSystem
 		if (companion is not null) {
 			LatestSnapshot["command"] = companion.FeedbackCommand;
 			LatestSnapshot["activity"] = companion.FeedbackActivity;
+			LatestSnapshot["activity_lane"] = companion.ActivityLane.ToString();
 			LatestSnapshot["energy"] = companion.Profile.Energy;
 			LatestSnapshot["mood"] = companion.Profile.Mood;
 			LatestSnapshot["bond"] = companion.Profile.Bond;

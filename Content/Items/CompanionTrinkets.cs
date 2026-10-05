@@ -36,7 +36,7 @@ public abstract class CompanionTrinketItem : ModItem
 		CompanionTrinket equipped = player.altFunctionUse == 2 ? CompanionTrinket.None : Trinket;
 		if (Main.netMode == NetmodeID.MultiplayerClient) {
 			if (player.whoAmI == Main.myPlayer && player.altFunctionUse == 2)
-				Soulmates.SendTrinketRequest(equipped);
+				Soulmates.SendTrinketRequest(companion.Profile.Id, equipped);
 			return true;
 		}
 

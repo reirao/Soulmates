@@ -8,8 +8,9 @@ public readonly record struct CompanionOpportunity(CompanionInitiativeKind Kind,
 // Ages actionable opportunities, not unavailable tasks. Player rules filter offers before selection.
 public sealed class CompanionAttention
 {
-	private readonly int[] waiting = new int[4];
-	private readonly int[] cooldowns = new int[4];
+	private static readonly int KindCount = Enum.GetValues<CompanionInitiativeKind>().Length;
+	private readonly int[] waiting = new int[KindCount];
+	private readonly int[] cooldowns = new int[KindCount];
 
 	public void Tick()
 	{
@@ -34,7 +35,7 @@ public sealed class CompanionAttention
 
 	public CompanionInitiativeKind? Choose(IReadOnlyList<CompanionOpportunity> opportunities)
 	{
-		Span<int> relevance = stackalloc int[4];
+		Span<int> relevance = stackalloc int[KindCount];
 		relevance.Fill(-1);
 		foreach (CompanionOpportunity opportunity in opportunities) {
 			if (!IsReady(opportunity.Kind)) continue;
@@ -54,5 +55,5 @@ public sealed class CompanionAttention
 		return (CompanionInitiativeKind)chosen;
 	}
 
-	private static bool Valid(CompanionInitiativeKind kind) => (uint)kind < 4;
+	private static bool Valid(CompanionInitiativeKind kind) => (uint)kind < KindCount;
 }

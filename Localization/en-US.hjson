@@ -1,5 +1,13 @@
 Mods: {
 	Soulmates: {
+		Enums.CompanionInitiativeKind.CritterCompany: critter company
+		Enums.CompanionInitiativeKind.CritterCollect: critter catching
+		Enums.CompanionQuickAction.CritterCompanyPolicy: Critter company rule
+		Enums.CompanionQuickAction.CritterCollectPolicy: Critter catching rule
+		Autonomy.Initiative.Ask.CritterCompany: That little one looks curious. May I keep it company?
+		Autonomy.Initiative.Ask.CritterCollect: May I catch that common critter with my net?
+		Autonomy.Initiative.Always.CritterCompany: I will gently keep that little one company.
+		Autonomy.Initiative.Always.CritterCollect: I will carefully catch that common critter.
 		Social.Critters.DirectBusy: I need autonomy on and a quiet moment without danger or an unanswered question for that visit.
 		Enums.CompanionQuickAction.Pause: Pause
 		Enums.CompanionQuickAction.Resume: Resume
@@ -61,6 +69,21 @@ Mods: {
 		UI.CompanionWheel.Actions.Abort: Abort assignment
 		Social.Critters.CatchSelected: I will put the current job aside and try to catch that {0} with my net.
 		Conversation: {
+			CritterCare: {
+				Heading: Little lives around us
+				Question: "That {0} stayed with me. How should we look after the little ones?"
+				Choices: {
+					First: Be gentle. Let them live their lives.
+					Second: Let's keep them company.
+					Third: Just watch them along our path.
+					Later: We can talk about it later.
+				}
+				Reply: {
+					First: A softer step, then. I will watch without disturbing them.
+					Second: A little company sounds good. When our work is done, I will visit them.
+					Third: Understood. I will notice them without starting a visit.
+				}
+			}
 			Later: Of course. We can talk later.
 			Company: {
 				Heading: What would you like?
@@ -455,6 +478,7 @@ Mods: {
 				}
 
 				Categories: {
+					Games: Games
 					Critters: Critters
 					Commands: Commands
 					Work: Work
@@ -923,7 +947,6 @@ Mods: {
 					Gentle: "I'm sorry, little {0}. Please don't hurt the harmless creatures."
 					Mischievous: "Not funny. That {0} wasn't an enemy. Let's not do that again."
 				}
-				NeedNet: I need a bug net in my Equipment before I can collect critters.
 				Full: There is no room for another little creature. I will leave it here.
 				Caught: "A {0}! One real catch, safely in my pack."
 				WorldDrop: That catch stayed in the world. My pack did not take it.
@@ -931,7 +954,7 @@ Mods: {
 				Modes: {
 					Watch: I will notice little creatures without catching them.
 					Company: I will invite nearby common critters to keep me company. No cages, no copies.
-					Collect: I will use my net on nearby common critters when there is room. Work and danger come first.
+					Collect: My basic net is ready for nearby common critters when there is room. Lava critters need a better net in Equipment. Work and danger come first.
 					Off: I will leave the critters to their own adventures.
 				}
 				Notice: {
@@ -1020,7 +1043,7 @@ Mods: {
 
 			Autonomous: {
 				Context: {
-					LowEnergy: Could we slow down for a moment?
+					LowEnergy: I am catching my breath. My energy is returning little by little.
 					LowMood: I am here. I just need a little kindness.
 					Hurt: You are hurt. Please stay near me.
 					Rain: The rain makes every light feel warmer.
@@ -1322,6 +1345,16 @@ Mods: {
 			}
 		}
 
+		Enums.CompanionQuestionCadence.Quiet: Quiet
+		Enums.CompanionQuickAction.QuestionSettings: Personal questions
+		Enums.CompanionQuickAction.QuestionsQuiet: Quiet questions
+		Enums.CompanionQuickAction.QuestionsCalm: Calm questions
+		Enums.CompanionQuickAction.QuestionsChatty: Chatty questions
+		Enums.CompanionQuestionCadence.Calm: Calm
+		Enums.CompanionQuestionCadence.Chatty: Chatty
+		UI.CompanionWheel.QuestionSettingsState: "Personal questions: {0}"
+		Conversation.Settings.Selected: "Personal questions: {0}. Work permissions stay unchanged."
+		TargetOrders.CritterTimeout: I could not reach that little one in time. I will leave it be for now.
 		Projectiles.SoulBolt.DisplayName: Soul Bolt
 	}
 }

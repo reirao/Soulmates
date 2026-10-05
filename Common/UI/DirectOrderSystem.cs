@@ -55,7 +55,8 @@ public sealed class DirectOrderSystem : ModSystem
 	{
 		if (!active)
 			return;
-		if (Main.gameMenu || Main.LocalPlayer.dead || Main.playerInventory || companion?.NPC.active != true) {
+		if (Main.gameMenu || Main.LocalPlayer.dead || Main.playerInventory || companion?.NPC.active != true
+			|| SoulboundCompanion.FindFor(Main.LocalPlayer) != companion) {
 			Cancel();
 			return;
 		}
@@ -90,7 +91,7 @@ public sealed class DirectOrderSystem : ModSystem
 				SoulmatesFeedbackSystem.Record("direct_order_selected", ("order", selectedOrder.ToString()),
 					("world_item", itemTarget >= 0));
 				if (Main.netMode == NetmodeID.MultiplayerClient)
-					global::Soulmates.Soulmates.SendDirectOrderRequest(selectedOrder, tileTarget, itemTarget);
+					global::Soulmates.Soulmates.SendDirectOrderRequest(target.Profile.Id, selectedOrder, tileTarget, itemTarget);
 				else {
 					CompanionConversationResult result = target.PerformDirectOrder(selectedOrder, tileTarget, itemTarget);
 					target.ShowSpeech(result.Reply);

@@ -1,5 +1,13 @@
 Mods: {
 	Soulmates: {
+		Enums.CompanionInitiativeKind.CritterCompany: Tiergesellschaft
+		Enums.CompanionInitiativeKind.CritterCollect: Tiere einfangen
+		Enums.CompanionQuickAction.CritterCompanyPolicy: Tiergesellschaft-Regel
+		Enums.CompanionQuickAction.CritterCollectPolicy: Tierfang-Regel
+		Autonomy.Initiative.Ask.CritterCompany: Das Kleine sieht neugierig aus. Darf ich ihm Gesellschaft leisten?
+		Autonomy.Initiative.Ask.CritterCollect: Darf ich dieses gewöhnliche Tier mit meinem Netz einfangen?
+		Autonomy.Initiative.Always.CritterCompany: Ich leiste dem Kleinen behutsam Gesellschaft.
+		Autonomy.Initiative.Always.CritterCollect: Ich fange dieses gewöhnliche Tier vorsichtig ein.
 		Social.Critters.DirectBusy: Für diesen Besuch brauche ich aktive Autonomie und einen ruhigen Moment ohne Gefahr oder offene Frage.
 		Enums.CompanionQuickAction.Pause: Pausieren
 		Enums.CompanionQuickAction.Resume: Fortsetzen
@@ -61,6 +69,21 @@ Mods: {
 		UI.CompanionWheel.Actions.Abort: Auftrag abbrechen
 		Social.Critters.CatchSelected: Ich lege den bisherigen Auftrag beiseite und versuche, das Wesen {0} mit meinem Netz zu fangen.
 		Conversation: {
+			CritterCare: {
+				Heading: Kleine Leben um uns herum
+				Question: "Das Wesen {0} geht mir nicht aus dem Kopf. Wie kümmern wir uns um die Kleinen?"
+				Choices: {
+					First: Sei sanft. Lass sie ihr Leben leben.
+					Second: Leisten wir ihnen Gesellschaft.
+					Third: Beobachte sie einfach auf unserem Weg.
+					Later: Wir können später darüber reden.
+				}
+				Reply: {
+					First: Dann gehen wir behutsamer. Ich beobachte sie, ohne sie zu stören.
+					Second: Etwas Gesellschaft tut gut. Sobald unsere Arbeit fertig ist, besuche ich sie.
+					Third: Verstanden. Ich beachte sie, ohne einen Besuch zu beginnen.
+				}
+			}
 			Later: Natürlich. Wir können später reden.
 			Company: {
 				Heading: Was wünschst du dir?
@@ -455,6 +478,7 @@ Mods: {
 				}
 
 				Categories: {
+					Games: Spiele
 					Critters: Kleine Tiere
 					Commands: Befehle
 					Work: Arbeit
@@ -923,7 +947,6 @@ Mods: {
 					Gentle: "Es tut mir leid, kleines Wesen ({0}). Bitte verletzt die harmlosen Tiere nicht."
 					Mischievous: "Nicht lustig. Dieses Wesen ({0}) war kein Feind. Machen wir das nicht wieder."
 				}
-				NeedNet: Ich brauche einen Kescher in meiner Ausrüstung, bevor ich Tiere sammeln kann.
 				Full: Für ein weiteres kleines Tier ist kein Platz. Ich lasse es hier.
 				Caught: "Ein {0}! Ein echter Fang, sicher in meinem Pack."
 				WorldDrop: Dieser Fang blieb in der Welt. Mein Pack hat ihn nicht aufgenommen.
@@ -931,7 +954,7 @@ Mods: {
 				Modes: {
 					Watch: Ich bemerke kleine Tiere, ohne sie einzufangen.
 					Company: Ich lade gewöhnliche Tiere in der Nähe ein, mich zu begleiten. Keine Käfige, keine Kopien.
-					Collect: Ich fange gewöhnliche Tiere mit meinem Netz, wenn Platz ist. Arbeit und Gefahren gehen vor.
+					Collect: Mein einfacher Kescher ist bereit für gewöhnliche Tiere in der Nähe, wenn Platz ist. Lava-Tiere brauchen ein besseres Netz in der Ausrüstung. Arbeit und Gefahren gehen vor.
 					Off: Ich lasse die Tiere ihre eigenen Abenteuer erleben.
 				}
 				Notice: {
@@ -1020,7 +1043,7 @@ Mods: {
 
 			Autonomous: {
 				Context: {
-					LowEnergy: Könnten wir einen Moment langsamer machen?
+					LowEnergy: Ich hole kurz Luft. Meine Energie kommt nach und nach zurück.
 					LowMood: Ich bin da. Ich brauche nur etwas Freundlichkeit.
 					Hurt: Du bist verletzt. Bitte bleib in meiner Nähe.
 					Rain: Im Regen fühlt sich jedes Licht wärmer an.
@@ -1322,6 +1345,16 @@ Mods: {
 			}
 		}
 
+		Enums.CompanionQuestionCadence.Quiet: Still
+		Enums.CompanionQuickAction.QuestionSettings: Persönliche Fragen
+		Enums.CompanionQuickAction.QuestionsQuiet: Stille Fragen
+		Enums.CompanionQuickAction.QuestionsCalm: Ruhige Fragen
+		Enums.CompanionQuickAction.QuestionsChatty: Gesprächige Fragen
+		Enums.CompanionQuestionCadence.Calm: Ruhig
+		Enums.CompanionQuestionCadence.Chatty: Gesprächig
+		UI.CompanionWheel.QuestionSettingsState: "Persönliche Fragen: {0}"
+		Conversation.Settings.Selected: "Persönliche Fragen: {0}. Die Arbeitserlaubnisse bleiben unverändert."
+		TargetOrders.CritterTimeout: Ich konnte das kleine Wesen nicht rechtzeitig erreichen. Ich lasse es vorerst in Ruhe.
 		Projectiles.SoulBolt.DisplayName: Seelenblitz
 	}
 }

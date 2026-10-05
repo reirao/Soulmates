@@ -22,8 +22,15 @@ namespace Soulmates.Content.NPCs;
 
 public sealed partial class SoulboundCompanion
 {
+	private bool residentEmoteDeferred;
 	private void UpdateSocialState()
 	{
+		UpdateNativeExpression();
+		if (actionAnimationTicks > 0) actionAnimationTicks--;
+		if (guardianTarget >= 0 || !Profile.WorkPaused && !jobRecoveryPaused
+			&& (activeJob != CompanionJob.None || autonomyActivity != AutonomyActivity.None)
+			|| NPC.velocity.LengthSquared() > 25f)
+			actionAnimationTicks = 24;
 		if (Main.netMode != NetmodeID.MultiplayerClient && socialNpcTarget >= 0
 			&& (!Profile.AutonomyEnabled || HasPendingInitiative || HasPendingQuestion || Command == StayCommand
 				|| activeJob != CompanionJob.None || autonomyActivity != AutonomyActivity.None || guardianTarget >= 0))
@@ -82,6 +89,8 @@ public sealed partial class SoulboundCompanion
 		int maximum = Profile.Personality == CompanionPersonality.Gentle ? 3000 : 2600;
 		socialTimer = Main.rand.Next(minimum, maximum);
 		if (!Profile.AutonomyEnabled || Profile.WorkPaused || speechTimer > 0 || HasPendingInitiative || HasPendingQuestion
+			|| pendingCritterLossKey.Length > 0 || pendingCritterNotice is not null
+			|| pendingCritterCareTicks > 0 && personalQuestionCooldown <= 0
 			|| activeJob != CompanionJob.None || autonomyActivity != AutonomyActivity.None
 			|| guardianTarget >= 0 || socialNpcTarget >= 0 || Owner.dead
 			|| Vector2.DistanceSquared(NPC.Center, Owner.Center) > 520f * 520f)
@@ -115,6 +124,16 @@ public sealed partial class SoulboundCompanion
 			: Profile.Mood < 25 || Owner.statLife < Owner.statLifeMax2 / 3
 				? CompanionEmote.Comfort
 				: PersonalityGesture();
+		// These curiosity lines invite the player to choose; use a real, answerable question instead.
+		if ((key == "Social.Autonomous.Curious.Line0" || key == "Social.Autonomous.Curious.Line2")
+			&& companyQuestionCooldown <= 0 && personalQuestionCooldown <= 0
+			&& Profile.QuestionCadence != CompanionQuestionCadence.Quiet
+			&& CanHoldQuestion() && (Main.netMode != NetmodeID.SinglePlayer || SoulmatesUIInput.CanPresentInitiative)) {
+			BeginChoiceQuestion(CompanionQuestion.Company);
+			return;
+		}
+		if (key == "Social.Autonomous.Curious.Line0" || key == "Social.Autonomous.Curious.Line2")
+			key = $"Conversation.Chatter.{Profile.Voice}.Line{chatterSequence % 3}";
 		StartEmote(gesture, 110);
 		ShowNativeEmote(gesture, 130);
 		if (Main.rand.NextBool(2))
@@ -128,8 +147,6 @@ public sealed partial class SoulboundCompanion
 			return;
 		Item held = Owner.HeldItem;
 		bool ownerUsingItem = Owner.controlUseItem || Owner.itemAnimation > 0;
-		if (ownerUsingItem && held.pick > 0)
-			ObserveMiningEnvironment(held);
 		if (--learningObservationTimer > 0)
 			return;
 
@@ -152,6 +169,7 @@ public sealed partial class SoulboundCompanion
 
 	public void ObserveOwnerActivity(LearnedBehavior behavior, int amount = 1)
 	{
+		if (TryGetOwner(out Player pendingOwner) && CompanionInventorySync.IsPending(pendingOwner)) return;
 		if (Main.netMode == NetmodeID.MultiplayerClient || !Enum.IsDefined(behavior))
 			return;
 		SoulmatesFeedbackSystem.Record("behavior_observed", ("behavior", behavior.ToString()),
@@ -322,17 +340,35 @@ public sealed partial class SoulboundCompanion
 	{
 		if (Main.netMode == NetmodeID.MultiplayerClient || !NPC.active || !IsSocialTownNpc(resident)
 			|| resident.ModNPC is SoulboundCompanion || resident.whoAmI < 0 || resident.whoAmI >= Main.maxNPCs
-			|| !ReferenceEquals(Main.npc[resident.whoAmI], resident)) return;
-		if (ReferenceEquals(resident, socialNpcIdentity)) {
+			|| !ReferenceEquals(Main.npc[resident.whoAmI], resident)
+			|| !TryGetOwner(out Player owner) || owner.dead) return;
+		bool currentResident = ReferenceEquals(resident, socialNpcIdentity);
+		if (currentResident) {
 			if (!socialNpcGreeted || socialNpcReplied) return;
 		}
-		else {
-			if (!Profile.AutonomyEnabled || HasPendingInitiative || HasPendingQuestion || Command == StayCommand
-				|| activeJob != CompanionJob.None || autonomyActivity != AutonomyActivity.None
-				|| guardianTarget >= 0 || socialNpcTarget >= 0 || townNpcInteractionCooldown > 0
-				|| !Owner.active || Owner.dead || Profile.Energy < 20 || Profile.Mood < 20
-				|| Vector2.DistanceSquared(resident.Center, NPC.Center) > 260f * 260f
-				|| Vector2.DistanceSquared(resident.Center, Owner.Center) > 560f * 560f) return;
+		else if (!Profile.AutonomyEnabled || HasPendingInitiative || HasPendingQuestion || Command == StayCommand
+			|| activeJob != CompanionJob.None || autonomyActivity != AutonomyActivity.None
+			|| guardianTarget >= 0 || socialNpcTarget >= 0 || townNpcInteractionCooldown > 0
+			|| Profile.Energy < 20 || Profile.Mood < 20
+			|| Vector2.DistanceSquared(resident.Center, NPC.Center) > 260f * 260f
+			|| Vector2.DistanceSquared(resident.Center, owner.Center) > 560f * 560f) return;
+		if (CompanionInventorySync.IsPending(owner)) {
+			if (residentEmoteDeferred) return;
+			residentEmoteDeferred = true;
+			Guid profileId = Profile.Id;
+			Guid worldId = Main.ActiveWorldFileData.UniqueId;
+			int type = resident.type;
+			string name = resident.GivenName;
+			CompanionInventorySync.RespondOrDefer(owner.whoAmI, _ => {
+				residentEmoteDeferred = false;
+				if (NPC.active && Profile.Id == profileId && TryGetOwner(out Player currentOwner)
+					&& ReferenceEquals(owner, currentOwner) && Main.ActiveWorldFileData.UniqueId == worldId
+					&& ReferenceEquals(Main.npc[resident.whoAmI], resident) && resident.type == type && resident.GivenName == name)
+					ObserveResidentEmote(resident, bubble);
+			});
+			return;
+		}
+		if (!currentResident) {
 			BeginTownNpcInteraction(resident);
 			socialNpcGreeted = true;
 			socialNpcTimer = 240;

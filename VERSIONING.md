@@ -10,9 +10,11 @@ The companion identity, Soulcore creator, Soulwheels, conversations, combat, wor
 - Minor releases (`0.11.0`, `0.12.0`) add or substantially reshape a tested system.
 - Existing Soulbound Sigils should remain compatible. Any future data change must include a migration path.
 
-## 0.20.0 - Beta
+## 0.20.0 - Beta Stabilization
 
-Feature complete for the planned 1.0 scope. Save persistence, single-player, host-and-play multiplayer, dedicated servers, progression pacing, and the primary interface have all completed repeatable test passes. Beta work focuses on defects, balance, clarity, and compatibility.
+The core scope is frozen. Completed beta acceptance requires repeatable passes for save persistence, single-player, host-and-play multiplayer, dedicated servers, progression pacing and the primary interface. Stabilization focuses on defects, balance, clarity and compatibility; these criteria are requirements, not claims that all tests have already passed.
+
+The published 0.20.0 is a **beta candidate**, not a completed beta certification. The creator's first playtest broadly works; full acceptance remains open. Frozen scope, exact evidence and remaining gates are tracked in [BETA.md](BETA.md). The numeric version or a Workshop upload alone does not close client, progression, endurance or connected multiplayer tests.
 
 ## 0.90.0 - Release candidate
 
@@ -24,4 +26,4 @@ Long-session and multiplayer testing support calling the core experience stable.
 
 ## Legacy number note
 
-Manual `9.9.x` `.tmod` files compare as numerically newer than the `0.10.0+` alpha line. Players who installed a GitHub build by hand should remove that duplicate before using the Soulmates Workshop alpha line. A normal Workshop subscription replaces its own file automatically.
+Manual `9.9.x` `.tmod` files compare as numerically newer than the `0.10.0+` line. Players who installed a legacy GitHub build by hand should remove that duplicate before using the current Soulmates Workshop version. A normal Workshop subscription replaces its own file automatically.

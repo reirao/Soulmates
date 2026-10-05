@@ -37,13 +37,19 @@ public sealed class InitiativePromptSystem : ModSystem
 	private bool conversation;
 	private Guid openQuestionId;
 	private Guid replyQuestionId;
+	private Guid openProfileId;
+	private Guid openInitiativeId;
+	private Guid replyInitiativeId;
+	private CompanionInitiativeKind openInitiativeKind;
 
 	public bool IsOpen => open;
 
 	public void Open(SoulboundCompanion boundCompanion)
 	{
 		bool personal = !boundCompanion.HasPendingInitiative && boundCompanion.HasPendingQuestion;
-		if (!SoulmatesUIInput.CanPresentInitiative || !boundCompanion.HasPendingInitiative && !personal || boundCompanion.IsDefending
+		if (!SoulmatesUIInput.CanPresentInitiative || !boundCompanion.HasPendingInitiative && !personal
+			|| !personal && (boundCompanion.PendingInitiativeTicks <= 0 || boundCompanion.InitiativeId == Guid.Empty)
+			|| boundCompanion.IsDefending
 			|| IsAwaitingReply(boundCompanion))
 			return;
 
@@ -53,8 +59,11 @@ public sealed class InitiativePromptSystem : ModSystem
 		ModContent.GetInstance<SoulCreatorSystem>().Close();
 		ModContent.GetInstance<DirectOrderSystem>().Cancel();
 		companion = boundCompanion;
+		openProfileId = boundCompanion.Profile.Id;
 		conversation = personal;
 		openQuestionId = personal ? boundCompanion.QuestionId : Guid.Empty;
+		openInitiativeId = personal ? Guid.Empty : boundCompanion.InitiativeId;
+		openInitiativeKind = boundCompanion.PendingInitiativeKind;
 		center = ClampCenter(SoulmatesUISpace.FromWorld(Main.LocalPlayer.Center));
 		hoverIndex = -1;
 		leftMouseDown = Main.mouseLeft;
@@ -76,6 +85,8 @@ public sealed class InitiativePromptSystem : ModSystem
 		companion = null;
 		conversation = false;
 		openQuestionId = Guid.Empty;
+		openProfileId = Guid.Empty;
+		openInitiativeId = Guid.Empty;
 	}
 
 	public override void OnWorldUnload()
@@ -83,12 +94,15 @@ public sealed class InitiativePromptSystem : ModSystem
 		Close();
 		replyWaitTicks = 0;
 		replyProfileId = Guid.Empty;
+		replyQuestionId = Guid.Empty;
+		replyInitiativeId = Guid.Empty;
 	}
 
 	private bool IsAwaitingReply(SoulboundCompanion target) => replyWaitTicks > 0
 		&& target.Profile.Id == replyProfileId && (replyQuestionId != Guid.Empty
 			? target.HasPendingQuestion && target.QuestionId == replyQuestionId
-			: target.HasPendingInitiative && target.PendingInitiativeKind == replyKind);
+			: target.HasPendingInitiative && target.PendingInitiativeTicks > 0
+				&& target.InitiativeId == replyInitiativeId && target.PendingInitiativeKind == replyKind);
 
 	public override void UpdateUI(GameTime gameTime)
 	{
@@ -108,7 +122,10 @@ public sealed class InitiativePromptSystem : ModSystem
 			return;
 		}
 		if (Main.gameMenu || Main.LocalPlayer.dead || Main.playerInventory || SoulmatesUIInput.IsTyping || companion?.NPC.active != true
-			|| (conversation ? !companion.HasPendingQuestion || companion.QuestionId != openQuestionId : !companion.HasPendingInitiative)
+			|| companion.Profile.Id != openProfileId
+			|| (conversation ? !companion.HasPendingQuestion || companion.QuestionId != openQuestionId
+				: !companion.HasPendingInitiative || companion.PendingInitiativeTicks <= 0
+					|| companion.InitiativeId != openInitiativeId || companion.PendingInitiativeKind != openInitiativeKind)
 			|| companion.IsDefending || SoulboundCompanion.FindFor(Main.LocalPlayer) != companion) {
 			Close();
 			return;
@@ -143,7 +160,11 @@ public sealed class InitiativePromptSystem : ModSystem
 		if (index < 0 || index >= Responses.Length) return;
 		CompanionInitiativeResponse response = Responses[index];
 		SoulboundCompanion? target = companion;
-		if (target?.NPC.active != true || (conversation ? !target.HasPendingQuestion : !target.HasPendingInitiative)) {
+		if (target?.NPC.active != true || SoulboundCompanion.FindFor(Main.LocalPlayer) != target
+			|| target.Profile.Id != openProfileId
+			|| (conversation ? !target.HasPendingQuestion || target.QuestionId != openQuestionId
+				: !target.HasPendingInitiative || target.PendingInitiativeTicks <= 0
+					|| target.InitiativeId != openInitiativeId || target.PendingInitiativeKind != openInitiativeKind)) {
 			Close();
 			return;
 		}
@@ -163,6 +184,7 @@ public sealed class InitiativePromptSystem : ModSystem
 		}
 
 		CompanionInitiativeKind kind = target.PendingInitiativeKind;
+		Guid initiative = openInitiativeId;
 		SoulmatesFeedbackSystem.Record("initiative_response", ("action", kind.ToString()),
 			("response", response.ToString()));
 		Close();
@@ -170,11 +192,12 @@ public sealed class InitiativePromptSystem : ModSystem
 			replyProfileId = target.Profile.Id;
 			replyKind = kind;
 			replyQuestionId = Guid.Empty;
+			replyInitiativeId = initiative;
 			replyWaitTicks = 600;
-			global::Soulmates.Soulmates.SendInitiativeResponse(kind, response);
+			global::Soulmates.Soulmates.SendInitiativeResponse(target.Profile.Id, initiative, kind, response);
 		}
 		else
-			target.RespondToInitiative(response);
+			target.RespondToInitiative(initiative, response);
 		SoundEngine.PlaySound(response is CompanionInitiativeResponse.Yes or CompanionInitiativeResponse.Always
 			? SoundID.Chat : SoundID.MenuClose, Main.LocalPlayer.Center);
 	}
@@ -201,10 +224,14 @@ public sealed class InitiativePromptSystem : ModSystem
 			Vector2 position = Vector2.Lerp(center, ResponsePosition(i), reveal);
 			bool hovered = hoverIndex == i;
 			DrawNode(spriteBatch, position, hovered ? 43f * pulse : 38f, accent, hovered,
-				conversation ? AnswerEmote(i) : ResponseEmote(Responses[i]));
+				conversation ? AnswerEmote(i) : SoulboundCompanion.InitiativeResponseEmote(Responses[i]));
 		}
 		DrawNode(spriteBatch, center, 46f * pulse, accent, false,
-			conversation ? companion.PendingQuestion == CompanionQuestion.Wallet ? EmoteID.ItemGoldpile : EmoteID.EmoteConfused
+			conversation ? companion.PendingQuestion switch {
+				CompanionQuestion.Wallet => EmoteID.ItemGoldpile,
+				CompanionQuestion.CritterCare => EmoteID.CritterBunny,
+				_ => EmoteID.EmoteConfused
+			}
 				: SoulboundCompanion.InitiativeEmote(companion.PendingInitiativeKind));
 		DrawPrompt(spriteBatch, accent);
 		DrawHoverLabel(spriteBatch, accent);
@@ -258,19 +285,7 @@ public sealed class InitiativePromptSystem : ModSystem
 		return center + angle.ToRotationVector2() * ResponseRadius;
 	}
 
-	private static int ResponseEmote(CompanionInitiativeResponse response) => response switch {
-		CompanionInitiativeResponse.Yes => EmoteID.EmoteHappiness,
-		CompanionInitiativeResponse.No => EmoteID.EmoteConfused,
-		CompanionInitiativeResponse.Always => EmoteID.EmoteWink,
-		_ => EmoteID.EmoteScowl
-	};
-
-	private int AnswerEmote(int index) => index switch {
-		0 => EmoteID.ItemGoldpile,
-		1 => companion!.PendingQuestion == CompanionQuestion.Wallet ? EmoteID.EmoteWink : EmoteID.EmoteLaugh,
-		2 => companion!.PendingQuestion == CompanionQuestion.Wallet ? EmoteID.EmoteLaugh : EmoteID.EmotionLove,
-		_ => EmoteID.EmoteSleep
-	};
+	private int AnswerEmote(int index) => SoulboundCompanion.QuestionAnswerEmote(companion!.PendingQuestion, index);
 
 	private static Vector2 ClampCenter(Vector2 desired)
 	{

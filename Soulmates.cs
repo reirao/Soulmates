@@ -41,7 +41,10 @@ public sealed class Soulmates : Mod
 		ChoiceResponseRequest,
 		RpsResult,
 		NpcContextRequest,
-		MiningRuleRequest
+		MiningRuleRequest,
+		MiningObservationRequest,
+		InventoryReceipt,
+		InventoryResolved
 	}
 
 	internal static ModKeybind TalkKeybind { get; private set; } = null!;
@@ -63,13 +66,14 @@ public sealed class Soulmates : Mod
 		EmoteKeybind = null!;
 	}
 
-	internal static void SendTalkRequest(TalkCategory category, int option, int memoryCursor,
+	internal static void SendTalkRequest(Guid profileId, TalkCategory category, int option, int memoryCursor,
 		CompanionItemTopic itemTopic = CompanionItemTopic.All)
 	{
 		if (Main.netMode != NetmodeID.MultiplayerClient)
 			return;
 		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
 		packet.Write((byte)MessageType.TalkRequest);
+		packet.Write(profileId.ToByteArray());
 		packet.Write((byte)category);
 		packet.Write((byte)option);
 		packet.Write(memoryCursor);
@@ -77,53 +81,59 @@ public sealed class Soulmates : Mod
 		packet.Send();
 	}
 
-	internal static void SendRecallRequest()
+	internal static void SendRecallRequest(Guid profileId)
 	{
 		if (Main.netMode != NetmodeID.MultiplayerClient)
 			return;
 		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
 		packet.Write((byte)MessageType.RecallRequest);
+		packet.Write(profileId.ToByteArray());
 		packet.Send();
 	}
 
-	internal static void SendTrinketRequest(CompanionTrinket trinket)
+	internal static void SendTrinketRequest(Guid profileId, CompanionTrinket trinket)
 	{
 		if (Main.netMode != NetmodeID.MultiplayerClient)
 			return;
 		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
 		packet.Write((byte)MessageType.TrinketRequest);
+		packet.Write(profileId.ToByteArray());
 		packet.Write((byte)trinket);
 		packet.Send();
 	}
 
-	internal static void SendPackWithdrawRequest(int slot, bool singleItem, CompanionStorage storage = CompanionStorage.Pack)
+	internal static void SendPackWithdrawRequest(CompanionProfile profile, int slot, bool singleItem, CompanionStorage storage = CompanionStorage.Pack)
 	{
 		if (Main.netMode != NetmodeID.MultiplayerClient)
 			return;
 		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
 		packet.Write((byte)MessageType.PackWithdrawRequest);
+		packet.Write(profile.Id.ToByteArray());
 		packet.Write((byte)slot);
 		packet.Write(singleItem);
 		packet.Write((byte)storage);
+		packet.Write(profile.StorageToken(storage, slot));
 		packet.Send();
 	}
 
-	internal static void SendEmoteRequest(CompanionEmote emote)
+	internal static void SendEmoteRequest(Guid profileId, CompanionEmote emote)
 	{
 		if (Main.netMode != NetmodeID.MultiplayerClient)
 			return;
 		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
 		packet.Write((byte)MessageType.EmoteRequest);
+		packet.Write(profileId.ToByteArray());
 		packet.Write((byte)emote);
 		packet.Send();
 	}
 
-	internal static void SendQuickActionRequest(CompanionQuickAction action)
+	internal static void SendQuickActionRequest(Guid profileId, CompanionQuickAction action)
 	{
 		if (Main.netMode != NetmodeID.MultiplayerClient)
 			return;
 		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
 		packet.Write((byte)MessageType.QuickActionRequest);
+		packet.Write(profileId.ToByteArray());
 		packet.Write((byte)action);
 		packet.Send();
 	}
@@ -140,12 +150,13 @@ public sealed class Soulmates : Mod
 		packet.Send();
 	}
 
-	internal static void SendBehaviorObservation(LearnedBehavior behavior)
+	internal static void SendBehaviorObservation(Guid profileId, LearnedBehavior behavior)
 	{
 		if (Main.netMode != NetmodeID.MultiplayerClient)
 			return;
 		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
 		packet.Write((byte)MessageType.BehaviorObservationRequest);
+		packet.Write(profileId.ToByteArray());
 		packet.Write((byte)behavior);
 		packet.Send();
 	}
@@ -159,16 +170,6 @@ public sealed class Soulmates : Mod
 		packet.Write(ores);
 		packet.Write(tileType);
 		packet.Write(enabled);
-		packet.Send();
-	}
-
-	internal static void SendNativeEmoteRequest(int emoteId)
-	{
-		if (Main.netMode != NetmodeID.MultiplayerClient)
-			return;
-		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
-		packet.Write((byte)MessageType.NativeEmoteRequest);
-		packet.Write(emoteId);
 		packet.Send();
 	}
 
@@ -208,34 +209,52 @@ public sealed class Soulmates : Mod
 		packet.Write((byte)MessageType.InitiativePrompt);
 		packet.Write(companion.Profile.Id.ToString());
 		packet.Write((byte)kind);
+		packet.Write(companion.InitiativeId.ToByteArray());
 		packet.Send(player.whoAmI);
 	}
 
-	internal static void SendInitiativeResponse(CompanionInitiativeKind kind,
+	internal static void SendInitiativeResponse(Guid profileId, Guid initiativeId, CompanionInitiativeKind kind,
 		CompanionInitiativeResponse response)
 	{
 		if (Main.netMode != NetmodeID.MultiplayerClient)
 			return;
 		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
 		packet.Write((byte)MessageType.InitiativeResponseRequest);
+		packet.Write(profileId.ToByteArray());
+		packet.Write(initiativeId.ToByteArray());
 		packet.Write((byte)kind);
 		packet.Write((byte)response);
 		packet.Send();
 	}
 
-	internal static void SendDirectOrderRequest(CompanionTargetOrder order, Point tileTarget, int itemTarget)
+	internal static void SendDirectOrderRequest(Guid profileId, CompanionTargetOrder order, Point tileTarget, int itemTarget)
 	{
 		if (Main.netMode != NetmodeID.MultiplayerClient)
 			return;
 		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
 		packet.Write((byte)MessageType.DirectOrderRequest);
+		packet.Write(profileId.ToByteArray());
 		packet.Write((byte)order);
 		packet.Write((short)tileTarget.X);
 		packet.Write((short)tileTarget.Y);
 		packet.Write((short)itemTarget);
 		Item? target = itemTarget >= 0 && itemTarget < Main.maxItems ? Main.item[itemTarget] : null;
 		packet.Write(target?.type ?? 0);
-		packet.Write(target?.prefix ?? (byte)0);
+		packet.Write(target?.prefix ?? 0);
+		Tile tile = WorldGen.InWorld(tileTarget.X, tileTarget.Y) ? Main.tile[tileTarget.X, tileTarget.Y] : default;
+		packet.Write(tile.HasTile ? (int)tile.TileType : -1);
+		packet.Send();
+	}
+
+	internal static void SendMiningObservation(Guid profileId, Point target, int toolType)
+	{
+		if (Main.netMode != NetmodeID.MultiplayerClient) return;
+		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
+		packet.Write((byte)MessageType.MiningObservationRequest);
+		packet.Write(profileId.ToByteArray());
+		packet.Write((short)target.X);
+		packet.Write((short)target.Y);
+		packet.Write(toolType);
 		packet.Send();
 	}
 
@@ -253,7 +272,7 @@ public sealed class Soulmates : Mod
 
 	internal static void SendProfileUpdate(Player player, SoulboundCompanion companion, string message = "")
 	{
-		if (Main.netMode != NetmodeID.Server)
+		if (Main.netMode != NetmodeID.Server || CompanionInventorySync.IsEditing(player) || CompanionInventorySync.IsPending(player))
 			return;
 		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
 		packet.Write((byte)MessageType.ProfileUpdate);
@@ -283,18 +302,27 @@ public sealed class Soulmates : Mod
 		bool serverResponse = type is MessageType.TalkResponse or MessageType.ProfileUpdate
 			or MessageType.CompanionSpeech or MessageType.QuickActionResponse
 			or MessageType.CreateCompanionResponse or MessageType.InitiativePrompt or MessageType.ManaRecovery
-			or MessageType.OwnerInventoryUpdate or MessageType.RpsResult;
+			or MessageType.OwnerInventoryUpdate or MessageType.RpsResult or MessageType.InventoryResolved;
 		if (!Enum.IsDefined(type) || serverResponse != (Main.netMode == NetmodeID.MultiplayerClient))
 			return;
 		int minimumBytes = type switch {
-			MessageType.RecallRequest => 0,
-			MessageType.TalkRequest => 7,
-			MessageType.PackWithdrawRequest or MessageType.TalkResponse or MessageType.CompanionSpeech
+			MessageType.RecallRequest => 16,
+			MessageType.TalkRequest => 23,
+			MessageType.PackWithdrawRequest => 51,
+			MessageType.EmoteRequest or MessageType.QuickActionRequest or MessageType.TrinketRequest
+				or MessageType.BehaviorObservationRequest => 17,
+			MessageType.NativeEmoteRequest => 20,
+			MessageType.TalkResponse or MessageType.CompanionSpeech
 				or MessageType.QuickActionResponse or MessageType.CreateCompanionResponse => 3,
-			MessageType.NativeEmoteRequest or MessageType.ManaRecovery => 4,
+			MessageType.ManaRecovery => 4,
 			MessageType.CreateCompanionRequest => 7,
-			MessageType.ProfileUpdate or MessageType.InitiativePrompt or MessageType.InitiativeResponseRequest => 2,
-			MessageType.DirectOrderRequest => 12,
+			MessageType.ProfileUpdate => 2,
+			MessageType.InitiativePrompt => 18,
+			MessageType.InitiativeResponseRequest => 34,
+			MessageType.DirectOrderRequest => 35,
+			MessageType.OwnerInventoryUpdate => 18,
+			MessageType.InventoryReceipt or MessageType.InventoryResolved => 18,
+			MessageType.MiningObservationRequest => 24,
 			MessageType.ChoiceResponseRequest => 33,
 			MessageType.RpsResult => 18,
 			MessageType.NpcContextRequest => 23,
@@ -311,7 +339,7 @@ public sealed class Soulmates : Mod
 				HandleTalkResponse(reader);
 				break;
 			case MessageType.RecallRequest:
-				HandleRecallRequest(whoAmI);
+				HandleRecallRequest(reader, whoAmI);
 				break;
 			case MessageType.TrinketRequest:
 				HandleTrinketRequest(reader, whoAmI);
@@ -338,7 +366,7 @@ public sealed class Soulmates : Mod
 				HandleBehaviorObservationRequest(reader, whoAmI);
 				break;
 			case MessageType.NativeEmoteRequest:
-				HandleNativeEmoteRequest(reader, whoAmI);
+				// Reserved ordinal: native emotes use Terraria's observer, not this retired request.
 				break;
 			case MessageType.CreateCompanionRequest:
 				HandleCreateCompanionRequest(reader, whoAmI);
@@ -361,6 +389,9 @@ public sealed class Soulmates : Mod
 			case MessageType.MiningRuleRequest:
 				HandleMiningRuleRequest(reader, whoAmI);
 				break;
+			case MessageType.MiningObservationRequest:
+				HandleMiningObservationRequest(reader, whoAmI);
+				break;
 			case MessageType.ManaRecovery:
 				int amount = reader.ReadInt32();
 				Player owner = Main.LocalPlayer;
@@ -373,6 +404,12 @@ public sealed class Soulmates : Mod
 				break;
 			case MessageType.OwnerInventoryUpdate:
 				CompanionInventorySync.Apply(reader);
+				break;
+			case MessageType.InventoryReceipt:
+				CompanionInventorySync.ReceiveReceipt(reader, whoAmI);
+				break;
+			case MessageType.InventoryResolved:
+				CompanionInventorySync.Complete(reader);
 				break;
 			case MessageType.ChoiceResponseRequest:
 				HandleChoiceResponseRequest(reader, whoAmI);
@@ -401,14 +438,26 @@ public sealed class Soulmates : Mod
 
 	private static SoulboundCompanion? FindRequestCompanion(Player player)
 	{
-		if (Main.netMode != NetmodeID.Server || !player.active || player.dead)
+		if (Main.netMode != NetmodeID.Server || !player.active || player.dead || CompanionInventorySync.IsPending(player))
 			return null;
 		SoulboundCompanion? companion = SoulboundCompanion.FindFor(player);
 		return companion?.FindBoundSigil() is not null ? companion : null;
 	}
 
+	private static SoulboundCompanion? FindRequestCompanion(Player player, Guid profileId)
+		=> profileId != Guid.Empty && FindRequestCompanion(player) is { } companion && companion.Profile.Id == profileId
+			? companion : null;
+
+	private static Guid ReadGuid(BinaryReader reader)
+	{
+		byte[] bytes = reader.ReadBytes(16);
+		if (bytes.Length != 16) throw new EndOfStreamException();
+		return new Guid(bytes);
+	}
+
 	private void HandleTalkRequest(BinaryReader reader, int whoAmI)
 	{
+		Guid profileId = ReadGuid(reader);
 		TalkCategory category = (TalkCategory)reader.ReadByte();
 		int option = reader.ReadByte();
 		int memoryCursor = reader.ReadInt32();
@@ -419,15 +468,10 @@ public sealed class Soulmates : Mod
 			return;
 
 		Player player = Main.player[whoAmI];
-		if (FindRequestCompanion(player) is not { } companion)
+		if (FindRequestCompanion(player, profileId) is not { } companion)
 			return;
 		CompanionConversationResult result = companion.Converse(category, option, memoryCursor, itemTopic);
-		ModPacket packet = GetPacket();
-		packet.Write((byte)MessageType.TalkResponse);
-		packet.Write(result.Reply);
-		packet.Write(result.Accepted);
-		companion.Profile.Write(packet);
-		packet.Send(whoAmI);
+		SendInteractionResponse(whoAmI, companion, result, quick: false);
 	}
 
 	private static void HandleTalkResponse(BinaryReader reader)
@@ -441,50 +485,49 @@ public sealed class Soulmates : Mod
 		ModContent.GetInstance<TalkModeSystem>().ReceiveNetworkResponse(profile, reply, accepted);
 	}
 
-	private static void HandleRecallRequest(int whoAmI)
+	private static void HandleRecallRequest(BinaryReader reader, int whoAmI)
 	{
+		Guid profileId = ReadGuid(reader);
 		if (Main.netMode != NetmodeID.Server || whoAmI < 0 || whoAmI >= Main.maxPlayers
 			|| !Main.player[whoAmI].active)
 			return;
-		SoulboundCompanion.RecallAllFor(Main.player[whoAmI]);
+		FindRequestCompanion(Main.player[whoAmI], profileId)?.Recall();
 	}
 
 	private static void HandleTrinketRequest(BinaryReader reader, int whoAmI)
 	{
+		Guid profileId = ReadGuid(reader);
 		CompanionTrinket trinket = (CompanionTrinket)reader.ReadByte();
-		if (Main.netMode != NetmodeID.Server || !Enum.IsDefined(trinket)
+		if (Main.netMode != NetmodeID.Server || trinket != CompanionTrinket.None
 			|| whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active)
 			return;
 		Player player = Main.player[whoAmI];
-		if (FindRequestCompanion(player) is not { } companion)
+		if (FindRequestCompanion(player, profileId) is not { } companion)
 			return;
 		companion.EquipTrinket(trinket);
-		string message = trinket == CompanionTrinket.None
-			? SoulmatesText.Get("Messages.TrinketRemoved", companion.Profile.Name)
-			: SoulmatesText.Get("Messages.TrinketEquipped", companion.Profile.Name, SoulmatesText.EnumName(trinket));
+		string message = SoulmatesText.Get("Messages.TrinketRemoved", companion.Profile.Name);
 		SendProfileUpdate(player, companion, message);
 	}
 
 	private void HandlePackWithdrawRequest(BinaryReader reader, int whoAmI)
 	{
+		Guid profileId = ReadGuid(reader);
 		int slot = reader.ReadByte();
 		bool singleItem = reader.ReadBoolean();
 		CompanionStorage storage = (CompanionStorage)reader.ReadByte();
+		byte[] token = reader.ReadBytes(32);
 		int slots = storage == CompanionStorage.Wallet ? 4
 			: CompanionProfile.MaximumPackSlots + CompanionProfile.MaximumResourceSlots;
 		if (Main.netMode != NetmodeID.Server || !Enum.IsDefined(storage) || slot >= slots
 			|| whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active)
 			return;
 		Player player = Main.player[whoAmI];
-		if (FindRequestCompanion(player) is not { } companion)
+		if (FindRequestCompanion(player, profileId) is not { } companion)
 			return;
-		string reply = companion.WithdrawStorageSlot(storage, slot, singleItem);
-		ModPacket packet = GetPacket();
-		packet.Write((byte)MessageType.TalkResponse);
-		packet.Write(reply);
-		packet.Write(true);
-		companion.Profile.Write(packet);
-		packet.Send(whoAmI);
+		bool unchanged = token.Length == 32 && token.AsSpan().SequenceEqual(companion.Profile.StorageToken(storage, slot));
+		string reply = unchanged ? companion.WithdrawStorageSlot(storage, slot, singleItem)
+			: SoulmatesText.Get("UI.CompanionWheel.MouseModes.TargetChanged");
+		SendInteractionResponse(whoAmI, companion, new(reply, unchanged), quick: false);
 	}
 
 	private static void HandleProfileUpdate(BinaryReader reader)
@@ -500,11 +543,12 @@ public sealed class Soulmates : Mod
 
 	private static void HandleEmoteRequest(BinaryReader reader, int whoAmI)
 	{
+		Guid profileId = ReadGuid(reader);
 		CompanionEmote emote = (CompanionEmote)reader.ReadByte();
 		if (Main.netMode != NetmodeID.Server || !Enum.IsDefined(emote)
 			|| whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active)
 			return;
-		if (FindRequestCompanion(Main.player[whoAmI]) is { } companion)
+		if (FindRequestCompanion(Main.player[whoAmI], profileId) is { } companion)
 			companion.PerformEmote(emote);
 	}
 
@@ -521,20 +565,16 @@ public sealed class Soulmates : Mod
 
 	private void HandleQuickActionRequest(BinaryReader reader, int whoAmI)
 	{
+		Guid profileId = ReadGuid(reader);
 		CompanionQuickAction action = (CompanionQuickAction)reader.ReadByte();
 		if (Main.netMode != NetmodeID.Server || !Enum.IsDefined(action) || action == CompanionQuickAction.Details
 			|| whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active)
 			return;
-		if (FindRequestCompanion(Main.player[whoAmI]) is not { } companion)
+		if (FindRequestCompanion(Main.player[whoAmI], profileId) is not { } companion)
 			return;
 
 		CompanionConversationResult result = companion.PerformQuickAction(action);
-		ModPacket packet = GetPacket();
-		packet.Write((byte)MessageType.QuickActionResponse);
-		packet.Write(result.Accepted);
-		packet.Write(result.Reply);
-		companion.Profile.Write(packet);
-		packet.Send(whoAmI);
+		SendInteractionResponse(whoAmI, companion, result, quick: true);
 	}
 
 	private static void HandleQuickActionResponse(BinaryReader reader)
@@ -553,25 +593,26 @@ public sealed class Soulmates : Mod
 
 	private static void HandleBehaviorObservationRequest(BinaryReader reader, int whoAmI)
 	{
+		Guid profileId = ReadGuid(reader);
 		LearnedBehavior behavior = (LearnedBehavior)reader.ReadByte();
 		if (Main.netMode != NetmodeID.Server || behavior != LearnedBehavior.Gathering
 			|| whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active)
 			return;
 		Player player = Main.player[whoAmI];
-		if (!player.GetModPlayer<SoulmatesPlayer>().TryAcceptGatheringObservation())
+		if (FindRequestCompanion(player, profileId) is not { } companion
+			|| !player.GetModPlayer<SoulmatesPlayer>().TryAcceptGatheringObservation())
 			return;
-		if (FindRequestCompanion(player) is { } companion)
-			companion.ObserveOwnerActivity(behavior);
+		companion.ObserveOwnerActivity(behavior);
 	}
 
-	private static void HandleNativeEmoteRequest(BinaryReader reader, int whoAmI)
+	private static void HandleMiningObservationRequest(BinaryReader reader, int whoAmI)
 	{
-		int emoteId = reader.ReadInt32();
-		if (Main.netMode != NetmodeID.Server || emoteId < 0 || emoteId >= EmoteBubbleLoader.EmoteBubbleCount
-			|| whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active)
-			return;
-		if (FindRequestCompanion(Main.player[whoAmI]) is { } companion)
-			companion.ReactToNativeEmote(emoteId);
+		Guid profileId = ReadGuid(reader);
+		Point target = new(reader.ReadInt16(), reader.ReadInt16());
+		int toolType = reader.ReadInt32();
+		if (FindRequestCompanion(Main.player[whoAmI], profileId) is not { } companion
+			|| !Main.player[whoAmI].GetModPlayer<SoulmatesPlayer>().TryAcceptMiningObservation()) return;
+		companion.ObserveMiningTarget(target, toolType);
 	}
 
 	private void HandleCreateCompanionRequest(BinaryReader reader, int whoAmI)
@@ -588,6 +629,7 @@ public sealed class Soulmates : Mod
 			return;
 
 		Player player = Main.player[whoAmI];
+		if (CompanionInventorySync.IsPending(player)) return;
 		var request = new CompanionProfile {
 			Name = name,
 			Muse = muse,
@@ -622,22 +664,25 @@ public sealed class Soulmates : Mod
 	{
 		Guid profileId = Guid.TryParse(reader.ReadString(), out Guid parsed) ? parsed : Guid.Empty;
 		CompanionInitiativeKind kind = (CompanionInitiativeKind)reader.ReadByte();
+		Guid initiativeId = ReadGuid(reader);
 		if (Main.netMode != NetmodeID.MultiplayerClient || profileId == Guid.Empty || !Enum.IsDefined(kind))
 			return;
 		if (SoulboundCompanion.FindFor(Main.LocalPlayer) is { } companion && companion.Profile.Id == profileId)
-			companion.ReceiveInitiativePrompt(kind);
+			companion.ReceiveInitiativePrompt(kind, initiativeId);
 	}
 
 	private static void HandleInitiativeResponseRequest(BinaryReader reader, int whoAmI)
 	{
+		Guid profileId = ReadGuid(reader);
+		Guid initiativeId = ReadGuid(reader);
 		CompanionInitiativeKind kind = (CompanionInitiativeKind)reader.ReadByte();
 		CompanionInitiativeResponse response = (CompanionInitiativeResponse)reader.ReadByte();
 		if (Main.netMode != NetmodeID.Server || !Enum.IsDefined(kind) || !Enum.IsDefined(response)
 			|| whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active)
 			return;
 		Player player = Main.player[whoAmI];
-		if (FindRequestCompanion(player) is not { } companion || !companion.HasPendingInitiative
-			|| companion.PendingInitiativeKind != kind || !companion.RespondToInitiative(response))
+		if (FindRequestCompanion(player, profileId) is not { } companion || !companion.HasPendingInitiative
+			|| companion.PendingInitiativeKind != kind || !companion.RespondToInitiative(initiativeId, response))
 			return;
 		SendProfileUpdate(player, companion);
 	}
@@ -676,12 +721,7 @@ public sealed class Soulmates : Mod
 			|| !Main.player[whoAmI].active || FindRequestCompanion(Main.player[whoAmI]) is not { } companion
 			|| companion.Profile.Id != profileId) return;
 		CompanionConversationResult result = companion.PerformNpcContext(action, index, expectedType);
-		ModPacket packet = GetPacket();
-		packet.Write((byte)MessageType.QuickActionResponse);
-		packet.Write(result.Accepted);
-		packet.Write(result.Reply);
-		companion.Profile.Write(packet);
-		packet.Send(whoAmI);
+		SendInteractionResponse(whoAmI, companion, result, quick: true);
 	}
 
 	private void HandleMiningRuleRequest(BinaryReader reader, int whoAmI)
@@ -697,67 +737,93 @@ public sealed class Soulmates : Mod
 
 	private void HandleDirectOrderRequest(BinaryReader reader, int whoAmI)
 	{
+		Guid profileId = ReadGuid(reader);
 		CompanionTargetOrder order = (CompanionTargetOrder)reader.ReadByte();
 		var tileTarget = new Point(reader.ReadInt16(), reader.ReadInt16());
 		int itemTarget = reader.ReadInt16();
 		int expectedType = reader.ReadInt32();
-		byte expectedPrefix = reader.ReadByte();
+		int expectedPrefix = reader.ReadInt32();
+		int expectedTile = reader.ReadInt32();
 		if (Main.netMode != NetmodeID.Server || !Enum.IsDefined(order)
 			|| whoAmI < 0 || whoAmI >= Main.maxPlayers || !Main.player[whoAmI].active)
 			return;
-		if (FindRequestCompanion(Main.player[whoAmI]) is not { } companion)
+		if (FindRequestCompanion(Main.player[whoAmI], profileId) is not { } companion)
 			return;
 
 		bool changedItem = (order is CompanionTargetOrder.Gather or CompanionTargetOrder.Look) && itemTarget >= 0
 			&& (itemTarget >= Main.maxItems || !Main.item[itemTarget].active
 				|| Main.item[itemTarget].type != expectedType || Main.item[itemTarget].prefix != expectedPrefix);
-		CompanionConversationResult result = changedItem
+		bool changedTile = order is CompanionTargetOrder.Mine or CompanionTargetOrder.Forest
+			&& (!WorldGen.InWorld(tileTarget.X, tileTarget.Y)
+				|| (Main.tile[tileTarget.X, tileTarget.Y].HasTile ? Main.tile[tileTarget.X, tileTarget.Y].TileType : -1) != expectedTile
+				|| order == CompanionTargetOrder.Mine && expectedTile < 0);
+		CompanionConversationResult result = changedItem || changedTile
 			? new CompanionConversationResult(SoulmatesText.Get("TargetOrders.TargetLost"), false)
 			: companion.PerformDirectOrder(order, tileTarget, itemTarget);
-		ModPacket packet = GetPacket();
-		packet.Write((byte)MessageType.QuickActionResponse);
-		packet.Write(result.Accepted);
-		packet.Write(result.Reply);
-		companion.Profile.Write(packet);
-		packet.Send(whoAmI);
+		SendInteractionResponse(whoAmI, companion, result, quick: true);
 	}
+
+	private void SendInteractionResponse(int playerIndex, SoulboundCompanion companion,
+		CompanionConversationResult result, bool quick)
+		=> CompanionInventorySync.RespondOrDefer(playerIndex, committed => {
+			ModPacket packet = GetPacket();
+			packet.Write((byte)(quick ? MessageType.QuickActionResponse : MessageType.TalkResponse));
+			string reply = committed ? result.Reply : SoulmatesText.Get("TargetOrders.TargetLost");
+			bool accepted = committed && result.Accepted;
+			if (quick) { packet.Write(accepted); packet.Write(reply); }
+			else { packet.Write(reply); packet.Write(accepted); }
+			companion.Profile.Write(packet); packet.Send(playerIndex);
+		});
 
 	private void SendCreateCompanionResponse(int playerIndex, CompanionCreationResult result, string name, CompanionEssence essence)
 	{
 		if (Main.netMode != NetmodeID.Server || playerIndex < 0 || playerIndex >= Main.maxPlayers)
 			return;
-		ModPacket packet = GetPacket();
-		packet.Write((byte)MessageType.CreateCompanionResponse);
-		packet.Write((byte)result);
-		packet.Write(name);
-		packet.Write((byte)essence);
-		packet.Send(playerIndex);
+		CompanionInventorySync.RespondOrDefer(playerIndex, committed => {
+			ModPacket packet = GetPacket();
+			packet.Write((byte)MessageType.CreateCompanionResponse);
+			packet.Write((byte)(committed ? result : CompanionCreationResult.InvalidRequest));
+			packet.Write(name); packet.Write((byte)essence); packet.Send(playerIndex);
+		});
 	}
 
-	internal static void SendOwnerInventoryUpdate(Player player, IReadOnlyList<(byte Slot, byte[] Data)> changes)
+	internal static void SendOwnerInventoryUpdate(Player player, byte[] payload)
 	{
-		if (Main.netMode != NetmodeID.Server || changes.Count == 0 || !player.active
+		if (Main.netMode != NetmodeID.Server || !player.active
 			|| player.whoAmI < 0 || player.whoAmI >= Main.maxPlayers)
 			return;
-		// Native SyncEquipment ignores unsolicited updates to the owning client's inventory.
 		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
 		packet.Write((byte)MessageType.OwnerInventoryUpdate);
-		packet.Write((byte)changes.Count);
-		foreach ((byte slot, byte[] data) in changes) {
-			packet.Write(slot);
-			packet.Write(data);
-		}
+		packet.Write(payload);
 		packet.Send(player.whoAmI);
 	}
 
-	private static void ApplyClientProfile(CompanionProfile profile)
+	internal static void SendInventoryReceipt(Guid id, bool accepted, byte[] inventory)
+	{
+		if (Main.netMode != NetmodeID.MultiplayerClient) return;
+		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
+		packet.Write((byte)MessageType.InventoryReceipt);
+		packet.Write(id.ToByteArray()); packet.Write(accepted); packet.Write(inventory); packet.Send();
+	}
+
+	internal static void SendInventoryResolved(Player player, Guid id, bool accepted, CompanionProfile? profile)
+	{
+		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
+		packet.Write((byte)MessageType.InventoryResolved);
+		packet.Write(id.ToByteArray()); packet.Write(accepted); packet.Write(profile is not null);
+		profile?.Write(packet); packet.Send(player.whoAmI);
+	}
+
+	internal static void ApplyClientProfile(CompanionProfile profile)
 	{
 		Player player = Main.LocalPlayer;
 		if (SoulboundCompanion.FindFor(player) is { } companion && companion.Profile.Id == profile.Id)
 			companion.Profile = profile.Clone();
-		foreach (Item item in player.inventory) {
+		for (int slot = 0; slot < player.inventory.Length; slot++) {
+			Item item = player.inventory[slot];
 			if (item.ModItem is SoulboundSigil sigil && sigil.Profile.Id == profile.Id) {
 				sigil.Profile = profile.Clone();
+				Main.clientPlayer.inventory[slot] = item.Clone();
 				break;
 			}
 		}

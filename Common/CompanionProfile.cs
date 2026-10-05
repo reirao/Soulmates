@@ -44,7 +44,9 @@ public enum CompanionInitiativeKind : byte
 	Gathering,
 	Mining,
 	Forestry,
-	Treasure
+	Treasure,
+	CritterCompany,
+	CritterCollect
 }
 
 public enum CompanionInitiativePolicy : byte
@@ -66,7 +68,8 @@ public enum CompanionQuestion : byte
 {
 	None,
 	Company,
-	Wallet
+	Wallet,
+	CritterCare
 }
 
 public enum CompanionAnswer : byte
@@ -159,8 +162,16 @@ public enum CompanionQuickAction : byte
 	CritterOff,
 	Pause,
 	Resume,
-	Abort
+	Abort,
+	QuestionSettings,
+	QuestionsQuiet,
+	QuestionsCalm,
+	QuestionsChatty,
+	CritterCompanyPolicy,
+	CritterCollectPolicy
 }
+
+public enum CompanionQuestionCadence : byte { Quiet, Calm, Chatty }
 
 public enum CompanionCritterMode : byte
 {
@@ -340,6 +351,7 @@ public sealed partial class CompanionProfile
 	public CompanionAura Aura { get; set; }
 	public CompanionMuse Muse { get; set; }
 	public CompanionVoice Voice { get; set; }
+	public CompanionQuestionCadence QuestionCadence { get; set; } = CompanionQuestionCadence.Calm;
 	public CompanionTrinket Trinket { get; set; }
 	public CompanionJob Routine { get; set; }
 	public CompanionMiningApproach MiningApproach { get; set; } = CompanionMiningApproach.Adaptive;
@@ -350,6 +362,8 @@ public sealed partial class CompanionProfile
 	public CompanionInitiativePolicy MiningInitiative { get; set; } = CompanionInitiativePolicy.Ask;
 	public CompanionInitiativePolicy ForestryInitiative { get; set; } = CompanionInitiativePolicy.Ask;
 	public CompanionInitiativePolicy TreasureInitiative { get; set; } = CompanionInitiativePolicy.Ask;
+	public CompanionInitiativePolicy CritterCompanyInitiative { get; set; } = CompanionInitiativePolicy.Ask;
+	public CompanionInitiativePolicy CritterCollectInitiative { get; set; } = CompanionInitiativePolicy.Ask;
 	public int Bond { get; set; }
 	public int Mood { get; set; } = 100;
 	public int Energy { get; set; } = 100;
@@ -441,93 +455,98 @@ public sealed partial class CompanionProfile
 		_ => new Color(255, 235, 145)
 	};
 
-	public CompanionProfile Clone() => new() {
-		Id = Id,
-		Name = Name,
-		Personality = Personality,
-		Talent = Talent,
-		Essence = Essence,
-		Form = Form,
-		Aura = Aura,
-		Muse = Muse,
-		Voice = Voice,
-		Trinket = Trinket,
-		Routine = Routine,
-		MiningApproach = MiningApproach,
-		AutonomyEnabled = AutonomyEnabled,
-		WorkPaused = WorkPaused,
-		CritterMode = CritterMode,
-		GatheringInitiative = GatheringInitiative,
-		MiningInitiative = MiningInitiative,
-		ForestryInitiative = ForestryInitiative,
-		TreasureInitiative = TreasureInitiative,
-		Bond = Bond,
-		Mood = Mood,
-		Energy = Energy,
-		JobsCompleted = JobsCompleted,
-		Experience = Experience,
-		DefeatedEnemies = DefeatedEnemies,
-		Interactions = Interactions,
-		GatheringInsight = GatheringInsight,
-		MiningInsight = MiningInsight,
-		ForestryInsight = ForestryInsight,
-		CombatInsight = CombatInsight,
-		ExplorationInsight = ExplorationInsight,
-		ObservedPickPower = ObservedPickPower,
-		LastMemory = LastMemory,
-		LearnedMiningTiles = LearnedMiningTiles.ToList(),
-		BlockedAutoMiningTiles = BlockedAutoMiningTiles.ToList(),
-		AllowedAutoMiningMaterials = AllowedAutoMiningMaterials.ToList(),
-		Pack = Pack.Where(item => !item.IsAir).Select(item => item.Clone()).ToList(),
-		Resources = Resources.Where(item => !item.IsAir).Select(item => item.Clone()).ToList(),
-		WalletCopper = WalletCopper,
-		Memories = Memories.Select(memory => memory.Clone()).ToList(),
-		Relationships = Relationships.Select(relation => relation.Clone()).ToList()
-	};
+	public CompanionProfile Clone()
+	{
+		var clone = new CompanionProfile {
+			Id = Id,
+			Name = Name,
+			Personality = Personality,
+			Talent = Talent,
+			Essence = Essence,
+			Form = Form,
+			Aura = Aura,
+			Muse = Muse,
+			Voice = Voice,
+			QuestionCadence = QuestionCadence,
+			Trinket = Trinket,
+			Routine = Routine,
+			MiningApproach = MiningApproach,
+			AutonomyEnabled = AutonomyEnabled,
+			WorkPaused = WorkPaused,
+			CritterMode = CritterMode,
+			Bond = Bond,
+			Mood = Mood,
+			Energy = Energy,
+			JobsCompleted = JobsCompleted,
+			Experience = Experience,
+			DefeatedEnemies = DefeatedEnemies,
+			Interactions = Interactions,
+			GatheringInsight = GatheringInsight,
+			MiningInsight = MiningInsight,
+			ForestryInsight = ForestryInsight,
+			CombatInsight = CombatInsight,
+			ExplorationInsight = ExplorationInsight,
+			ObservedPickPower = ObservedPickPower,
+			LastMemory = LastMemory,
+			LearnedMiningTiles = LearnedMiningTiles.ToList(),
+			missingMiningKnowledge = missingMiningKnowledge.ToList(),
+			BlockedAutoMiningTiles = BlockedAutoMiningTiles.ToList(),
+			AllowedAutoMiningMaterials = AllowedAutoMiningMaterials.ToList(),
+			Pack = Pack.Where(item => !item.IsAir).Select(item => item.Clone()).ToList(),
+			Resources = Resources.Where(item => !item.IsAir).Select(item => item.Clone()).ToList(),
+			WalletCopper = WalletCopper,
+			Memories = Memories.Select(memory => memory.Clone()).ToList(),
+			Relationships = Relationships.Select(relation => relation.Clone()).ToList()
+		};
+		CompanionAbilityRegistry.CopyPolicies(this, clone);
+		return clone;
+	}
 
-	public TagCompound Save() => new() {
-		["id"] = Id.ToString(),
-		["name"] = Name,
-		["personality"] = (byte)Personality,
-		["talent"] = (byte)Talent,
-		["essence"] = (byte)Essence,
-		["form"] = (byte)Form,
-		["aura"] = (byte)Aura,
-		["muse"] = (byte)Muse,
-		["voice"] = (byte)Voice,
-		["trinket"] = (byte)Trinket,
-		["routine"] = (byte)Routine,
-		["miningApproach"] = (byte)MiningApproach,
-		["autonomyEnabled"] = AutonomyEnabled,
-		["workPaused"] = WorkPaused,
-		["critterMode"] = (byte)CritterMode,
-		["gatheringInitiative"] = (byte)GatheringInitiative,
-		["miningInitiative"] = (byte)MiningInitiative,
-		["forestryInitiative"] = (byte)ForestryInitiative,
-		["treasureInitiative"] = (byte)TreasureInitiative,
-		["bond"] = Bond,
-		["mood"] = Mood,
-		["energy"] = Energy,
-		["jobsCompleted"] = JobsCompleted,
-		["experience"] = Experience,
-		["defeatedEnemies"] = DefeatedEnemies,
-		["interactions"] = Interactions,
-		["gatheringInsight"] = GatheringInsight,
-		["miningInsight"] = MiningInsight,
-		["forestryInsight"] = ForestryInsight,
-		["combatInsight"] = CombatInsight,
-		["explorationInsight"] = ExplorationInsight,
-		["observedPickPower"] = ObservedPickPower,
-		["lastMemory"] = LastMemory,
-		["learnedMiningTiles"] = LearnedMiningTiles.ToList(),
-		["blockedAutoMiningTiles"] = BlockedAutoMiningTiles.ToList(),
-		["allowedAutoMiningMaterials"] = AllowedAutoMiningMaterials.ToList(),
-		["pack"] = Pack.Where(item => !item.IsAir).Select(ItemIO.Save).ToList(),
-		["resources"] = Resources.Where(item => !item.IsAir).Select(ItemIO.Save).ToList(),
-		["walletCopper"] = WalletCopper.ToString(CultureInfo.InvariantCulture),
-		["memories"] = Memories.Select(memory => memory.Save()).ToList(),
-		["relationships"] = Relationships.Select(relation => relation.Save()).ToList()
-	};
+	public TagCompound Save()
+	{
+		var tag = new TagCompound {
+			["id"] = Id.ToString(),
+			["name"] = Name,
+			["personality"] = (byte)Personality,
+			["talent"] = (byte)Talent,
+			["essence"] = (byte)Essence,
+			["form"] = (byte)Form,
+			["aura"] = (byte)Aura,
+			["muse"] = (byte)Muse,
+			["voice"] = (byte)Voice,
+			["questionCadence"] = (byte)QuestionCadence,
+			["trinket"] = (byte)Trinket,
+			["routine"] = (byte)Routine,
+			["miningApproach"] = (byte)MiningApproach,
+			["autonomyEnabled"] = AutonomyEnabled,
+			["workPaused"] = WorkPaused,
+			["critterMode"] = (byte)CritterMode,
+			["bond"] = Bond,
+			["mood"] = Mood,
+			["energy"] = Energy,
+			["jobsCompleted"] = JobsCompleted,
+			["experience"] = Experience,
+			["defeatedEnemies"] = DefeatedEnemies,
+			["interactions"] = Interactions,
+			["gatheringInsight"] = GatheringInsight,
+			["miningInsight"] = MiningInsight,
+			["forestryInsight"] = ForestryInsight,
+			["combatInsight"] = CombatInsight,
+			["explorationInsight"] = ExplorationInsight,
+			["observedPickPower"] = ObservedPickPower,
+			["lastMemory"] = LastMemory,
+			["learnedMiningKeys"] = MiningKnowledgeKeys(),
+			["blockedAutoMiningTiles"] = BlockedAutoMiningTiles.ToList(),
+			["allowedAutoMiningMaterials"] = AllowedAutoMiningMaterials.ToList(),
+			["pack"] = Pack.Where(item => !item.IsAir).Select(ItemIO.Save).ToList(),
+			["resources"] = Resources.Where(item => !item.IsAir).Select(ItemIO.Save).ToList(),
+			["walletCopper"] = WalletCopper.ToString(CultureInfo.InvariantCulture),
+			["memories"] = Memories.Select(memory => memory.Save()).ToList(),
+			["relationships"] = Relationships.Select(relation => relation.Save()).ToList()
+		};
+		CompanionAbilityRegistry.SavePolicies(this, tag);
+		return tag;
+	}
 
 	public static CompanionProfile Load(TagCompound tag)
 	{
@@ -541,6 +560,8 @@ public sealed partial class CompanionProfile
 			Aura = tag.ContainsKey("aura") ? (CompanionAura)tag.GetByte("aura") : CompanionAura.SoftGlow,
 			Muse = tag.ContainsKey("muse") ? (CompanionMuse)tag.GetByte("muse") : CompanionMuse.Soulkin,
 			Voice = tag.ContainsKey("voice") ? (CompanionVoice)tag.GetByte("voice") : CompanionVoice.Soft,
+			QuestionCadence = tag.ContainsKey("questionCadence")
+				? (CompanionQuestionCadence)tag.GetByte("questionCadence") : CompanionQuestionCadence.Calm,
 			Trinket = tag.ContainsKey("trinket") ? (CompanionTrinket)tag.GetByte("trinket") : CompanionTrinket.None,
 			Routine = tag.ContainsKey("routine") ? (CompanionJob)tag.GetByte("routine") : CompanionJob.None,
 			MiningApproach = tag.ContainsKey("miningApproach")
@@ -549,14 +570,6 @@ public sealed partial class CompanionProfile
 			WorkPaused = tag.ContainsKey("workPaused") && tag.GetBool("workPaused"),
 			CritterMode = tag.ContainsKey("critterMode")
 				? (CompanionCritterMode)tag.GetByte("critterMode") : CompanionCritterMode.Watch,
-			GatheringInitiative = tag.ContainsKey("gatheringInitiative")
-				? (CompanionInitiativePolicy)tag.GetByte("gatheringInitiative") : CompanionInitiativePolicy.Ask,
-			MiningInitiative = tag.ContainsKey("miningInitiative")
-				? (CompanionInitiativePolicy)tag.GetByte("miningInitiative") : CompanionInitiativePolicy.Ask,
-			ForestryInitiative = tag.ContainsKey("forestryInitiative")
-				? (CompanionInitiativePolicy)tag.GetByte("forestryInitiative") : CompanionInitiativePolicy.Ask,
-			TreasureInitiative = tag.ContainsKey("treasureInitiative")
-				? (CompanionInitiativePolicy)tag.GetByte("treasureInitiative") : CompanionInitiativePolicy.Ask,
 			Bond = tag.GetInt("bond"),
 			Mood = tag.ContainsKey("mood") ? tag.GetInt("mood") : 100,
 			Energy = tag.ContainsKey("energy") ? tag.GetInt("energy") : 100,
@@ -573,8 +586,8 @@ public sealed partial class CompanionProfile
 			LastMemory = tag.ContainsKey("lastMemory") && tag.GetString("lastMemory") is { Length: > 0 } memory
 				? memory
 				: SoulmatesText.Get("Memories.New"),
-			LearnedMiningTiles = tag.ContainsKey("learnedMiningTiles")
-				? tag.GetList<int>("learnedMiningTiles").ToList()
+			LearnedMiningTiles = !tag.ContainsKey("learnedMiningKeys") && tag.ContainsKey("learnedMiningTiles")
+				? tag.GetList<int>("learnedMiningTiles").Where(type => type >= 0 && type < Terraria.ID.TileID.Count).ToList()
 				: [],
 			Pack = tag.ContainsKey("pack") ? tag.GetList<TagCompound>("pack").Select(ItemIO.Load).Where(item => !item.IsAir).ToList() : [],
 			BlockedAutoMiningTiles = tag.ContainsKey("blockedAutoMiningTiles")
@@ -590,6 +603,8 @@ public sealed partial class CompanionProfile
 			Relationships = tag.ContainsKey("relationships")
 				? tag.GetList<TagCompound>("relationships").Select(CompanionRelationship.Load).ToList() : []
 		};
+		CompanionAbilityRegistry.LoadPolicies(profile, tag);
+		if (tag.ContainsKey("learnedMiningKeys")) profile.LoadMiningKnowledge(tag.GetList<string>("learnedMiningKeys"));
 		profile.Normalize();
 		return profile;
 	}
@@ -609,10 +624,7 @@ public sealed partial class CompanionProfile
 		writer.Write((byte)Routine);
 		writer.Write((byte)MiningApproach);
 		writer.Write(AutonomyEnabled);
-		writer.Write((byte)GatheringInitiative);
-		writer.Write((byte)MiningInitiative);
-		writer.Write((byte)ForestryInitiative);
-		writer.Write((byte)TreasureInitiative);
+		CompanionAbilityRegistry.WritePolicies(writer, this, legacy: true);
 		writer.Write(Bond);
 		writer.Write(Mood);
 		writer.Write(Energy);
@@ -627,10 +639,9 @@ public sealed partial class CompanionProfile
 		writer.Write((byte)ExplorationInsight);
 		writer.Write(LastMemory);
 		writer.Write((short)ObservedPickPower);
-		int[] learnedMiningTiles = LearnedMiningTiles.Take(MaximumLearnedMiningTiles).ToArray();
-		writer.Write((byte)learnedMiningTiles.Length);
-		foreach (int tileType in learnedMiningTiles)
-			writer.Write((ushort)tileType);
+		List<string> learnedMiningKeys = MiningKnowledgeKeys();
+		writer.Write((byte)learnedMiningKeys.Count);
+		foreach (string key in learnedMiningKeys) writer.Write(key);
 		WriteStorage(writer, Pack);
 		WriteStorage(writer, Resources);
 		writer.Write(WalletCopper.ToString(CultureInfo.InvariantCulture));
@@ -646,6 +657,8 @@ public sealed partial class CompanionProfile
 		writer.Write(WorkPaused);
 		WriteMiningRules(writer, BlockedAutoMiningTiles);
 		WriteMiningRules(writer, AllowedAutoMiningMaterials);
+		writer.Write((byte)QuestionCadence);
+		CompanionAbilityRegistry.WritePolicies(writer, this, legacy: false);
 	}
 
 	public static CompanionProfile Read(BinaryReader reader)
@@ -663,29 +676,32 @@ public sealed partial class CompanionProfile
 			Trinket = (CompanionTrinket)reader.ReadByte(),
 			Routine = (CompanionJob)reader.ReadByte(),
 			MiningApproach = (CompanionMiningApproach)reader.ReadByte(),
-			AutonomyEnabled = reader.ReadBoolean(),
-			GatheringInitiative = (CompanionInitiativePolicy)reader.ReadByte(),
-			MiningInitiative = (CompanionInitiativePolicy)reader.ReadByte(),
-			ForestryInitiative = (CompanionInitiativePolicy)reader.ReadByte(),
-			TreasureInitiative = (CompanionInitiativePolicy)reader.ReadByte(),
-			Bond = reader.ReadInt32(),
-			Mood = reader.ReadInt32(),
-			Energy = reader.ReadInt32(),
-			JobsCompleted = reader.ReadInt32(),
-			Experience = reader.ReadInt32(),
-			DefeatedEnemies = reader.ReadInt32(),
-			Interactions = reader.ReadInt32(),
-			GatheringInsight = reader.ReadByte(),
-			MiningInsight = reader.ReadByte(),
-			ForestryInsight = reader.ReadByte(),
-			CombatInsight = reader.ReadByte(),
-			ExplorationInsight = reader.ReadByte(),
-			LastMemory = reader.ReadString()
+			AutonomyEnabled = reader.ReadBoolean()
 		};
+		CompanionAbilityRegistry.ReadPolicies(reader, profile, legacy: true);
+		profile.Bond = reader.ReadInt32();
+		profile.Mood = reader.ReadInt32();
+		profile.Energy = reader.ReadInt32();
+		profile.JobsCompleted = reader.ReadInt32();
+		profile.Experience = reader.ReadInt32();
+		profile.DefeatedEnemies = reader.ReadInt32();
+		profile.Interactions = reader.ReadInt32();
+		profile.GatheringInsight = reader.ReadByte();
+		profile.MiningInsight = reader.ReadByte();
+		profile.ForestryInsight = reader.ReadByte();
+		profile.CombatInsight = reader.ReadByte();
+		profile.ExplorationInsight = reader.ReadByte();
+		profile.LastMemory = reader.ReadString();
 		profile.ObservedPickPower = reader.ReadInt16();
 		int learnedMiningTileCount = reader.ReadByte();
-		for (int i = 0; i < learnedMiningTileCount; i++)
-			profile.LearnedMiningTiles.Add(reader.ReadUInt16());
+		if (learnedMiningTileCount > MaximumLearnedMiningTiles) throw new InvalidDataException("Too much mining knowledge.");
+		var learnedMiningKeys = new List<string>(learnedMiningTileCount);
+		for (int i = 0; i < learnedMiningTileCount; i++) {
+			string key = reader.ReadString();
+			if (!CompanionMiningRules.ValidKey(key)) throw new InvalidDataException("Invalid mining knowledge.");
+			learnedMiningKeys.Add(key);
+		}
+		profile.LoadMiningKnowledge(learnedMiningKeys);
 		profile.Pack = ReadStorage(reader);
 		profile.Resources = ReadStorage(reader);
 		profile.WalletCopper = ParseWallet(reader.ReadString());
@@ -699,6 +715,8 @@ public sealed partial class CompanionProfile
 		profile.WorkPaused = reader.ReadBoolean();
 		profile.BlockedAutoMiningTiles = ReadMiningRules(reader);
 		profile.AllowedAutoMiningMaterials = ReadMiningRules(reader);
+		profile.QuestionCadence = (CompanionQuestionCadence)reader.ReadByte();
+		CompanionAbilityRegistry.ReadPolicies(reader, profile, legacy: false);
 		profile.Normalize();
 		return profile;
 	}
@@ -711,31 +729,18 @@ public sealed partial class CompanionProfile
 			Remember(CompanionMemoryKind.BondMilestone, detail: Rank.ToString());
 	}
 
-	public CompanionInitiativePolicy GetInitiativePolicy(CompanionInitiativeKind kind) => kind switch {
-		CompanionInitiativeKind.Mining => MiningInitiative,
-		CompanionInitiativeKind.Forestry => ForestryInitiative,
-		CompanionInitiativeKind.Treasure => TreasureInitiative,
-		_ => GatheringInitiative
-	};
+	public CompanionInitiativePolicy GetInitiativePolicy(CompanionInitiativeKind kind)
+		=> CompanionAbilityRegistry.Find(kind) is { } ability
+			? CompanionAbilityRegistry.Normalize(ability.ReadPolicy(this)) : CompanionInitiativePolicy.Never;
 
 	public void SetInitiativePolicy(CompanionInitiativeKind kind, CompanionInitiativePolicy policy)
 	{
-		policy = ValidEnum(policy, CompanionInitiativePolicy.Ask);
-		switch (kind) {
-			case CompanionInitiativeKind.Mining: MiningInitiative = policy; break;
-			case CompanionInitiativeKind.Forestry: ForestryInitiative = policy; break;
-			case CompanionInitiativeKind.Treasure: TreasureInitiative = policy; break;
-			default: GatheringInitiative = policy; break;
-		}
+		CompanionAbilityDefinition ability = CompanionAbilityRegistry.Find(kind)
+			?? throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unregistered initiative kind.");
+		ability.WritePolicy(this, CompanionAbilityRegistry.Normalize(policy));
 	}
 
-	public void ResetInitiativePolicies()
-	{
-		GatheringInitiative = CompanionInitiativePolicy.Ask;
-		MiningInitiative = CompanionInitiativePolicy.Ask;
-		ForestryInitiative = CompanionInitiativePolicy.Ask;
-		TreasureInitiative = CompanionInitiativePolicy.Ask;
-	}
+	public void ResetInitiativePolicies() => CompanionAbilityRegistry.ResetPolicies(this);
 
 	public bool GainExperience(int amount, out int newLevel)
 	{
@@ -801,7 +806,7 @@ public sealed partial class CompanionProfile
 	{
 		ObservedPickPower = Math.Clamp(Math.Max(ObservedPickPower, pickPower), 0, short.MaxValue);
 		if (tileType < 0 || tileType > ushort.MaxValue || LearnedMiningTiles.Contains(tileType)
-			|| LearnedMiningTiles.Count >= MaximumLearnedMiningTiles)
+			|| LearnedMiningTiles.Count + missingMiningKnowledge.Count >= MaximumLearnedMiningTiles)
 			return false;
 		LearnedMiningTiles.Add(tileType);
 		return true;
@@ -930,11 +935,12 @@ public sealed partial class CompanionProfile
 				continue;
 			int keep = Math.Min(item.stack, remaining);
 			int removed = item.stack - keep;
-			if (removed > 0) {
+			while (removed > 0) {
 				Item returned = item.Clone();
-				returned.stack = removed;
+				returned.stack = Math.Min(removed, Math.Max(1, item.maxStack));
 				returned.favorited = false;
 				excess.Add(returned);
+				removed -= returned.stack;
 			}
 			item.stack = keep;
 			remaining -= keep;
@@ -957,14 +963,12 @@ public sealed partial class CompanionProfile
 		Aura = ValidEnum(Aura, CompanionAura.SoftGlow);
 		Muse = ValidEnum(Muse, CompanionMuse.Soulkin);
 		Voice = ValidEnum(Voice, CompanionVoice.Soft);
+		QuestionCadence = ValidEnum(QuestionCadence, CompanionQuestionCadence.Calm);
 		Trinket = ValidEnum(Trinket, CompanionTrinket.None);
 		Routine = ValidEnum(Routine, CompanionJob.None);
 		MiningApproach = ValidEnum(MiningApproach, CompanionMiningApproach.Adaptive);
 		CritterMode = ValidEnum(CritterMode, CompanionCritterMode.Watch);
-		GatheringInitiative = ValidEnum(GatheringInitiative, CompanionInitiativePolicy.Ask);
-		MiningInitiative = ValidEnum(MiningInitiative, CompanionInitiativePolicy.Ask);
-		ForestryInitiative = ValidEnum(ForestryInitiative, CompanionInitiativePolicy.Ask);
-		TreasureInitiative = ValidEnum(TreasureInitiative, CompanionInitiativePolicy.Ask);
+		CompanionAbilityRegistry.NormalizePolicies(this);
 		Bond = Math.Clamp(Bond, 0, 100);
 		Mood = Math.Clamp(Mood, 0, 100);
 		Energy = Math.Clamp(Energy, 0, 100);
@@ -996,7 +1000,6 @@ public sealed partial class CompanionProfile
 		Resources = [];
 		WalletCopper = BigInteger.Max(BigInteger.Zero, WalletCopper);
 		foreach (Item item in items) {
-			item.stack = Math.Clamp(item.stack, 1, Math.Max(1, item.maxStack));
 			int coinValue = CoinValue(item.type);
 			if (coinValue > 0)
 				WalletCopper += (BigInteger)item.stack * coinValue;
@@ -1004,6 +1007,24 @@ public sealed partial class CompanionProfile
 				Resources.Add(item);
 			else
 				Pack.Add(item);
+		}
+		SplitLegacyStacks(Pack, MaximumPackSlots);
+		SplitLegacyStacks(Resources, MaximumResourceSlots);
+	}
+
+	private static void SplitLegacyStacks(List<Item> storage, int capacity)
+	{
+		int originalCount = storage.Count;
+		for (int i = 0; i < originalCount; i++) {
+			Item item = storage[i];
+			int maximum = Math.Max(1, item.maxStack);
+			// If cargo is full, retain the old remainder until it can be withdrawn. Never erase it.
+			while (item.stack > maximum && storage.Count < capacity) {
+				Item split = item.Clone();
+				split.stack = Math.Min(maximum, item.stack - maximum);
+				item.stack -= split.stack;
+				storage.Add(split);
+			}
 		}
 	}
 
