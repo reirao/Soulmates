@@ -6,6 +6,18 @@ Soulmates is a tModLoader mod about creating companions that feel personal. The 
 
 Soulmates is an experimental project created with extensive AI assistance across programming, writing, interface work, and visual development. The Workshop icon, mod icon, and custom Soulkin sprite were AI-generated and then integrated into the mod. Bunny, Blue Slime, Bird, Squirrel, item, inventory, and emote visuals reuse Terraria assets. The creator playtests the mod; automated checks and their remaining scope are documented separately for each version.
 
+## Getting Started
+
+1. Subscribe to the [existing Workshop item](https://steamcommunity.com/sharedfiles/filedetails/?id=3807130821), enable Soulmates and reload mods. Confirm the installed version; a new upload may still await Steam moderation. The [0.20.0 GitHub beta release](https://github.com/reirao/Soulmates/releases/tag/v0.20.0) provides the exact tested package separately.
+2. Enter a world. The one-time starter kit provides a Soulcore and three Blank Sigils; the recipes below also let you craft replacements.
+3. Use the Soulcore or right-click it in the inventory. Choose the companion and bind a Sigil. The Soulcore is reusable; use the new Sigil to summon her and keep it in your inventory.
+4. Right-click her for companion tools; right-click yourself for player tools. Games contains Rock, paper, scissors. Critters contains Watch, Company, Pet Collect and Off. Ordinary catching already has the built-in basic net capability.
+5. Commands controls autonomy, Pause/Resume/Abort and separate Ask/Always/Never rules. Yes permits one opportunity; Always remembers permission for that ability. Details or `V` opens conversations and stats; Pack separates equipment, resources and the uncapped wallet.
+
+If she is waiting, check the active assignment, Stay/Pause, autonomy, the ability's permission and energy. Recovery needs a reserve before work resumes. Watch does not catch; Company and Collect have different permissions. If a native NPC/chest/item handles a right-click, Terraria mode deliberately leaves that interaction alone. Select Me/Soulmate for explicit world context, and use X/Escape to leave it.
+
+For a first check use [the playtest checklist](tests/PLAYTEST-CHECKLIST-0.20.0-DE.md). Full beta acceptance is still open; report action, expected result, actual result and solo/MP. Mailbox notes stay local unless you explicitly share them.
+
 ## Features
 
 - Craft a reusable Soulcore and Blank Sigils.
