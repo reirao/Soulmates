@@ -79,7 +79,13 @@ public sealed partial class EngineChecks
 		}
 		using var current = new MemoryStream();
 		using (var writer = new BinaryWriter(current, Encoding.UTF8, true)) original.Write(writer);
-		check(current.ToArray().SequenceEqual(legacy.ToArray()), "Profile write changed the complete 0.19.9 wire fixture");
+		check(current.ToArray().Take((int)legacy.Length).SequenceEqual(legacy.ToArray()), "Profile write changed the 0.19.9 wire prefix");
+		// 0.21 extends the profile; mixed mod versions are not a supported network session.
+		using (var extension = new BinaryWriter(legacy, Encoding.UTF8, true)) {
+			extension.Write((byte)CompanionMiningDirection.Auto); extension.Write((byte)CompanionTunnelEnd.Passage); extension.Write(false);
+			extension.Write(0); // No selected carried pet in an old profile.
+		}
+		check(current.ToArray().SequenceEqual(legacy.ToArray()), "Profile write has an unexpected work extension");
 		legacy.Position = 0;
 		using var reader = new BinaryReader(legacy, Encoding.UTF8, true);
 		CompanionProfile loaded = CompanionProfile.Read(reader);
@@ -172,7 +178,9 @@ public sealed partial class EngineChecks
 				first.Profile.AutonomyEnabled = true; first.Profile.CritterMode = CompanionCritterMode.Collect;
 				first.Profile.CritterCollectInitiative = CompanionInitiativePolicy.Always;
 				NPC bunny = Main.npc[19]; bunny.SetDefaults(NPCID.Bunny); bunny.active = true; bunny.Center = first.NPC.Center + new Vector2(150, 0);
-				Set("autonomyDecisionTimer", 9999); Set("townNpcInteractionCooldown", 9999);
+				Set("autonomyDecisionTimer", 0); Set("townNpcInteractionCooldown", 9999);
+				a.Tick();
+				check(a.Current == CompanionActivityLane.AutomaticWork, "Shared scheduler did not own the critter selection frame");
 				a.Tick();
 				check(a.Current == CompanionActivityLane.Critters && first.CurrentJobName == SoulmatesText.Get("Status.Assignment",
 					SoulmatesText.EnumName(CompanionInitiativeKind.CritterCollect)), "Critter visit was invisible or reported as watching");

@@ -88,7 +88,7 @@ public sealed partial class CompanionWheelSystem
 
 	private void DrawMiningFilter(SpriteBatch spriteBatch, Color accent, float reveal)
 	{
-		Vector2 parent = BranchPosition(RootBranch.Work, Array.IndexOf(WorkActions, WheelWorkAction.MiningApproach), WorkActions.Length);
+		Vector2 parent = WorkConfigPosition(Array.IndexOf(WorkActions, WheelWorkAction.MiningApproach));
 		for (int i = 0; i < MiningFilterNodeCount; i++) {
 			int type = miningFilterCategory < 0 ? -1 : MiningFilterEntry(i);
 			WheelIcon icon = miningFilterCategory < 0

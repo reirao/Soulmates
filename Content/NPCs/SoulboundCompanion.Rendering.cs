@@ -150,6 +150,12 @@ public sealed partial class SoulboundCompanion
 		if (opacity <= 0.01f)
 			return;
 		Vector2 position = SpeechBubblePosition(anchor, speechSize, SoulmatesUISpace.Viewport, speechSide);
+		if (Main.mapEnabled && Main.mapStyle == 1 && !Main.mapFullscreen && Main.miniMapWidth > 0) {
+			Rectangle minimap = new((int)(Main.miniMapX * Main.MapScale) - 18,
+				(int)(Main.miniMapY * Main.MapScale) - 18, (int)(Main.miniMapWidth * Main.MapScale) + 36,
+				(int)(Main.miniMapHeight * Main.MapScale) + 52);
+			position = SpeechBubblePositionAvoiding(anchor, speechSize, SoulmatesUISpace.Viewport, speechSide, minimap);
+		}
 		Rectangle background = new((int)position.X, (int)position.Y, (int)speechSize.X, (int)speechSize.Y);
 		Texture2D pixel = TextureAssets.MagicPixel.Value;
 		if (drawTail) {
@@ -181,6 +187,27 @@ public sealed partial class SoulboundCompanion
 	internal static Vector2 SpeechBubblePosition(Vector2 anchor, Vector2 size, Vector2 viewport, float side) => new(
 		Math.Clamp(anchor.X + side * (size.X * 0.5f + 36f) - size.X * 0.5f, 8f, Math.Max(8f, viewport.X - size.X - 8f)),
 		Math.Clamp(anchor.Y - 88f - size.Y, 52f, Math.Max(52f, viewport.Y - size.Y - 10f)));
+
+	internal static Vector2 SpeechBubblePositionAvoiding(Vector2 anchor, Vector2 size, Vector2 viewport,
+		float side, Rectangle obstacle)
+	{
+		Vector2 preferred = SpeechBubblePosition(anchor, size, viewport, side);
+		bool Clear(Vector2 point) => !new Rectangle((int)point.X, (int)point.Y,
+			(int)MathF.Ceiling(size.X), (int)MathF.Ceiling(size.Y)).Intersects(obstacle);
+		if (Clear(preferred)) return preferred;
+		Vector2 opposite = SpeechBubblePosition(anchor, size, viewport, -side);
+		if (Clear(opposite)) return opposite;
+		Span<Vector2> candidates = stackalloc Vector2[] {
+			new(obstacle.Left - size.X - 8f, preferred.Y), new(preferred.X, obstacle.Bottom + 8f),
+			new(preferred.X, obstacle.Top - size.Y - 8f), new(obstacle.Right + 8f, preferred.Y)
+		};
+		foreach (Vector2 candidate in candidates) {
+			Vector2 position = new(Math.Clamp(candidate.X, 8f, Math.Max(8f, viewport.X - size.X - 8f)),
+				Math.Clamp(candidate.Y, 52f, Math.Max(52f, viewport.Y - size.Y - 10f)));
+			if (Clear(position)) return position;
+		}
+		return preferred;
+	}
 
 	private void DrawJobOrbit(SpriteBatch spriteBatch, Vector2 center)
 	{

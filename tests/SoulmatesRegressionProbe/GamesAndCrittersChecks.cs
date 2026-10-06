@@ -255,7 +255,11 @@ public sealed partial class EngineChecks
 				((SoulboundSigil)owner.inventory[0].ModItem).Profile = mate.Profile.Clone();
 				void Set(string field, object value) => typeof(SoulboundCompanion).GetField(field, flags)!.SetValue(mate, value);
 				object? Get(string field) => typeof(SoulboundCompanion).GetField(field, flags)!.GetValue(mate);
-				void Activity() => typeof(SoulboundCompanion).GetMethod("UpdateCritterActivity", flags)!.Invoke(mate, null);
+				void Activity() {
+					Set("autonomyDecisionTimer", 0);
+					typeof(SoulboundCompanion).GetMethod("UpdateHelpfulAutonomy", flags)!.Invoke(mate, null);
+					typeof(SoulboundCompanion).GetMethod("UpdateCritterActivity", flags)!.Invoke(mate, null);
+				}
 				bool Assigned(NPC critter) => (bool)typeof(CompanionCritterCompany).GetProperty("IsAssigned", flags)!
 					.GetValue(critter.GetGlobalNPC<CompanionCritterCompany>())!;
 				NPC Bunny(int index) {

@@ -1,5 +1,41 @@
 # Soulmates Development History
 
+## Soulmates 0.22.1 - Showcase Repairs (Beta Candidate)
+
+- Follow the genuine 0.22.0 Classic showcase with targeted counterchecks. Cargo drawing without input was traced to the hidden Equipment subtree not being activated; activate it when selected and use click-event coordinates for slot withdrawal.
+- Hold the fade while a personal/work question is pending; restore normal fading after resolution or timeout. Keep the existing companion anchor and shadow trail.
+- Register the native eight-frame Fallen Star animation for Soulcore. Avoid the enabled corner minimap when viewport space allows, without changing overlay/fullscreen maps.
+- Use actual Terraria/tModLoader version labels and precise native critter rejection, range and replaced-object diagnostics. Keep eligibility, permissions, cargo limits and private local export unchanged.
+- Repeat native withdrawal conservation, partial/full inventory, hidden-view initialization, question lifetime and placement checks. Preserve the failed baseline and distinguish engine fixtures from graphical play. No normal-client installation, public upload or UI control in the shared-computer repair pass.
+- The 20 unaltered showcase images remain labeled 0.22.0. Live critter following/catching/loss, own pets, long sessions and connected multiplayer still need dedicated acceptance.
+- Subsequently installed the exact package in the normal client on October 6. The creator reports a good playtest and publishes it; Steam records 13:08 CEST with moderator approval pending. Synchronize GitHub, current descriptions and the dated showcase without reposting earlier Workshop logs.
+
+## Soulmates 0.22.0 - Character and Company (Local Beta Candidate)
+
+- Reproduce critter starvation and personal-question blocking against 0.21.0. Move Company/Collect into shared attention with gathering, mining, forestry and treasure. Retain separate Ask/Always/Never consent and priority guards.
+- Keep personal questions answerable during approved visits. Do not start new personal questions or resident visits over active critter work. Reject replaced NPC objects even with matching slot/type.
+- Rework Details/V into Conversation, Equipment and Diagnostics: portrait/vitals, independent reply strip, native tool/trinket displays, existing trinket removal, owned pet choices, cargo and Pause/Resume/Abort. Wrap narrow cargo actions; capability displays are not generic armor slots.
+- Add bounded read-only diagnostics: task, stamina/permission gates, nearby critters, visit/catch/death gating and owned pets. Export only on explicit click to a fixed local file. No uploads or automatic recording; MP labels client state, not server history.
+- Verify pet switches, item ownership, lifecycle, player-pet coexistence and identity-bound UI acknowledgements. Localize view labels in all nine catalogs; technical details stay English.
+- Prepare locally, without installation/publication. Windows control could not initialize, so no new graphical playtest or screenshots are claimed. Progression, live timing, endurance and connected MP gates remain open.
+
+## Soulmates 0.21.0 - Clear Intentions (Local Beta Candidate)
+
+- Keep Soulmates intact. Work opens Config and Last. Last saves only accepted explicit work intent per Sigil, never coordinates or item slots. Changing settings, failed requests and Look do not overwrite it; pointed work selects a fresh target.
+- Add cardinal and Auto tunnel directions with Short (up to eight steps) or Until opening (up to 24, reduced by work radius). Cardinal passages use a three-high corridor or two-wide shaft and stop at liquid, unstable material, protected terrain and decorations. Revalidate after planning.
+- Allow pointed Company and Collect with autonomy off, without changing automatic consent. Existing real critters keep following; Pause stops guided movement and ground followers can hop at small obstacles, preserving native physics and despawning.
+- Rename Pet Collect to Catch Critters and expose mode/permission/follower/blocked state. Add a separate Companion pet choice for real carried Zephyr Fish/Nectar items: one harmless animated follower, no item consumption and no player pet/buff replacement. Withdrawing its supporting item or recalling/changing companions removes it. Other pet families are explicitly unsupported.
+- Extend saved/network profile data with work settings, an optional recipe and a selected carried pet type. Existing Sigils default safely; connected peers require this version. Preserve earlier enum/message values and the old wire prefix, not mixed-version network compatibility.
+- Include nine-language semantic emote categories. Prepare a local candidate only; graphical, progression, endurance and connected multiplayer acceptance remain open.
+
+## Soulmates 0.20.1 - Words in Circles (Local Beta Candidate)
+
+- Organize all 151 native player emotes into Feelings, Gestures, Activities, Items, World, People & creatures and Notifications. Add small semantic subcategories for emotions, daily life, combat, games, weather, biomes, events, townsfolk, creatures, signals, hunger, ailments and bosses. Item groups retain their familiar categories; Lucy belongs to Weapons.
+- Group the six direct Bond interactions into Feelings, Gestures and Care. Keep the existing Games branch and its actual minigame separate from player move/result symbols.
+- Replace the item-only navigation flag with shared folder navigation. Back removes one level, paging stays inside its leaf, reopening or changing roots clears the previous path, and the current path appears when no node is hovered. Native player symbols and companion interactions retain their separate execution routes.
+- Localize every new category in all nine supported languages. Preserve native Terraria art, existing right-click priority, captured context actions, consent, save data and network formats.
+- Prepare a local candidate, not an installation or public update. Automated and graphical evidence are recorded separately.
+
 ## Soulmates 0.20.0 - Shared Instincts (Beta Candidate)
 
 - Introduce one ability registry for policy access, legacy save keys, stable activity codes, task/rule emotes and stamina thresholds. Profile clone/save/load/network operations and the rule wheel use it. Preserve the complete 0.19.9 binary field order and existing Sigil tags.

@@ -22,14 +22,13 @@ namespace Soulmates.Common.UI;
 public sealed partial class CompanionWheelSystem : ModSystem
 {
 	private enum RootBranch : byte { Commands, Work, Bond, Emotes, Pack, Details, Mailbox, Point, Critters, Items, Games }
-	private enum HoverLayer : byte { None, Center, Root, Branch, Native, MiningApproach, OreTarget, InitiativeRule, MouseMode, ContextAction, Rps, MiningFilter }
-	private enum IconKind : byte { Emote, Item, Back, Forward, Close }
+	private enum HoverLayer : byte { None, Center, Root, Branch, Native, MiningApproach, OreTarget, InitiativeRule, MouseMode, ContextAction, Rps, MiningFilter, WorkConfig, Compass, Pet }
+	private enum IconKind : byte { Emote, Item, Back, Forward, Close, Direction }
 	private enum WheelContext : byte { Companion, Player, World, Contextual }
 	private enum WheelWorkAction : byte { FindTreasure, MineArea, GatherArea, MineTarget, GatherTarget, MiningApproach, LookTarget, ForestTarget }
 
 	private readonly record struct WheelIcon(IconKind Kind, int Value);
 	private readonly record struct NearbyOreChoice(Point Tile, int ItemType);
-	private sealed record NativeCategory(string Key, int Icon, int[] Entries);
 
 	private static readonly RootBranch[] CompanionRoots = [
 		RootBranch.Commands, RootBranch.Work, RootBranch.Critters, RootBranch.Bond, RootBranch.Games, RootBranch.Pack, RootBranch.Items, RootBranch.Details, RootBranch.Mailbox
@@ -73,72 +72,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 
 	public override void Unload() { backTexture = null; forwardTexture = null; closeTexture = null; }
 	private static readonly CompanionMiningApproach[] MiningApproaches = Enum.GetValues<CompanionMiningApproach>();
-	private static readonly CompanionEmote[] BondEmotes = [
-		CompanionEmote.Wave, CompanionEmote.Heart, CompanionEmote.Cheer,
-		CompanionEmote.Comfort, CompanionEmote.Laugh, CompanionEmote.Rest
-	];
 	private static readonly RpsMove[] RpsMoves = [RpsMove.Scissors, RpsMove.Rock, RpsMove.Paper];
-
-	private static readonly NativeCategory[] NativeItemCategories = [
-		new("Food", EmoteID.ItemSoup, [EmoteID.ItemSoup, EmoteID.ItemCookedFish, EmoteID.ItemAle, EmoteID.ItemBeer, EmoteID.PartyCake]),
-		new("Recovery", EmoteID.ItemLifePotion, [EmoteID.ItemLifePotion, EmoteID.ItemManaPotion]),
-		new("Tools", EmoteID.ItemPickaxe, [EmoteID.ItemPickaxe, EmoteID.ItemFishingRod, EmoteID.ItemBugNet]),
-		new("Weapons", EmoteID.ItemSword, [EmoteID.ItemSword, EmoteID.ItemMinishark, EmoteID.ItemDynamite]),
-		new("Materials", EmoteID.ItemCog, [EmoteID.ItemCog, EmoteID.ItemTombstone]),
-		new("Valuables", EmoteID.ItemGoldpile, [EmoteID.ItemGoldpile, EmoteID.ItemRing, EmoteID.ItemDiamondRing, EmoteID.ItemDefenderMedal]),
-		new("Party", EmoteID.PartyPresent, [EmoteID.PartyPresent, EmoteID.PartyBalloons, EmoteID.PartyHats])
-	];
-	private static readonly NativeCategory[] NativeCategories = [
-		new("General", EmoteID.EmoteHappiness, [
-			EmoteID.EmotionLove, EmoteID.EmotionAnger, EmoteID.EmotionCry, EmoteID.EmotionAlert,
-			EmoteID.EmoteLaugh, EmoteID.EmoteFear, EmoteID.EmoteNote, EmoteID.EmoteConfused,
-			EmoteID.EmoteKiss, EmoteID.EmoteSleep, EmoteID.EmoteRun, EmoteID.EmoteKick,
-			EmoteID.EmoteFight, EmoteID.EmoteEating, EmoteID.EmoteSadness, EmoteID.EmoteAnger,
-			EmoteID.EmoteHappiness, EmoteID.EmoteWink, EmoteID.EmoteScowl, EmoteID.EmoteSilly,
-			EmoteID.Peckish, EmoteID.Hungry, EmoteID.Starving, EmoteID.LucyTheAxe
-		]),
-		new("Rps", EmoteID.RPSRock, [
-			EmoteID.RPSWinScissors, EmoteID.RPSWinRock, EmoteID.RPSWinPaper,
-			EmoteID.RPSScissors, EmoteID.RPSRock, EmoteID.RPSPaper
-		]),
-		new("Items", EmoteID.ItemGoldpile, NativeItemCategories.SelectMany(category => category.Entries).ToArray()),
-		new("Nature", EmoteID.MiscTree, [
-			EmoteID.WeatherRain, EmoteID.WeatherLightning, EmoteID.WeatherRainbow, EmoteID.MiscTree,
-			EmoteID.EventBloodmoon, EmoteID.EventEclipse, EmoteID.EventPumpkin, EmoteID.EventSnow,
-			EmoteID.BiomeSky, EmoteID.BiomeOtherworld, EmoteID.BiomeJungle, EmoteID.BiomeCrimson,
-			EmoteID.BiomeCorruption, EmoteID.BiomeHallow, EmoteID.BiomeDesert, EmoteID.BiomeBeach,
-			EmoteID.BiomeRocklayer, EmoteID.BiomeLavalayer, EmoteID.BiomeSnow, EmoteID.WeatherSunny,
-			EmoteID.WeatherCloudy, EmoteID.WeatherStorming, EmoteID.WeatherSnowstorm,
-			EmoteID.EventMeteor, EmoteID.MiscFire
-		]),
-		new("Town", EmoteID.TownGuide, [
-			EmoteID.TownMerchant, EmoteID.TownNurse, EmoteID.TownArmsDealer, EmoteID.TownDryad,
-			EmoteID.TownGuide, EmoteID.TownOldman, EmoteID.TownDemolitionist, EmoteID.TownClothier,
-			EmoteID.TownGoblinTinkerer, EmoteID.TownWizard, EmoteID.TownMechanic, EmoteID.TownSanta,
-			EmoteID.TownTruffle, EmoteID.TownSteampunker, EmoteID.TownDyeTrader, EmoteID.TownPartyGirl,
-			EmoteID.TownCyborg, EmoteID.TownPainter, EmoteID.TownWitchDoctor, EmoteID.TownPirate,
-			EmoteID.TownStylist, EmoteID.TownTravellingMerchant, EmoteID.TownAngler,
-			EmoteID.TownSkeletonMerchant, EmoteID.TownTaxCollector, EmoteID.TownBartender,
-			EmoteID.TownGolfer, EmoteID.TownBestiaryGirl, EmoteID.TownBestiaryGirlFox, EmoteID.TownPrincess
-		]),
-		new("Creatures", EmoteID.CritterBunny, [
-			EmoteID.CritterBee, EmoteID.CritterSlime, EmoteID.CritterZombie, EmoteID.CritterBunny,
-			EmoteID.CritterButterfly, EmoteID.CritterGoblin, EmoteID.CritterPirate,
-			EmoteID.CritterSnowman, EmoteID.CritterSpider, EmoteID.CritterBird, EmoteID.CritterMouse,
-			EmoteID.CritterGoldfish, EmoteID.CritterMartian, EmoteID.CritterSkeleton
-		]),
-		new("Dangers", EmoteID.BossEoC, [
-			EmoteID.DebuffPoison, EmoteID.DebuffBurn, EmoteID.DebuffSilence, EmoteID.DebuffCurse,
-			EmoteID.BossEoC, EmoteID.BossEoW, EmoteID.BossBoC, EmoteID.BossQueenBee,
-			EmoteID.BossSkeletron, EmoteID.BossWoF, EmoteID.BossDestroyer, EmoteID.BossSkeletronPrime,
-			EmoteID.BossTwins, EmoteID.BossPlantera, EmoteID.BossGolem, EmoteID.BossFishron,
-			EmoteID.BossKingSlime, EmoteID.BossCultist, EmoteID.BossMoonmoon,
-			EmoteID.BossMourningWood, EmoteID.BossPumpking, EmoteID.BossEverscream,
-			EmoteID.BossIceQueen, EmoteID.BossSantank, EmoteID.BossPirateship,
-			EmoteID.BossMartianship, EmoteID.EventOldOnesArmy, EmoteID.BossEmpressOfLight,
-			EmoteID.BossQueenSlime, EmoteID.BossDeerclops
-		])
-	];
 
 	private const int NativePageSize = 7;
 	private const float RootRadius = 72f;
@@ -153,9 +87,10 @@ public sealed partial class CompanionWheelSystem : ModSystem
 	private int worldPage;
 	private RootBranch? branch;
 	private int nativeCategory = -1;
-	private bool nativeItemGroups;
+	private readonly Stack<NativeCategory> nativeGroups = new();
 	private int nativePage;
-	private NativeCategory[] ActiveNativeCategories => nativeItemGroups ? NativeItemCategories : NativeCategories;
+	private NativeCategory[] ActiveNativeCategories => nativeGroups.TryPeek(out var group)
+		? group.Children! : branch == RootBranch.Bond ? BondCategories : NativeCategories;
 	private bool miningApproachMenu;
 	private bool nearbyOreMenu;
 	private bool initiativeRulesMenu;
@@ -198,8 +133,10 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		context = wheelContext;
 		center = ClampCenter(SoulmatesUISpace.Mouse);
 		branch = initialBranch;
+		workPage = WorkPage.Closed;
+		petsMenu = false;
 		nativeCategory = -1;
-		nativeItemGroups = false;
+		nativeGroups.Clear();
 		nativePage = 0;
 		ResetMiningFilter();
 		miningApproachMenu = false;
@@ -225,8 +162,10 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		openTicks = 0;
 		companion = null;
 		branch = null;
+		workPage = WorkPage.Closed;
+		petsMenu = false;
 		nativeCategory = -1;
-		nativeItemGroups = false;
+		nativeGroups.Clear();
 		nativePage = 0;
 		ResetMiningFilter();
 		miningApproachMenu = false;
@@ -296,6 +235,26 @@ public sealed partial class CompanionWheelSystem : ModSystem
 			hoverLayer = HoverLayer.Center;
 			return;
 		}
+		if (workPage == WorkPage.Compass) {
+			for (int i = 0; i < 6; i++) {
+				if (!Hit(mouse, CompassPosition(i), 23f)) continue;
+				hoverLayer = HoverLayer.Compass; hoverIndex = i; return;
+			}
+			return;
+		}
+		if (petsMenu) {
+			for (int i = 0; i < PetNodeCount; i++) {
+				if (!Hit(mouse, PetPosition(i), 23f)) continue;
+				hoverLayer = HoverLayer.Pet; hoverIndex = i; return;
+			}
+			return;
+		}
+		if (ShowWorkActions) {
+			for (int i = 0; i < WorkActions.Length; i++) {
+				if (!Hit(mouse, WorkConfigPosition(i), 19f)) continue;
+				hoverLayer = HoverLayer.WorkConfig; hoverIndex = i; return;
+			}
+		}
 		if (context == WheelContext.Contextual) {
 			for (int i = 0; i < contextActions.Count; i++) {
 				if (!Hit(mouse, ContextActionPosition(i), 24f)) continue;
@@ -349,7 +308,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 			}
 		}
 		if (miningApproachMenu) {
-			for (int i = 0; i <= MiningApproaches.Length; i++) {
+			for (int i = 0; i < MiningApproachNodeCount; i++) {
 				if (!Hit(mouse, MiningApproachPosition(i), 19f))
 					continue;
 				hoverLayer = HoverLayer.MiningApproach;
@@ -406,6 +365,9 @@ public sealed partial class CompanionWheelSystem : ModSystem
 			case HoverLayer.Center: StepBack(); break;
 			case HoverLayer.Root: ActivateRoot(ActiveRoots[hoverIndex]); break;
 			case HoverLayer.Branch: ActivateBranch(hoverIndex); break;
+			case HoverLayer.WorkConfig: ActivateWorkConfig(hoverIndex); break;
+			case HoverLayer.Compass: ActivateCompass(hoverIndex); break;
+			case HoverLayer.Pet: ActivatePet(hoverIndex); break;
 			case HoverLayer.Native: ActivateNative(hoverIndex); break;
 			case HoverLayer.Rps:
 				if (hoverIndex >= 0 && hoverIndex < RpsMoves.Length)
@@ -447,8 +409,10 @@ public sealed partial class CompanionWheelSystem : ModSystem
 			return;
 		}
 		branch = branch == selected ? null : selected;
+		workPage = WorkPage.Closed;
+		petsMenu = false;
 		nativeCategory = -1;
-		nativeItemGroups = false;
+		nativeGroups.Clear();
 		nativePage = 0;
 		ResetMiningFilter();
 		miningApproachMenu = false;
@@ -467,6 +431,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		switch (activeBranch) {
 			case RootBranch.Critters:
 				if (index >= 0 && index < CritterActions.Length) ExecuteQuickAction(CritterActions[index]);
+				else if (index == CritterActions.Length) petsMenu = true;
 				break;
 			case RootBranch.Commands:
 				if (index >= 0 && index < CommandActions.Length) {
@@ -480,20 +445,12 @@ public sealed partial class CompanionWheelSystem : ModSystem
 				}
 				break;
 			case RootBranch.Work:
-				if (index >= 0 && index < WorkActions.Length) {
-					if (WorkActions[index] == WheelWorkAction.MiningApproach) {
-						ResetMiningFilter();
-						miningApproachMenu = !miningApproachMenu;
-						nearbyOreMenu = false;
-						nearbyOreChoices.Clear();
-						SoundEngine.PlaySound(SoundID.MenuTick with { Volume = 0.5f, Pitch = 0.25f });
-					}
-					else
-						ExecuteWorkAction(WorkActions[index]);
+				if (index == 0) {
+					workPage = workPage == WorkPage.Closed ? WorkPage.Actions : WorkPage.Closed;
+					ResetMiningFilter(); miningApproachMenu = nearbyOreMenu = false;
+					SoundEngine.PlaySound(SoundID.MenuTick);
 				}
-				break;
-			case RootBranch.Bond:
-				if (index >= 0 && index < BondEmotes.Length) ExecuteCompanionEmote(BondEmotes[index]);
+				else if (index == 1) RepeatWork();
 				break;
 			case RootBranch.Games:
 				if (index == 0) {
@@ -502,12 +459,14 @@ public sealed partial class CompanionWheelSystem : ModSystem
 				}
 				break;
 			case RootBranch.Emotes:
+			case RootBranch.Bond:
 				if (index >= 0 && index < ActiveNativeCategories.Length) {
-					if (!nativeItemGroups && NativeCategories[index].Key == "Items") {
-						nativeItemGroups = true;
+					NativeCategory selected = ActiveNativeCategories[index];
+					if (selected.Children is { Length: > 0 }) {
+						nativeGroups.Push(selected);
 						nativeCategory = -1;
 					}
-					else nativeCategory = index;
+					else nativeCategory = nativeCategory == index ? -1 : index;
 					nativePage = 0;
 					SoundEngine.PlaySound(SoundID.MenuTick with { Volume = 0.5f, Pitch = 0.25f });
 				}
@@ -564,6 +523,12 @@ public sealed partial class CompanionWheelSystem : ModSystem
 
 	private void ActivateMiningApproach(int index)
 	{
+		if (index == MiningApproaches.Length + 1) {
+			miningApproachMenu = false;
+			workPage = WorkPage.Compass;
+			SoundEngine.PlaySound(SoundID.MenuTick);
+			return;
+		}
 		if (index == MiningApproaches.Length) {
 			miningApproachMenu = false;
 			miningFilterMenu = true;
@@ -573,13 +538,12 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		}
 		if (index < 0 || index >= MiningApproaches.Length)
 			return;
-		CompanionQuickAction action = MiningApproaches[index] switch {
-			CompanionMiningApproach.Tunnel => CompanionQuickAction.MiningTunnel,
-			CompanionMiningApproach.Vein => CompanionQuickAction.MiningVein,
-			CompanionMiningApproach.Surface => CompanionQuickAction.MiningSurface,
-			_ => CompanionQuickAction.MiningAdaptive
-		};
-		ExecuteQuickAction(action);
+		if (companion is null) return;
+		SetMiningConfig(MiningApproaches[index], companion.Profile.MiningDirection, companion.Profile.TunnelEnd);
+		if (MiningApproaches[index] == CompanionMiningApproach.Tunnel) {
+			miningApproachMenu = false;
+			workPage = WorkPage.Compass;
+		}
 	}
 
 	private void ActivateNative(int index)
@@ -603,7 +567,8 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		if (cursor < entriesOnPage) {
 			int emoteIndex = nativePage * NativePageSize + cursor;
 			if (emoteIndex >= 0 && emoteIndex < category.Entries.Length) {
-				ExecuteNativeEmote(category.Entries[emoteIndex]);
+				if (branch == RootBranch.Bond) ExecuteCompanionEmote((CompanionEmote)category.Entries[emoteIndex]);
+				else ExecuteNativeEmote(category.Entries[emoteIndex]);
 			}
 			return;
 		}
@@ -697,6 +662,13 @@ public sealed partial class CompanionWheelSystem : ModSystem
 
 	private void StepBack()
 	{
+		if (petsMenu) { petsMenu = false; SoundEngine.PlaySound(SoundID.MenuTick); return; }
+		if (workPage == WorkPage.Compass) {
+			workPage = WorkPage.Actions;
+			miningApproachMenu = true;
+			SoundEngine.PlaySound(SoundID.MenuTick);
+			return;
+		}
 		if (miningFilterMenu) {
 			if (miningFilterCategory >= 0) miningFilterCategory = -1;
 			else { ResetMiningFilter(); miningApproachMenu = true; }
@@ -731,8 +703,14 @@ public sealed partial class CompanionWheelSystem : ModSystem
 			SoundEngine.PlaySound(SoundID.MenuTick);
 			return;
 		}
-		if (nativeItemGroups) {
-			nativeItemGroups = false;
+		if (nativeGroups.Count > 0) {
+			nativeGroups.Pop();
+			nativePage = 0;
+			SoundEngine.PlaySound(SoundID.MenuTick);
+			return;
+		}
+		if (workPage == WorkPage.Actions) {
+			workPage = WorkPage.Closed;
 			SoundEngine.PlaySound(SoundID.MenuTick);
 			return;
 		}
@@ -767,6 +745,21 @@ public sealed partial class CompanionWheelSystem : ModSystem
 			: companion.Profile.EssenceColor;
 		float reveal = MathHelper.Clamp(openTicks / 8f, 0f, 1f);
 		float pulse = 1f + MathF.Sin(Main.GlobalTimeWrappedHourly * 4f) * 0.035f;
+		if (petsMenu) {
+			DrawPets(spriteBatch, accent);
+			DrawCenter(spriteBatch, accent, pulse);
+			DrawMouseModeSelector(spriteBatch, accent);
+			DrawHoverLabel(spriteBatch, accent);
+			return true;
+		}
+		if (workPage == WorkPage.Compass) {
+			DrawCompass(spriteBatch, accent);
+			DrawCenter(spriteBatch, accent, pulse);
+			DrawMouseModeSelector(spriteBatch, accent);
+			DrawHoverLabel(spriteBatch, accent);
+			DrawStatus(spriteBatch, accent);
+			return true;
+		}
 		if (context == WheelContext.Contextual) {
 			for (int i = 0; i < contextActions.Count; i++)
 				DrawNode(spriteBatch, Vector2.Lerp(center, ContextActionPosition(i), reveal), 42f, accent,
@@ -804,11 +797,8 @@ public sealed partial class CompanionWheelSystem : ModSystem
 				bool hovered = hoverLayer == HoverLayer.Branch && hoverIndex == i;
 				bool active = activeBranch == RootBranch.Critters && (int)companion.Profile.CritterMode == i
 					|| activeBranch == RootBranch.Games && i == 0 && rpsMenu
-					|| activeBranch == RootBranch.Emotes && nativeCategory == i
-					|| activeBranch == RootBranch.Work && WorkActions[i] == WheelWorkAction.MiningApproach
-						&& (miningApproachMenu || miningFilterMenu)
-					|| activeBranch == RootBranch.Work && WorkActions[i] == WheelWorkAction.MineTarget
-						&& nearbyOreMenu
+					|| activeBranch is RootBranch.Emotes or RootBranch.Bond && nativeCategory == i
+					|| activeBranch == RootBranch.Work && i == 0 && workPage == WorkPage.Actions
 					|| activeBranch == RootBranch.Commands && initiativeRulesMenu && CommandActions[i] == (questionSettingsMenu
 						? CompanionQuickAction.QuestionSettings : CompanionQuickAction.ResetInitiativeRules);
 				DrawNode(spriteBatch, position, hovered ? 41f * pulse : 36f, accent, hovered, active, BranchIcon(activeBranch, i));
@@ -821,9 +811,9 @@ public sealed partial class CompanionWheelSystem : ModSystem
 					hoverLayer == HoverLayer.Rps && hoverIndex == i, false,
 					new WheelIcon(IconKind.Emote, CompanionRps.Emote(RpsMoves[i])));
 		}
-		if (nativeCategory >= 0 && branch == RootBranch.Emotes) {
+		if (nativeCategory >= 0 && branch is RootBranch.Emotes or RootBranch.Bond) {
 			int count = NativeNodeCount();
-			Vector2 parent = BranchPosition(RootBranch.Emotes, nativeCategory, ActiveNativeCategories.Length);
+			Vector2 parent = BranchPosition(branch.Value, nativeCategory, ActiveNativeCategories.Length);
 			for (int i = 0; i < count; i++) {
 				Vector2 destination = NativePosition(i, count);
 				Vector2 position = Vector2.Lerp(parent, destination, reveal);
@@ -832,19 +822,18 @@ public sealed partial class CompanionWheelSystem : ModSystem
 			}
 		}
 		if (miningApproachMenu && branch == RootBranch.Work) {
-			Vector2 parent = BranchPosition(RootBranch.Work,
-				Array.IndexOf(WorkActions, WheelWorkAction.MiningApproach), WorkActions.Length);
-			for (int i = 0; i <= MiningApproaches.Length; i++) {
+			Vector2 parent = WorkConfigPosition(Array.IndexOf(WorkActions, WheelWorkAction.MiningApproach));
+			for (int i = 0; i < MiningApproachNodeCount; i++) {
 				Vector2 position = Vector2.Lerp(parent, MiningApproachPosition(i), reveal);
 				bool hovered = hoverLayer == HoverLayer.MiningApproach && hoverIndex == i;
 				bool active = i < MiningApproaches.Length && companion.Profile.MiningApproach == MiningApproaches[i];
 				DrawNode(spriteBatch, position, hovered ? 36f * pulse : 32f, accent, hovered, active,
-					i == MiningApproaches.Length ? new WheelIcon(IconKind.Emote, EmoteID.ItemCog) : MiningApproachIcon(MiningApproaches[i]));
+					i == MiningApproaches.Length ? new WheelIcon(IconKind.Emote, EmoteID.ItemCog)
+						: i == MiningApproaches.Length + 1 ? new WheelIcon(IconKind.Item, ItemID.Compass) : MiningApproachIcon(MiningApproaches[i]));
 			}
 		}
 		if (nearbyOreMenu && branch == RootBranch.Work) {
-			Vector2 parent = BranchPosition(RootBranch.Work,
-				Array.IndexOf(WorkActions, WheelWorkAction.MineTarget), WorkActions.Length);
+			Vector2 parent = WorkConfigPosition(Array.IndexOf(WorkActions, WheelWorkAction.MineTarget));
 			for (int i = 0; i < nearbyOreChoices.Count + 1; i++) {
 				Vector2 position = Vector2.Lerp(parent, OreTargetPosition(i), reveal);
 				bool hovered = hoverLayer == HoverLayer.OreTarget && hoverIndex == i;
@@ -853,6 +842,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 			}
 		}
 		if (miningFilterMenu && branch == RootBranch.Work) DrawMiningFilter(spriteBatch, accent, reveal);
+		if (ShowWorkActions) DrawWorkActions(spriteBatch, accent, reveal);
 		if (initiativeRulesMenu && branch == RootBranch.Commands) {
 			for (int i = 0; i < ActiveRules.Length; i++) {
 				if (questionSettingsMenu) {
@@ -928,6 +918,9 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		HoverLayer.Root when context == WheelContext.World => WorldNodeLabel(hoverIndex),
 		HoverLayer.Root when hoverIndex >= 0 && hoverIndex < ActiveRoots.Length => RootLabel(ActiveRoots[hoverIndex]),
 		HoverLayer.Branch => BranchLabel(hoverIndex),
+		HoverLayer.WorkConfig => SoulmatesText.Get($"UI.CompanionWheel.WorkActions.{WorkActions[hoverIndex]}"),
+		HoverLayer.Compass => CompassLabel(hoverIndex),
+		HoverLayer.Pet => PetLabel(hoverIndex),
 		HoverLayer.Native => NativeLabel(hoverIndex),
 		HoverLayer.Rps when hoverIndex >= 0 && hoverIndex < RpsMoves.Length
 			=> SoulmatesText.Get($"Games.Rps.Moves.{RpsMoves[hoverIndex]}"),
@@ -935,6 +928,8 @@ public sealed partial class CompanionWheelSystem : ModSystem
 			=> SoulmatesText.Get($"UI.CompanionWheel.MiningApproaches.{MiningApproaches[hoverIndex]}"),
 		HoverLayer.MiningApproach when hoverIndex == MiningApproaches.Length
 			=> SoulmatesText.Get("UI.CompanionWheel.MiningFilter.Title"),
+		HoverLayer.MiningApproach when hoverIndex == MiningApproaches.Length + 1
+			=> SoulmatesText.Get("UI.CompanionWheel.WorkMenu.Compass"),
 		HoverLayer.MiningFilter => MiningFilterLabel(hoverIndex),
 		HoverLayer.OreTarget => OreTargetLabel(hoverIndex),
 		HoverLayer.InitiativeRule when questionSettingsMenu && hoverIndex >= 0 && hoverIndex < QuestionRules.Length
@@ -945,7 +940,8 @@ public sealed partial class CompanionWheelSystem : ModSystem
 			: SoulmatesText.Get("UI.CompanionWheel.Actions.ResetInitiativeRules"),
 		_ => context == WheelContext.Contextual ? MouseModeLabel(MouseMode)
 			: context == WheelContext.World ? SoulmatesText.Get(worldPage == 0 ? "UI.CompanionWheel.PointTitle" : "UI.CompanionWheel.AreaTitle")
-			: nativeItemGroups ? SoulmatesText.Get("UI.CompanionWheel.NativeCategories.Items")
+			: petsMenu ? SoulmatesText.Get("Pets.Title")
+			: branch is RootBranch.Emotes or RootBranch.Bond ? EmoteBreadcrumb()
 			: branch is RootBranch activeBranch ? RootLabel(activeBranch) : SoulmatesText.Get("UI.CompanionWheel.Center")
 	};
 
@@ -954,16 +950,14 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		if (branch is not RootBranch activeBranch)
 			return "";
 		return activeBranch switch {
-			RootBranch.Critters when index >= 0 && index < CritterActions.Length => QuickActionLabel(CritterActions[index]),
+			RootBranch.Critters when index >= 0 && index < CritterActions.Length => QuickActionLabel(CritterActions[index])
+				+ " / " + companion!.CritterModeStatus((CompanionCritterMode)index),
+			RootBranch.Critters when index == CritterActions.Length => SoulmatesText.Get("Pets.Title"),
 			RootBranch.Commands when index >= 0 && index < CommandActions.Length => QuickActionLabel(CommandActions[index]),
-			RootBranch.Work when index >= 0 && index < WorkActions.Length
-				=> SoulmatesText.Get($"UI.CompanionWheel.WorkActions.{WorkActions[index]}"),
-			RootBranch.Bond when index >= 0 && index < BondEmotes.Length => SoulmatesText.EnumName(BondEmotes[index]),
+			RootBranch.Work when index is 0 or 1 => WorkMenuLabel(index),
 			RootBranch.Games when index == 0 => SoulmatesText.Get("Games.Rps.Title"),
-			RootBranch.Emotes when index >= 0 && index < ActiveNativeCategories.Length
-				=> SoulmatesText.Get(nativeItemGroups
-					? $"UI.CompanionWheel.ItemGroups.{ActiveNativeCategories[index].Key}"
-					: $"UI.CompanionWheel.NativeCategories.{ActiveNativeCategories[index].Key}"),
+			RootBranch.Emotes or RootBranch.Bond when index >= 0 && index < ActiveNativeCategories.Length
+				=> EmoteCategoryLabel(ActiveNativeCategories[index]),
 			_ => ""
 		};
 	}
@@ -994,7 +988,9 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		}
 		if (cursor < entriesOnPage) {
 			int emoteIndex = nativePage * NativePageSize + cursor;
-			return emoteIndex < category.Entries.Length ? Lang.GetEmojiName(category.Entries[emoteIndex]).Value : "";
+			if (emoteIndex >= category.Entries.Length) return "";
+			return branch == RootBranch.Bond ? SoulmatesText.EnumName((CompanionEmote)category.Entries[emoteIndex])
+				: Lang.GetEmojiName(category.Entries[emoteIndex]).Value;
 		}
 		return hasNext && cursor == entriesOnPage ? SoulmatesText.Get("UI.CompanionWheel.Next") : "";
 	}
@@ -1015,6 +1011,8 @@ public sealed partial class CompanionWheelSystem : ModSystem
 
 	private WheelIcon BranchIcon(RootBranch activeBranch, int index)
 	{
+		if (activeBranch == RootBranch.Critters && index == CritterActions.Length)
+			return new WheelIcon(IconKind.Item, ItemID.ZephyrFish);
 		if (activeBranch == RootBranch.Critters && index >= 0 && index < CritterActions.Length)
 			return new WheelIcon(IconKind.Emote, CritterActions[index] switch {
 				CompanionQuickAction.CritterWatch => EmoteID.EmotionAlert,
@@ -1032,8 +1030,17 @@ public sealed partial class CompanionWheelSystem : ModSystem
 				CompanionQuickAction.Abort => EmoteID.EmoteScowl,
 				_ => EmoteID.EmoteWink
 			});
-		if (activeBranch == RootBranch.Work && index >= 0 && index < WorkActions.Length)
-			return WorkActions[index] switch {
+		if (activeBranch == RootBranch.Work)
+			return new WheelIcon(IconKind.Emote, index == 0 ? EmoteID.ItemCog : EmoteID.EmoteRun);
+		if (activeBranch == RootBranch.Games && index == 0)
+			return new WheelIcon(IconKind.Emote, EmoteID.RPSScissors);
+		if (activeBranch is RootBranch.Emotes or RootBranch.Bond && index >= 0 && index < ActiveNativeCategories.Length)
+			return new WheelIcon(IconKind.Emote, ActiveNativeCategories[index].Icon);
+		return new WheelIcon(IconKind.Emote, EmoteID.EmoteConfused);
+	}
+
+	private static WheelIcon WorkActionIcon(int index)
+		=> WorkActions[index] switch {
 				WheelWorkAction.FindTreasure => new WheelIcon(IconKind.Emote, EmoteID.ItemGoldpile),
 				WheelWorkAction.MineArea => new WheelIcon(IconKind.Emote, EmoteID.ItemPickaxe),
 				WheelWorkAction.GatherArea => new WheelIcon(IconKind.Item, ItemID.TreasureMagnet),
@@ -1043,18 +1050,6 @@ public sealed partial class CompanionWheelSystem : ModSystem
 				WheelWorkAction.ForestTarget => new WheelIcon(IconKind.Item, ItemID.CopperAxe),
 				_ => new WheelIcon(IconKind.Item, ItemID.TreasureMagnet)
 			};
-		if (activeBranch == RootBranch.Games && index == 0)
-			return new WheelIcon(IconKind.Emote, EmoteID.RPSScissors);
-		if (activeBranch == RootBranch.Bond && index >= 0 && index < BondEmotes.Length)
-			return new WheelIcon(IconKind.Emote, BondEmotes[index] switch {
-				CompanionEmote.Wave => EmoteID.EmoteHappiness, CompanionEmote.Heart => EmoteID.EmotionLove,
-				CompanionEmote.Cheer => EmoteID.EmoteNote, CompanionEmote.Comfort => EmoteID.EmoteKiss,
-				CompanionEmote.Laugh => EmoteID.EmoteLaugh, _ => EmoteID.EmoteSleep
-			});
-		if (activeBranch == RootBranch.Emotes && index >= 0 && index < ActiveNativeCategories.Length)
-			return new WheelIcon(IconKind.Emote, ActiveNativeCategories[index].Icon);
-		return new WheelIcon(IconKind.Emote, EmoteID.EmoteConfused);
-	}
 
 	private static WheelIcon MiningApproachIcon(CompanionMiningApproach approach) => approach switch {
 		CompanionMiningApproach.Tunnel => new WheelIcon(IconKind.Item, ItemID.CopperPickaxe),
@@ -1080,7 +1075,8 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		}
 		if (cursor < entriesOnPage) {
 			int emoteIndex = nativePage * NativePageSize + cursor;
-			return new WheelIcon(IconKind.Emote, category.Entries[emoteIndex]);
+			int entry = category.Entries[emoteIndex];
+			return new WheelIcon(IconKind.Emote, branch == RootBranch.Bond ? BondIcon((CompanionEmote)entry) : entry);
 		}
 		return hasNext && cursor == entriesOnPage
 			? new WheelIcon(IconKind.Forward, 0)
@@ -1103,10 +1099,10 @@ public sealed partial class CompanionWheelSystem : ModSystem
 	}
 
 	private int BranchNodeCount(RootBranch activeBranch) => activeBranch switch {
-		RootBranch.Critters => CritterActions.Length,
-		RootBranch.Commands => CommandActions.Length, RootBranch.Work => WorkActions.Length,
-		RootBranch.Bond => BondEmotes.Length, RootBranch.Games => 1,
-		RootBranch.Emotes => ActiveNativeCategories.Length, _ => 0
+		RootBranch.Critters => CritterActions.Length + 1,
+		RootBranch.Commands => CommandActions.Length, RootBranch.Work => 2,
+		RootBranch.Games => 1,
+		RootBranch.Emotes or RootBranch.Bond => ActiveNativeCategories.Length, _ => 0
 	};
 
 	private int NativeNodeCount()
@@ -1167,7 +1163,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 	{
 		float rootAngle = context == WheelContext.Player
 			? -MathHelper.PiOver2
-			: RootAngle(Array.IndexOf(ActiveRoots, RootBranch.Emotes));
+			: RootAngle(Array.IndexOf(ActiveRoots, branch!.Value));
 		float categoryAngle = FanAngle(rootAngle,
 			nativeCategory, ActiveNativeCategories.Length, MathHelper.ToRadians(136f));
 		float angle = FanAngle(categoryAngle, index, count, MathHelper.ToRadians(148f));
@@ -1179,7 +1175,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		float rootAngle = RootAngle(Array.IndexOf(ActiveRoots, RootBranch.Work));
 		float branchAngle = FanAngle(rootAngle, Array.IndexOf(WorkActions, WheelWorkAction.MiningApproach),
 			WorkActions.Length, MathHelper.ToRadians(136f));
-		float angle = FanAngle(branchAngle, index, MiningApproaches.Length + 1, MathHelper.ToRadians(112f));
+		float angle = FanAngle(branchAngle, index, MiningApproachNodeCount, MathHelper.ToRadians(148f));
 		return center + angle.ToRotationVector2() * NativeRadius * LayoutScale;
 	}
 
@@ -1209,7 +1205,8 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		return center + angle.ToRotationVector2() * NativeRadius * LayoutScale;
 	}
 
-	private static float BranchSpread(RootBranch branch) => MathHelper.ToRadians(branch == RootBranch.Commands ? 160f : 136f);
+	private static float BranchSpread(RootBranch branch) => MathHelper.ToRadians(branch == RootBranch.Commands ? 160f
+		: branch == RootBranch.Work ? 60f : 136f);
 	private float RootAngle(int index) => -MathHelper.PiOver2 + MathHelper.TwoPi * index / ActiveRoots.Length;
 	private static float FanAngle(float centerAngle, int index, int count, float spread)
 		=> count <= 1 ? centerAngle : centerAngle - spread * 0.5f + spread * index / (count - 1f);
@@ -1237,6 +1234,11 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		switch (icon.Kind) {
 			case IconKind.Emote: DrawEmoteIcon(spriteBatch, position, maximumSize, icon.Value, color); break;
 			case IconKind.Item: DrawItemIcon(spriteBatch, position, maximumSize, icon.Value, color); break;
+			case IconKind.Direction:
+				if (forwardTexture?.Value is { } directionArrow)
+					spriteBatch.Draw(directionArrow, position, null, color, (icon.Value - 1) * MathHelper.PiOver2,
+						directionArrow.Size() * 0.5f, Math.Min(maximumSize / directionArrow.Width, maximumSize / directionArrow.Height), SpriteEffects.None, 0f);
+				break;
 			case IconKind.Back:
 			case IconKind.Forward:
 			case IconKind.Close:

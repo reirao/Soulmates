@@ -64,6 +64,12 @@ public sealed partial class SoulboundCompanion
 			("energy", Profile.Energy), ("pack_load", Profile.PackLoad));
 		Profile.Routine = job;
 		BeginJob(job);
+		if (activeJob == job && job != CompanionJob.None)
+			Profile.LastWork = Profile.WorkRecipe(job switch {
+				CompanionJob.FindTreasure => CompanionWorkKind.Treasure,
+				CompanionJob.Mine => CompanionWorkKind.MineArea,
+				_ => CompanionWorkKind.GatherArea
+			});
 	}
 
 	public CompanionConversationResult PerformQuickAction(CompanionQuickAction action)
@@ -71,6 +77,7 @@ public sealed partial class SoulboundCompanion
 		if (Main.netMode == NetmodeID.MultiplayerClient || !Enum.IsDefined(action)
 			|| action is CompanionQuickAction.Details or CompanionQuickAction.QuestionSettings)
 			return new(SoulmatesText.Get("TargetOrders.Invalid"), false);
+		if (action == CompanionQuickAction.RepeatLastWork) return RepeatLastWork();
 		if (QuestionCadenceFor(action) is CompanionQuestionCadence cadence) {
 			Profile.QuestionCadence = cadence;
 			ClearChoiceQuestion();
@@ -108,14 +115,7 @@ public sealed partial class SoulboundCompanion
 				SoulmatesText.EnumName(kind), SoulmatesText.EnumName(policy)), true);
 		}
 		if (TryGetMiningApproach(action, out CompanionMiningApproach approach)) {
-			Profile.MiningApproach = approach;
-			if (activeJob == CompanionJob.Mine && !directedJob) {
-				miningPlanReady = false;
-				plannedMiningTargets.Clear();
-				plannedMiningCursor = 0;
-				hasJobTarget = false;
-				jobPlannedTotal = jobCount;
-			}
+			ConfigureMining(approach, Profile.MiningDirection, Profile.TunnelEnd);
 			SoulmatesFeedbackSystem.Record("mining_approach_changed", ("approach", approach.ToString()),
 				("job_active", activeJob == CompanionJob.Mine));
 			SyncProfileToBoundSigil();
@@ -156,6 +156,51 @@ public sealed partial class SoulboundCompanion
 			_ => (TalkCategory.Care, 0)
 		};
 		return Converse(request.category, request.option, 0);
+	}
+
+	internal bool ConfigureMining(CompanionMiningApproach approach, CompanionMiningDirection direction, CompanionTunnelEnd end)
+	{
+		if (Main.netMode == NetmodeID.MultiplayerClient || !Enum.IsDefined(approach) || !Enum.IsDefined(direction) || !Enum.IsDefined(end))
+			return false;
+		Profile.MiningApproach = approach;
+		Profile.MiningDirection = direction;
+		Profile.TunnelEnd = end;
+		if (activeJob == CompanionJob.Mine && !directedJob) {
+			miningPlanReady = false;
+			plannedMiningTargets.Clear();
+			plannedMiningCursor = 0;
+			hasJobTarget = false;
+			jobPlannedTotal = jobCount;
+		}
+		SyncProfileToBoundSigil();
+		NPC.netUpdate = true;
+		return true;
+	}
+
+	private CompanionConversationResult RepeatLastWork()
+	{
+		if (Profile.LastWork is not { IsValid: true } recipe)
+			return new(SoulmatesText.Get("UI.CompanionWheel.WorkMenu.NoLast"), false);
+		if (recipe.TargetOrder is not null)
+			return new(SoulmatesText.Get("UI.CompanionWheel.WorkMenu.ChooseTarget"), false);
+		CompanionWorkRecipe previous = Profile.WorkRecipe(CompanionWorkKind.MineArea);
+		if (recipe.Kind == CompanionWorkKind.MineArea) {
+			Profile.MiningApproach = recipe.Approach;
+			Profile.MiningDirection = recipe.Direction;
+			Profile.TunnelEnd = recipe.End;
+		}
+		CompanionConversationResult result = PerformQuickAction(recipe.Kind switch {
+			CompanionWorkKind.Treasure => CompanionQuickAction.FindTreasure,
+			CompanionWorkKind.MineArea => CompanionQuickAction.Mine,
+			_ => CompanionQuickAction.Gather
+		});
+		if (!result.Accepted && recipe.Kind == CompanionWorkKind.MineArea) {
+			Profile.MiningApproach = previous.Approach;
+			Profile.MiningDirection = previous.Direction;
+			Profile.TunnelEnd = previous.End;
+			SyncProfileToBoundSigil();
+		}
+		return result;
 	}
 
 	private static bool TryGetMiningApproach(CompanionQuickAction action, out CompanionMiningApproach approach)

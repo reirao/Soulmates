@@ -97,6 +97,11 @@ public sealed partial class SoulboundCompanion
 		Point forestTarget = Point.Zero;
 		ForestAction forestAction = ForestAction.None;
 		Point chest = Point.Zero;
+		NPC? critter = null;
+		CompanionInitiativeKind critterKind = Profile.CritterMode == CompanionCritterMode.Collect
+			? CompanionInitiativeKind.CritterCollect : CompanionInitiativeKind.CritterCompany;
+		if (CanConsider(critterKind) && FindCritterOpportunity(out critter))
+			OfferOpportunity(critterKind, critter!.Center, false);
 		if (CanConsider(CompanionInitiativeKind.Gathering)
 			&& FindAutonomousLooseItem(out itemIndex))
 			OfferOpportunity(CompanionInitiativeKind.Gathering, Main.item[itemIndex].Center,
@@ -123,6 +128,8 @@ public sealed partial class SoulboundCompanion
 				CompanionInitiativeKind.Gathering => ConsiderInitiative(AutonomyActivity.FetchItem, targetItem: itemIndex),
 				CompanionInitiativeKind.Mining => ConsiderInitiative(AutonomyActivity.AssistMining, targetTile: ore),
 				CompanionInitiativeKind.Forestry => ConsiderInitiative(AutonomyActivity.TendForest, targetTile: forestTarget, forestAction: forestAction),
+				CompanionInitiativeKind.CritterCompany => ConsiderInitiative(AutonomyActivity.InviteCritter, targetNpc: critter),
+				CompanionInitiativeKind.CritterCollect => ConsiderInitiative(AutonomyActivity.CatchCritter, targetNpc: critter),
 				_ => ConsiderInitiative(AutonomyActivity.InspectTreasure, targetTile: chest)
 			};
 			imitationSignals.Remove(BehaviorFor(kind));
@@ -817,6 +824,7 @@ public sealed partial class SoulboundCompanion
 		ClearPendingInitiative();
 		if (activity is AutonomyActivity.InviteCritter or AutonomyActivity.CatchCritter) {
 			critterTarget = targetNpc;
+			TraceDiagnostic($"approved critter visit: {activity}, type {targetNpc?.type ?? 0}");
 			critterVisitTicks = 360;
 			critterDecisionTimer = 120;
 			directedCritterVisit = false;

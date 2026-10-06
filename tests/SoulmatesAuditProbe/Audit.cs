@@ -70,7 +70,8 @@ public sealed partial class AuditChecks : ModSystem
         if (!Main.dedServ) return;
         try {
             Mod mod = ModLoader.GetMod("Soulmates");
-            if (mod.Version != new Version(0, 20, 0)) throw new InvalidOperationException("Wrong audit package.");
+            Version expectedVersion = new(Environment.GetEnvironmentVariable("SOULMATES_EXPECTED_TEST_VERSION") ?? "0.22.1");
+            if (mod.Version != expectedVersion) throw new InvalidOperationException("Wrong audit package: expected " + expectedVersion + ", loaded " + mod.Version);
             Main.netMode = NetmodeID.Server;
             Main.myPlayer = 255;
             Main.maxTilesX = Main.maxTilesY = 100;
@@ -234,6 +235,8 @@ public sealed partial class AuditChecks : ModSystem
             CheckNativeRepairs(mod, owner, b);
             CheckCritterConsentBoundary(owner);
             CheckBetaAbilityBoundaries(owner);
+            CheckWorkAndPetBoundaries(mod, owner);
+            CheckCritterSchedulingAndDiagnosis(owner);
 
             CheckPanelGeometry();
             results.Add("Audit completed. Failed safety expectations=" + failedExpectations);

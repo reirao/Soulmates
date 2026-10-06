@@ -33,10 +33,12 @@ public sealed partial class SoulboundCompanion
 			actionAnimationTicks = 24;
 		if (Main.netMode != NetmodeID.MultiplayerClient && socialNpcTarget >= 0
 			&& (!Profile.AutonomyEnabled || HasPendingInitiative || HasPendingQuestion || Command == StayCommand
-				|| activeJob != CompanionJob.None || autonomyActivity != AutonomyActivity.None || guardianTarget >= 0))
+				|| activeJob != CompanionJob.None || autonomyActivity != AutonomyActivity.None || IsAttendingCritter || guardianTarget >= 0))
 			ClearTownNpcInteraction();
 		if (speechTimer > 0) {
-			speechTimer--;
+			// Keep unanswered prompts readable; resume the normal fade after resolution or timeout.
+			speechTimer = HasPendingQuestion || HasPendingInitiative && PendingInitiativeTicks > 0
+				? Math.Max(121, speechTimer - 1) : speechTimer - 1;
 			if (speechAnchorWorld == Vector2.Zero) {
 				speechAnchorWorld = SpeechAnchorTarget();
 				speechTrailWorld = NPC.Center;
@@ -91,7 +93,7 @@ public sealed partial class SoulboundCompanion
 		if (!Profile.AutonomyEnabled || Profile.WorkPaused || speechTimer > 0 || HasPendingInitiative || HasPendingQuestion
 			|| pendingCritterLossKey.Length > 0 || pendingCritterNotice is not null
 			|| pendingCritterCareTicks > 0 && personalQuestionCooldown <= 0
-			|| activeJob != CompanionJob.None || autonomyActivity != AutonomyActivity.None
+			|| activeJob != CompanionJob.None || autonomyActivity != AutonomyActivity.None || IsAttendingCritter
 			|| guardianTarget >= 0 || socialNpcTarget >= 0 || Owner.dead
 			|| Vector2.DistanceSquared(NPC.Center, Owner.Center) > 520f * 520f)
 			return;
@@ -347,7 +349,7 @@ public sealed partial class SoulboundCompanion
 			if (!socialNpcGreeted || socialNpcReplied) return;
 		}
 		else if (!Profile.AutonomyEnabled || HasPendingInitiative || HasPendingQuestion || Command == StayCommand
-			|| activeJob != CompanionJob.None || autonomyActivity != AutonomyActivity.None
+			|| activeJob != CompanionJob.None || autonomyActivity != AutonomyActivity.None || IsAttendingCritter
 			|| guardianTarget >= 0 || socialNpcTarget >= 0 || townNpcInteractionCooldown > 0
 			|| Profile.Energy < 20 || Profile.Mood < 20
 			|| Vector2.DistanceSquared(resident.Center, NPC.Center) > 260f * 260f

@@ -5,4 +5,4 @@ hideCode = false
 hideResources = false
 includeSource = true
 buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*, .git\*, work\*, outputs\*, tests\*, tests/*, tests/**, media\*, media/*, media/**, releases\*, releases/*, releases/**, *.webp, icon_small.png
-version = 0.20.0
+version = 0.22.1

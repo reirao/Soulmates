@@ -60,8 +60,8 @@ internal sealed class CompanionPackElement(
 		pageButton.OnRightClick += (_, _) => ChangePage(-1);
 		Append(pageButton);
 		OnScrollWheel += (evt, _) => ChangePage(evt.ScrollWheelValue > 0 ? -1 : 1);
-		OnLeftClick += (_, _) => Withdraw(singleItem: false);
-		OnRightClick += (_, _) => Withdraw(singleItem: true);
+		OnLeftClick += (evt, _) => Withdraw(evt.MousePosition, singleItem: false);
+		OnRightClick += (evt, _) => Withdraw(evt.MousePosition, singleItem: true);
 	}
 
 	private void ChangePage(int change)
@@ -167,11 +167,11 @@ internal sealed class CompanionPackElement(
 		_ => $"{SoulmatesText.EnumName(storage)} {profile.PackLoad}/{profile.PackCapacity}"
 	};
 
-	private void Withdraw(bool singleItem)
+	private void Withdraw(Vector2 mouse, bool singleItem)
 	{
 		int slots = selectedStorage == CompanionStorage.Wallet ? 4 : 12;
 		for (int slot = 0; slot < slots; slot++) {
-			if (SlotBounds(slot).Contains(SoulmatesUISpace.Mouse.ToPoint())) {
+			if (SlotBounds(slot).Contains(mouse.ToPoint())) {
 				withdraw(selectedStorage, page * 12 + slot, singleItem);
 				return;
 			}

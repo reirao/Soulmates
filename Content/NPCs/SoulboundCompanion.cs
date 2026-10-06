@@ -292,12 +292,14 @@ public sealed partial class SoulboundCompanion : ModNPC
 		UpdateAutonomousSocialBehavior();
 		if (!Profile.WorkPaused) UpdateResourcefulness();
 		UpdateNatureCompanions();
+		UpdateEquippedPet();
 		UpdateAmbientStories();
 		if (attackCooldown > 0)
 			attackCooldown--;
 		if (healingCooldown > 0)
 			healingCooldown--;
 		Activities.Tick();
+		UpdateDiagnostics();
 	}
 
 }

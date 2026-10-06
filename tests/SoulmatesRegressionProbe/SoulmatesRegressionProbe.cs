@@ -89,7 +89,7 @@ public sealed partial class EngineChecks : ModSystem
 		}
 		try {
 			Mod soulmates = ModLoader.GetMod("Soulmates");
-			Version expectedVersion = Version.Parse(Environment.GetEnvironmentVariable("SOULMATES_EXPECTED_TEST_VERSION") ?? "0.20.0");
+			Version expectedVersion = Version.Parse(Environment.GetEnvironmentVariable("SOULMATES_EXPECTED_TEST_VERSION") ?? "0.22.1");
 			Check(soulmates.Version == expectedVersion, "Wrong packaged version: " + soulmates.Version);
 			Check(!soulmates.FileExists("icon_small.rawimg") && !soulmates.FileExists("icon_small.png"),
 				"Optional mini-icon reintroduced the installed packer's exhausted-stream conversion");
@@ -126,6 +126,9 @@ public sealed partial class EngineChecks : ModSystem
 			CheckGentleEncounters(Check);
 			CheckCritterModes(Check);
 			CheckGamesAndCritters(Check);
+			CheckWorkRecipes(Check, ModLoader.GetMod("Soulmates"));
+			CheckCompanionPets(Check, ModLoader.GetMod("Soulmates"));
+			CheckCritterScheduling(Check);
 			CheckAbilityRegistry(Check);
 			CheckActivityDispatch(Check);
 			CheckTreeContext(Check);
@@ -893,7 +896,10 @@ public sealed partial class EngineChecks : ModSystem
 					.Invoke(critter.GetGlobalNPC<CompanionCritterCompany>(), new object[] { critter, companion })!;
 				bool Belongs(CompanionCritterCompany company) => (bool)typeof(CompanionCritterCompany).GetMethod("BelongsTo", flags)!
 					.Invoke(company, new object[] { companion })!;
-				bool Activity() => (bool)typeof(SoulboundCompanion).GetMethod("UpdateCritterActivity", flags)!.Invoke(companion, null)!;
+				bool Activity() {
+					typeof(SoulboundCompanion).GetMethod("UpdateHelpfulAutonomy", flags)!.Invoke(companion, null);
+					return (bool)typeof(SoulboundCompanion).GetMethod("UpdateCritterActivity", flags)!.Invoke(companion, null)!;
+				}
 				void Set(string field, object value) => typeof(SoulboundCompanion).GetField(field, flags)!.SetValue(companion, value);
 				object Get(string field) => typeof(SoulboundCompanion).GetField(field, flags)!.GetValue(companion)!;
 				void Watch() => typeof(SoulboundCompanion).GetMethod("UpdateCritterWatch", flags)!.Invoke(companion, null);
@@ -976,8 +982,8 @@ public sealed partial class EngineChecks : ModSystem
 				Main.item[12].Center = npc.Center + new Vector2(120, 0);
 				companion.Profile.GatheringInitiative = CompanionInitiativePolicy.Always;
 				Set("autonomyDecisionTimer", 0);
-				npc.AI();
-				check(Belongs(company), "New gathering work starved a nearby Company invitation in full companion AI");
+				for (int tick = 0; tick < 1800 && !Belongs(company); tick++) { npc.AI(); npc.position += npc.velocity; }
+				check(Belongs(company), "New gathering work starved a nearby Company invitation for 30 seconds in full companion AI");
 				check((int)Get("critterDecisionTimer") == 300, "Completed critter visit did not leave a bounded work interval");
 				Main.item[12].active = false;
 				Set("autonomyActivity", Enum.ToObject(typeof(SoulboundCompanion).GetField("autonomyActivity", flags)!.FieldType, 0));
@@ -1243,7 +1249,7 @@ public sealed partial class EngineChecks : ModSystem
 				bunny = Critter(19); Set("insectCatchCooldown", 0);
 				Call("PerformNpcContext", CompanionNpcAction.Collect, 19, NPCID.Bunny);
 				bunny.SetDefaults(NPCID.Squirrel); bunny.active = true; bunny.Center = npc.Center;
-				Call("UpdateCritterActivity");
+				Call("UpdateHelpfulAutonomy"); Call("UpdateCritterActivity");
 				check(bunny.active && other.active && Get("critterTarget") is null && !(bool)Get("directedCritterVisit")!,
 					"Changed NPC slot silently redirected the selected catch");
 				bunny.active = false;
@@ -2764,7 +2770,8 @@ public sealed partial class EngineChecks : ModSystem
 			var playerRoots = (Array)wheelType.GetField("PlayerRoots", flags | BindingFlags.Static)!.GetValue(null)!;
 			check(companionRoots.Cast<object>().Contains(gamesBranch) && !playerRoots.Cast<object>().Contains(gamesBranch),
 				"Games was missing from the companion wheel or leaked into the player wheel");
-			check((int)wheelType.GetMethod("BranchNodeCount", flags)!.Invoke(wheel, new[] { bondBranch })! == 6
+			wheelType.GetMethod("ActivateRoot", flags)!.Invoke(wheel, new[] { bondBranch });
+			check((int)wheelType.GetMethod("BranchNodeCount", flags)!.Invoke(wheel, new[] { bondBranch })! == 3
 				&& (int)wheelType.GetMethod("BranchNodeCount", flags)!.Invoke(wheel, new[] { gamesBranch })! == 1,
 				"Bond retained a hidden game or Games lost its real game entry");
 			wheelType.GetMethod("ActivateRoot", flags)!.Invoke(wheel, new[] { gamesBranch });

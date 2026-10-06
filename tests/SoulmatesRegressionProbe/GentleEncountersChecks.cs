@@ -148,7 +148,8 @@ public sealed partial class EngineChecks
 				Main.netMode = NetmodeID.MultiplayerClient; Set("critterTarget", null); Set("critterDecisionTimer", 0);
 				Call("UpdateCritterActivity");
 				check(Get("critterTarget") is null, "Client independently chose an automatic critter target");
-				Main.netMode = mode; npc.netUpdate = false; Call("UpdateCritterActivity");
+				Main.netMode = mode; npc.netUpdate = false; Set("autonomyDecisionTimer", 0);
+				Call("UpdateHelpfulAutonomy"); Call("UpdateCritterActivity");
 				if (mate.HasPendingInitiative) mate.RespondToInitiative(mate.InitiativeId, CompanionInitiativeResponse.Yes);
 				check(ReferenceEquals(Get("critterTarget"), target) && npc.netUpdate, "Authority did not synchronize its automatic critter selection");
 				using var snapshot = new MemoryStream();

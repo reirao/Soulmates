@@ -18,12 +18,12 @@ using Terraria.UI;
 
 namespace Soulmates.Common.UI;
 
-public sealed class TalkModeState : UIState
+public sealed partial class TalkModeState : UIState
 {
-	private const float MinimumWidth = 540f;
-	private const float MinimumHeight = 384f;
-	private static float preferredWidth = 596f;
-	private static float preferredHeight = 412f;
+	private const float MinimumWidth = 560f;
+	private const float MinimumHeight = 440f;
+	private static float preferredWidth = 640f;
+	private static float preferredHeight = 500f;
 	private readonly List<UITextPanel<string>> optionButtons = [];
 	private readonly List<(TalkCategory Category, TalkIconButton Button)> categoryButtons = [];
 	private readonly List<(CompanionItemTopic Topic, TalkItemButton Button)> itemTopicButtons = [];
@@ -59,14 +59,14 @@ public sealed class TalkModeState : UIState
 			VAlign = 0.5f,
 			Width = new StyleDimension(preferredWidth, 0f),
 			Height = new StyleDimension(preferredHeight, 0f),
-			BackgroundColor = new Color(33, 43, 79) * 0.97f,
-			BorderColor = new Color(89, 116, 213)
+			BackgroundColor = new Color(25, 30, 37) * 0.97f,
+			BorderColor = new Color(98, 145, 139)
 		};
 		Append(rootPanel);
 		rootPanel.SetPadding(0f);
 		UIPanel panel = rootPanel;
 
-		title = new UIText(SoulmatesText.Get("UI.Talk.Title", ""), 0.76f) {
+		title = new UIText("", 0.76f) {
 			Left = new StyleDimension(14f, 0f),
 			Top = new StyleDimension(10f, 0f)
 		};
@@ -94,7 +94,7 @@ public sealed class TalkModeState : UIState
 			Width = new StyleDimension(-20f, 1f),
 			Height = new StyleDimension(52f, 0f)
 		};
-		portrait.Append(response);
+		panel.Append(response);
 
 		vitalsElement = new CompanionVitalsElement(() => DisplayProfile, () => companion) {
 			Left = new StyleDimension(6f, 0f),
@@ -170,6 +170,7 @@ public sealed class TalkModeState : UIState
 		};
 		resizeHandle.OnLeftMouseDown += (_, _) => BeginResize();
 		panel.Append(resizeHandle);
+		InitializeCharacterViews();
 		ApplyLayout();
 	}
 
@@ -185,13 +186,15 @@ public sealed class TalkModeState : UIState
 		memoryCursor = 0;
 		awaitingResponse = false;
 		responseWaitTicks = 0;
+		ResetCharacterResponse();
 		resizing = false;
 		packElement?.Reset();
+		SelectCharacterView(category == TalkCategory.Pack ? CharacterView.Equipment : CharacterView.Conversation);
 		ApplyLayout();
 		Recalculate();
 		RefreshLocalizedLabels();
 		if (title is not null)
-			title.SetText(SoulmatesText.Get("UI.Talk.Title", companion.Profile.Name.ToUpperInvariant()));
+			title.SetText(companion.Profile.Name);
 		if (rootPanel is not null)
 			rootPanel.BorderColor = Color.Lerp(companion.Profile.EssenceColor, Color.White, 0.25f);
 		if (response is not null) {
@@ -200,6 +203,7 @@ public sealed class TalkModeState : UIState
 		}
 		RefreshOptions();
 		RefreshCategoryStyles();
+		ApplyLayout(force: true);
 	}
 
 	private void RefreshLocalizedLabels()
@@ -207,6 +211,7 @@ public sealed class TalkModeState : UIState
 		foreach ((TalkCategory buttonCategory, TalkIconButton button) in categoryButtons)
 			button.HoverText = SoulmatesText.EnumName(buttonCategory);
 		RefreshTopicLabel();
+		RefreshCharacterLabels();
 		packLabel?.SetText(SoulmatesText.Get("UI.Talk.Pack"));
 		if (closeButton is not null)
 			closeButton.HoverText = SoulmatesText.Get("UI.Common.Close");
@@ -220,6 +225,7 @@ public sealed class TalkModeState : UIState
 		companion = null;
 		awaitingResponse = false;
 		responseWaitTicks = 0;
+		ResetCharacterResponse();
 		resizing = false;
 	}
 
@@ -227,6 +233,7 @@ public sealed class TalkModeState : UIState
 	{
 		if (awaitingResponse) return;
 		category = selected;
+		SelectCharacterView(selected == TalkCategory.Pack ? CharacterView.Equipment : CharacterView.Conversation);
 		itemTopics?.Remove();
 		if (selected == TalkCategory.Items && itemTopics is not null) rootPanel?.Append(itemTopics);
 		SoundEngine.PlaySound(SoundID.MenuTick);
@@ -261,12 +268,14 @@ public sealed class TalkModeState : UIState
 		ApplyLayout();
 		if (awaitingResponse && ++responseWaitTicks >= 600) {
 			awaitingResponse = false;
+			ResetCharacterResponse();
 			responseWaitTicks = 0;
 			SetResponse(SoulmatesText.Get("UI.Talk.ResponseTimeout"), accepted: false);
 		}
 		if (sigil is null)
 			return;
 		RefreshCategoryStyles();
+		UpdateCharacterViews();
 	}
 
 	private void BeginResize()
@@ -304,10 +313,12 @@ public sealed class TalkModeState : UIState
 		float width = Math.Min(preferredWidth, Math.Max(240f, viewport.X - 24f));
 		float height = Math.Min(preferredHeight, Math.Max(240f, viewport.Y - 24f));
 		float portraitWidth = Math.Clamp(width * 0.31f, 100f, 180f);
-		float portraitHeight = height - 56f;
+		float responseHeight = Math.Clamp(height * 0.16f, 48f, 80f);
+		float bodyBottom = height - responseHeight - 18f;
+		float portraitHeight = bodyBottom - 48f;
 		float rightLeft = portraitWidth + 26f;
 		float rightWidth = width - rightLeft - 12f;
-		float previewHeight = Math.Clamp(portraitHeight - 266f, 40f, 114f);
+		float previewHeight = Math.Clamp(portraitHeight * 0.46f, 40f, 148f);
 		bool changed = rootPanel.Width.Pixels != width || rootPanel.Height.Pixels != height
 			|| portraitPanel.Width.Pixels != portraitWidth;
 		if (!changed && !force)
@@ -323,26 +334,35 @@ public sealed class TalkModeState : UIState
 		portraitPanel.Width.Set(portraitWidth, 0f);
 		previewElement.Height.Set(previewHeight, 0f);
 		if (response is not null) {
-			response.Top.Set(previewHeight + 6f, 0f);
-			response.Height.Set(90f, 0f);
+			response.Left.Set(14f, 0f);
+			response.Top.Set(bodyBottom + 6f, 0f);
+			response.Width.Set(width - 28f, 0f);
+			response.Height.Set(responseHeight, 0f);
+			response.LeftAligned = true;
 		}
-		vitalsElement.Top.Set(previewHeight + 100f, 0f);
-		vitalsElement.Height.Set(Math.Max(80f, portraitHeight - previewHeight - 104f), 0f);
+		vitalsElement.Top.Set(previewHeight + 8f, 0f);
+		vitalsElement.Height.Set(Math.Max(42f, portraitHeight - previewHeight - 12f), 0f);
 
 		float categorySize = Math.Min(40f, rightWidth / categoryButtons.Count - 4f);
 		float categoryStep = Math.Min(48f, (rightWidth - categorySize) / Math.Max(1, categoryButtons.Count - 1));
+		float labelTop = Math.Min(128f, 82f + categorySize + 6f);
+		float topicSize = Math.Min(28f, rightWidth / itemTopicButtons.Count - 2f);
+		float optionsTop = labelTop + 22f + (category == TalkCategory.Items ? topicSize + 4f : 0f);
 		for (int i = 0; i < categoryButtons.Count; i++) {
 			TalkIconButton button = categoryButtons[i].Button;
 			button.Left.Set(rightLeft + i * categoryStep, 0f);
+			button.Top.Set(82f, 0f);
 			button.Width.Set(categorySize, 0f);
 			button.Height.Set(categorySize, 0f);
 		}
 		chooseWordsLabel?.Left.Set(rightLeft, 0f);
+		chooseWordsLabel?.Top.Set(labelTop, 0f);
 		if (itemTopics is not null) {
 			itemTopics.Left.Set(rightLeft, 0f);
-			itemTopics.Top.Set(104f, 0f);
+			itemTopics.Top.Set(labelTop + 19f, 0f);
 			itemTopics.Width.Set(rightWidth, 0f);
-			float size = Math.Min(28f, rightWidth / itemTopicButtons.Count - 2f);
+			itemTopics.Height.Set(topicSize, 0f);
+			float size = topicSize;
 			for (int i = 0; i < itemTopicButtons.Count; i++) {
 				var button = itemTopicButtons[i].Button;
 				button.Left.Set(i * (size + 2f), 0f);
@@ -354,20 +374,17 @@ public sealed class TalkModeState : UIState
 			UITextPanel<string> button = optionButtons[i];
 			button.Left.Set(rightLeft, 0f);
 			button.Width.Set(rightWidth, 0f);
-			float topicOffset = category == TalkCategory.Items ? 32f : 0f;
-			float availableHeight = Math.Max(78f, height - 244f - topicOffset);
-			float step = Math.Min(49f, availableHeight / 3f);
-			button.Top.Set(106f + topicOffset + i * step, 0f);
-			button.Height.Set(step - 6f, 0f);
+			float availableHeight = Math.Max(15f, bodyBottom - optionsTop);
+			float step = Math.Min(56f, availableHeight / 3f);
+			button.Top.Set(optionsTop + i * step, 0f);
+			button.Height.Set(Math.Max(1f, step - 4f), 0f);
 			string text = button.Text;
-			float textWidth = FontAssets.MouseText.Value.MeasureString(text).X;
-			button.SetText(text, textWidth <= 0f ? 0.62f : Math.Min(0.62f, (rightWidth - 20f) / textWidth), false);
+			Vector2 textSize = FontAssets.MouseText.Value.MeasureString(text);
+			float textScale = textSize.X <= 0f ? 0.62f : Math.Min(0.62f, (rightWidth - 20f) / textSize.X);
+			if (textSize.Y > 0f) textScale = Math.Min(textScale, Math.Max(1f, step - 8f) / textSize.Y);
+			button.SetText(text, textScale, false);
 		}
-		packElement.Left.Set(rightLeft, 0f);
-		packElement.Top.Set(height - 112f, 0f);
-		packElement.Width.Set(Math.Max(60f, rightWidth - 30f), 0f);
-		packLabel?.Left.Set(rightLeft, 0f);
-		packLabel?.Top.Set(height - 132f, 0f);
+		LayoutCharacterViews(rightLeft, rightWidth, bodyBottom);
 		closeButton.Left.Set(width - 46f, 0f);
 		resizeHandle.Left.Set(width - 38f, 0f);
 		resizeHandle.Top.Set(height - 38f, 0f);
@@ -405,6 +422,7 @@ public sealed class TalkModeState : UIState
 		if (sigil is null || sigil.Profile.Id != profile.Id)
 			return;
 		awaitingResponse = false;
+		ResetCharacterResponse();
 		responseWaitTicks = 0;
 		sigil.Profile = profile.Clone();
 		if (companion?.NPC.active == true)
@@ -581,7 +599,9 @@ internal sealed class CompanionResponseElement : UIElement
 	private List<string> lines = [];
 	private int scrollLine;
 	public Color TextColor { get; set; } = Color.White;
-	public void SetText(string value) { text = value; scrollLine = 0; }
+	public bool LeftAligned { get; set; }
+	public bool ShowHoverTooltip { get; set; } = true;
+	public void SetText(string value, bool resetScroll = true) { text = value; if (resetScroll) scrollLine = 0; }
 
 	public override void ScrollWheel(UIScrollWheelEvent evt)
 	{
@@ -604,10 +624,10 @@ internal sealed class CompanionResponseElement : UIElement
 		for (int i = 0; i < visibleLines; i++) {
 			string line = lines[scrollLine + i];
 			float width = FontAssets.MouseText.Value.MeasureString(line).X * 0.58f;
-			Utils.DrawBorderString(spriteBatch, line, new Vector2(area.X + (area.Width - width) * 0.5f, area.Y + i * 17f),
+			Utils.DrawBorderString(spriteBatch, line, new Vector2(area.X + (LeftAligned ? 0f : (area.Width - width) * 0.5f), area.Y + i * 17f),
 				TextColor, 0.58f);
 		}
-		if (IsMouseHovering)
+		if (IsMouseHovering && ShowHoverTooltip)
 			Main.hoverItemName = text;
 	}
 }

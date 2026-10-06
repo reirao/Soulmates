@@ -93,6 +93,8 @@ public sealed partial class SoulboundCompanion
 			if (projectile.active && projectile.type == ModContent.ProjectileType<SoulBolt>()
 				&& (int)projectile.ai[1] == NPC.whoAmI)
 				projectile.Kill();
+			else if (projectile.active && projectile.ModProjectile is CompanionFamiliar familiar && familiar.BelongsTo(this))
+				projectile.Kill();
 		}
 		guardianTarget = -1;
 		activeJob = CompanionJob.None;

@@ -1,5 +1,24 @@
 Mods: {
 	Soulmates: {
+		UI.Character.Conversation: "Conversation"
+		UI.Character.Equipment: "Equipment"
+		UI.Character.Diagnostics: "Diagnostics"
+		UI.Character.Export: "Export local diagnosis"
+		UI.Character.Exported: "Diagnosis saved locally: SoulmatesFeedback/diagnostic-latest.txt"
+		UI.Character.ExportFailed: "The local diagnosis could not be written."
+		UI.Character.Empty: "Empty"
+		UI.Character.LearnedPick: "Learned mining strength: {0}"
+		UI.Character.Slots.Pickaxe: "Carried pickaxe"
+		UI.Character.Slots.Net: "Effective net (basic net is built in)"
+		UI.Character.Slots.Axe: "Available pruning axe"
+		UI.Character.Slots.Trinket: "Active trinket"
+		Pets.Title: Companion pet
+		Pets.Choose: "Summon from pack: {0}"
+		Pets.Selected: "Following me: {0}"
+		Pets.Missing: "Not in my pack: {0}"
+		Pets.Dismiss: Dismiss my pet
+		Projectiles.CompanionFamiliar.DisplayName: Companion Pet
+		Enums.CompanionQuickAction.RepeatLastWork: Repeat last work
 		Enums.CompanionInitiativeKind.CritterCompany: critter company
 		Enums.CompanionInitiativeKind.CritterCollect: critter catching
 		Enums.CompanionQuickAction.CritterCompanyPolicy: Critter company rule
@@ -8,7 +27,7 @@ Mods: {
 		Autonomy.Initiative.Ask.CritterCollect: May I catch that common critter with my net?
 		Autonomy.Initiative.Always.CritterCompany: I will gently keep that little one company.
 		Autonomy.Initiative.Always.CritterCollect: I will carefully catch that common critter.
-		Social.Critters.DirectBusy: I need autonomy on and a quiet moment without danger or an unanswered question for that visit.
+		Social.Critters.DirectBusy: Danger comes first. Point out that little one again when we are safe.
 		Enums.CompanionQuickAction.Pause: Pause
 		Enums.CompanionQuickAction.Resume: Resume
 		Enums.CompanionQuickAction.Abort: Abort
@@ -30,7 +49,9 @@ Mods: {
 		Items.Example: "{0} belongs with {1}."
 		Items.Uses.Food: Food gives a well-fed buff. It is worth keeping for a longer outing.
 		Items.Uses.Ores: Ore can become bars at a furnace. The right pickaxe still matters.
-		Items.Uses.Tools: Tools open up different work. A real net is needed for catching critters.
+		Items.Uses.Tools: Tools open up different work. My basic net catches ordinary critters; a carried lava-proof net upgrades it.
+		Items.Uses.Pets: I can keep a Zephyr Fish or Baby Hornet from an item in my pack. Choose it under Critters, Companion pet. Other pet items still use your own pet slot. Company is for real world animals.
+		Social.Critters.LavaNet: This lava critter needs a lava-proof net in my equipment. My basic net cannot safely catch it.
 		Items.Uses.Weapons: This is combat equipment, not building material. I will keep it safe for you.
 		Items.Uses.Recovery: This helps with health, mana, or a buff. Its actual effect matters more than its colour.
 		Items.Uses.Materials: This is building or crafting material. Nearby stations and recipes decide what we can make.
@@ -308,7 +329,7 @@ Mods: {
 			CompanionQuickAction: {
 				CritterWatch: Watch critters
 				CritterCompany: Critter company
-				CritterCollect: Pet Collect
+				CritterCollect: Catch Critters
 				CritterOff: Leave critters alone
 				Follow: Follow
 				Stay: Stay
@@ -339,7 +360,7 @@ Mods: {
 			CompanionCritterMode: {
 				Watch: Watch critters
 				Company: Critter company
-				Collect: Pet Collect
+				Collect: Catch Critters
 				Off: Leave critters alone
 			}
 
@@ -544,6 +565,25 @@ Mods: {
 					MiningApproach: MINING MODE
 					LookTarget: LOOK AT TARGET
 					ForestTarget: TEND ONE SPOT
+				}
+				WorkMenu: {
+					Config: CONFIG
+					Last: "LAST: {0}"
+					NoLast: No accepted work order yet.
+					ChooseTarget: Choose a fresh target for this order.
+					Compass: TUNNEL COMPASS
+					End: "Stop: {0}"
+					Directions: {
+						Auto: Toward nearby ore
+						Up: Up
+						Right: Right
+						Down: Down
+						Left: Left
+					}
+					Ends: {
+						Passage: Until opening (max 24 tiles)
+						Short: Short tunnel (max 8 tiles)
+					}
 				}
 
 				MiningApproaches: {
@@ -957,6 +997,15 @@ Mods: {
 					Collect: My basic net is ready for nearby common critters when there is room. Lava critters need a better net in Equipment. Work and danger come first.
 					Off: I will leave the critters to their own adventures.
 				}
+				Status: {
+					Off: No invitations or catches
+					Watch: Observe only
+					Company: "Real critters following: {0}/{1}"
+					Manual: Autonomy off; pointed orders still work
+					Paused: Work paused; resume to invite or catch
+					Busy: Waits for work, defense, energy or an answer
+					Permission: "Automatic visits: {0}"
+				}
 				Notice: {
 					Curious: "A {0}. Where do you suppose its tiny path leads?"
 					Loyal: "A {0}. I like a journey with room for smaller footsteps."
@@ -1356,5 +1405,29 @@ Mods: {
 		Conversation.Settings.Selected: "Personal questions: {0}. Work permissions stay unchanged."
 		TargetOrders.CritterTimeout: I could not reach that little one in time. I will leave it be for now.
 		Projectiles.SoulBolt.DisplayName: Soul Bolt
+		UI.CompanionWheel.EmoteGroups.Feelings: Feelings
+		UI.CompanionWheel.EmoteGroups.Gestures: Gestures
+		UI.CompanionWheel.EmoteGroups.Activities: Activities
+		UI.CompanionWheel.EmoteGroups.Items: Items
+		UI.CompanionWheel.EmoteGroups.World: World
+		UI.CompanionWheel.EmoteGroups.Beings: People & creatures
+		UI.CompanionWheel.EmoteGroups.Notifications: Notifications
+		UI.CompanionWheel.EmoteGroups.Warm: Joy & affection
+		UI.CompanionWheel.EmoteGroups.Upset: Sadness & anger
+		UI.CompanionWheel.EmoteGroups.Uncertain: Fear & confusion
+		UI.CompanionWheel.EmoteGroups.Everyday: Everyday life
+		UI.CompanionWheel.EmoteGroups.Combat: Combat
+		UI.CompanionWheel.EmoteGroups.Games: Games
+		UI.CompanionWheel.EmoteGroups.Weather: Weather
+		UI.CompanionWheel.EmoteGroups.Biomes: Biomes
+		UI.CompanionWheel.EmoteGroups.Events: Events
+		UI.CompanionWheel.EmoteGroups.Nature: Nature
+		UI.CompanionWheel.EmoteGroups.Town: Townsfolk
+		UI.CompanionWheel.EmoteGroups.Creatures: Creatures
+		UI.CompanionWheel.EmoteGroups.Signals: Signals
+		UI.CompanionWheel.EmoteGroups.Needs: Hunger
+		UI.CompanionWheel.EmoteGroups.Debuffs: Ailments
+		UI.CompanionWheel.EmoteGroups.Bosses: Bosses
+		UI.CompanionWheel.EmoteGroups.Care: Care
 	}
 }

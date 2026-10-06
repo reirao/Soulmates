@@ -36,11 +36,11 @@ public sealed partial class SoulboundCompanion
 		&& Owner.active && !Owner.dead && FindBoundSigil() is not null
 		&& activeJob == CompanionJob.None && Profile.Routine == CompanionJob.None
 		&& !HasPendingInitiative
-		&& socialNpcTarget < 0 && !IsAttendingCritter
+		&& socialNpcTarget < 0
 		&& Vector2.DistanceSquared(NPC.Center, Owner.Center) <= 560f * 560f;
 
 	private bool CanHoldQuestion() => CanKeepQuestion() && autonomyActivity == AutonomyActivity.None
-		&& guardianTarget < 0 && Profile.Energy >= 20 && Profile.Mood >= 15;
+		&& !IsAttendingCritter && guardianTarget < 0 && Profile.Energy >= 20 && Profile.Mood >= 15;
 
 	private void UpdateChoiceConversation()
 	{

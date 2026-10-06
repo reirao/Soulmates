@@ -168,7 +168,8 @@ public enum CompanionQuickAction : byte
 	QuestionsCalm,
 	QuestionsChatty,
 	CritterCompanyPolicy,
-	CritterCollectPolicy
+	CritterCollectPolicy,
+	RepeatLastWork
 }
 
 public enum CompanionQuestionCadence : byte { Quiet, Calm, Chatty }
@@ -471,6 +472,10 @@ public sealed partial class CompanionProfile
 			Trinket = Trinket,
 			Routine = Routine,
 			MiningApproach = MiningApproach,
+			MiningDirection = MiningDirection,
+			TunnelEnd = TunnelEnd,
+			LastWork = LastWork,
+			PetItemType = PetItemType,
 			AutonomyEnabled = AutonomyEnabled,
 			WorkPaused = WorkPaused,
 			CritterMode = CritterMode,
@@ -545,6 +550,8 @@ public sealed partial class CompanionProfile
 			["relationships"] = Relationships.Select(relation => relation.Save()).ToList()
 		};
 		CompanionAbilityRegistry.SavePolicies(this, tag);
+		SaveWork(tag);
+		SavePet(tag);
 		return tag;
 	}
 
@@ -604,6 +611,8 @@ public sealed partial class CompanionProfile
 				? tag.GetList<TagCompound>("relationships").Select(CompanionRelationship.Load).ToList() : []
 		};
 		CompanionAbilityRegistry.LoadPolicies(profile, tag);
+		profile.LoadWork(tag);
+		profile.LoadPet(tag);
 		if (tag.ContainsKey("learnedMiningKeys")) profile.LoadMiningKnowledge(tag.GetList<string>("learnedMiningKeys"));
 		profile.Normalize();
 		return profile;
@@ -659,6 +668,8 @@ public sealed partial class CompanionProfile
 		WriteMiningRules(writer, AllowedAutoMiningMaterials);
 		writer.Write((byte)QuestionCadence);
 		CompanionAbilityRegistry.WritePolicies(writer, this, legacy: false);
+		WriteWork(writer);
+		WritePet(writer);
 	}
 
 	public static CompanionProfile Read(BinaryReader reader)
@@ -717,6 +728,8 @@ public sealed partial class CompanionProfile
 		profile.AllowedAutoMiningMaterials = ReadMiningRules(reader);
 		profile.QuestionCadence = (CompanionQuestionCadence)reader.ReadByte();
 		CompanionAbilityRegistry.ReadPolicies(reader, profile, legacy: false);
+		profile.ReadWork(reader);
+		profile.ReadPet(reader);
 		profile.Normalize();
 		return profile;
 	}
@@ -951,6 +964,7 @@ public sealed partial class CompanionProfile
 
 	public void Normalize()
 	{
+		NormalizeWork();
 		if (Id == Guid.Empty)
 			Id = Guid.NewGuid();
 		Name = string.IsNullOrWhiteSpace(Name) ? "Luma" : Name.Trim();
@@ -986,6 +1000,7 @@ public sealed partial class CompanionProfile
 		if (LastMemory.Length > 240)
 			LastMemory = LastMemory[..240];
 		NormalizePack();
+		NormalizePet();
 		LearnedMiningTiles = LearnedMiningTiles.Where(type => type >= 0 && type <= ushort.MaxValue)
 			.Distinct().Take(MaximumLearnedMiningTiles).ToList();
 		NormalizeMiningRules();

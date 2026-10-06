@@ -1,5 +1,6 @@
 using Soulmates.Common.UI;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -8,6 +9,11 @@ namespace Soulmates.Content.Items;
 public sealed class Soulcore : ModItem
 {
 	public override string Texture => $"Terraria/Images/Item_{ItemID.FallenStar}";
+
+	public override void SetStaticDefaults()
+	{
+		Main.RegisterItemAnimation(Type, new DrawAnimationVertical(5, 8) { PingPong = true });
+	}
 
 	public override void SetDefaults()
 	{

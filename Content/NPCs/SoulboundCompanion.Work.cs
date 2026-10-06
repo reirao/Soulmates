@@ -111,12 +111,22 @@ public sealed partial class SoulboundCompanion
 		if (Profile.Mood < 15)
 			return new CompanionConversationResult(SoulmatesText.Get("TargetOrders.LowMood"), false);
 
-		return order switch {
+		CompanionConversationResult result = order switch {
 			CompanionTargetOrder.Mine => StartDirectedMining(tileTarget),
 			CompanionTargetOrder.Gather => StartDirectedGathering(itemTarget),
 			CompanionTargetOrder.Forest => StartDirectedForest(tileTarget),
 			_ => new CompanionConversationResult(SoulmatesText.Get("TargetOrders.Invalid"), false)
 		};
+		if (result.Accepted) {
+			Profile.LastWork = Profile.WorkRecipe(order switch {
+				CompanionTargetOrder.Mine => CompanionWorkKind.MineTarget,
+				CompanionTargetOrder.Gather => CompanionWorkKind.GatherTarget,
+				_ => CompanionWorkKind.ForestTarget
+			});
+			SyncProfileToBoundSigil();
+			NPC.netUpdate = true;
+		}
+		return result;
 	}
 
 	private CompanionConversationResult InspectPointedTarget(Point tile, int itemIndex)
@@ -379,6 +389,13 @@ public sealed partial class SoulboundCompanion
 			return;
 		if (Main.netMode == NetmodeID.MultiplayerClient)
 			return;
+		if (!directedJob && Profile.MiningApproach == CompanionMiningApproach.Tunnel
+			&& Profile.MiningDirection != CompanionMiningDirection.Auto && !IsCompassSectionSafe(jobTarget)) {
+			failedMiningTargets.Add(jobTarget);
+			plannedMiningCursor = plannedMiningTargets.Count;
+			hasJobTarget = false;
+			return;
+		}
 		if (!WorldGen.InWorld(jobTarget.X, jobTarget.Y, 10)
 			|| !Main.tile[jobTarget.X, jobTarget.Y].HasTile
 			|| !CanMineTile(jobTarget.X, jobTarget.Y, includeLearnedMaterials: true)
@@ -558,6 +575,12 @@ public sealed partial class SoulboundCompanion
 			PlanAreaMiningTargets();
 		while (plannedMiningCursor < plannedMiningTargets.Count) {
 			Point candidate = plannedMiningTargets[plannedMiningCursor];
+			if (Profile.MiningApproach == CompanionMiningApproach.Tunnel && Profile.MiningDirection != CompanionMiningDirection.Auto
+				&& !IsCompassSectionSafe(candidate)) {
+				failedMiningTargets.Add(candidate);
+				plannedMiningCursor = plannedMiningTargets.Count;
+				break;
+			}
 			if (WorldGen.InWorld(candidate.X, candidate.Y, 10)
 				&& Main.tile[candidate.X, candidate.Y].HasTile
 				&& !failedMiningTargets.Contains(candidate)
@@ -637,15 +660,20 @@ public sealed partial class SoulboundCompanion
 
 	private void BuildTunnelMiningPlan(List<Point> candidates, Point center, int radius)
 	{
+		if (Profile.MiningDirection != CompanionMiningDirection.Auto) {
+			BuildCompassTunnelPlan(center, Math.Min(radius, Profile.TunnelEnd == CompanionTunnelEnd.Short ? 8 : 24));
+			return;
+		}
 		if (candidates.Count == 0)
 			return;
-		var available = candidates.ToHashSet();
+		int limit = Math.Min(radius, Profile.TunnelEnd == CompanionTunnelEnd.Short ? 8 : 24);
+		var available = candidates.Where(point => Vector2.DistanceSquared(point.ToVector2(), center.ToVector2()) <= limit * limit).ToHashSet();
 		Point? oreTarget = candidates
-			.Where(point => IsOreTile(Main.tile[point.X, point.Y].TileType))
+			.Where(point => available.Contains(point) && IsOreTile(Main.tile[point.X, point.Y].TileType))
 			.OrderBy(point => Vector2.DistanceSquared(point.ToVector2(), center.ToVector2()))
 			.Select(point => (Point?)point)
 			.FirstOrDefault();
-		Point destination = oreTarget ?? new Point(center.X, center.Y + Math.Min(radius, 24));
+		Point destination = oreTarget ?? new Point(center.X, center.Y + limit);
 		int dx = Math.Abs(destination.X - center.X);
 		int dy = Math.Abs(destination.Y - center.Y);
 		Point corridorOffset = dx >= dy ? new Point(0, -1) : new Point(1, 0);
@@ -658,7 +686,7 @@ public sealed partial class SoulboundCompanion
 			Tile tile = Main.tile[step.X, step.Y];
 			if (!tile.HasTile || tile.IsActuated || tile.TileType >= Main.tileSolid.Length
 				|| !Main.tileSolid[tile.TileType]) {
-				if (openedWall && ++openRun >= 2)
+				if (openedWall && ++openRun >= 2 && Profile.TunnelEnd == CompanionTunnelEnd.Passage)
 					break;
 				continue;
 			}
@@ -676,6 +704,58 @@ public sealed partial class SoulboundCompanion
 
 		if (oreTarget is Point ore && plannedMiningTargets.Contains(ore))
 			AppendConnectedOreVein(ore, available, 24);
+	}
+
+	private void BuildCompassTunnelPlan(Point origin, int limit)
+	{
+		Point direction = Profile.MiningDirection switch {
+			CompanionMiningDirection.Up => new(0, -1),
+			CompanionMiningDirection.Right => new(1, 0),
+			CompanionMiningDirection.Down => new(0, 1),
+			_ => new(-1, 0)
+		};
+		bool openedWall = false;
+		int openSections = 0;
+		for (int distance = 0; distance <= limit; distance++) {
+			Point step = new(origin.X + direction.X * distance, origin.Y + direction.Y * distance);
+			// Horizontal passages are three tiles tall; shafts are two tiles wide.
+			Point[] crossSection = direction.Y == 0
+				? [new(step.X, step.Y - 1), step, new(step.X, step.Y + 1)]
+				: [step, new(step.X + 1, step.Y)];
+			if (crossSection.Any(point => !SafeTunnelCell(point))) break;
+			Point[] solid = crossSection.Where(IsSolidTunnelCell).ToArray();
+			if (solid.Length == 0) {
+				if (openedWall && Profile.TunnelEnd == CompanionTunnelEnd.Passage
+					&& ++openSections >= (direction.Y == 0 ? 2 : 3)) break;
+				continue;
+			}
+			openSections = 0;
+			if (solid.Any(point => !CanMineTile(point.X, point.Y, includeLearnedMaterials: true)
+				|| IsGravityMiningMaterial(Main.tile[point.X, point.Y].TileType))) break;
+			foreach (Point point in solid) AddMiningPlanTarget(point);
+			openedWall = true;
+		}
+	}
+
+	private static bool IsSolidTunnelCell(Point point)
+	{
+		Tile tile = Main.tile[point.X, point.Y];
+		return tile.HasTile && !tile.IsActuated && tile.TileType < Main.tileSolid.Length && Main.tileSolid[tile.TileType];
+	}
+	private static bool SafeTunnelCell(Point point) => WorldGen.InWorld(point.X, point.Y, 10)
+		&& Main.tile[point.X, point.Y].LiquidAmount == 0
+		&& (!Main.tile[point.X, point.Y].HasTile || IsSolidTunnelCell(point));
+
+	private bool IsCompassSectionSafe(Point target)
+	{
+		Point origin = jobOrigin.ToTileCoordinates();
+		bool horizontal = Profile.MiningDirection is CompanionMiningDirection.Left or CompanionMiningDirection.Right;
+		Point[] section = horizontal
+			? [new(target.X, origin.Y - 1), new(target.X, origin.Y), new(target.X, origin.Y + 1)]
+			: [new(origin.X, target.Y), new(origin.X + 1, target.Y)];
+		return section.All(point => SafeTunnelCell(point) && (!IsSolidTunnelCell(point)
+			|| !IsGravityMiningMaterial(Main.tile[point.X, point.Y].TileType)
+				&& CanMineTile(point.X, point.Y, includeLearnedMaterials: true)));
 	}
 
 	private void AppendConnectedOreVein(Point origin, HashSet<Point> available, int limit)

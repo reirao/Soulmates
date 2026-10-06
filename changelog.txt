@@ -1,10 +1,10 @@
-Soulmates 0.20.0 - Shared Instincts | Beta Candidate
+Soulmates 0.22.1 - Showcase Repairs | Beta Candidate
 
-- Register every autonomous ability once for saved permission keys, activity identifiers, native symbols, energy/mood requirements and visible rule buttons. Keep the existing save keys and 0.19.9 binary field order.
-- Route task movement through an exclusive, per-companion activity controller. Defense and pause preempt retained assignments; critter visits and automatic work do not get overwritten by lower-priority movement in their completion frame.
-- Show active critter visits and defense accurately instead of hiding them behind watching or an interrupted job. Include the selected activity lane in optional local Field Notes.
-- Use the same eligibility gate for offers, expiry and answers: recovery holds, changed routines and Never invalidate stale consent. Reject all independent client quick-action mutations and unknown/UI-only actions.
-- Preserve the Games branch, built-in basic net, independent Company/Collect consent, queued two-sided greetings, native tree context and previous cargo/network safety repairs.
-- Add exhaustive controller-priority checks, a hand-written legacy binary fixture and actual-engine controls for separate NPC instances, Pause/Resume/Abort, defense, Stay, native catching, task completion and recall.
+- Initialize the hidden Equipment subtree when opening it: cargo tabs and withdrawal handlers now become active. Slot clicks use the actual event position, including single-item and full-stack withdrawal.
+- Keep speech above the fade threshold while a personal or work question is unanswered. Normal fading resumes after resolution or timeout.
+- Register the Soulcore's native Fallen Star animation so its inventory icon displays a frame rather than the whole vertical strip.
+- Avoid the enabled corner minimap when space allows. Overlay/fullscreen map behavior stays unchanged.
+- Report the actual Terraria and tModLoader versions, specific native critter rejection conditions, range and replaced-target gates. Diagnostics remain read-only and local.
+- Preserve Sigil data, cargo limits, consent and the existing packet layout. Use matching versions on peers.
 
-Beta stabilization: the creator reports a broadly working first playtest and has published this version. Controls, critter reactions, progression, long sessions and connected multiplayer still need repeatable acceptance tests. All multiplayer peers need 0.20.0. This entry covers only the current update; earlier development history is separate.
+A genuine 0.22.0 Classic showcase exposed these issues; the repair has native counterchecks, not a new graphical acceptance pass. Critter timing, progression, endurance and connected multiplayer remain open. This entry covers this update only; earlier history is separate.

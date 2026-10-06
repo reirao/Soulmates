@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -118,8 +119,9 @@ public sealed partial class EngineChecks
 					"Leaving Items retained its shifted option click bounds");
 			}
 			Terraria.Localization.LanguageManager.Instance.SetLanguage("en-US");
+			CheckCharacterUi(check, state, mate, sigil);
 			talk.Close();
-			CheckNativeItemWheel(check, mate);
+			CheckCategorizedEmoteWheel(check, mate);
 			CheckMiningFilterWheel(check, mate);
 			CheckContextClickFlow(check, mate);
 		}
@@ -135,70 +137,155 @@ public sealed partial class EngineChecks
 		}
 	}
 
-	private static void CheckNativeItemWheel(Action<bool, string> check, SoulboundCompanion mate)
+	private static void CheckCategorizedEmoteWheel(Action<bool, string> check, SoulboundCompanion mate)
 	{
 		const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
 		Type type = typeof(CompanionWheelSystem);
 		var wheel = ModContent.GetInstance<CompanionWheelSystem>();
 		var categories = ((IEnumerable)type.GetField("NativeCategories", flags)!.GetValue(null)!).Cast<object>().ToArray();
 		var groups = ((IEnumerable)type.GetField("NativeItemCategories", flags)!.GetValue(null)!).Cast<object>().ToArray();
+		var bond = ((IEnumerable)type.GetField("BondCategories", flags)!.GetValue(null)!).Cast<object>().ToArray();
 		string Key(object group) => (string)group.GetType().GetProperty("Key", flags)!.GetValue(group)!;
 		int[] Entries(object group) => (int[])group.GetType().GetProperty("Entries", flags)!.GetValue(group)!;
-		int items = Array.FindIndex(categories, category => Key(category) == "Items");
-		int[] all = categories.SelectMany(Entries).ToArray();
+		object[] Children(object group) => ((IEnumerable?)group.GetType().GetProperty("Children", flags)!.GetValue(group))?.Cast<object>().ToArray() ?? [];
+		IEnumerable<(object Node, int[] Path)> Leaves(object[] nodes, int[] path) {
+			check(nodes.Length is > 0 and <= 7, "Emote folder is empty or overcrowded");
+			for (int i = 0; i < nodes.Length; i++) {
+				int[] next = [.. path, i];
+				object[] children = Children(nodes[i]);
+				if (children.Length == 0) yield return (nodes[i], next);
+				else {
+					check(Entries(nodes[i]).Length == 0, "Emote folder mixes executable symbols with children");
+					foreach (var leaf in Leaves(children, next)) yield return leaf;
+				}
+			}
+		}
+		var leaves = Leaves(categories, []).ToArray();
+		int[] all = leaves.SelectMany(leaf => Entries(leaf.Node)).ToArray();
 		check(all.Length == EmoteID.Count && all.Distinct().Count() == EmoteID.Count
-			&& all.Order().SequenceEqual(Enumerable.Range(0, EmoteID.Count)), "Item regrouping lost or duplicated native emotes");
-		check(groups.Length == 7 && groups.SelectMany(Entries).Distinct().Count() == 22,
-			"Native item groups do not partition all 22 item symbols");
+			&& all.Order().SequenceEqual(Enumerable.Range(0, EmoteID.Count)), "Semantic categories lost or duplicated native emotes");
+		check(categories.Select(Key).SequenceEqual(new[] { "Feelings", "Gestures", "Activities", "Items", "World", "Beings", "Notifications" }),
+			"Top-level emote meanings were replaced with a flat list");
+		check(groups.Length == 7 && groups.SelectMany(Entries).Distinct().Count() == 23
+			&& Entries(groups.Single(group => Key(group) == "Weapons")).Contains(EmoteID.LucyTheAxe),
+			"Item groups lost their symbols or Lucy's weapon classification");
+		check(Entries(leaves.Single(leaf => Key(leaf.Node) == "Needs").Node).SequenceEqual(new[] { EmoteID.Peckish, EmoteID.Hungry, EmoteID.Starving })
+			&& Entries(leaves.Single(leaf => Key(leaf.Node) == "Signals").Node).SequenceEqual(new[] { EmoteID.EmotionAlert, EmoteID.EmoteNote }),
+			"Hunger and notifications remain mixed into feelings");
+		check(bond.Select(Key).SequenceEqual(new[] { "Feelings", "Gestures", "Care" })
+			&& bond.SelectMany(Entries).Order().SequenceEqual(Enum.GetValues<CompanionEmote>().Select(value => (int)value).Order()),
+			"Bond categories lost or duplicated companion interactions");
 		object branch = Enum.Parse(type.GetNestedType("RootBranch", flags)!, "Emotes");
+		object bondBranch = Enum.Parse(type.GetNestedType("RootBranch", flags)!, "Bond");
 		Vector2 Position(string method, params object[] args) => (Vector2)type.GetMethod(method, flags)!.Invoke(wheel, args)!;
+		int Category() => (int)type.GetField("nativeCategory", flags)!.GetValue(wheel)!;
+		int Page() => (int)type.GetField("nativePage", flags)!.GetValue(wheel)!;
+		int Depth() => ((IEnumerable)type.GetField("nativeGroups", flags)!.GetValue(wheel)!).Cast<object>().Count();
+		int Count() => (int)type.GetMethod("NativeNodeCount", flags)!.Invoke(wheel, null)!;
+		void Back() => Click((Vector2)type.GetField("center", flags)!.GetValue(wheel)!);
 		void Click(Vector2 point) {
 			PlayerInput.MouseX = (int)(point.X * Main.UIScale); PlayerInput.MouseY = (int)(point.Y * Main.UIScale);
 			Main.mouseLeft = false; wheel.UpdateUI(new GameTime());
 			Main.mouseLeft = true; wheel.UpdateUI(new GameTime());
 			Main.mouseLeft = false; wheel.UpdateUI(new GameTime());
 		}
+		void OpenPath(int[] path) {
+			Main.mouseLeft = Main.mouseRight = false; wheel.OpenEmotes(mate);
+			object[] current = categories;
+			for (int depth = 0; depth < path.Length; depth++) {
+				int index = path[depth];
+				string label = (string)type.GetMethod("BranchLabel", flags)!.Invoke(wheel, new object[] { index })!;
+				bool item = (bool)current[index].GetType().GetProperty("ItemGroup", flags)!.GetValue(current[index])!;
+				check(label == SoulmatesText.Get("UI.CompanionWheel." + (item ? "ItemGroups." : "EmoteGroups.") + Key(current[index])),
+					"Folder has the wrong localized hover label");
+				Click(Position("BranchPosition", branch, index, current.Length));
+				bool folder = Children(current[index]).Length > 0;
+				check(wheel.IsOpen && Depth() == (folder ? depth + 1 : depth)
+					&& Category() == (folder ? -1 : index) && Page() == 0,
+					"Category click did not enter the expected folder/leaf: " + Key(current[index]));
+				current = Children(current[index]);
+			}
+		}
+		var bubbles = (Dictionary<int, EmoteBubble>)typeof(EmoteBubble).GetField("byID", flags)!.GetValue(null)!;
+		var oldBubbles = bubbles.ToArray();
 		float oldScale = Main.UIScale;
 		try {
 			foreach (float scale in new[] { 1f, 1.5f, 2f }) {
 				Main.UIScale = scale;
 				foreach (string culture in SupportedCultures) {
 					Terraria.Localization.LanguageManager.Instance.SetLanguage(culture);
-					for (int groupIndex = 0; groupIndex < groups.Length; groupIndex++) {
-						Main.mouseLeft = Main.mouseRight = false;
-						wheel.OpenEmotes(mate);
-						Click(Position("BranchPosition", branch, items, categories.Length));
-						check((bool)type.GetField("nativeItemGroups", flags)!.GetValue(wheel)!
-							&& (int)type.GetField("nativeCategory", flags)!.GetValue(wheel)! == -1,
-							"Items mouse click emitted a symbol instead of opening groups");
-						Click(Position("BranchPosition", branch, groupIndex, groups.Length));
-						check((int)type.GetField("nativeCategory", flags)!.GetValue(wheel)! == groupIndex,
-							"Native item group mouse click missed: " + Key(groups[groupIndex]));
-						string label = (string)type.GetMethod("BranchLabel", flags)!.Invoke(wheel, new object[] { groupIndex })!;
-						check(label == SoulmatesText.Get("UI.CompanionWheel.ItemGroups." + Key(groups[groupIndex])),
-							"Item group has the wrong localized hover label");
-						object icon = type.GetMethod("NativeIcon", flags)!.Invoke(wheel, new object[] { 0 })!;
-						check((int)icon.GetType().GetProperty("Value", flags)!.GetValue(icon)! == Entries(groups[groupIndex])[0],
-							"Item group displays another category's symbol");
-						int count = (int)type.GetMethod("NativeNodeCount", flags)!.Invoke(wheel, null)!;
-						Click(Position("NativePosition", 0, count));
-						check(!wheel.IsOpen, "Native item symbol click did not finish the emote selection");
+					foreach (var leaf in leaves) {
+						int[] entries = Entries(leaf.Node);
+						check(entries.Length > 0, "Executable emote category is empty");
+						for (int entry = 0; entry < entries.Length; entry++) {
+							OpenPath(leaf.Path);
+							string label = (string)type.GetMethod("BranchLabel", flags)!.Invoke(wheel, new object[] { leaf.Path[^1] })!;
+							bool item = (bool)leaf.Node.GetType().GetProperty("ItemGroup", flags)!.GetValue(leaf.Node)!;
+							check(label == SoulmatesText.Get("UI.CompanionWheel." + (item ? "ItemGroups." : "EmoteGroups.") + Key(leaf.Node)),
+								"Wrong localized category hover label");
+							for (int page = 0; page < entry / 7; page++) Click(Position("NativePosition", Count() - 1, Count()));
+							check(Page() == entry / 7, "Next-page click missed its emote page");
+							int slot = entry % 7 + (Page() > 0 ? 1 : 0);
+							object icon = type.GetMethod("NativeIcon", flags)!.Invoke(wheel, new object[] { slot })!;
+							check((int)icon.GetType().GetProperty("Value", flags)!.GetValue(icon)! == entries[entry], "Displayed emote differs from selected entry");
+							string text = (string)type.GetMethod("NativeLabel", flags)!.Invoke(wheel, new object[] { slot })!;
+							check(text == Lang.GetEmojiName(entries[entry]).Value, "Native symbol lost its engine-localized tooltip");
+							bubbles.Clear();
+							Click(Position("NativePosition", slot, Count()));
+							check(!wheel.IsOpen && bubbles.Values.Cast<EmoteBubble>().Any(bubble => bubble.emote == entries[entry]
+								&& bubble.anchor.entity == Main.LocalPlayer), "Symbol click did not emit the selected native player emote");
+						}
+						OpenPath(leaf.Path);
+						if (entries.Length > 7) {
+							Click(Position("NativePosition", Count() - 1, Count()));
+							Click(Position("NativePosition", 0, Count()));
+							check(Page() == 0 && wheel.IsOpen, "Previous-page arrow left its category");
+						}
+						Back();
+						check(Category() == -1 && Depth() == leaf.Path.Length - 1 && Page() == 0, "Back skipped a leaf's category level");
+						for (int depth = leaf.Path.Length - 2; depth >= 0; depth--) {
+							Back(); check(Depth() == depth && wheel.IsOpen, "Back skipped a folder or closed the wheel");
+						}
+						Back(); check(type.GetField("branch", flags)!.GetValue(wheel) is null && wheel.IsOpen, "Back did not return to player's root wheel");
 					}
-					wheel.OpenEmotes(mate);
-					Click(Position("BranchPosition", branch, items, categories.Length));
-					Click(Position("BranchPosition", branch, 0, groups.Length));
-					Click((Vector2)type.GetField("center", flags)!.GetValue(wheel)!);
-					check(wheel.IsOpen && (bool)type.GetField("nativeItemGroups", flags)!.GetValue(wheel)!
-						&& (int)type.GetField("nativeCategory", flags)!.GetValue(wheel)! == -1, "Back skipped item groups");
-					Click((Vector2)type.GetField("center", flags)!.GetValue(wheel)!);
-					check(wheel.IsOpen && !(bool)type.GetField("nativeItemGroups", flags)!.GetValue(wheel)!,
-						"Back did not return to the original emote categories");
+					for (int group = 0; group < bond.Length; group++) {
+						foreach (int entry in Enumerable.Range(0, Entries(bond[group]).Length)) {
+							Main.mouseLeft = Main.mouseRight = false;
+							wheel.Open(mate);
+							var roots = ((IEnumerable)type.GetField("CompanionRoots", flags)!.GetValue(null)!).Cast<object>().ToArray();
+							Click(Position("RootPosition", Array.FindIndex(roots, value => value.ToString() == "Bond")));
+							check(Category() == -1 && Depth() == 0, "Companion wheel retained player navigation");
+							Click(Position("BranchPosition", bondBranch, group, bond.Length));
+							check(Category() == group && Count() == Entries(bond[group]).Length, "Bond category click missed");
+							string label = (string)type.GetMethod("NativeLabel", flags)!.Invoke(wheel, new object[] { entry })!;
+							check(label == SoulmatesText.EnumName((CompanionEmote)Entries(bond[group])[entry]), "Bond action lost its localized name");
+							Click(Position("NativePosition", entry, Count()));
+							check(!wheel.IsOpen && (CompanionEmote)typeof(SoulboundCompanion).GetField("activeEmote", flags)!.GetValue(mate)!
+								== (CompanionEmote)Entries(bond[group])[entry], "Bond emote click did not dispatch its own interaction");
+						}
+					}
+					OpenPath(leaves.Single(leaf => Key(leaf.Node) == "Town").Path);
+					string pathLabel = (string)type.GetMethod("EmoteBreadcrumb", flags)!.Invoke(wheel, null)!;
+					check(pathLabel == SoulmatesText.Get("UI.CompanionWheel.Categories.Emotes") + " > "
+						+ SoulmatesText.Get("UI.CompanionWheel.EmoteGroups.Beings") + " > "
+						+ SoulmatesText.Get("UI.CompanionWheel.EmoteGroups.Town"), "Emote breadcrumb lost its parent or localized leaf");
+					Click(Position("NativePosition", Count() - 1, Count()));
+					Click(Position("RootPosition", 0));
+					check(Category() == -1 && Depth() == 0 && Page() == 0 && type.GetField("branch", flags)!.GetValue(wheel) is null,
+						"Toggling the root retained an old leaf/page path");
+					Click(Position("RootPosition", 0));
+					check(Category() == -1 && Depth() == 0 && type.GetField("branch", flags)!.GetValue(wheel)!.Equals(branch),
+						"Reopening the root did not start at the category list");
+					Click(Position("RootPosition", 1));
+					check(Category() == -1 && Depth() == 0 && type.GetField("context", flags)!.GetValue(wheel)!.ToString() == "World",
+						"Changing to Point retained native emote navigation");
 					wheel.Close();
 				}
 			}
 		}
 		finally {
 			wheel.ExitMouseMode(); Main.UIScale = oldScale;
+			bubbles.Clear(); foreach (var entry in oldBubbles) bubbles.Add(entry.Key, entry.Value);
 			Terraria.Localization.LanguageManager.Instance.SetLanguage("en-US");
 			Main.mouseLeft = Main.mouseRight = false;
 		}

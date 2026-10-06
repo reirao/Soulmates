@@ -52,6 +52,10 @@ public sealed class TalkModeSystem : ModSystem
 
 	internal void ReceiveNetworkResponse(CompanionProfile profile, string reply, bool accepted)
 		=> talkState?.ReceiveNetworkResponse(profile, reply, accepted);
+	internal void ReceiveEquipmentProfile(CompanionProfile profile, string message)
+		=> talkState?.ReceiveEquipmentProfile(profile, message);
+	internal void ReceiveTaskResponse(CompanionProfile profile, string reply, bool accepted)
+		=> talkState?.ReceiveTaskResponse(profile, reply, accepted);
 
 	public override void UpdateUI(GameTime gameTime)
 	{

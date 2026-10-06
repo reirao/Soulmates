@@ -19,9 +19,23 @@ public static class CompanionCritters
 	public static bool IsCritter(NPC npc) => npc.catchItem > 0 || npc.type > NPCID.None
 		&& npc.type < NPCID.Sets.CountsAsCritter.Length && NPCID.Sets.CountsAsCritter[npc.type];
 
-	public static bool IsNatural(NPC npc) => npc.active && npc.life > 0 && npc.catchItem > 0 && npc.catchItem < ItemLoader.ItemCount
-		&& npc.type > NPCID.None && npc.type < NPCID.Sets.CountsAsCritter.Length && NPCID.Sets.CountsAsCritter[npc.type]
-		&& npc.friendly && !npc.townNPC && !npc.boss && npc.damage == 0 && !npc.SpawnedFromStatue && npc.releaseOwner == 255;
+	public static bool IsNatural(NPC npc) => NaturalRejectionReason(npc).Length == 0;
+
+	internal static string NaturalRejectionReason(NPC npc)
+	{
+		if (!npc.active) return "inactive";
+		if (npc.life <= 0) return "dead";
+		if (npc.catchItem <= 0 || npc.catchItem >= ItemLoader.ItemCount) return "no valid native catch item";
+		if (npc.type <= NPCID.None || npc.type >= NPCID.Sets.CountsAsCritter.Length
+			|| !NPCID.Sets.CountsAsCritter[npc.type]) return "native critter flag absent";
+		if (!npc.friendly) return "hostile";
+		if (npc.townNPC) return "town NPC protected";
+		if (npc.boss) return "boss protected";
+		if (npc.damage != 0) return "damaging NPC protected";
+		if (npc.SpawnedFromStatue) return "statue protected";
+		if (npc.releaseOwner != 255) return "released animal protected";
+		return "";
+	}
 
 	public static bool IsCommon(NPC npc) => IsNatural(npc) && !NPCID.Sets.GoldCrittersCollection.Contains(npc.type);
 	public static bool CanKeepCompany(NPC npc) => IsCommon(npc) && SupportsCompany(npc.type);
@@ -94,7 +108,7 @@ public sealed class CompanionCritterCompany : GlobalNPC
 			? Main.npc[companionIndex].ModNPC as SoulboundCompanion : null;
 		if (!CompanionCritters.CanKeepCompany(npc) || companion is null || !companion.NPC.active || !BelongsTo(companion)
 			|| companion.NPC.ai[0] < 0 || companion.NPC.ai[0] >= Main.maxPlayers
-			|| companion.Profile.CritterMode != CompanionCritterMode.Company || !companion.Profile.AutonomyEnabled
+			|| companion.Profile.CritterMode != CompanionCritterMode.Company
 			|| !Main.player[(int)companion.NPC.ai[0]].active || Main.player[(int)companion.NPC.ai[0]].dead
 			|| Vector2.DistanceSquared(npc.Center, companion.NPC.Center) > 640f * 640f) {
 			Leave(npc);
@@ -104,15 +118,19 @@ public sealed class CompanionCritterCompany : GlobalNPC
 		float separation = npc.noGravity ? offset.Length() : MathF.Abs(offset.X);
 		if (separation > 140f) catchingUp = true;
 		else if (separation < 64f) catchingUp = false;
-		if (catchingUp && Collision.CanHitLine(npc.position, npc.width, npc.height,
-			companion.NPC.position, companion.NPC.width, companion.NPC.height)) {
+		bool lineOfSight = Collision.CanHitLine(npc.position, npc.width, npc.height,
+			companion.NPC.position, companion.NPC.width, companion.NPC.height);
+		if (catchingUp && !companion.Profile.WorkPaused && (lineOfSight || !npc.noGravity && MathF.Abs(offset.Y) <= 160f)) {
 			if (npc.noGravity) {
 				Vector2 desired = offset.SafeNormalize(Vector2.Zero) * Math.Min(2.8f, Math.Max(0f, offset.Length() - 42f) / 32f);
 				npc.velocity = desired;
 			}
-			else if (MathF.Abs(offset.X) > 64f)
+			else if (MathF.Abs(offset.X) > 64f) {
 				// Native walking AI can set an opposing velocity every tick; a weak blend never reverses it.
 				npc.velocity.X = MathF.Sign(offset.X) * Math.Min(1.8f, (MathF.Abs(offset.X) - 32f) / 40f);
+				if (npc.collideX && npc.collideY && npc.velocity.Y == 0f)
+					npc.velocity.Y = -4f;
+			}
 			if (MathF.Abs(npc.velocity.X) > 0.2f)
 				npc.direction = npc.velocity.X < 0 ? -1 : 1;
 		}

@@ -7,6 +7,10 @@ public enum CompanionItemTopic : byte { All, Food, Ores, Tools, Weapons, Recover
 
 public static class CompanionItemTopics
 {
+	public static bool IsPetItem(Item item) => !item.IsAir && item.buffType > 0
+		&& (item.buffType < Main.vanityPet.Length && Main.vanityPet[item.buffType]
+			|| item.buffType < Main.lightPet.Length && Main.lightPet[item.buffType]);
+
 	public static CompanionItemTopic Classify(Item item)
 	{
 		if (item.IsAir) return CompanionItemTopic.Other;

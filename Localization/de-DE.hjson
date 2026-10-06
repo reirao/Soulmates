@@ -1,5 +1,24 @@
 Mods: {
 	Soulmates: {
+		UI.Character.Conversation: "Gespräch"
+		UI.Character.Equipment: "Ausrüstung"
+		UI.Character.Diagnostics: "Diagnose"
+		UI.Character.Export: "Diagnose lokal exportieren"
+		UI.Character.Exported: "Diagnose lokal gespeichert: SoulmatesFeedback/diagnostic-latest.txt"
+		UI.Character.ExportFailed: "Die lokale Diagnose konnte nicht gespeichert werden."
+		UI.Character.Empty: "Leer"
+		UI.Character.LearnedPick: "Erlernte Abbaustärke: {0}"
+		UI.Character.Slots.Pickaxe: "Mitgetragene Spitzhacke"
+		UI.Character.Slots.Net: "Wirksames Netz (Basisnetz ist eingebaut)"
+		UI.Character.Slots.Axe: "Verfügbare Axt zum Stutzen"
+		UI.Character.Slots.Trinket: "Aktiver Talisman"
+		Pets.Title: Pet des Gefährten
+		Pets.Choose: "Aus dem Pack beschwören: {0}"
+		Pets.Selected: "Folgt mir: {0}"
+		Pets.Missing: "Nicht in meinem Pack: {0}"
+		Pets.Dismiss: Mein Pet entlassen
+		Projectiles.CompanionFamiliar.DisplayName: Gefährten-Pet
+		Enums.CompanionQuickAction.RepeatLastWork: Letzten Auftrag wiederholen
 		Enums.CompanionInitiativeKind.CritterCompany: Tiergesellschaft
 		Enums.CompanionInitiativeKind.CritterCollect: Tiere einfangen
 		Enums.CompanionQuickAction.CritterCompanyPolicy: Tiergesellschaft-Regel
@@ -8,7 +27,7 @@ Mods: {
 		Autonomy.Initiative.Ask.CritterCollect: Darf ich dieses gewöhnliche Tier mit meinem Netz einfangen?
 		Autonomy.Initiative.Always.CritterCompany: Ich leiste dem Kleinen behutsam Gesellschaft.
 		Autonomy.Initiative.Always.CritterCollect: Ich fange dieses gewöhnliche Tier vorsichtig ein.
-		Social.Critters.DirectBusy: Für diesen Besuch brauche ich aktive Autonomie und einen ruhigen Moment ohne Gefahr oder offene Frage.
+		Social.Critters.DirectBusy: Gefahr geht vor. Zeige mir das kleine Tier noch einmal, wenn wir sicher sind.
 		Enums.CompanionQuickAction.Pause: Pausieren
 		Enums.CompanionQuickAction.Resume: Fortsetzen
 		Enums.CompanionQuickAction.Abort: Abbrechen
@@ -30,7 +49,9 @@ Mods: {
 		Items.Example: "{0} gehört zu {1}."
 		Items.Uses.Food: Nahrung gibt einen Sättigungsbuff. Für einen längeren Ausflug lohnt sich ein Vorrat.
 		Items.Uses.Ores: Im Ofen werden Erze zu Barren. Die richtige Spitzhacke bleibt wichtig.
-		Items.Uses.Tools: Werkzeuge ermöglichen unterschiedliche Arbeiten. Zum Einfangen braucht es ein echtes Netz.
+		Items.Uses.Tools: Werkzeuge ermöglichen verschiedene Arbeiten. Mein einfacher Kescher fängt gewöhnliche Tiere; ein mitgetragenes lavafestes Netz verbessert ihn.
+		Items.Uses.Pets: Mit einem Item in meinem Pack kann ich einen Zephyrfisch oder eine Baby-Hornisse halten. Wähle es unter Tiere, Pet des Gefährten. Andere Pet-Items nutzen weiterhin deinen Pet-Slot. Tiergesellschaft gilt echten Welttieren.
+		Social.Critters.LavaNet: Dieses Lava-Tier braucht ein lavafestes Netz in meiner Ausrüstung. Mein einfacher Kescher kann es nicht sicher fangen.
 		Items.Uses.Weapons: Das ist Kampfausrüstung, kein Baumaterial. Ich bewahre es für dich auf.
 		Items.Uses.Recovery: Das hilft bei Leben, Mana oder mit einem Buff. Die echte Wirkung zählt mehr als die Farbe.
 		Items.Uses.Materials: Das ist Bau- oder Handwerksmaterial. Stationen und Rezepte bestimmen, was daraus wird.
@@ -545,6 +566,25 @@ Mods: {
 					LookTarget: ZIEL ANSEHEN
 					ForestTarget: EINEN ORT PFLEGEN
 				}
+				WorkMenu: {
+					Config: EINSTELLEN
+					Last: "ZULETZT: {0}"
+					NoLast: Noch kein Arbeitsauftrag angenommen.
+					ChooseTarget: Wähle ein neues Ziel für diesen Auftrag.
+					Compass: TUNNELKOMPASS
+					End: "Stopp: {0}"
+					Directions: {
+						Auto: Zum nahen Erz
+						Up: Oben
+						Right: Rechts
+						Down: Unten
+						Left: Links
+					}
+					Ends: {
+						Passage: Bis zur Öffnung (max. 24 Blöcke)
+						Short: Kurzer Tunnel (max. 8 Blöcke)
+					}
+				}
 
 				MiningApproaches: {
 					Adaptive: ADAPTIV · SINNVOLL PRIORISIEREN
@@ -957,6 +997,15 @@ Mods: {
 					Collect: Mein einfacher Kescher ist bereit für gewöhnliche Tiere in der Nähe, wenn Platz ist. Lava-Tiere brauchen ein besseres Netz in der Ausrüstung. Arbeit und Gefahren gehen vor.
 					Off: Ich lasse die Tiere ihre eigenen Abenteuer erleben.
 				}
+				Status: {
+					Off: Keine Einladungen oder Fänge
+					Watch: Nur beobachten
+					Company: "Echte Tiere folgen: {0}/{1}"
+					Manual: Autonomie aus; gezielte Aufträge gehen weiterhin
+					Paused: Arbeit pausiert; zum Einladen oder Fangen fortsetzen
+					Busy: Wartet auf Arbeit, Verteidigung, Energie oder Antwort
+					Permission: "Automatische Besuche: {0}"
+				}
 				Notice: {
 					Curious: "Ein {0}. Wohin sein kleiner Pfad wohl führt?"
 					Loyal: "Ein {0}. Ich mag Reisen, auf denen auch kleine Schritte Platz haben."
@@ -1356,5 +1405,29 @@ Mods: {
 		Conversation.Settings.Selected: "Persönliche Fragen: {0}. Die Arbeitserlaubnisse bleiben unverändert."
 		TargetOrders.CritterTimeout: Ich konnte das kleine Wesen nicht rechtzeitig erreichen. Ich lasse es vorerst in Ruhe.
 		Projectiles.SoulBolt.DisplayName: Seelenblitz
+		UI.CompanionWheel.EmoteGroups.Feelings: Gefühle
+		UI.CompanionWheel.EmoteGroups.Gestures: Gesten
+		UI.CompanionWheel.EmoteGroups.Activities: Tätigkeiten
+		UI.CompanionWheel.EmoteGroups.Items: Gegenstände
+		UI.CompanionWheel.EmoteGroups.World: Welt
+		UI.CompanionWheel.EmoteGroups.Beings: Menschen & Wesen
+		UI.CompanionWheel.EmoteGroups.Notifications: Hinweise
+		UI.CompanionWheel.EmoteGroups.Warm: Freude & Zuneigung
+		UI.CompanionWheel.EmoteGroups.Upset: Trauer & Ärger
+		UI.CompanionWheel.EmoteGroups.Uncertain: Angst & Verwirrung
+		UI.CompanionWheel.EmoteGroups.Everyday: Alltag
+		UI.CompanionWheel.EmoteGroups.Combat: Kampf
+		UI.CompanionWheel.EmoteGroups.Games: Spiele
+		UI.CompanionWheel.EmoteGroups.Weather: Wetter
+		UI.CompanionWheel.EmoteGroups.Biomes: Biome
+		UI.CompanionWheel.EmoteGroups.Events: Ereignisse
+		UI.CompanionWheel.EmoteGroups.Nature: Natur
+		UI.CompanionWheel.EmoteGroups.Town: Bewohner
+		UI.CompanionWheel.EmoteGroups.Creatures: Wesen
+		UI.CompanionWheel.EmoteGroups.Signals: Signale
+		UI.CompanionWheel.EmoteGroups.Needs: Hunger
+		UI.CompanionWheel.EmoteGroups.Debuffs: Beschwerden
+		UI.CompanionWheel.EmoteGroups.Bosses: Bosse
+		UI.CompanionWheel.EmoteGroups.Care: Fürsorge
 	}
 }

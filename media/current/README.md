@@ -1,6 +1,6 @@
-# Soulmates: Actual Gameplay
+# Soulmates: October 1 Gameplay Archive
 
-Current captures supplied by the creator on October 1, 2026. The first three are the creator's favorites. All individual PNGs are unchanged: no generated imagery, added UI, retouching, resizing, or additional cropping. The creator's screenshots retain their original framing; frames extracted from `SOULMATES.mp4` retain 1280 x 720 resolution.
+Historical captures supplied by the creator on October 1, 2026. See the [October 5 Classic showcase](showcase-0.22.0/README.md) for the later 20-image series. Neither gallery is relabeled as 0.22.1. The first three below are the creator's favorites. All individual PNGs are unchanged: no generated imagery, added UI, retouching, resizing, or additional cropping. Screenshots retain original framing; frames from `SOULMATES.mp4` retain 1280 x 720 resolution.
 
 These images document moments of play, not exhaustive verification of every feature. The older September 29 screenshot and previous galleries are not included.
 

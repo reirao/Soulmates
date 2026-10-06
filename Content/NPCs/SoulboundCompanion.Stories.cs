@@ -42,7 +42,8 @@ public sealed partial class SoulboundCompanion
 		if (example is null) return new(SoulmatesText.Get("Items.Empty", name) + " " + DescribePresent(), true);
 		CompanionItemTopic actual = CompanionItemTopics.Classify(example);
 		return new(SoulmatesText.Get("Items.Example", example.Name, SoulmatesText.Get($"Items.Topics.{actual}"))
-			+ " " + SoulmatesText.Get($"Items.Uses.{actual}"), true);
+			+ " " + (CompanionItemTopics.IsPetItem(example) ? SoulmatesText.Get("Items.Uses.Pets")
+				: SoulmatesText.Get($"Items.Uses.{actual}")), true);
 	}
 
 	private string TellRememberedStory(int cursor, CompanionItemTopic topic = CompanionItemTopic.All)

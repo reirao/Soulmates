@@ -44,7 +44,9 @@ public sealed class Soulmates : Mod
 		MiningRuleRequest,
 		MiningObservationRequest,
 		InventoryReceipt,
-		InventoryResolved
+		InventoryResolved,
+		MiningConfigRequest,
+		PetConfigRequest
 	}
 
 	internal static ModKeybind TalkKeybind { get; private set; } = null!;
@@ -173,6 +175,17 @@ public sealed class Soulmates : Mod
 		packet.Send();
 	}
 
+	internal static void SendMiningConfigRequest(Guid profileId, CompanionMiningApproach approach,
+		CompanionMiningDirection direction, CompanionTunnelEnd end)
+	{
+		if (Main.netMode != NetmodeID.MultiplayerClient) return;
+		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
+		packet.Write((byte)MessageType.MiningConfigRequest);
+		packet.Write(profileId.ToByteArray());
+		packet.Write((byte)approach); packet.Write((byte)direction); packet.Write((byte)end);
+		packet.Send();
+	}
+
 	internal static void SendRpsResult(Player owner, SoulboundCompanion companion, RpsMove playerMove, RpsMove companionMove)
 	{
 		if (Main.netMode != NetmodeID.Server) return;
@@ -182,6 +195,17 @@ public sealed class Soulmates : Mod
 		packet.Write((byte)playerMove);
 		packet.Write((byte)companionMove);
 		packet.Send(owner.whoAmI);
+	}
+
+	internal static void SendPetConfigRequest(CompanionProfile profile, int slot)
+	{
+		if (Main.netMode != NetmodeID.MultiplayerClient || slot < -1 || slot >= profile.Pack.Count) return;
+		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
+		packet.Write((byte)MessageType.PetConfigRequest);
+		packet.Write(profile.Id.ToByteArray()); packet.Write(slot);
+		packet.Write(slot < 0 ? 0 : profile.Pack[slot].type);
+		packet.Write(slot < 0 ? new byte[32] : profile.StorageToken(CompanionStorage.Pack, slot));
+		packet.Send();
 	}
 
 	internal static void SendCreateCompanionRequest(CompanionProfile profile)
@@ -327,6 +351,8 @@ public sealed class Soulmates : Mod
 			MessageType.RpsResult => 18,
 			MessageType.NpcContextRequest => 23,
 			MessageType.MiningRuleRequest => 22,
+			MessageType.MiningConfigRequest => 19,
+			MessageType.PetConfigRequest => 56,
 			_ => 1
 		};
 		if (reader.BaseStream.CanSeek && reader.BaseStream.Length - reader.BaseStream.Position < minimumBytes)
@@ -346,6 +372,9 @@ public sealed class Soulmates : Mod
 				break;
 			case MessageType.PackWithdrawRequest:
 				HandlePackWithdrawRequest(reader, whoAmI);
+				break;
+			case MessageType.PetConfigRequest:
+				HandlePetConfigRequest(reader, whoAmI);
 				break;
 			case MessageType.ProfileUpdate:
 				HandleProfileUpdate(reader);
@@ -388,6 +417,9 @@ public sealed class Soulmates : Mod
 				break;
 			case MessageType.MiningRuleRequest:
 				HandleMiningRuleRequest(reader, whoAmI);
+				break;
+			case MessageType.MiningConfigRequest:
+				HandleMiningConfigRequest(reader, whoAmI);
 				break;
 			case MessageType.MiningObservationRequest:
 				HandleMiningObservationRequest(reader, whoAmI);
@@ -537,6 +569,7 @@ public sealed class Soulmates : Mod
 		if (Main.netMode != NetmodeID.MultiplayerClient)
 			return;
 		ApplyClientProfile(profile);
+		ModContent.GetInstance<TalkModeSystem>().ReceiveEquipmentProfile(profile, message);
 		if (!string.IsNullOrWhiteSpace(message))
 			Main.NewText(message, profile.EssenceColor);
 	}
@@ -586,6 +619,7 @@ public sealed class Soulmates : Mod
 			return;
 
 		ApplyClientProfile(profile);
+		ModContent.GetInstance<TalkModeSystem>().ReceiveTaskResponse(profile, reply, accepted);
 		if (SoulboundCompanion.FindFor(Main.LocalPlayer) is { } companion && companion.Profile.Id == profile.Id)
 			companion.ShowSpeech(reply);
 		SoundEngine.PlaySound(accepted ? SoundID.Chat : SoundID.MenuClose);
@@ -732,6 +766,27 @@ public sealed class Soulmates : Mod
 		bool enabled = reader.ReadBoolean();
 		if (Main.netMode != NetmodeID.Server || FindRequestCompanion(Main.player[whoAmI]) is not { } companion
 			|| companion.Profile.Id != profileId || !companion.SetAutomaticMiningRule(ores, tileType, enabled)) return;
+		SendProfileUpdate(Main.player[whoAmI], companion);
+	}
+
+	private void HandleMiningConfigRequest(BinaryReader reader, int whoAmI)
+	{
+		Guid profileId = ReadGuid(reader);
+		CompanionMiningApproach approach = (CompanionMiningApproach)reader.ReadByte();
+		CompanionMiningDirection direction = (CompanionMiningDirection)reader.ReadByte();
+		CompanionTunnelEnd end = (CompanionTunnelEnd)reader.ReadByte();
+		if (Main.netMode != NetmodeID.Server || FindRequestCompanion(Main.player[whoAmI], profileId) is not { } companion
+			|| !companion.ConfigureMining(approach, direction, end)) return;
+		SendProfileUpdate(Main.player[whoAmI], companion);
+	}
+
+	private void HandlePetConfigRequest(BinaryReader reader, int whoAmI)
+	{
+		Guid profileId = ReadGuid(reader);
+		int slot = reader.ReadInt32(), expectedType = reader.ReadInt32();
+		byte[] token = reader.ReadBytes(32);
+		if (Main.netMode != NetmodeID.Server || FindRequestCompanion(Main.player[whoAmI], profileId) is not { } companion
+			|| !companion.ConfigurePet(slot, expectedType, token)) return;
 		SendProfileUpdate(Main.player[whoAmI], companion);
 	}
 

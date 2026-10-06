@@ -183,12 +183,16 @@ public sealed partial class EngineChecks
 		}
 		float oldScale = Main.UIScale;
 		List<int> oldLearned = mate.Profile.LearnedMiningTiles.ToList();
+		List<Item> oldPack = mate.Profile.Pack.Select(item => item.Clone()).ToList();
+		int oldPet = mate.Profile.PetItemType;
 		try {
 			mate.Profile.LearnMiningMaterial(TileID.Dirt, 35);
 			foreach (float scale in new[] { 1f, 1.5f, 2f }) foreach (string culture in SupportedCultures) {
 				Main.UIScale = scale; Terraria.Localization.LanguageManager.Instance.SetLanguage(culture);
 				wheel.Open(mate); type.GetMethod("ActivateRoot", flags)!.Invoke(wheel, new[] { branch });
-				Click("BranchPosition", branch, 5, 8);
+				Click("BranchPosition", branch, 0, 2);
+				check((bool)type.GetProperty("ShowWorkActions", flags)!.GetValue(wheel)!, "Config click did not unfold work actions");
+				Click("WorkConfigPosition", 5);
 				Click("MiningApproachPosition", 4);
 				check((bool)type.GetField("miningFilterMenu", flags)!.GetValue(wheel)!, "Automatic mining settings click missed");
 				Click("MiningFilterPosition", 1); Click("MiningFilterPosition", 1);
@@ -215,8 +219,38 @@ public sealed partial class EngineChecks
 				Click("center"); Click("center");
 				check(!(bool)type.GetField("miningFilterMenu", flags)!.GetValue(wheel)!
 					&& (bool)type.GetField("miningApproachMenu", flags)!.GetValue(wheel)!, "Mining filter Back did not restore mining approaches");
+				Click("MiningApproachPosition", 1);
+				check(type.GetField("workPage", flags)!.GetValue(wheel)!.ToString() == "Compass", "Tunnel mode did not open compass");
+				for (int direction = 0; direction < 5; direction++) {
+					Click("CompassPosition", direction);
+					check(mate.Profile.MiningDirection == (direction == 4 ? CompanionMiningDirection.Auto : (CompanionMiningDirection)(direction + 1)),
+						"Compass click selected the wrong direction");
+				}
+				var beforeEnd = mate.Profile.TunnelEnd;
+				Click("CompassPosition", 5); check(mate.Profile.TunnelEnd != beforeEnd, "Compass stop mode cannot switch");
+				Click("CompassPosition", 5); check(mate.Profile.TunnelEnd == beforeEnd, "Compass stop mode cannot switch back");
+				Click("center"); check((bool)type.GetField("miningApproachMenu", flags)!.GetValue(wheel)!, "Compass Back skipped mining modes");
+				Click("center"); check((bool)type.GetProperty("ShowWorkActions", flags)!.GetValue(wheel)!, "Mining modes Back skipped Config");
+				Click("center"); check(type.GetField("workPage", flags)!.GetValue(wheel)!.ToString() == "Closed", "Config Back did not restore two slots");
+				mate.Profile.LastWork = mate.Profile.WorkRecipe(CompanionWorkKind.GatherTarget);
+				Click("BranchPosition", branch, 1, 2);
+				check(!wheel.IsOpen && ModContent.GetInstance<DirectOrderSystem>().IsActive, "Last target did not arm a fresh directed tool");
+				ModContent.GetInstance<DirectOrderSystem>().Cancel();
+				mate.Profile.Pack.Clear(); mate.Profile.PetItemType = 0;
+				object critters = Enum.Parse(type.GetNestedType("RootBranch", flags)!, "Critters");
+				wheel.Open(mate); type.GetMethod("ActivateRoot", flags)!.Invoke(wheel, new[] { critters });
+				Click("BranchPosition", critters, 4, 5);
+				check((bool)type.GetField("petsMenu", flags)!.GetValue(wheel)!, "Companion pet menu is not reachable");
+				Click("PetPosition", 0); check(mate.Profile.PetItemType == 0, "Missing pet item can be equipped from the wheel");
+				mate.Profile.Store(new Item(ItemID.ZephyrFish));
+				Click("PetPosition", 0); check(mate.Profile.PetItemType == ItemID.ZephyrFish, "Owned pet wheel button has no effect");
+				check(!((string)type.GetMethod("PetLabel", flags)!.Invoke(wheel, new object[] { 0 })!).Contains("Mods.Soulmates"),
+					"Pet tooltip leaks a localization key");
+				Click("PetPosition", 2); check(mate.Profile.PetItemType == 0, "Pet wheel cannot dismiss");
+				Click("center"); check(!(bool)type.GetField("petsMenu", flags)!.GetValue(wheel)!, "Pet Back does not restore critter choices");
 			}
 		}
-		finally { wheel.Close(); Main.UIScale = oldScale; mate.Profile.LearnedMiningTiles = oldLearned; }
+		finally { wheel.Close(); Main.UIScale = oldScale; mate.Profile.LearnedMiningTiles = oldLearned;
+			mate.Profile.Pack = oldPack; mate.Profile.PetItemType = oldPet; }
 	}
 }

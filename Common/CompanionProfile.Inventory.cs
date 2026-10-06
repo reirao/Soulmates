@@ -19,6 +19,7 @@ public sealed partial class CompanionProfile
 		Pack.Clear();
 		Resources.Clear();
 		WalletCopper = BigInteger.Zero;
+		PetItemType = 0;
 	}
 
 	public static bool IsResource(Item item) => !item.IsAir && CoinValue(item.type) == 0 && item.maxStack > 1
