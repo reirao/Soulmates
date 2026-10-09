@@ -29,3 +29,7 @@ English and German Workshop descriptions were saved through their language-speci
 The existing 0.23.2 change entry was edited, not duplicated. It contains only this patch's changes. The earlier 0.23.1 V claim remains quoted with an explicit dated correction: a software trigger did not establish a physical keypress. V is **not certified fixed**. Wheel Details and Pets are the documented routes. The [README lesson](../README.md#the-v-key-lesson) preserves the mistake and required distinction between handler, engine mapping and real-client input tests.
 
 GitHub main and the existing development branch are kept at the same release source. Upload, Steam approval, exact package download and each subscriber's loaded version remain different checks. No subscriber-wide delivery or complete beta acceptance is claimed.
+
+## GitHub Result
+
+The [0.23.2 beta release](https://github.com/reirao/Soulmates/releases/tag/v0.23.2) was published at **11:35 CEST**, not left as a draft. Tag `v0.23.2` resolves to `82a995503f1473c56279d4f233cf1bf7618c65b4`. GitHub's uploaded asset metadata independently reports **1,588,547 bytes** and SHA256 `311908B351DB096E59286739ED4D42D76D9A118ECBEDA013EE70BEDE7344C7B4`, matching the exact Workshop artifact tested above. Subsequent publication-receipt edits are documentation only; the tag and package are not rebuilt or moved.

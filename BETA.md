@@ -46,7 +46,7 @@ The core scope focuses on correctness, balance, usability and compatibility. The
 | Progression and pacing | Early tools, stronger tools and hardmode; protected terrain; resource limits at levels 1/10/20; work and recovery | Native boundary fixtures pass; actual progression session pending |
 | Interface | Creator, every wheel branch, answer selection, pack, mailbox typing, native right-click and speech/emotes at common UI scales | Layout/input fixtures pass; physical V key reported failing and not certified fixed. Use Details/Pets. Rendered 800x600, 1280x720 and 1920x1080 checks pending |
 | Endurance | At least one 60-minute single-player and one 60-minute connected multiplayer session with saved/reloaded cargo | Pending; accelerated AI ticks are not a substitute |
-| Public delivery | Maintainer approves candidate; one current Workshop log, matching Git release, verified subscriber delivery | Creator approves 0.23.2; Workshop entry at 11:15 CEST on October 9. GitHub synchronization is prepared separately. Steam review and per-subscriber delivery remain separate checks |
+| Public delivery | Maintainer approves candidate; one current Workshop log, matching Git release, verified subscriber delivery | Creator approves 0.23.2; Workshop entry at 11:15 CEST and GitHub beta release at 11:35 CEST on October 9. The GitHub asset digest matches the tested Workshop download. English/German descriptions and the existing current log are saved. Steam review and per-subscriber delivery remain separate checks |
 
 A failed acceptance gate remains open until reproduced, repaired and retested. Passing older versions or another package's hash does not close a gate. Freeze new functionality while these checks are being completed.
 
