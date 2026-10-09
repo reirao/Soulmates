@@ -1,8 +1,8 @@
 [h1]Soulmates[/h1]
 Der wiederverwendbare Soulcore erstellt persönliche Companions. Jedes Soulbound Sigil bewahrt Aussehen, Persönlichkeit, Fortschritt, Erinnerungen und Fracht.
 
-[b]Version: 0.22.1 - Showcase Repairs | Beta-Kandidat[/b]
-Dieser Patch repariert Frachtklicks, Fragen-Ausblenden, Soulcore-Animation und Diagnose; Text weicht der Eck-Minimap aus, wenn Platz ist.
+[b]Version: 0.22.2 - Living Critters | Beta-Kandidat[/b]
+Repariert Critter-Erkennung, Bodensicht, Besuche, Folgen und Todesreaktionen. Fehlende Pet-Items erhalten eine sichtbare Antwort.
 [b]Sprachen:[/b] EN, DE, IT, FR, ES, RU, PT-BR, PL und vereinfachtes Chinesisch. Folgt Terraria. Neue Übersetzungen sind KI-verfasst; Korrekturen willkommen. Manche MP-Antworten nutzen noch die Serversprache.
 [url=https://github.com/reirao/Soulmates]Quellcode und Versionshinweise[/url]
 
@@ -46,7 +46,7 @@ Bewohnerbesuche nutzen native Emotes und persönliche Antworten. Beziehungen und
 Diagnose zeigt Aktivität, Regeln, Energie, Critter-Hindernisse und Pets. Export schreibt lokal SoulmatesFeedback/diagnostic-latest.txt, ohne Aufzeichnung oder Upload. MP zeigt Client-Zustand, keine Serverhistorie.
 AETHER-Briefkasten: Papierflieger oder /soulfeedback. Optionale Feldnotizen starten ausgeschaltet. Alles bleibt lokal; nichts wird hochgeladen oder automatisch an Entwickler gesendet. Automatische Einträge enthalten keine Namen, Chats oder exakten Positionen; getippte Notizen behalten deinen Text. Teile nur, was du prüfen lassen möchtest.
 
-Beta-Kandidat: erster Spieltest gut, keine vollständige Abnahme. Tiere, Fortschritt, lange Sitzungen und echtes MP brauchen Tests. Alle benötigen 0.22.1. Bitte Aktion, Soll/Ist und Solo/MP melden; schöne Momente auch. [url=https://github.com/reirao/Soulmates/tree/main/media/current/showcase-0.22.0]20 echte 0.22.0-Aufnahmen[/url] (5. Okt., vor diesem Patch). Workshop-Galerie: 1. Oktober.
+Beta-Kandidat: erfolgreicher 0.22.2-Spieltest bestätigt. Todesreaktionen, Fortschritt, lange Sitzungen und echtes MP brauchen weitere Tests. Alle benötigen 0.22.2. Bitte Aktion, Soll/Ist und Solo/MP melden; schöne Momente auch. [url=https://github.com/reirao/Soulmates/tree/main/media/current/showcase-0.22.0]20 echte 0.22.0-Aufnahmen[/url] (5. Okt., vor diesem Patch). Workshop-Galerie: 1. Oktober.
 
 [h2]Entwicklungshinweis[/h2]
 Umfangreiche KI-Unterstützung für Code, Texte, UI und Grafik. Workshop-/Mod-Icons und Soulkin sind KI-generiert; weitere benannte native Sprites, Items, Inventarsymbole und Emotes stammen aus Terraria. Kein Online-KI-Dienst im Spiel.

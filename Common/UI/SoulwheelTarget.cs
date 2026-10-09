@@ -70,9 +70,9 @@ internal sealed class SoulwheelTarget
 	}
 
 	public bool CanPoint => IsCurrent && (item is not null || npc is not null || hasTile);
-	public bool CanOfferFallback => CanPoint && (item is not null || npc is not null
-		|| !Main.tileFrameImportant[tileType] || SoulboundCompanion.IsTreeTrunk(tileType) || tileType == TileID.FallenLog)
-		&& !HasPlacedObject(Tile);
+	public bool CanOfferFallback => CanPoint && !HasNativeInteractionPriority(Tile) && (item is not null || npc is not null
+		|| (!Main.tileFrameImportant[tileType] || SoulboundCompanion.IsTreeTrunk(tileType) || tileType == TileID.FallenLog)
+			&& !HasPlacedObject(Tile));
 
 	internal static bool HasPlacedObject(Point tilePosition)
 	{
@@ -80,6 +80,12 @@ internal sealed class SoulwheelTarget
 		Terraria.Tile tile = Main.tile[tilePosition.X, tilePosition.Y];
 		return tile.HasTile && (Main.tileFrameImportant[tile.TileType] || TileID.Sets.Torch[tile.TileType])
 			&& !SoulboundCompanion.IsTreeTrunk(tile.TileType) && tile.TileType != TileID.FallenLog;
+	}
+	internal static bool HasNativeInteractionPriority(Point tilePosition)
+	{
+		if (!HasPlacedObject(tilePosition)) return false;
+		ushort type = Main.tile[tilePosition.X, tilePosition.Y].TileType;
+		return TileID.Sets.Torch[type] || !Main.tileCut[type];
 	}
 	public bool CanObserveNpc(SoulboundCompanion companion) => IsCurrent && npc is not null && companion.CanTargetNpc(npcSlot);
 	public bool CanInviteCritter(SoulboundCompanion companion) => IsCurrent && npc is not null && companion.CanTargetCritterCompany(npcSlot);

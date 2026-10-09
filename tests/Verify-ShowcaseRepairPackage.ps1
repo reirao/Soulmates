@@ -1,7 +1,8 @@
 param(
     [string]$Root = (Split-Path $PSScriptRoot -Parent),
     [string]$Package,
-    [string]$Output
+    [string]$Output,
+    [string]$ExpectedVersion = '0.22.1'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -26,7 +27,7 @@ try {
     $reader.BaseStream.Position = $hashStart
     $name = $reader.ReadString()
     $version = $reader.ReadString()
-    if ($name -ne 'Soulmates' -or $version -ne '0.22.1') { throw "Unexpected package $name $version" }
+    if ($name -ne 'Soulmates' -or $version -ne $ExpectedVersion) { throw "Unexpected package $name $version" }
     $count = $reader.ReadInt32()
     if ($count -lt 1 -or $count -gt 10000) { throw 'Invalid entry count' }
     $offset = 0L

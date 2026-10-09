@@ -70,7 +70,7 @@ public sealed partial class AuditChecks : ModSystem
         if (!Main.dedServ) return;
         try {
             Mod mod = ModLoader.GetMod("Soulmates");
-            Version expectedVersion = new(Environment.GetEnvironmentVariable("SOULMATES_EXPECTED_TEST_VERSION") ?? "0.22.1");
+            Version expectedVersion = new(Environment.GetEnvironmentVariable("SOULMATES_EXPECTED_TEST_VERSION") ?? "0.22.2");
             if (mod.Version != expectedVersion) throw new InvalidOperationException("Wrong audit package: expected " + expectedVersion + ", loaded " + mod.Version);
             Main.netMode = NetmodeID.Server;
             Main.myPlayer = 255;

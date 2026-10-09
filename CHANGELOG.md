@@ -1,5 +1,15 @@
 # Soulmates Development History
 
+## Soulmates 0.22.2 - Living Critters (Beta Candidate)
+
+- Recognize harmless native critters after their temporary spawn immunity expires. Terraria's transient `friendly` flag is no longer mistaken for a permanent species classification; retain native catch-item/type, damage, boss/town, statue, released-animal and gold protections.
+- Use the same classification for witnessed deaths, including queued reactions while another speech line is active. Catching remains separate from death and grants no kill XP.
+- Keep ground-level sightings valid with Terraria's native rectangle visibility check as a fallback to its line check. Both checks still reject a solid wall. Match visit completion to the existing 96-pixel invitation/catch reach, and adapt approach speed to moving animals.
+- Tighten real critter follow hysteresis and bounded catch-up speed without replacing native AI, collision, health or despawning. Off/recall still release animals alive.
+- Allow critter/drop context wheels over cuttable foliage; preserve native priority for furniture and placed torches. Missing companion-pet items now produce a visible explanation instead of only a click sound.
+- Extend isolated engine checks to normal NPC/projectile updates on terrain: aged critters, direct and consented automatic visits/catches, motion/following, death reactions, pet lifetime/animation, ownership and recall. Companion pets remain limited to carried Zephyr Fish and Nectar items. No new pet families, live multiplayer certification or graphical screenshots are claimed.
+- Installed the verified package on October 8. On October 9 the creator confirms a successful playtest and uploads it to the existing Workshop item; Steam records 08:05 CEST with review pending at the publication check. Synchronize current descriptions and the matching GitHub release without repeating older Workshop logs. Full beta acceptance remains separate.
+
 ## Soulmates 0.22.1 - Showcase Repairs (Beta Candidate)
 
 - Follow the genuine 0.22.0 Classic showcase with targeted counterchecks. Cargo drawing without input was traced to the hidden Equipment subtree not being activated; activate it when selected and use click-event coordinates for slot withdrawal.

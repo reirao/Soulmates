@@ -20,6 +20,9 @@ public static class CompanionCritters
 		&& npc.type < NPCID.Sets.CountsAsCritter.Length && NPCID.Sets.CountsAsCritter[npc.type];
 
 	public static bool IsNatural(NPC npc) => NaturalRejectionReason(npc).Length == 0;
+	public static bool IsHarmless(NPC npc) => npc.catchItem > 0 && npc.catchItem < ItemLoader.ItemCount
+		&& npc.type > NPCID.None && npc.type < NPCID.Sets.CountsAsCritter.Length
+		&& NPCID.Sets.CountsAsCritter[npc.type] && !npc.townNPC && !npc.boss && npc.damage == 0;
 
 	internal static string NaturalRejectionReason(NPC npc)
 	{
@@ -28,7 +31,7 @@ public static class CompanionCritters
 		if (npc.catchItem <= 0 || npc.catchItem >= ItemLoader.ItemCount) return "no valid native catch item";
 		if (npc.type <= NPCID.None || npc.type >= NPCID.Sets.CountsAsCritter.Length
 			|| !NPCID.Sets.CountsAsCritter[npc.type]) return "native critter flag absent";
-		if (!npc.friendly) return "hostile";
+		// Native spawn immunity temporarily sets friendly; it is not a critter classification.
 		if (npc.townNPC) return "town NPC protected";
 		if (npc.boss) return "boss protected";
 		if (npc.damage != 0) return "damaging NPC protected";
@@ -57,8 +60,8 @@ public sealed class CompanionCritterLife : GlobalNPC
 {
 	public override void OnKill(NPC npc)
 	{
-		if (Main.netMode == NetmodeID.MultiplayerClient || !CompanionCritters.IsCritter(npc)
-			|| !npc.friendly || npc.damage > 0 || npc.SpawnedFromStatue) return;
+		if (Main.netMode == NetmodeID.MultiplayerClient || !CompanionCritters.IsHarmless(npc)
+			|| npc.SpawnedFromStatue) return;
 		bool playerAttack = npc.lastInteraction >= 0 && npc.lastInteraction < Main.maxPlayers
 			&& npc.playerInteraction[npc.lastInteraction];
 		foreach (NPC candidate in Main.ActiveNPCs)
@@ -116,18 +119,18 @@ public sealed class CompanionCritterCompany : GlobalNPC
 		}
 		Vector2 offset = companion.NPC.Center - npc.Center;
 		float separation = npc.noGravity ? offset.Length() : MathF.Abs(offset.X);
-		if (separation > 140f) catchingUp = true;
-		else if (separation < 64f) catchingUp = false;
+		if (separation > 96f) catchingUp = true;
+		else if (separation < 48f) catchingUp = false;
 		bool lineOfSight = Collision.CanHitLine(npc.position, npc.width, npc.height,
 			companion.NPC.position, companion.NPC.width, companion.NPC.height);
 		if (catchingUp && !companion.Profile.WorkPaused && (lineOfSight || !npc.noGravity && MathF.Abs(offset.Y) <= 160f)) {
 			if (npc.noGravity) {
-				Vector2 desired = offset.SafeNormalize(Vector2.Zero) * Math.Min(2.8f, Math.Max(0f, offset.Length() - 42f) / 32f);
+				Vector2 desired = offset.SafeNormalize(Vector2.Zero) * Math.Min(4f, Math.Max(0f, offset.Length() - 36f) / 24f);
 				npc.velocity = desired;
 			}
-			else if (MathF.Abs(offset.X) > 64f) {
+			else if (MathF.Abs(offset.X) > 48f) {
 				// Native walking AI can set an opposing velocity every tick; a weak blend never reverses it.
-				npc.velocity.X = MathF.Sign(offset.X) * Math.Min(1.8f, (MathF.Abs(offset.X) - 32f) / 40f);
+				npc.velocity.X = MathF.Sign(offset.X) * Math.Min(2.4f, (MathF.Abs(offset.X) - 24f) / 28f);
 				if (npc.collideX && npc.collideY && npc.velocity.Y == 0f)
 					npc.velocity.Y = -4f;
 			}

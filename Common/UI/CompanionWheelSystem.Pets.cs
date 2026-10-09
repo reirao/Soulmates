@@ -26,7 +26,11 @@ public sealed partial class CompanionWheelSystem
 		if (companion is null || index < 0 || index >= PetNodeCount) return;
 		int type = index < CompanionPets.SupportedItems.Count ? CompanionPets.SupportedItems[index] : 0;
 		int slot = type == 0 ? -1 : companion.Profile.Pack.FindIndex(item => !item.IsAir && item.type == type);
-		if (type != 0 && slot < 0) { SoundEngine.PlaySound(SoundID.MenuTick); return; }
+		if (type != 0 && slot < 0) {
+			companion.ShowSpeech(SoulmatesText.Get("Pets.Missing", Lang.GetItemNameValue(type)));
+			SoundEngine.PlaySound(SoundID.MenuTick);
+			return;
+		}
 		if (Main.netMode == NetmodeID.MultiplayerClient) global::Soulmates.Soulmates.SendPetConfigRequest(companion.Profile, slot);
 		else companion.ConfigurePet(slot, type, slot < 0 ? new byte[32] : companion.Profile.StorageToken(CompanionStorage.Pack, slot));
 		SoundEngine.PlaySound(SoundID.MenuTick);

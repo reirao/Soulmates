@@ -89,7 +89,7 @@ public sealed partial class EngineChecks : ModSystem
 		}
 		try {
 			Mod soulmates = ModLoader.GetMod("Soulmates");
-			Version expectedVersion = Version.Parse(Environment.GetEnvironmentVariable("SOULMATES_EXPECTED_TEST_VERSION") ?? "0.22.1");
+			Version expectedVersion = Version.Parse(Environment.GetEnvironmentVariable("SOULMATES_EXPECTED_TEST_VERSION") ?? "0.22.2");
 			Check(soulmates.Version == expectedVersion, "Wrong packaged version: " + soulmates.Version);
 			Check(!soulmates.FileExists("icon_small.rawimg") && !soulmates.FileExists("icon_small.png"),
 				"Optional mini-icon reintroduced the installed packer's exhausted-stream conversion");
@@ -233,6 +233,7 @@ public sealed partial class EngineChecks : ModSystem
 			Check(!IsAllowed(TileID.Stone), "Surface failed to recheck a newly blocked edge");
 			companion.Profile.MiningApproach = CompanionMiningApproach.Adaptive;
 			Check(!IsAllowed(TileID.Sand), "Adaptive allowed buried unstable material");
+			CheckCritterPetRuntime(Check, soulmates);
 		}
 		catch (Exception error) {
 			failures.Add(error.ToString());
@@ -999,11 +1000,11 @@ public sealed partial class EngineChecks : ModSystem
 					&& bunny.catchItem == drop && !bunny.noTileCollide, "Company replaced native physics, health or drop rules");
 				bunny.velocity.X = -2f;
 				company.PostAI(bunny);
-				check(bunny.velocity.X > 0 && bunny.velocity.X <= 1.8f && bunny.direction == 1,
+				check(bunny.velocity.X > 0 && bunny.velocity.X <= 2.4f && bunny.direction == 1,
 					"Native opposite walking direction overpowered company guidance");
 				NPC flyingFriend = Main.npc[17]; flyingFriend.velocity = new Vector2(-3, 0);
 				flyingFriend.GetGlobalNPC<CompanionCritterCompany>().PostAI(flyingFriend);
-				check(flyingFriend.velocity.X > 0 && flyingFriend.velocity.Length() <= 2.81f,
+				check(flyingFriend.velocity.X > 0 && flyingFriend.velocity.Length() <= 4.01f,
 					"Native flying direction overpowered company guidance");
 				using (var body = new MemoryStream()) {
 					var bits = new BitWriter();
@@ -2354,6 +2355,29 @@ public sealed partial class EngineChecks : ModSystem
 			Context(new Vector2(32 * 16 + 8, 28 * 16 + 8));
 			check(!Actions().Contains("Mine"), "Protected furniture was offered as a mining target");
 			Context(Main.npc[1].Center);
+			Type targetType = typeof(CompanionWheelSystem).Assembly.GetType("Soulmates.Common.UI.SoulwheelTarget")!;
+			Point critterTile = Main.npc[1].Center.ToTileCoordinates();
+			Tile decoration = Main.tile[critterTile.X, critterTile.Y];
+			decoration.HasTile = true; decoration.TileType = TileID.Plants;
+			object decoratedCritter = Activator.CreateInstance(targetType, Main.npc[1].Center, companion.NPC.whoAmI)!;
+			check((bool)targetType.GetProperty("CanOfferFallback")!.GetValue(decoratedCritter)!,
+				"Plants beneath a critter block its fallback action wheel");
+			decoration.TileType = TileID.Torches;
+			check(!(bool)targetType.GetProperty("CanOfferFallback")!.GetValue(decoratedCritter)!,
+				"Critter fallback bypasses native priority for a placed torch");
+			decoration.TileType = TileID.Plants;
+			Point dropTile = Main.item[10].Center.ToTileCoordinates();
+			Tile dropDecoration = Main.tile[dropTile.X, dropTile.Y];
+			dropDecoration.HasTile = true; dropDecoration.TileType = TileID.Plants;
+			object decoratedDrop = Activator.CreateInstance(targetType, Main.item[10].Center, companion.NPC.whoAmI)!;
+			check((bool)targetType.GetProperty("CanOfferFallback")!.GetValue(decoratedDrop)!,
+				"Plants beneath a loose item block its fallback action wheel");
+			Point plantTile = new Vector2(560, 400).ToTileCoordinates();
+			Tile plant = Main.tile[plantTile.X, plantTile.Y]; plant.HasTile = true; plant.TileType = TileID.Plants;
+			object plantOnly = Activator.CreateInstance(targetType, new Vector2(560, 400), companion.NPC.whoAmI)!;
+			check(!(bool)targetType.GetProperty("CanOfferFallback")!.GetValue(plantOnly)!,
+				"Decoration-only target became an automatic mining context");
+			decoration.HasTile = dropDecoration.HasTile = plant.HasTile = false;
 			check(Actions().Contains("Look") && !Actions().Contains("Mine") && !Actions().Contains("Gather"),
 				"NPC context was treated as a tile or drop");
 			typeof(SoulboundCompanion).GetField("activeJob", flags)!.SetValue(companion, CompanionJob.None);
@@ -2450,6 +2474,17 @@ public sealed partial class EngineChecks : ModSystem
 				check(!wheel.IsOpen && !(bool)queued.GetValue(controls)!, "Placed torch lost native priority to a nearby wheel hitbox");
 				torch.HasTile = false;
 			}
+			Aim(Main.item[10].Center); Queue(); Flush();
+			foreach (Vector2 critterOrDrop in new[] { Main.npc[1].Center, Main.item[10].Center }) {
+				wheel.Close(); player.mouseInterface = false; controls.SetControls();
+				Point tilePosition = critterOrDrop.ToTileCoordinates();
+				Tile foliage = Main.tile[tilePosition.X, tilePosition.Y]; foliage.HasTile = true; foliage.TileType = TileID.Plants;
+				Aim(critterOrDrop); Queue(); Flush();
+				check(wheel.IsOpen && (Actions().Contains("Look") || Actions().Contains("Gather")),
+					"Production right-click router ignores a critter/drop overlapping foliage");
+				foliage.HasTile = false;
+			}
+			wheel.Close(); player.mouseInterface = false; controls.SetControls();
 			Aim(Main.item[10].Center); Queue(); Flush();
 			check(wheel.IsOpen && Actions().Contains("Gather") && wheel.MouseMode == SoulwheelMouseMode.Terraria,
 				"Default drop right-click did not open the actual target context");

@@ -1,4 +1,4 @@
-Soulmates 0.22.1 - Showcase Repairs | Beta Candidate
+Soulmates 0.22.2 - Living Critters | Beta Candidate
 
 Create personal companions with the reusable Soulcore. Every Soulbound Sigil stores one companion's appearance, personality, talent, bond, mood, energy, level, learned habits, cargo and memories. Keep the active Sigil in your inventory. A companion named AETHER has all talents and learned perks.
 

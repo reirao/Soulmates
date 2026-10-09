@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Xna.Framework;
 using Soulmates.Common;
 using Soulmates.Content.NPCs;
@@ -25,6 +26,16 @@ public sealed partial class AuditChecks
         mate.Profile.CritterCompanyInitiative = CompanionInitiativePolicy.Always;
         mate.Profile.GatheringInitiative = CompanionInitiativePolicy.Always;
         NPC bunny = Main.npc[176]; bunny.SetDefaults(NPCID.Bunny); bunny.active = true; bunny.Center = mate.NPC.Center + new Vector2(120, 0);
+        const BindingFlags npcFlags = BindingFlags.Instance | BindingFlags.NonPublic;
+        typeof(NPC).GetField("catchableNPCTempImmunityCounter", npcFlags)!.SetValue(bunny, 1);
+        typeof(NPC).GetField("catchableNPCOriginallyFriendly", npcFlags)!.SetValue(bunny, false);
+        bunny.UpdateNPC(176);
+        Expect(!bunny.friendly && CompanionCritters.IsCommon(bunny),
+            "Real spawn immunity expiry does not turn a harmless bunny into an excluded target", "Native update, not a friendly override");
+        var enemy = new NPC(); enemy.SetDefaults(NPCID.Zombie); enemy.active = true;
+        enemy.damage = 0; enemy.catchItem = ItemID.Bunny;
+        Expect(!CompanionCritters.IsNatural(enemy),
+            "A zero-damage enemy with a catch item is not a native critter", "Permanent native species classification is required");
         foreach (Item item in Main.item) item.active = false;
         Item loot = Main.item[90] = new Item(ItemID.CopperOre) { active = true, whoAmI = 90 };
         loot.Center = mate.NPC.Center + new Vector2(80, 0);

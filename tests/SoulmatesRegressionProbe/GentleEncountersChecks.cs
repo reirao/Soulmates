@@ -130,14 +130,14 @@ public sealed partial class EngineChecks
 				Vector2 position = target.position; int health = target.life, drop = target.catchItem;
 				npc.Center = target.Center + new Vector2(180, -30); target.velocity = new Vector2(-2, 0);
 				target.AI();
-				check(target.velocity.X > 0 && target.velocity.X <= 1.8f && target.position == position
+				check(target.velocity.X > 0 && target.velocity.X <= 2.4f && target.position == position
 					&& target.life == health && target.catchItem == drop && !target.noTileCollide,
 					"Real walking AI overrode catch-up guidance or changed native critter state");
 				npc.Center = target.Center + new Vector2(90, -30); target.velocity.X = -2;
 				company.PostAI(target); check(target.velocity.X > 0, "Critter catch-up stopped before reaching its comfort zone");
-				npc.Center = target.Center + new Vector2(55, -30); target.velocity.X = -2;
+				npc.Center = target.Center + new Vector2(40, -30); target.velocity.X = -2;
 				company.PostAI(target); check(target.velocity.X == -2, "Settled critter could not resume native wandering");
-				npc.Center = target.Center + new Vector2(100, -30); target.velocity.X = -2;
+				npc.Center = target.Center + new Vector2(80, -30); target.velocity.X = -2;
 				company.PostAI(target); check(target.velocity.X == -2, "Critter oscillated within the comfortable distance band");
 				npc.Center = owner.Center;
 				mate.PerformQuickAction(CompanionQuickAction.CritterOff);

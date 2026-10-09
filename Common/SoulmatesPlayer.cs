@@ -268,7 +268,7 @@ public sealed class SoulmatesPlayer : ModPlayer
 
 		Point mouseWorld = SoulmatesUISpace.WorldMouse.ToPoint();
 		if (companionWheel.MouseMode == SoulwheelMouseMode.Terraria
-			&& SoulwheelTarget.HasPlacedObject(mouseWorld.ToVector2().ToTileCoordinates())) return;
+			&& SoulwheelTarget.HasNativeInteractionPriority(mouseWorld.ToVector2().ToTileCoordinates())) return;
 		Rectangle selfInteractionBounds = Player.Hitbox;
 		selfInteractionBounds.Inflate(14, 8);
 		bool onCompanion = companion.NPC.Hitbox.Contains(mouseWorld)

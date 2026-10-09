@@ -185,6 +185,7 @@ public sealed partial class EngineChecks
 		List<int> oldLearned = mate.Profile.LearnedMiningTiles.ToList();
 		List<Item> oldPack = mate.Profile.Pack.Select(item => item.Clone()).ToList();
 		int oldPet = mate.Profile.PetItemType;
+		CompanionCritterMode oldCritterMode = mate.Profile.CritterMode;
 		try {
 			mate.Profile.LearnMiningMaterial(TileID.Dirt, 35);
 			foreach (float scale in new[] { 1f, 1.5f, 2f }) foreach (string culture in SupportedCultures) {
@@ -238,10 +239,21 @@ public sealed partial class EngineChecks
 				ModContent.GetInstance<DirectOrderSystem>().Cancel();
 				mate.Profile.Pack.Clear(); mate.Profile.PetItemType = 0;
 				object critters = Enum.Parse(type.GetNestedType("RootBranch", flags)!, "Critters");
+				foreach (int index in new[] { 1, 2, 0, 3 }) {
+					wheel.Open(mate); type.GetMethod("ActivateRoot", flags)!.Invoke(wheel, new[] { critters });
+					Click("BranchPosition", critters, index, 5);
+					check(!wheel.IsOpen && mate.Profile.CritterMode == (CompanionCritterMode)index,
+						"Critter wheel click did not execute its visible mode: " + index + "/" + culture + "/" + scale);
+				}
 				wheel.Open(mate); type.GetMethod("ActivateRoot", flags)!.Invoke(wheel, new[] { critters });
 				Click("BranchPosition", critters, 4, 5);
 				check((bool)type.GetField("petsMenu", flags)!.GetValue(wheel)!, "Companion pet menu is not reachable");
+				typeof(SoulboundCompanion).GetField("speechTimer", flags)!.SetValue(mate, 0);
 				Click("PetPosition", 0); check(mate.Profile.PetItemType == 0, "Missing pet item can be equipped from the wheel");
+				check((int)typeof(SoulboundCompanion).GetField("speechTimer", flags)!.GetValue(mate)! > 0
+					&& (string)typeof(SoulboundCompanion).GetField("speechText", flags)!.GetValue(mate)!
+						== SoulmatesText.Get("Pets.Missing", Lang.GetItemNameValue(ItemID.ZephyrFish)),
+					"Missing pet wheel selection gives no visible explanation");
 				mate.Profile.Store(new Item(ItemID.ZephyrFish));
 				Click("PetPosition", 0); check(mate.Profile.PetItemType == ItemID.ZephyrFish, "Owned pet wheel button has no effect");
 				check(!((string)type.GetMethod("PetLabel", flags)!.Invoke(wheel, new object[] { 0 })!).Contains("Mods.Soulmates"),
@@ -251,6 +263,6 @@ public sealed partial class EngineChecks
 			}
 		}
 		finally { wheel.Close(); Main.UIScale = oldScale; mate.Profile.LearnedMiningTiles = oldLearned;
-			mate.Profile.Pack = oldPack; mate.Profile.PetItemType = oldPet; }
+			mate.Profile.Pack = oldPack; mate.Profile.PetItemType = oldPet; mate.Profile.CritterMode = oldCritterMode; }
 	}
 }

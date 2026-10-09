@@ -228,8 +228,9 @@ public sealed partial class SoulboundCompanion
 			}
 		}
 		if (critterTarget is not { } target) return false;
-		if (Vector2.DistanceSquared(NPC.Center, target.Center) > 72f * 72f) {
-			MoveTo(target.Center + new Vector2(0, -24), 3f, 0.065f);
+		if (Vector2.DistanceSquared(NPC.Center, target.Center) > 96f * 96f) {
+			float speed = Math.Clamp(target.velocity.Length() + 3f, 4f, 7.5f);
+			MoveTo(target.Center + new Vector2(0, -24), speed, 0.12f);
 			return true;
 		}
 		bool completed = false;
@@ -307,8 +308,10 @@ public sealed partial class SoulboundCompanion
 		&& Vector2.DistanceSquared(critter.Center, Owner.Center) <= 320f * 320f
 		&& CanSeeCritter(critter);
 
-	private bool CanSeeCritter(NPC critter) => Collision.CanHitLine(NPC.position, NPC.width, NPC.height,
-		critter.position, critter.width, critter.height);
+	private bool CanSeeCritter(NPC critter) => CanSeeCritterFrom(NPC, critter);
+	private static bool CanSeeCritterFrom(Entity observer, NPC critter) =>
+		Collision.CanHitLine(observer.position, observer.width, observer.height, critter.position, critter.width, critter.height)
+		|| Collision.CanHit(observer.position, observer.width, observer.height, critter.position, critter.width, critter.height);
 
 	private void ReleaseCritterCompany()
 	{
@@ -446,8 +449,8 @@ public sealed partial class SoulboundCompanion
 		if (CompanionCritters.IsCritter(target) && TryGetOwner(out Player observer)
 			&& Vector2.DistanceSquared(target.Center, observer.Center) < 640f * 640f)
 			TraceDiagnostic($"critter death type {target.type}: witness={CanWitnessCritterLoss(target, observer)}, cooldown={critterLossCooldown}, queued={pendingCritterLossKey.Length > 0}");
-		if (Main.netMode == NetmodeID.MultiplayerClient || critterLossCooldown > 0 || !CompanionCritters.IsCritter(target)
-			|| !target.friendly || target.damage > 0 || target.SpawnedFromStatue || !TryGetOwner(out Player owner)
+		if (Main.netMode == NetmodeID.MultiplayerClient || critterLossCooldown > 0 || !CompanionCritters.IsHarmless(target)
+			|| target.SpawnedFromStatue || !TryGetOwner(out Player owner)
 			|| owner.dead || pendingCritterLossKey.Length > 0 || !CanWitnessCritterLoss(target, owner)) return;
 		if (CompanionInventorySync.IsPending(owner)) {
 			NPC snapshot = (NPC)target.Clone();
@@ -471,10 +474,10 @@ public sealed partial class SoulboundCompanion
 	private bool CanWitnessCritterLoss(NPC target, Player owner)
 	{
 		bool companionSees = Vector2.DistanceSquared(target.Center, NPC.Center) <= 480f * 480f
-			&& Collision.CanHitLine(NPC.position, NPC.width, NPC.height, target.position, target.width, target.height);
+			&& CanSeeCritter(target);
 		bool ownerSees = Vector2.DistanceSquared(NPC.Center, owner.Center) <= 480f * 480f
 			&& Vector2.DistanceSquared(target.Center, owner.Center) <= 400f * 400f
-			&& Collision.CanHitLine(owner.position, owner.width, owner.height, target.position, target.width, target.height);
+			&& CanSeeCritterFrom(owner, target);
 		return companionSees || ownerSees;
 	}
 

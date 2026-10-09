@@ -1,10 +1,10 @@
-Soulmates 0.22.1 - Showcase Repairs | Beta Candidate
+Soulmates 0.22.2 - Living Critters | Beta Candidate
 
-- Initialize the hidden Equipment subtree when opening it: cargo tabs and withdrawal handlers now become active. Slot clicks use the actual event position, including single-item and full-stack withdrawal.
-- Keep speech above the fade threshold while a personal or work question is unanswered. Normal fading resumes after resolution or timeout.
-- Register the Soulcore's native Fallen Star animation so its inventory icon displays a frame rather than the whole vertical strip.
-- Avoid the enabled corner minimap when space allows. Overlay/fullscreen map behavior stays unchanged.
-- Report the actual Terraria and tModLoader versions, specific native critter rejection conditions, range and replaced-target gates. Diagnostics remain read-only and local.
-- Preserve Sigil data, cargo limits, consent and the existing packet layout. Use matching versions on peers.
+- Recognize harmless native critters after temporary spawn immunity expires. The changing friendly flag no longer disables greetings, company, catching or witnessed-death reactions.
+- Keep ground-level sightings valid using native visibility checks. Solid walls still block actions.
+- Match visit completion to the existing invitation/catch reach and adapt approach speed to moving animals. Real followers catch up sooner without replacing native physics or despawning.
+- Open critter/drop context over cuttable foliage while keeping native furniture and torch priority.
+- Explain missing companion-pet items visibly. Supported own pets remain carried Zephyr Fish and Nectar; ownership, recall and the player's own pet are preserved.
+- Add normal NPC/projectile update checks for direct and approved automatic visits/catches, aged deaths, cargo conservation and pet lifetime/animation. Existing permissions and Sigil format stay unchanged.
 
-A genuine 0.22.0 Classic showcase exposed these issues; the repair has native counterchecks, not a new graphical acceptance pass. Critter timing, progression, endurance and connected multiplayer remain open. This entry covers this update only; earlier history is separate.
+The creator confirms a successful 0.22.2 playtest. Repeated isolated engine counterchecks also pass; full progression, endurance and connected multiplayer remain open. This entry covers 0.22.2 only; earlier history is separate.

@@ -2,7 +2,7 @@
 
 ## Current decision
 
-**0.22.1 - Showcase Repairs is the current published beta candidate.** Normal-client installation was verified on October 6, 2026. The creator reports a good playtest and Workshop publication; Steam shows the matching patch entry at 13:08 CEST and moderator approval pending. This does not close individual acceptance gates or establish universal subscriber delivery. The existing maturity criteria in VERSIONING.md still apply.
+**0.22.2 - Living Critters is the current beta candidate.** Normal-client installation was verified on October 8, 2026. On October 9 the creator confirms a successful playtest and Workshop publication; Steam records the matching patch at 08:05 CEST with review pending at the publication check. This does not close individual acceptance gates or establish universal subscriber delivery. The existing maturity criteria in VERSIONING.md still apply.
 
 The core scope focuses on correctness, balance, usability and compatibility. The requested 0.21.0 refinement added bounded work controls and two item-backed pets; its normal-client installation is verified separately. Local 0.22.0 repairs critter scheduling and introduces a character/diagnostic view without adding abilities or profile fields. Additional minigames, generic pet-buff slots, combat critter swarms, procedural art and wider autonomous systems are not required for beta or promised for 1.0.
 
@@ -15,6 +15,8 @@ The core scope focuses on correctness, balance, usability and compatibility. The
 **0.22.1 supersedes the earlier candidates.** It repairs hidden Equipment initialization and event-coordinate withdrawal, question fading, Soulcore icon animation and diagnostic version/rejection labels, with corner-minimap placement checks. tests/LIVE-SHOWCASE-REPAIRS-0.22.1-2026-10-05.md preserves the failed baseline and repeated checks; tests/CLIENT-INSTALL-0.22.1-2026-10-06.md records installation. The historical candidate descriptions above refer to their preparation passes. Their implemented refinements are included in this release, not separate mod packages. Live critter/pet, connected multiplayer, progression and endurance gates remain open.
 
 ## Frozen core scope
+
+0.22.2 supersedes the historical preparation states above. It repairs transient-friendly critter rejection, native ground visibility, moving-animal approach/following and cuttable-foliage context, and explains missing pet items. The exact tested package, negative baseline and normal-update counterchecks are documented in [the repair report](tests/LIVING-CRITTERS-0.22.2-2026-10-08.md); [installation](tests/CLIENT-INSTALL-0.22.2-2026-10-08.md) and the creator's positive playtest are separate evidence. No new schema, pet families or automatic permission grants are introduced. All peers require 0.22.2.
 
 - Reusable Soulcore creation, unique Sigils, persistent identity and progression; exactly one active companion per player.
 - Native-first input, separate Player/Companion Soulwheels, captured world contexts, item topics, the existing Games branch and mailbox.
@@ -29,16 +31,16 @@ The core scope focuses on correctness, balance, usability and compatibility. The
 
 | Gate | Evidence required | Current status |
 | --- | --- | --- |
-| Production build | MSBuild and native package compiler without warnings/errors; exact package identity | 0.22.1 automated pass, source/package identity and repeated native checks in tests/LIVE-SHOWCASE-REPAIRS-0.22.1-2026-10-05.md |
+| Production build | MSBuild and native package compiler without warnings/errors; exact package identity | 0.22.2 passes, including all 79 source hashes, two runs of 90,691 native assertions, 176 independent expectations and 54,126 static/localization assertions; see tests/LIVING-CRITTERS-0.22.2-2026-10-08.md |
 | Data safety | Mixed cargo, wallet, legacy saves, clone and binary transport; rejected and duplicate transactions | Automated pass, including the hand-written 0.19.9 wire fixture; graphical upgrade/reload still pending |
 | Behavior control | Priority combinations, instance isolation, consent, pause/resume/abort, recovery, target replacement and recall | Automated pass; visual timing and perceived usefulness still pending |
-| Single-player | Fresh Classic character/world plus an upgraded existing Sigil; every primary control and three save/reload cycles | Genuine 0.22.0 Classic showcase plus creator's positive 0.22.1 playtest; full action coverage and reload cycles remain pending |
-| Critters and forestry | Visible greeting/loss, Company/Collect, Off/recall, pause/resume; normal/snow/palm/gem/mushroom tree contexts and supported actions | Native fixtures pass; the reported missed live death reaction needs reproduction or visual verification |
+| Single-player | Fresh Classic character/world plus an upgraded existing Sigil; every primary control and three save/reload cycles | Genuine 0.22.0 Classic showcase plus creator's positive 0.22.2 playtest; full action coverage and reload cycles remain pending |
+| Critters and forestry | Visible greeting/loss, Company/Collect, Off/recall, pause/resume; normal/snow/palm/gem/mushroom tree contexts and supported actions | Expired-spawn rejection reproduced and repaired in 0.22.2; normal NPC/projectile updates and creator playtest pass. Individual live loss timing, tree families and every pet combination still need focused coverage |
 | Connected multiplayer | Two real clients in host-and-play and a dedicated server; switching, simultaneous pickup, transactions, disconnect/reconnect | Pending; disconnected packet fixtures are not this test |
 | Progression and pacing | Early tools, stronger tools and hardmode; protected terrain; resource limits at levels 1/10/20; work and recovery | Native boundary fixtures pass; actual progression session pending |
 | Interface | Creator, every wheel branch, answer selection, pack, mailbox typing, native right-click and speech/emotes at common UI scales | Layout/input fixtures pass; rendered 800x600, 1280x720 and 1920x1080 checks pending |
 | Endurance | At least one 60-minute single-player and one 60-minute connected multiplayer session with saved/reloaded cargo | Pending; accelerated AI ticks are not a substitute |
-| Public delivery | Maintainer approves candidate; one current Workshop log, matching Git release, verified subscriber delivery | 0.22.1 Workshop entry at 13:08 CEST on October 6; GitHub beta package matches the verified artifact. Steam moderator approval and per-subscriber delivery remain separate checks |
+| Public delivery | Maintainer approves candidate; one current Workshop log, matching Git release, verified subscriber delivery | Creator approves 0.22.2; Workshop entry at 08:05 CEST on October 9. The matching GitHub package is the exact installed artifact. Steam review and per-subscriber delivery remain separate checks |
 
 A failed acceptance gate remains open until reproduced, repaired and retested. Passing older versions or another package's hash does not close a gate. Freeze new functionality while these checks are being completed.
 

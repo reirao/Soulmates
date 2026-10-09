@@ -115,7 +115,7 @@ public sealed partial class EngineChecks
 			foreach (var boundary in new (Action<NPC> Change, string Reason)[] {
 				(npc => npc.active = false, "inactive"), (npc => npc.life = 0, "dead"),
 				(npc => npc.catchItem = 0, "no valid native catch item"),
-				(npc => npc.friendly = false, "hostile"), (npc => npc.townNPC = true, "town NPC protected"),
+				(npc => npc.townNPC = true, "town NPC protected"),
 				(npc => npc.boss = true, "boss protected"), (npc => npc.damage = 1, "damaging NPC protected"),
 				(npc => npc.SpawnedFromStatue = true, "statue protected"),
 				(npc => npc.releaseOwner = 0, "released animal protected")

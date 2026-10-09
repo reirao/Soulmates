@@ -1,0 +1,10 @@
+Soulmates 0.22.2 - Living Critters | Beta-Kandidat
+
+- Harmlose native Critter bleiben nach Ablauf ihres Spawnschutzes erkennbar. Das wechselnde friendly-Flag verhindert nicht mehr Begrüßungen, Gesellschaft, Fangen oder beobachtete Todesreaktionen.
+- Native Sichtprüfungen halten Bodentiere erreichbar; massive Wände blockieren weiterhin.
+- Besuchsabschluss und Fang-/Einladungsreichweite stimmen überein. Die Annäherung passt sich bewegten Tieren an; echte Begleiter holen früher auf, ohne native Physik oder Despawning zu ersetzen.
+- Critter-/Drop-Kontext funktioniert über schneidbarer Vegetation. Möbel und platzierte Fackeln behalten nativen Vorrang.
+- Fehlende Pet-Items erhalten eine sichtbare Erklärung. Eigene Pets bleiben auf mitgetragenen Zephyrfisch/Nektar begrenzt; Besitz, Rückruf und dein eigenes Pet bleiben erhalten.
+- Normale NPC-/Projektil-Updates prüfen direkte und erlaubte automatische Besuche/Fänge, gealterte Critter, Fracht und Pet-Animation/Lebensdauer. Erlaubnisse und Sigil-Format bleiben unverändert.
+
+Der Ersteller bestätigt einen erfolgreichen 0.22.2-Spieltest. Wiederholte isolierte Engine-Prüfungen bestehen ebenfalls; vollständiger Fortschritt, Langzeitspiel und echtes Multiplayer bleiben offen. Dieser Eintrag betrifft nur 0.22.2; ältere Historie bleibt getrennt.
