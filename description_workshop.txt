@@ -1,8 +1,8 @@
 [h1]Soulmates[/h1]
 Create a personal companion with the reusable Soulcore. Her Soulbound Sigil keeps appearance, personality, growth, memories and cargo.
 
-[b]Version: 0.23.2 - Clear Pet Actions | Beta Candidate[/b]
-Clear pet controls/status and actual shortcut assignments. Ore shortcuts remain.
+[b]Version: 0.24.0 - Learning Together | Beta Candidate[/b]
+Learns preferences from requests, observations and evaluations in the answer wheel.
 [b]Languages:[/b] EN, DE, IT, FR, ES, RU, PT-BR, PL and Simplified Chinese. Follows Terraria. New translations are AI-authored; corrections welcome. Some MP replies still use the server language.
 [url=https://github.com/reirao/Soulmates]Source and release notes[/url]
 
@@ -22,7 +22,7 @@ Characters receive a Soulcore and three Blank Sigils once. Use the Soulcore, cho
 [h2]A Helpful Little Soul[/h2]
 She defends, heals by talent, retrieves drops, mines safely and investigates treasure. Stay anchors her. Following/work restore energy; effort costs are batched. Exhaustion rebuilds a reserve; Care > Rest is optional.
 
-Company/Collect share attention with work; personal questions do not block approved Always visits. Ask/Never still apply. Learning is local game logic, not online AI. Defense, pause and assignments keep priority.
+Existing actions learn contextual preferences from observed habits, requests and outcomes. Successful work may ask "Was that helpful?" in the answer wheel. Feedback guides later selection; Later, silence and cancellation are neutral. Quiet silences evaluations. Ask/Always/Never, defense, pause and assignments keep priority. Local logic, not free building or online AI.
 
 Forester shakes supported trees, clears fallen logs and replants carried acorns. An axe allows verified dry-twig pruning; living/unsupported parts stay protected. Equipment supports attacks, light, food, recovery and crafting suggestions.
 
@@ -46,7 +46,7 @@ Town visits use native emotes and personal replies. Relationships and shared mem
 Diagnostics shows activity, permissions, stamina, critter gates, owned pets and shortcut/input state. Export writes SoulmatesFeedback/diagnostic-latest.txt locally, without recording or uploading. MP labels client state, not server history.
 AETHER Mailbox: paper-plane icon or /soulfeedback. Optional Field Notes are off by default. Everything stays local; nothing uploads or automatically reaches the developer. Automatic records omit names, chat and exact positions; typed notes keep your text. Share only notes you want reviewed.
 
-The creator reports a positive 0.23.2 playtest. Beta acceptance, progression, endurance and connected MP remain open; all peers need 0.23.2. Report action, expected/actual result and solo/MP; happy moments too. V is not promised fixed: a software trigger never proved a real keypress. That testing mistake stays documented. Gallery images show older builds, not current-version proof.
+The creator reports a positive first 0.24.0 playtest. Endurance and connected MP remain open; all peers need 0.24.0. Check the loaded version: upload, approval and delivery differ. Report action, expected/actual result and solo/MP. V remains unconfirmed. Gallery images show older builds.
 
 [h2]Development Disclosure[/h2]
 Extensive AI assistance in code, writing, UI and visuals. Workshop/mod icons and Soulkin art are AI-generated; other named native sprites, items, inventory icons and emotes reuse Terraria assets. No online AI service runs in the mod.

@@ -1,6 +1,22 @@
 {
   "Mods": {
     "Soulmates": {
+      "Conversation.Reflection.Heading": "Wspólna nauka",
+      "Conversation.Reflection.Question": "Spróbowałam: {0}. Czy to pomogło?",
+      "Conversation.Reflection.Choices.First": "Tak, to pomogło.",
+      "Conversation.Reflection.Choices.Second": "Nie całkiem. Spróbuj innego pomysłu.",
+      "Conversation.Reflection.Choices.Third": "W tej sytuacji rób to rzadziej, proszę.",
+      "Conversation.Reflection.Choices.Later": "Porozmawiajmy później.",
+      "Conversation.Reflection.Reply.First": "Zapamiętam, co tutaj pomogło.",
+      "Conversation.Reflection.Reply.Second": "Dobrze. Dam szansę innemu pomysłowi.",
+      "Conversation.Reflection.Reply.Third": "Rozumiem. Będę proponować to tutaj rzadziej.",
+      "Conversation.Reflection.Contexts.General": "gdy byliśmy razem",
+      "Conversation.Reflection.Contexts.Building": "gdy zajmowaliśmy się budową",
+      "Conversation.Reflection.Contexts.Mining": "gdy zajmowaliśmy się wydobyciem",
+      "Conversation.Reflection.Contexts.Forestry": "gdy dbaliśmy o drzewa",
+      "Conversation.Reflection.Contexts.Exploring": "gdy odkrywaliśmy świat",
+      "Conversation.Reflection.Contexts.Social": "gdy spotykaliśmy innych",
+      "Conversation.Reflection.Contexts.Underground": "gdy byliśmy pod ziemią",
       "UI.Character.Pets": "Zwierzaki",
       "Pets.YourItems": "Twoje przedmioty zwierzaków",
       "Pets.NoItems": "W twoim ekwipunku nie ma przedmiotów zwierzaków nieoznaczonych jako ulubione.",

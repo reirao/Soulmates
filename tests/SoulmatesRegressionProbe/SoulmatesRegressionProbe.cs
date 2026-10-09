@@ -118,6 +118,7 @@ public sealed partial class EngineChecks : ModSystem
 			CheckCargoGrowthAndWallet(Check);
 			CheckCargoLayout(Check);
 			CheckAttention(Check);
+			CheckIntentLearning(Check);
 			CheckPointingAndInitiative(Check);
 			CheckRelationships(Check);
 			CheckNature(Check);

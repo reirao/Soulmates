@@ -23,6 +23,7 @@ public sealed partial class SoulboundCompanion
 	private int walletLine;
 	private int critterCareCooldown;
 	private int personalQuestionCooldown = 7200;
+	private bool hasAskedPersonalQuestion;
 	private int PersonalQuestionInterval => Profile.QuestionCadence == CompanionQuestionCadence.Chatty ? 7200 : 18000;
 	private int pendingCritterCareTicks;
 	private string pendingCritterCareName = "";
@@ -59,6 +60,14 @@ public sealed partial class SoulboundCompanion
 			if (!CanKeepQuestion() || --questionTicks <= 0) ClearChoiceQuestion();
 			return;
 		}
+		if (reflectionIntent is not null && reflectionCooldown <= 0
+			&& (!hasAskedPersonalQuestion || personalQuestionCooldown <= 0)
+			&& Profile.QuestionCadence != CompanionQuestionCadence.Quiet && CanHoldQuestion()
+			&& speechTimer <= 0 && pendingCritterLossKey.Length == 0 && pendingCritterNotice is null && pendingCritterCareTicks <= 0
+			&& (Main.netMode != NetmodeID.SinglePlayer || SoulmatesUIInput.CanPresentInitiative)) {
+			BeginChoiceQuestion(CompanionQuestion.Reflection);
+			return;
+		}
 		if (Profile.QuestionCadence == CompanionQuestionCadence.Quiet || personalQuestionCooldown > 0
 			|| !CanHoldQuestion() || speechTimer > 0 || pendingCritterLossKey.Length > 0 || pendingCritterNotice is not null
 			|| Main.netMode == NetmodeID.SinglePlayer && !SoulmatesUIInput.CanPresentInitiative)
@@ -74,8 +83,11 @@ public sealed partial class SoulboundCompanion
 	private bool BeginChoiceQuestion(CompanionQuestion question)
 	{
 		if (Main.netMode == NetmodeID.MultiplayerClient || HasPendingQuestion || !CanHoldQuestion()
-			|| Profile.QuestionCadence == CompanionQuestionCadence.Quiet || personalQuestionCooldown > 0
-			|| question is not (CompanionQuestion.Company or CompanionQuestion.Wallet or CompanionQuestion.CritterCare)
+			|| Profile.QuestionCadence == CompanionQuestionCadence.Quiet
+			|| question != CompanionQuestion.Reflection && personalQuestionCooldown > 0
+			|| question == CompanionQuestion.Reflection && hasAskedPersonalQuestion && personalQuestionCooldown > 0
+			|| question is not (CompanionQuestion.Company or CompanionQuestion.Wallet or CompanionQuestion.CritterCare or CompanionQuestion.Reflection)
+			|| question == CompanionQuestion.Reflection && (reflectionIntent is null || reflectionCooldown > 0)
 			|| question == CompanionQuestion.CritterCare && (pendingCritterCareTicks <= 0 || pendingCritterCareName.Length == 0)
 			|| question == CompanionQuestion.Wallet && Profile.WalletCopper.IsZero)
 			return false;
@@ -83,8 +95,15 @@ public sealed partial class SoulboundCompanion
 		questionId = Guid.NewGuid();
 		questionTicks = InitiativeResponseTicks;
 		personalQuestionCooldown = PersonalQuestionInterval;
+		hasAskedPersonalQuestion = true;
 		// Offers are spaced even if unanswered; the wallet has no artificial "full" state.
-		if (question == CompanionQuestion.Wallet) {
+		if (question == CompanionQuestion.Reflection) {
+			reflectionCooldown = PersonalQuestionInterval;
+			SpeakLocalized("Conversation.Reflection.Question", SoulmatesText.EnumName(ReflectionKind)
+				+ " (" + SoulmatesText.Get($"Conversation.Reflection.Contexts.{ReflectionContext}") + ")");
+			ShowNativeExpression(InitiativeEmote(ReflectionKind), EmoteID.EmoteConfused);
+		}
+		else if (question == CompanionQuestion.Wallet) {
 			lastOfferedWallet = Profile.WalletCopper;
 			walletQuestionCooldown = 10800;
 			SpeakLocalized($"Conversation.Wallet.{Profile.Personality}.Line{walletLine++ % 2}", Profile.DescribeWallet());
@@ -117,6 +136,7 @@ public sealed partial class SoulboundCompanion
 	private void ClearChoiceQuestion()
 	{
 		if (HasPendingQuestion) ClearNativeExpression();
+		if (pendingQuestion == CompanionQuestion.Reflection) ClearReflection();
 		pendingQuestion = CompanionQuestion.None;
 		questionId = Guid.Empty;
 		questionTicks = 0;
@@ -132,11 +152,17 @@ public sealed partial class SoulboundCompanion
 		if (!CanKeepQuestion()) { ClearChoiceQuestion(); return false; }
 		if (guardianTarget >= 0) return false;
 		CompanionQuestion question = pendingQuestion;
+		if (question == CompanionQuestion.Reflection) EvaluateReflection(answer);
 		ClearChoiceQuestion();
 		SoulmateEmoteObserver.ShowReply(Owner, QuestionAnswerEmote(question, (int)answer));
 		string reply;
 		bool reward = answer != CompanionAnswer.Later;
-		if (answer == CompanionAnswer.Later)
+		if (question == CompanionQuestion.Reflection) {
+			reward = answer == CompanionAnswer.First && interactionRewardCooldown <= 0;
+			if (reward) interactionRewardCooldown = 300;
+			reply = answer == CompanionAnswer.Later ? "Conversation.Later" : $"Conversation.Reflection.Reply.{answer}";
+		}
+		else if (answer == CompanionAnswer.Later)
 			reply = "Conversation.Later";
 		else if (question == CompanionQuestion.Wallet) {
 			if (answer == CompanionAnswer.First) {
@@ -187,7 +213,8 @@ public sealed partial class SoulboundCompanion
 			Profile.Mood = Math.Min(100, Profile.Mood + (Profile.Voice == CompanionVoice.Playful ? 4 : 2));
 			Profile.ChangeBond(1);
 		}
-		ShowNativeEmote(answer == CompanionAnswer.Later ? EmoteID.EmoteWink : EmoteID.EmoteHappiness, 150);
+		ShowNativeEmote(answer == CompanionAnswer.Later || question == CompanionQuestion.Reflection && answer != CompanionAnswer.First
+			? EmoteID.EmoteWink : EmoteID.EmoteHappiness, 150);
 		SpeakLocalized(reply);
 		SyncPackState();
 		SoulmatesFeedbackSystem.Record("conversation_answer", ("question", question.ToString()),
@@ -196,6 +223,9 @@ public sealed partial class SoulboundCompanion
 	}
 
 	internal static int QuestionAnswerEmote(CompanionQuestion question, int index) => question switch {
+		CompanionQuestion.Reflection => index switch {
+			0 => EmoteID.EmoteHappiness, 1 => EmoteID.EmoteConfused, 2 => EmoteID.EmoteScowl, _ => EmoteID.EmoteSleep
+		},
 		CompanionQuestion.CritterCare => index switch {
 			0 => EmoteID.EmotionLove, 1 => EmoteID.CritterBunny, 2 => EmoteID.EmotionAlert, _ => EmoteID.EmoteSleep
 		},

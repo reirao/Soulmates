@@ -1,6 +1,22 @@
 {
   "Mods": {
     "Soulmates": {
+      "Conversation.Reflection.Heading": "Aprendendo juntos",
+      "Conversation.Reflection.Question": "Tentei {0}. Isso ajudou?",
+      "Conversation.Reflection.Choices.First": "Sim, isso ajudou.",
+      "Conversation.Reflection.Choices.Second": "Não muito. Tente outra ideia.",
+      "Conversation.Reflection.Choices.Third": "Menos disso nesta situação, por favor.",
+      "Conversation.Reflection.Choices.Later": "Vamos conversar depois.",
+      "Conversation.Reflection.Reply.First": "Vou lembrar do que ajudou aqui.",
+      "Conversation.Reflection.Reply.Second": "Tudo bem. Vou dar espaço para outra ideia.",
+      "Conversation.Reflection.Reply.Third": "Entendido. Vou sugerir isso menos aqui.",
+      "Conversation.Reflection.Contexts.General": "enquanto estávamos juntos",
+      "Conversation.Reflection.Contexts.Building": "enquanto você construía",
+      "Conversation.Reflection.Contexts.Mining": "enquanto você minerava",
+      "Conversation.Reflection.Contexts.Forestry": "enquanto você cuidava das árvores",
+      "Conversation.Reflection.Contexts.Exploring": "enquanto explorávamos",
+      "Conversation.Reflection.Contexts.Social": "enquanto conhecíamos outros",
+      "Conversation.Reflection.Contexts.Underground": "enquanto estávamos no subsolo",
       "UI.Character.Pets": "Mascotes",
       "Pets.YourItems": "Seus itens de mascote",
       "Pets.NoItems": "Nenhum item de mascote não favorito no seu inventário.",

@@ -31,6 +31,7 @@ public sealed partial class SoulboundCompanion
 			return;
 		}
 		attention.Tick();
+		TickIntentLearning();
 		UpdateAutonomyRecovery();
 		if (autonomyAnnouncementCooldown > 0) autonomyAnnouncementCooldown--;
 		if (autonomyDecisionTimer > 0) autonomyDecisionTimer--;
@@ -146,7 +147,9 @@ public sealed partial class SoulboundCompanion
 		int proximity = (int)(20f * (1f - Math.Clamp(Vector2.Distance(NPC.Center, position) / 560f, 0f, 1f)));
 		int imitation = imitationCueTimer > 0 && imitationSignals.TryGetValue(BehaviorFor(kind), out int strength)
 			? Math.Min(30, strength * 5) : 0;
-		opportunities.Add(new CompanionOpportunity(kind, 20 + proximity + (specialist ? 15 : 0) + imitation));
+		CompanionIntentContext context = CurrentIntentContext();
+		int learned = Profile.IntentLearning.Score(new CompanionIntent(kind, context));
+		opportunities.Add(new CompanionOpportunity(kind, 20 + proximity + (specialist ? 15 : 0) + imitation + learned));
 	}
 
 	private static LearnedBehavior BehaviorFor(CompanionInitiativeKind kind) => kind switch {
@@ -229,6 +232,7 @@ public sealed partial class SoulboundCompanion
 
 	private void FinishAutonomousLootSweep()
 	{
+		CompleteLearningIntent(autonomyWorkCount > 0);
 		if (autonomyWorkCount > 0 && Main.rand.NextBool(3)) {
 			StartEmote(CompanionEmote.Cheer, 90);
 			ShowNativeEmote(CompanionEmote.Cheer, 110);
@@ -294,6 +298,7 @@ public sealed partial class SoulboundCompanion
 		StartEmote(CompanionEmote.Wave, 110);
 		ShowNativeEmote(CompanionEmote.Wave, 130);
 		SpeakLocalized("Autonomy.Treasure", direction);
+		CompleteLearningIntent(Vector2.DistanceSquared(NPC.Center, target) <= 92f * 92f);
 		autonomyDiscoveryCooldown = 2400;
 		CancelAutonomousActivity(520);
 		return false;
@@ -358,6 +363,7 @@ public sealed partial class SoulboundCompanion
 
 	private void FinishAutonomousForestry()
 	{
+		CompleteLearningIntent(autonomyWorkCount > 0);
 		if (autonomyWorkCount > 0 && Main.rand.NextBool(2)) {
 			StartEmote(CompanionEmote.Cheer, 75);
 			ShowNativeEmote(CompanionEmote.Cheer, 90);
@@ -509,6 +515,8 @@ public sealed partial class SoulboundCompanion
 			if (ownerDistance >= radius * radius)
 				continue;
 			float score = Vector2.DistanceSquared(NPC.Center, item.Center);
+			if (CurrentIntentContext() == CompanionIntentContext.Building
+				&& Profile.IntentLearning.RecognizesSupply(BuildingSupplyKey(item))) score *= 0.75f;
 			if (CompanionProfile.CoinValue(item.type) > 0) score *= 0.65f;
 			if (item.type == ItemID.FallenStar && TreasureInstinct)
 				score *= 0.55f;
@@ -674,6 +682,7 @@ public sealed partial class SoulboundCompanion
 			return false;
 		}
 
+		proposedIntentContext = CurrentIntentContext();
 		if (policy == CompanionInitiativePolicy.Always) {
 			ShowNativeEmote(InitiativeEmote(kind), 180);
 			SoulmatesFeedbackSystem.Record("initiative_auto_accept", ("action", kind.ToString()));
@@ -819,6 +828,7 @@ public sealed partial class SoulboundCompanion
 	private void BeginAutonomousActivity(AutonomyActivity activity, int targetItem = -1,
 		Point targetTile = default, ForestAction forestAction = ForestAction.None, NPC? targetNpc = null)
 	{
+		BeginLearningIntent(InitiativeKindFor(activity), requested: false, proposedIntentContext);
 		SoulmatesFeedbackSystem.Record("autonomy_started", ("action", activity.ToString()),
 			("forest_action", forestAction.ToString()));
 		ClearPendingInitiative();
@@ -872,6 +882,7 @@ public sealed partial class SoulboundCompanion
 
 	private void FinishAutonomousMining()
 	{
+		CompleteLearningIntent(autonomyWorkCount > 0);
 		if (autonomyWorkCount > 0) {
 			Profile.GainExperience(Math.Min(3, autonomyWorkCount), out _);
 			SyncProfileToBoundSigil();
@@ -884,6 +895,7 @@ public sealed partial class SoulboundCompanion
 
 	private void CancelAutonomousActivity(int nextDecisionDelay = 240)
 	{
+		if (activeJob == CompanionJob.None && !directedCritterVisit) learningIntent = null;
 		bool changed = autonomyActivity != AutonomyActivity.None || pendingAutonomyActivity != AutonomyActivity.None;
 		if (autonomyActivity != AutonomyActivity.None)
 			attention.Defer(InitiativeKindFor(autonomyActivity), autonomyActivity switch {

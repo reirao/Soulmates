@@ -85,6 +85,8 @@ public sealed partial class EngineChecks
 			extension.Write((byte)CompanionMiningDirection.Auto); extension.Write((byte)CompanionTunnelEnd.Passage); extension.Write(false);
 			extension.Write((byte)0); // 0.23 adds the separate pet inventory before its active selection.
 			extension.Write(0); // No selected carried pet in an old profile.
+			// 0.24 appends 42 bounded estimates and an empty construction-supply list.
+			extension.Write(new byte[169]);
 		}
 		check(current.ToArray().SequenceEqual(legacy.ToArray()), "Profile write has an unexpected work extension");
 		legacy.Position = 0;

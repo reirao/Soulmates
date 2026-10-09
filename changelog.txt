@@ -1,8 +1,10 @@
-Soulmates 0.23.2 - Clear Pet Actions | Beta Candidate
+Soulmates 0.24.0 - Learning Together | Beta Candidate
 
-- Corrected the unsupported fixed-V instruction. Details remains on her wheel; the Sigil shows the actual assigned shortcut or that it is unassigned. Custom bindings are not overwritten.
-- Left-click her owned pet to summon it; right-click to take its real item back. A first pet gift selects it automatically, without replacing an existing pet or overriding dismissal when adding another item.
-- Pet management distinguishes no summon, waiting and an active familiar. Diagnosis includes input assignments/gates; opt-in field notes record pet selections.
-- Added the reported Eucalyptus Sap pet to normal-update regression coverage. Native art uses harmless custom following, not original pet AI or special utilities.
+- Added bounded, saved contextual preferences to the existing shared attention selector. Accepted orders and observed habits provide cues; actual completed actions provide modest outcome evidence.
+- Successful work can ask "Was that helpful?" through the existing four-symbol answer wheel. Feedback applies to the captured action and situation, not whatever she happens to be doing when the player answers.
+- Approval, another idea and less of this influence later selection. Later, silence, changed targets and player cancellation do not punish her or alter automatic permissions.
+- Construction-item use provides local context and a small preference for familiar building supplies during gathering. It is not proof of successful tile placement, pattern recognition or a free-building system.
+- Evaluation shares the personal question cadence and honors Quiet. Existing work, consent, pause, defense, cargo and tool/progression rules remain in control.
+- Learning is separate per Sigil, cloned, saved and transported with bounded validation. Diagnostics exposes current intent, context, learned scores and evaluations. Existing Sigils begin with neutral estimates.
 
-The creator reports a positive playtest. V is not promised fixed: a software-trigger test did not establish a physical keypress. Exhaustive graphical and connected multiplayer acceptance remain open. All peers should use 0.23.2. This entry covers this patch only; earlier history stays separate.
+The creator reports a positive first 0.24.0 playtest. Full graphical, endurance and connected multiplayer acceptance remain open. All multiplayer peers must use 0.24.0. V remains unconfirmed; use her wheel's Details and Pets routes. This entry contains this version only; older history stays separate.

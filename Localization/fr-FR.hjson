@@ -1,6 +1,22 @@
 {
   "Mods": {
     "Soulmates": {
+      "Conversation.Reflection.Heading": "Apprendre ensemble",
+      "Conversation.Reflection.Question": "J'ai essayé {0}. Était-ce utile ?",
+      "Conversation.Reflection.Choices.First": "Oui, ça m'a aidé.",
+      "Conversation.Reflection.Choices.Second": "Pas vraiment. Essaie une autre idée.",
+      "Conversation.Reflection.Choices.Third": "Moins souvent dans cette situation, s'il te plaît.",
+      "Conversation.Reflection.Choices.Later": "Parlons-en plus tard.",
+      "Conversation.Reflection.Reply.First": "Je retiendrai ce qui a aidé ici.",
+      "Conversation.Reflection.Reply.Second": "D'accord. Je laisserai de la place à une autre idée.",
+      "Conversation.Reflection.Reply.Third": "Compris. Je le proposerai moins souvent ici.",
+      "Conversation.Reflection.Contexts.General": "pendant que nous étions ensemble",
+      "Conversation.Reflection.Contexts.Building": "pendant que tu construisais",
+      "Conversation.Reflection.Contexts.Mining": "pendant que tu minais",
+      "Conversation.Reflection.Contexts.Forestry": "pendant que tu entretenais les arbres",
+      "Conversation.Reflection.Contexts.Exploring": "pendant notre exploration",
+      "Conversation.Reflection.Contexts.Social": "pendant nos rencontres",
+      "Conversation.Reflection.Contexts.Underground": "pendant que nous étions sous terre",
       "UI.Character.Pets": "Familiers",
       "Pets.YourItems": "Tes objets de familier",
       "Pets.NoItems": "Aucun objet de familier non favori dans ton inventaire.",

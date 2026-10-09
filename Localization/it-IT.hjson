@@ -1,6 +1,22 @@
 {
   "Mods": {
     "Soulmates": {
+      "Conversation.Reflection.Heading": "Imparare insieme",
+      "Conversation.Reflection.Question": "Ho provato {0}. È stato utile?",
+      "Conversation.Reflection.Choices.First": "Sì, è stato utile.",
+      "Conversation.Reflection.Choices.Second": "Non proprio. Prova un'altra idea.",
+      "Conversation.Reflection.Choices.Third": "Meno spesso in questa situazione, per favore.",
+      "Conversation.Reflection.Choices.Later": "Parliamone più tardi.",
+      "Conversation.Reflection.Reply.First": "Ricorderò cosa è stato utile qui.",
+      "Conversation.Reflection.Reply.Second": "Va bene. Lascerò spazio a un'altra idea.",
+      "Conversation.Reflection.Reply.Third": "Capito. Lo proporrò meno spesso qui.",
+      "Conversation.Reflection.Contexts.General": "mentre eravamo insieme",
+      "Conversation.Reflection.Contexts.Building": "mentre costruivi",
+      "Conversation.Reflection.Contexts.Mining": "mentre scavavi",
+      "Conversation.Reflection.Contexts.Forestry": "mentre curavi gli alberi",
+      "Conversation.Reflection.Contexts.Exploring": "mentre esploravamo",
+      "Conversation.Reflection.Contexts.Social": "mentre incontravamo gli altri",
+      "Conversation.Reflection.Contexts.Underground": "mentre eravamo sottoterra",
       "UI.Character.Pets": "Pet",
       "Pets.YourItems": "I tuoi oggetti pet",
       "Pets.NoItems": "Nessun oggetto pet non preferito nel tuo inventario.",

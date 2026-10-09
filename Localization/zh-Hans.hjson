@@ -1,6 +1,22 @@
 {
   "Mods": {
     "Soulmates": {
+      "Conversation.Reflection.Heading": "一起学习",
+      "Conversation.Reflection.Question": "我尝试了{0}。有帮助吗？",
+      "Conversation.Reflection.Choices.First": "是的，有帮助。",
+      "Conversation.Reflection.Choices.Second": "不太有用。试试别的主意。",
+      "Conversation.Reflection.Choices.Third": "在这种情况下请少做一些。",
+      "Conversation.Reflection.Choices.Later": "稍后再聊吧。",
+      "Conversation.Reflection.Reply.First": "我会记住在这里什么有帮助。",
+      "Conversation.Reflection.Reply.Second": "好的。我会给其他主意留些机会。",
+      "Conversation.Reflection.Reply.Third": "明白了。我会在这里少提这个建议。",
+      "Conversation.Reflection.Contexts.General": "当我们在一起时",
+      "Conversation.Reflection.Contexts.Building": "当你建造时",
+      "Conversation.Reflection.Contexts.Mining": "当你挖矿时",
+      "Conversation.Reflection.Contexts.Forestry": "当你照料树木时",
+      "Conversation.Reflection.Contexts.Exploring": "当我们探索时",
+      "Conversation.Reflection.Contexts.Social": "当我们结识他人时",
+      "Conversation.Reflection.Contexts.Underground": "当我们在地下时",
       "UI.Character.Pets": "宠物",
       "Pets.YourItems": "你的宠物物品",
       "Pets.NoItems": "背包里没有未收藏的宠物物品。",

@@ -153,6 +153,10 @@ public sealed partial class SoulboundCompanion
 			return;
 
 		learningObservationTimer = 60;
+		if (Owner.talkNPC >= 0) {
+			ObserveIntentContext(CompanionIntentContext.Social);
+			return;
+		}
 		if (Owner.chest >= 0) {
 			learningObservationTimer = 180;
 			ObserveOwnerActivity(LearnedBehavior.Exploration);
@@ -160,6 +164,10 @@ public sealed partial class SoulboundCompanion
 		}
 		if (!ownerUsingItem)
 			return;
+		if (held.createTile >= 0 && held.createTile != TileID.Saplings || held.createWall > 0 || held.hammer > 0) {
+			ObserveBuildingUse(held);
+			return;
+		}
 
 		if (held.axe > 0 || held.createTile == TileID.Saplings || held.type == ItemID.Acorn)
 			ObserveOwnerActivity(LearnedBehavior.Forestry);
@@ -174,14 +182,28 @@ public sealed partial class SoulboundCompanion
 		if (TryGetOwner(out Player pendingOwner) && CompanionInventorySync.IsPending(pendingOwner)) return;
 		if (Main.netMode == NetmodeID.MultiplayerClient || !Enum.IsDefined(behavior))
 			return;
+		if (behavior != LearnedBehavior.Gathering) ObserveIntentContext(behavior switch {
+			LearnedBehavior.Mining => CompanionIntentContext.Mining,
+			LearnedBehavior.Forestry => CompanionIntentContext.Forestry,
+			LearnedBehavior.Exploration => CompanionIntentContext.Exploring,
+			_ => CompanionIntentContext.General
+		});
 		SoulmatesFeedbackSystem.Record("behavior_observed", ("behavior", behavior.ToString()),
 			("amount", amount));
 		int before = Profile.GetInsight(behavior);
+		if (behavior != LearnedBehavior.Combat) Profile.IntentLearning.Observed(new CompanionIntent(behavior switch {
+			LearnedBehavior.Mining => CompanionInitiativeKind.Mining,
+			LearnedBehavior.Forestry => CompanionInitiativeKind.Forestry,
+			LearnedBehavior.Exploration => CompanionInitiativeKind.Treasure,
+			_ => CompanionInitiativeKind.Gathering
+		}, CurrentIntentContext()));
 		LearnedBehavior? unlockedPerk = Profile.Observe(behavior, amount);
 		int after = Profile.GetInsight(behavior);
 		QueueImitation(behavior);
-		if (after == before)
+		if (after == before) {
+			SyncProfileToBoundSigil();
 			return;
+		}
 
 		bool syncMilestone = unlockedPerk is not null || after % 5 == 0;
 		string message = "";

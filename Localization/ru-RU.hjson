@@ -1,6 +1,22 @@
 {
   "Mods": {
     "Soulmates": {
+      "Conversation.Reflection.Heading": "Учимся вместе",
+      "Conversation.Reflection.Question": "Я попробовала {0}. Это помогло?",
+      "Conversation.Reflection.Choices.First": "Да, это помогло.",
+      "Conversation.Reflection.Choices.Second": "Не совсем. Попробуй другую идею.",
+      "Conversation.Reflection.Choices.Third": "В такой ситуации делай это реже, пожалуйста.",
+      "Conversation.Reflection.Choices.Later": "Поговорим позже.",
+      "Conversation.Reflection.Reply.First": "Я запомню, что здесь помогло.",
+      "Conversation.Reflection.Reply.Second": "Хорошо. Оставлю место для другой идеи.",
+      "Conversation.Reflection.Reply.Third": "Поняла. Здесь буду предлагать это реже.",
+      "Conversation.Reflection.Contexts.General": "пока мы были вместе",
+      "Conversation.Reflection.Contexts.Building": "пока ты строил",
+      "Conversation.Reflection.Contexts.Mining": "пока ты добывал материалы",
+      "Conversation.Reflection.Contexts.Forestry": "пока ты ухаживал за деревьями",
+      "Conversation.Reflection.Contexts.Exploring": "пока мы исследовали мир",
+      "Conversation.Reflection.Contexts.Social": "пока мы знакомились с другими",
+      "Conversation.Reflection.Contexts.Underground": "пока мы были под землёй",
       "UI.Character.Pets": "Питомцы",
       "Pets.YourItems": "Твои предметы питомцев",
       "Pets.NoItems": "В инвентаре нет предметов питомцев, не отмеченных избранными.",

@@ -1,5 +1,13 @@
 # Soulmates Development History
 
+## Soulmates 0.24.0 - Learning Together (Beta Candidate)
+
+- Add bounded per-Sigil contextual preferences to the existing shared attention selector. Observations and accepted requests are cues; completed actions provide outcome evidence.
+- Ask occasionally whether successful work was helpful, using the existing four-symbol question wheel. Approval, another idea and less of this update that captured action/context only. Later, silence and player cancellation are neutral.
+- Share the personal question cadence, honor Quiet and preserve all existing consent, pause, task, tool and progression gates. Learning never enables an ability or replaces the task executor.
+- Observe construction-item use and familiar supplies, not successful placement, building patterns or autonomous construction. Keep saved learning separate from temporary intentions and pending questions.
+- Add persistence, clone, transport, production UI-handler and native server-AI checks. Installed in the normal client on October 9 at 14:26:56 CEST; the creator subsequently reports a positive first playtest and requests publication. Full graphical, endurance and connected multiplayer acceptance remain open. Upload, approval and subscriber delivery are separate checks.
+
 ## Soulmates 0.23.2 - Clear Pet Actions (Beta Candidate)
 
 - Withdraw the unsupported fixed-V claim after the player's real-client countercheck. Current instructions use Details; the Sigil displays the actual assignment or an unassigned state, without forcing keys.

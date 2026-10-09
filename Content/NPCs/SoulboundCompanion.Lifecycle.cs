@@ -81,6 +81,7 @@ public sealed partial class SoulboundCompanion
 		ClearNativeExpression();
 		RetireNativeBubble();
 		ClearChoiceQuestion();
+		ClearReflection();
 		pendingCritterLossKey = pendingCritterLossName = pendingCritterCareName = "";
 		pendingCritterLossTicks = pendingCritterCareTicks = 0;
 		pendingCritterNotice = null;

@@ -88,6 +88,12 @@ public sealed partial class SoulboundCompanion
 		text.AppendLine($"Energy {Profile.Energy}/100; mood {Profile.Mood}/100; level {Profile.Level}; autonomy {Profile.AutonomyEnabled}; paused {Profile.WorkPaused}");
 		text.AppendLine($"Job: {activeJob}; routine: {Profile.Routine}; progress {jobCount}/{jobPlannedTotal}; recovery {jobRecoveryPaused}/{autonomyRecoveryPaused}");
 		text.AppendLine($"Question: {PendingQuestion} ({QuestionTicks}); initiative: {(HasPendingInitiative ? PendingInitiativeKind.ToString() : "none")} ({PendingInitiativeTicks})");
+		text.AppendLine($"Learning context: {CurrentIntentContext()}; intent: {learningIntent?.ToString() ?? "none"}; reflection: {reflectionIntent?.ToString() ?? "none"}; cooldown {reflectionCooldown}");
+		foreach (var ability in CompanionAbilityRegistry.All) {
+			var intent = new CompanionIntent(ability.Kind, CurrentIntentContext());
+			text.AppendLine($"Learned {ability.Kind}: score {Profile.IntentLearning.Score(intent)}, feedback {Profile.IntentLearning.Feedback(intent)}, attempts {Profile.IntentLearning.Attempts(intent)}");
+		}
+		text.AppendLine($"Observed construction supplies (item use, not placement proof): {string.Join(", ", Profile.IntentLearning.BuildingSupplies)}");
 		text.AppendLine($"Critters: {Profile.CritterMode}; {CritterGate()}; company {CritterCompanyCount()}/{(Profile.IsAether ? 3 : 1)}");
 		text.AppendLine($"Visit: {(critterTarget is null ? "none" : $"NPC {critterTarget.whoAmI}, type {critterTarget.type}")}; directed {directedCritterVisit}; ticks {critterVisitTicks}; net {EffectiveCritterNet().type}; catch cooldown {insectCatchCooldown}");
 		text.AppendLine($"Loss: cooldown {critterLossCooldown}; queued {pendingCritterLossKey.Length > 0}; care {pendingCritterCareTicks}");

@@ -118,6 +118,11 @@ public sealed partial class SoulboundCompanion
 			_ => new CompanionConversationResult(SoulmatesText.Get("TargetOrders.Invalid"), false)
 		};
 		if (result.Accepted) {
+			BeginLearningIntent(order switch {
+				CompanionTargetOrder.Mine => CompanionInitiativeKind.Mining,
+				CompanionTargetOrder.Forest => CompanionInitiativeKind.Forestry,
+				_ => CompanionInitiativeKind.Gathering
+			}, requested: true);
 			Profile.LastWork = Profile.WorkRecipe(order switch {
 				CompanionTargetOrder.Mine => CompanionWorkKind.MineTarget,
 				CompanionTargetOrder.Gather => CompanionWorkKind.GatherTarget,
@@ -1023,6 +1028,7 @@ public sealed partial class SoulboundCompanion
 
 	private void CompleteJob(string memory, bool success, CompanionMemoryKind? memoryKind = null, int memoryAmount = 0)
 	{
+		CompleteLearningIntent(success);
 		SoulmatesFeedbackSystem.Record("job_completed", ("job", activeJob.ToString()),
 			("success", success), ("work_count", jobCount), ("memory_amount", memoryAmount),
 			("pack_load", Profile.PackLoad));

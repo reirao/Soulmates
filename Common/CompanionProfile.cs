@@ -69,7 +69,8 @@ public enum CompanionQuestion : byte
 	None,
 	Company,
 	Wallet,
-	CritterCare
+	CritterCare,
+	Reflection
 }
 
 public enum CompanionAnswer : byte
@@ -391,6 +392,7 @@ public sealed partial class CompanionProfile
 	public List<Item> Resources { get; set; } = [];
 	public BigInteger WalletCopper { get; private set; }
 	public List<CompanionMemory> Memories { get; set; } = [];
+	public CompanionIntentLearning IntentLearning { get; private set; } = new();
 
 	public BondRank Rank => Bond switch {
 		>= 85 => BondRank.Eternal,
@@ -505,6 +507,7 @@ public sealed partial class CompanionProfile
 			Memories = Memories.Select(memory => memory.Clone()).ToList(),
 			Relationships = Relationships.Select(relation => relation.Clone()).ToList()
 		};
+		clone.IntentLearning = IntentLearning.Clone();
 		CompanionAbilityRegistry.CopyPolicies(this, clone);
 		return clone;
 	}
@@ -554,6 +557,7 @@ public sealed partial class CompanionProfile
 		CompanionAbilityRegistry.SavePolicies(this, tag);
 		SaveWork(tag);
 		SavePet(tag);
+		tag["intentLearning"] = IntentLearning.Save();
 		return tag;
 	}
 
@@ -615,6 +619,7 @@ public sealed partial class CompanionProfile
 		CompanionAbilityRegistry.LoadPolicies(profile, tag);
 		profile.LoadWork(tag);
 		profile.LoadPet(tag);
+		if (tag.ContainsKey("intentLearning")) profile.IntentLearning = CompanionIntentLearning.Load(tag.GetCompound("intentLearning"));
 		if (tag.ContainsKey("learnedMiningKeys")) profile.LoadMiningKnowledge(tag.GetList<string>("learnedMiningKeys"));
 		profile.Normalize();
 		return profile;
@@ -672,6 +677,7 @@ public sealed partial class CompanionProfile
 		CompanionAbilityRegistry.WritePolicies(writer, this, legacy: false);
 		WriteWork(writer);
 		WritePet(writer);
+		IntentLearning.Write(writer);
 	}
 
 	public static CompanionProfile Read(BinaryReader reader)
@@ -732,6 +738,7 @@ public sealed partial class CompanionProfile
 		CompanionAbilityRegistry.ReadPolicies(reader, profile, legacy: false);
 		profile.ReadWork(reader);
 		profile.ReadPet(reader);
+		profile.IntentLearning = CompanionIntentLearning.Read(reader);
 		profile.Normalize();
 		return profile;
 	}

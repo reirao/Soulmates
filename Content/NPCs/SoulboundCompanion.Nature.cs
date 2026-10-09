@@ -66,10 +66,13 @@ public sealed partial class SoulboundCompanion
 				if (directedCritterVisit) SpeakLocalized("TargetOrders.CritterTimeout");
 				SoulmatesFeedbackSystem.Record("critter_visit_timeout", ("npc_type", critterTarget.type), ("directed", directedCritterVisit));
 				TraceDiagnostic($"critter visit timeout: type {critterTarget.type}");
+				if (learningIntent?.Kind is CompanionInitiativeKind.CritterCompany or CompanionInitiativeKind.CritterCollect)
+					CompleteLearningIntent(false);
 			}
 			if (critterTarget is not null && Main.netMode != NetmodeID.MultiplayerClient) NPC.netUpdate = true;
 			critterTarget = null;
 			directedCritterVisit = false;
+			ClearCritterLearningIntent();
 		}
 		UpdateCritterWatch();
 
@@ -207,9 +210,13 @@ public sealed partial class SoulboundCompanion
 	private bool UpdateCritterActivity()
 	{
 		if (Profile.WorkPaused) return false;
-		if (Profile.CritterMode == CompanionCritterMode.Watch) { critterTarget = null; return false; }
-		if (!CanAttendCritters()) { if (guardianTarget < 0) critterTarget = null; return false; }
+		if (Profile.CritterMode == CompanionCritterMode.Watch) { critterTarget = null; ClearCritterLearningIntent(); return false; }
+		if (!CanAttendCritters()) {
+			if (guardianTarget < 0) { critterTarget = null; ClearCritterLearningIntent(); }
+			return false;
+		}
 		if (Profile.CritterMode == CompanionCritterMode.Company && CritterCompanyCount() >= (Profile.IsAether ? 3 : 1)) {
+			ClearCritterLearningIntent();
 			if (critterTarget is not null && Main.netMode != NetmodeID.MultiplayerClient) NPC.netUpdate = true;
 			critterTarget = null;
 			directedCritterVisit = false;
@@ -218,6 +225,7 @@ public sealed partial class SoulboundCompanion
 		bool collect = Profile.CritterMode == CompanionCritterMode.Collect;
 		Item? net = collect ? EffectiveCritterNet() : null;
 		if (critterTarget is not null && !IsCritterTarget(critterTarget, net)) {
+			ClearCritterLearningIntent();
 			critterTarget = null;
 			if (directedCritterVisit) {
 				directedCritterVisit = false;
@@ -251,6 +259,7 @@ public sealed partial class SoulboundCompanion
 		critterTarget = null;
 		directedCritterVisit = false;
 		critterDecisionTimer = 300;
+		CompleteLearningIntent(completed);
 		TraceDiagnostic($"critter visit completed={completed}: type {target.type}, collect={collect}");
 		NPC.netUpdate = true;
 		return completed;
@@ -315,6 +324,7 @@ public sealed partial class SoulboundCompanion
 
 	private void ReleaseCritterCompany()
 	{
+		ClearCritterLearningIntent();
 		foreach (NPC critter in Main.ActiveNPCs)
 			if (critter.TryGetGlobalNPC(out CompanionCritterCompany company) && company.BelongsTo(this)) company.Leave(critter);
 		critterTarget = null;
@@ -352,6 +362,7 @@ public sealed partial class SoulboundCompanion
 		pendingCritterNotice = null;
 		pendingCritterNoticeKey = "";
 		critterDecisionTimer = critterNoticeCooldown = critterWatchCooldown = 0;
+		ClearCritterLearningIntent();
 		deferredCritter = null;
 		deferredCritterTicks = 0;
 		SyncPackState();
@@ -401,6 +412,7 @@ public sealed partial class SoulboundCompanion
 			Profile.CritterMode = collect ? CompanionCritterMode.Collect : CompanionCritterMode.Company;
 			if (collect) ReleaseCritterCompany();
 			directedCritterVisit = true;
+			BeginLearningIntent(collect ? CompanionInitiativeKind.CritterCollect : CompanionInitiativeKind.CritterCompany, requested: true);
 			directedCritterType = target.type;
 			critterTarget = target;
 			critterVisitTicks = 360;
@@ -416,6 +428,7 @@ public sealed partial class SoulboundCompanion
 		ShowNativeEmote(CompanionCritters.IsNatural(target) ? CompanionCritters.EmoteFor(target)
 			: target.townNPC ? EmoteID.EmoteHappiness : target.friendly ? EmoteID.EmotionAlert : EmoteID.EmoteFear, 120);
 		SoulmatesFeedbackSystem.Record("npc_observation", ("npc_type", target.type));
+		ObserveIntentContext(CompanionIntentContext.Social);
 		return new CompanionConversationResult(SoulmatesText.Get(key, target.FullName), true);
 	}
 

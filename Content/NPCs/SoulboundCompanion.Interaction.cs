@@ -65,6 +65,8 @@ public sealed partial class SoulboundCompanion
 		Profile.Routine = job;
 		BeginJob(job);
 		if (activeJob == job && job != CompanionJob.None)
+			BeginLearningIntent(WorkIntentKind(job), requested: true);
+		if (activeJob == job && job != CompanionJob.None)
 			Profile.LastWork = Profile.WorkRecipe(job switch {
 				CompanionJob.FindTreasure => CompanionWorkKind.Treasure,
 				CompanionJob.Mine => CompanionWorkKind.MineArea,
@@ -310,6 +312,8 @@ public sealed partial class SoulboundCompanion
 
 	private void CancelAssignment()
 	{
+		learningIntent = null;
+		ClearReflection();
 		ClearNativeExpression();
 		critterTarget = null;
 		directedCritterVisit = false;

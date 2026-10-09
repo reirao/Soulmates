@@ -1,8 +1,8 @@
 [h1]Soulmates[/h1]
-Der wiederverwendbare Soulcore erstellt persönliche Companions. Jedes Soulbound Sigil bewahrt Aussehen, Persönlichkeit, Fortschritt, Erinnerungen und Fracht.
+Der wiederverwendbare Soulcore erstellt Companions. Ihr Sigil speichert Aussehen, Persönlichkeit, Fortschritt, Erinnerungen und Fracht.
 
-[b]Version: 0.23.2 - Clear Pet Actions | Beta-Kandidat[/b]
-Klare Pet-Aktionen, Status und tatsächliche Tastenbelegung. Erzsuche bleibt.
+[b]Version: 0.24.0 - Learning Together | Beta-Kandidat[/b]
+Lernt Vorlieben aus Aufträgen, Beobachtungen und Bewertungen im Antwortrad.
 [b]Sprachen:[/b] EN, DE, IT, FR, ES, RU, PT-BR, PL und vereinfachtes Chinesisch. Folgt Terraria. Neue Übersetzungen sind KI-verfasst; Korrekturen willkommen. Manche MP-Antworten nutzen noch die Serversprache.
 [url=https://github.com/reirao/Soulmates]Quellcode und Versionshinweise[/url]
 
@@ -22,7 +22,7 @@ Charaktere erhalten einmal Soulcore und drei Blank Sigils. Nutze den Soulcore, w
 [h2]Eine Hilfreiche Kleine Seele[/h2]
 Sie verteidigt, heilt nach Talent, sammelt Drops, baut sicher ab und sucht Schätze. Bleiben verankert sie. Folgen/Arbeit regenerieren Energie; Kosten werden gebündelt. Nach Erschöpfung baut sie Reserve auf. Pause ist optional.
 
-Gesellschaft/Fang teilen Aufmerksamkeit mit Arbeit; persönliche Fragen blockieren erlaubte Immer-Besuche nicht. Fragen/Nie gelten weiter. Lernen ist lokale Spiellogik. Verteidigung, Pause und Aufträge haben Vorrang.
+Vorhandene Aktionen lernen Vorlieben aus Gewohnheiten, Aufträgen und Ergebnissen je Situation. Nach Erfolg fragt sie gelegentlich „War das hilfreich?“ im Antwortrad. Bewertungen lenken spätere Auswahl. Später, Schweigen und Abbrechen sind neutral. Still schaltet Bewertungen ab. Fragen/Immer/Nie, Verteidigung, Pause und Aufträge behalten Vorrang. Lokale Logik, kein freies Bauen oder Online-KI.
 
 Forester schüttelt geeignete Bäume, räumt tote Stämme und pflanzt mitgetragene Eicheln. Eine Axt erlaubt geprüfte trockene Seitenzweige; lebende/ungeeignete Teile bleiben geschützt. Ausrüstung unterstützt Angriffe, Licht, Nahrung und Crafting-Ideen.
 
@@ -46,7 +46,7 @@ Bewohner nutzen native Emotes und persönliche Antworten. Beziehungen und Erinne
 Diagnose zeigt Aktivität, Regeln, Energie, Critter-Hindernisse, Pets und Tasten-/Eingabezustand. Export: lokal in SoulmatesFeedback/diagnostic-latest.txt, ohne Aufzeichnung oder Upload. MP zeigt Client-Zustand, keine Serverhistorie.
 AETHER-Briefkasten: Papierflieger oder /soulfeedback. Optionale Feldnotizen starten ausgeschaltet. Alles bleibt lokal; nichts wird hochgeladen oder automatisch an Entwickler gesendet. Automatische Einträge enthalten keine Namen, Chats oder exakten Positionen; getippte Notizen behalten deinen Text. Teile nur, was du prüfen lassen möchtest.
 
-Positiver 0.23.2-Spieltest vom Ersteller. Beta-Abnahme, Fortschritt, Langzeitspiel und echtes MP bleiben offen; alle brauchen 0.23.2. Bitte Aktion, Soll/Ist und Solo/MP melden; schöne Momente auch. V bleibt unbestätigt: Ein Software-Trigger bewies keinen Tastendruck. Dieser Testfehler bleibt dokumentiert. Galeriebilder zeigen ältere Builds, keine aktuelle Abnahme.
+Erster 0.24.0-Spieltest positiv. Langzeitspiel und echtes MP bleiben offen; alle brauchen 0.24.0. Upload, Freigabe und Auslieferung sind getrennt: geladene Version prüfen. Bitte Aktion, Soll/Ist und Solo/MP melden. V unbestätigt. Bilder zeigen ältere Builds.
 
 [h2]Entwicklungshinweis[/h2]
 Umfangreiche KI-Unterstützung für Code, Texte, UI und Grafik. Workshop-/Mod-Icons und Soulkin sind KI-generiert; weitere benannte native Sprites, Items, Inventarsymbole und Emotes stammen aus Terraria. Kein Online-KI-Dienst im Spiel.
