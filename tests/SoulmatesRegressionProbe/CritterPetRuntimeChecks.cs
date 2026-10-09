@@ -26,9 +26,11 @@ public sealed partial class EngineChecks
 		Item[] oldItems = Main.item; Projectile[] oldProjectiles = Main.projectile; Tilemap oldMap = Main.tile;
 		int oldWidth = Main.maxTilesX, oldHeight = Main.maxTilesY, oldMode = Main.netMode, oldLocal = Main.myPlayer;
 		bool oldMenu = Main.gameMenu, oldDay = Main.dayTime, oldRain = Main.raining, oldBloodMoon = Main.bloodMoon;
+		var oldRandom = Main.rand;
 		RemoteClient[] oldClients = (RemoteClient[])Netplay.Clients.Clone();
 		var trace = new List<string>();
 		try {
+			Main.rand = new Terraria.Utilities.UnifiedRandom(20261009);
 			for (int i = 0; i < Netplay.Clients.Length; i++) Netplay.Clients[i] = new RemoteClient { Socket = new ProbeSocket() };
 			Main.maxTilesX = 240; Main.maxTilesY = 160; Main.gameMenu = false; Main.dayTime = true; Main.raining = Main.bloodMoon = false;
 			Main.tile = (Tilemap)Activator.CreateInstance(typeof(Tilemap), flags, null,
@@ -67,6 +69,8 @@ public sealed partial class EngineChecks
 					return animal;
 				}
 				foreach (int type in new[] { NPCID.Bunny, NPCID.Squirrel, NPCID.Bird }) {
+					// Earlier visits must not leave random follow momentum in the next species' success case.
+					npc.Center = owner.Center + new Vector2(-50, -60); npc.velocity = Vector2.Zero;
 					NPC animal = Critter(type);
 					typeof(NPC).GetField("catchableNPCTempImmunityCounter", flags)!.SetValue(animal, 1);
 					typeof(NPC).GetField("catchableNPCOriginallyFriendly", flags)!.SetValue(animal, false);
@@ -90,6 +94,16 @@ public sealed partial class EngineChecks
 					check(!Joined() && animal.active, $"Native company Off removed or retained animal {type}, mode {mode}");
 					animal.active = false; owner.position.X -= 240; Tick(80);
 				}
+				npc.Center = owner.Center + new Vector2(-50, -60); npc.velocity = Vector2.Zero;
+				NPC escaped = Critter(NPCID.Bird);
+				var escapeReply = (CompanionConversationResult)Call("PerformNpcContext", CompanionNpcAction.Company, 19, NPCID.Bird)!;
+				check(escapeReply.Accepted, $"Out-of-range countercheck could not start a valid visit, mode {mode}");
+				escaped.Center = owner.Center + new Vector2(400, 0); Tick(1);
+				check(escaped.active && Field("critterTarget") is null && !(bool)Field("directedCritterVisit")!
+					&& !(bool)typeof(CompanionCritterCompany).GetMethod("BelongsTo", flags)!.Invoke(
+						escaped.GetGlobalNPC<CompanionCritterCompany>(), new object[] { mate })!,
+					$"Escaped bird bypassed the owner leash or was recruited at range, mode {mode}");
+				escaped.active = false; mate.PerformQuickAction(CompanionQuickAction.CritterOff);
 				foreach (int type in new[] { NPCID.Bunny, NPCID.Butterfly, NPCID.Firefly }) {
 					Main.dayTime = type != NPCID.Firefly;
 					NPC animal = Critter(type); int itemType = animal.catchItem;
@@ -147,18 +161,19 @@ public sealed partial class EngineChecks
 				check(heardLoss && (int)Field("pendingCritterLossTicks")! == 0 && mate.Profile.Experience == beforeExperience,
 					$"Aged critter loss disappears behind speech or awards kill XP, mode {mode}");
 				Projectile[] Pets() => Main.projectile.Where(p => p.active && p.ModProjectile is CompanionFamiliar).ToArray();
-				foreach (int itemType in CompanionPets.SupportedItems) {
+				foreach (int itemType in new[] { ItemID.ZephyrFish, ItemID.Nectar, ItemID.Carrot, ItemID.WispinaBottle, ItemID.CompanionCube, ItemID.EucaluptusSap }) {
 					mate.Profile.Store(new Item(itemType));
-					int slot = mate.Profile.Pack.FindIndex(item => item.type == itemType);
+					int slot = mate.Profile.PetItems.FindIndex(item => item.type == itemType);
 					byte[] token = (byte[])typeof(CompanionProfile).GetMethod("StorageToken", flags)!.Invoke(mate.Profile,
-						new object[] { CompanionStorage.Pack, slot })!;
+						new object[] { CompanionStorage.Pets, slot })!;
 					check((bool)Call("ConfigurePet", slot, itemType, token)!, $"Runtime pet configuration failed {itemType}, mode {mode}");
 					Projectile pet = Pets().Single(); int petIndex = pet.whoAmI; bool animated = false;
 					for (int tick = 0; tick < 600; tick++) {
 						if (tick >= 200 && tick < 320) owner.position.X += 1;
 						Tick(1); animated |= pet.frame > 0;
 					}
-					check(pet.active && Pets().Length == 1 && Pets()[0].whoAmI == petIndex && animated,
+					check(pet.active && Pets().Length == 1 && Pets()[0].whoAmI == petIndex
+						&& (animated || Main.projFrames[CompanionPets.VisualFor(itemType)] == 1),
 						$"Native pet updates lose lifetime, identity or animation {itemType}, mode {mode}");
 					check(Vector2.Distance(pet.Center, npc.Center) < 90 && pet.damage == 0 && mate.Profile.ItemCount(itemType) == 1,
 						$"Native pet failed companion follow/ownership {itemType}, mode {mode}");
@@ -172,6 +187,7 @@ public sealed partial class EngineChecks
 			Main.player = oldPlayers; Main.npc = oldNpcs; Main.item = oldItems; Main.projectile = oldProjectiles; Main.tile = oldMap;
 			Main.maxTilesX = oldWidth; Main.maxTilesY = oldHeight; Main.netMode = oldMode; Main.myPlayer = oldLocal; Main.gameMenu = oldMenu;
 			Main.dayTime = oldDay; Main.raining = oldRain; Main.bloodMoon = oldBloodMoon;
+			Main.rand = oldRandom;
 			for (int i = 0; i < Netplay.Clients.Length; i++) Netplay.Clients[i] = oldClients[i];
 		}
 	}

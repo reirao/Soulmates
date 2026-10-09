@@ -61,6 +61,9 @@ public sealed class CompanionFamiliar : ModProjectile
 		}
 		bindingWait = 0;
 		Projectile.timeLeft = 2;
+		int visual = CompanionPets.VisualFor(itemType);
+		if (visual <= 0) { Projectile.Kill(); return; }
+		if (ProjectileID.Sets.LightPet[visual]) Lighting.AddLight(Projectile.Center, 0.45f, 0.45f, 0.45f);
 		Vector2 goal = companion.NPC.Center + new Vector2(-companion.NPC.direction * 52f,
 			-12f + MathF.Sin(Projectile.localAI[0]++ / 45f) * 5f);
 		Vector2 offset = goal - Projectile.Center;
@@ -68,8 +71,8 @@ public sealed class CompanionFamiliar : ModProjectile
 		else Projectile.velocity = Vector2.Lerp(Projectile.velocity, offset.SafeNormalize(Vector2.Zero)
 			* Math.Min(8f, offset.Length() / 12f), 0.12f);
 		if (MathF.Abs(Projectile.velocity.X) > 0.25f) Projectile.spriteDirection = Projectile.velocity.X > 0 ? -1 : 1;
-		int frames = Math.Max(1, Main.projFrames[CompanionPets.VisualFor(itemType)]);
-		if (++Projectile.frameCounter >= (itemType == ItemID.Nectar ? 8 : 14)) {
+		int frames = Math.Max(1, Main.projFrames[visual]);
+		if (++Projectile.frameCounter >= 14) {
 			Projectile.frameCounter = 0; Projectile.frame = (Projectile.frame + 1) % frames;
 		}
 	}
@@ -81,8 +84,9 @@ public sealed class CompanionFamiliar : ModProjectile
 		Texture2D texture = TextureAssets.Projectile[visual].Value;
 		int frames = Math.Max(1, Main.projFrames[visual]);
 		Rectangle frame = texture.Frame(1, frames, 0, Projectile.frame % frames);
+		float scale = Math.Min(1f, 72f / Math.Max(frame.Width, frame.Height));
 		Main.EntitySpriteDraw(texture, Projectile.Center - Main.screenPosition, frame, lightColor, 0f,
-			frame.Size() * 0.5f, 1f, Projectile.spriteDirection < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
+			frame.Size() * 0.5f, scale, Projectile.spriteDirection < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
 		return false;
 	}
 	public override void SendExtraAI(BinaryWriter writer) => writer.Write(companionId.ToByteArray());

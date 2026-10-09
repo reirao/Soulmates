@@ -210,7 +210,8 @@ public enum CompanionStorage : byte
 {
 	Pack,
 	Resources,
-	Wallet
+	Wallet,
+	Pets
 }
 
 public enum BondRank : byte
@@ -418,7 +419,7 @@ public sealed partial class CompanionProfile
 	public int PackLoad => Pack.Count(item => !item.IsAir);
 	public int ResourceLoad => Resources.Count(item => !item.IsAir);
 	public int ResourceCarryLimit => Level * ResourcesPerLevel;
-	public IEnumerable<Item> CarriedItems => Pack.Concat(Resources);
+	public IEnumerable<Item> CarriedItems => Pack.Concat(Resources).Concat(PetItems);
 	public string LatestMemory => Memories.Count > 0 ? Memories[^1].Describe() : LastMemory;
 	public bool IsAether => Name.Equals("AETHER", StringComparison.OrdinalIgnoreCase);
 	public bool ForesterUnlocked => IsAether || Talent == CompanionTalent.Gatherer
@@ -476,6 +477,7 @@ public sealed partial class CompanionProfile
 			TunnelEnd = TunnelEnd,
 			LastWork = LastWork,
 			PetItemType = PetItemType,
+			PetItems = PetItems.Where(item => !item.IsAir).Select(item => item.Clone()).ToList(),
 			AutonomyEnabled = AutonomyEnabled,
 			WorkPaused = WorkPaused,
 			CritterMode = CritterMode,
@@ -866,7 +868,7 @@ public sealed partial class CompanionProfile
 		Item transfer = source.Clone();
 		transfer.stack = permitted;
 		List<Item> storage = StorageItems(StorageFor(source));
-		int slotCapacity = IsResource(source) ? MaximumResourceSlots : PackCapacity;
+		int slotCapacity = StorageCapacity(StorageFor(source));
 		foreach (Item stored in storage) {
 			if (stored.type != transfer.type || stored.stack >= stored.maxStack
 				|| !ItemLoader.CanStack(stored, transfer))
@@ -919,7 +921,7 @@ public sealed partial class CompanionProfile
 			}
 		}
 
-		int freeSlots = Math.Max(0, (IsResource(source) ? MaximumResourceSlots : PackCapacity) - occupiedSlots);
+		int freeSlots = Math.Max(0, StorageCapacity(StorageFor(source)) - occupiedSlots);
 		long totalCapacity = (long)available + (long)freeSlots * Math.Max(1, source.maxStack);
 		return (int)Math.Min(permitted, Math.Min(int.MaxValue, totalCapacity));
 	}
@@ -1013,11 +1015,14 @@ public sealed partial class CompanionProfile
 		var items = CarriedItems.Where(item => item is not null && !item.IsAir && item.stack > 0).ToArray();
 		Pack = [];
 		Resources = [];
+		PetItems = [];
 		WalletCopper = BigInteger.Max(BigInteger.Zero, WalletCopper);
 		foreach (Item item in items) {
 			int coinValue = CoinValue(item.type);
 			if (coinValue > 0)
 				WalletCopper += (BigInteger)item.stack * coinValue;
+			else if (CompanionPets.IsPetItem(item))
+				PetItems.Add(item);
 			else if (IsResource(item))
 				Resources.Add(item);
 			else
@@ -1025,6 +1030,7 @@ public sealed partial class CompanionProfile
 		}
 		SplitLegacyStacks(Pack, MaximumPackSlots);
 		SplitLegacyStacks(Resources, MaximumResourceSlots);
+		SplitLegacyStacks(PetItems, MaximumPetSlots);
 	}
 
 	private static void SplitLegacyStacks(List<Item> storage, int capacity)
@@ -1047,9 +1053,10 @@ public sealed partial class CompanionProfile
 
 	public string DescribePack()
 	{
-		if (PackLoad == 0 && ResourceLoad == 0 && WalletCopper.IsZero)
+		if (PackLoad == 0 && ResourceLoad == 0 && PetItems.Count == 0 && WalletCopper.IsZero)
 			return SoulmatesText.Get("Pack.Empty");
 		return SoulmatesText.Get("Storage.Description", PackLoad, PackCapacity, ResourceLoad,
-			ResourceCarryLimit, DescribeWallet());
+			ResourceCarryLimit, DescribeWallet()) + (PetItems.Count == 0 ? "" : " / "
+				+ SoulmatesText.Get("Pets.InventoryCount", PetItems.Count, MaximumPetSlots));
 	}
 }

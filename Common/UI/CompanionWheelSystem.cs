@@ -21,7 +21,7 @@ namespace Soulmates.Common.UI;
 
 public sealed partial class CompanionWheelSystem : ModSystem
 {
-	private enum RootBranch : byte { Commands, Work, Bond, Emotes, Pack, Details, Mailbox, Point, Critters, Items, Games }
+	private enum RootBranch : byte { Commands, Work, Bond, Emotes, Pack, Details, Mailbox, Point, Critters, Items, Games, Pets }
 	private enum HoverLayer : byte { None, Center, Root, Branch, Native, MiningApproach, OreTarget, InitiativeRule, MouseMode, ContextAction, Rps, MiningFilter, WorkConfig, Compass, Pet }
 	private enum IconKind : byte { Emote, Item, Back, Forward, Close, Direction }
 	private enum WheelContext : byte { Companion, Player, World, Contextual }
@@ -31,7 +31,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 	private readonly record struct NearbyOreChoice(Point Tile, int ItemType);
 
 	private static readonly RootBranch[] CompanionRoots = [
-		RootBranch.Commands, RootBranch.Work, RootBranch.Critters, RootBranch.Bond, RootBranch.Games, RootBranch.Pack, RootBranch.Items, RootBranch.Details, RootBranch.Mailbox
+		RootBranch.Commands, RootBranch.Work, RootBranch.Critters, RootBranch.Bond, RootBranch.Games, RootBranch.Pack, RootBranch.Items, RootBranch.Details, RootBranch.Mailbox, RootBranch.Pets
 	];
 	private static readonly RootBranch[] PlayerRoots = [RootBranch.Emotes, RootBranch.Point, RootBranch.Mailbox];
 	private static readonly CompanionTargetOrder[] PointModes = [
@@ -386,6 +386,11 @@ public sealed partial class CompanionWheelSystem : ModSystem
 
 	private void ActivateRoot(RootBranch selected)
 	{
+		if (selected == RootBranch.Pets && companion is { } petOwner && petOwner.FindBoundSigil() is { } petSigil) {
+			Close();
+			ModContent.GetInstance<TalkModeSystem>().OpenPetInventory(petSigil, petOwner);
+			return;
+		}
 		if (selected == RootBranch.Items) {
 			OpenDetails(TalkCategory.Items);
 			return;
@@ -431,7 +436,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		switch (activeBranch) {
 			case RootBranch.Critters:
 				if (index >= 0 && index < CritterActions.Length) ExecuteQuickAction(CritterActions[index]);
-				else if (index == CritterActions.Length) petsMenu = true;
+				else if (index == CritterActions.Length) { petsMenu = true; petPage = 0; }
 				break;
 			case RootBranch.Commands:
 				if (index >= 0 && index < CommandActions.Length) {
@@ -451,6 +456,8 @@ public sealed partial class CompanionWheelSystem : ModSystem
 					SoundEngine.PlaySound(SoundID.MenuTick);
 				}
 				else if (index == 1) RepeatWork();
+				else if (index == 2) ExecuteWorkAction(WheelWorkAction.MineTarget);
+				else if (index == 3) ExecuteWorkAction(WheelWorkAction.MineArea);
 				break;
 			case RootBranch.Games:
 				if (index == 0) {
@@ -955,6 +962,8 @@ public sealed partial class CompanionWheelSystem : ModSystem
 			RootBranch.Critters when index == CritterActions.Length => SoulmatesText.Get("Pets.Title"),
 			RootBranch.Commands when index >= 0 && index < CommandActions.Length => QuickActionLabel(CommandActions[index]),
 			RootBranch.Work when index is 0 or 1 => WorkMenuLabel(index),
+			RootBranch.Work when index == 2 => SoulmatesText.Get("UI.CompanionWheel.WorkMenu.FindOre"),
+			RootBranch.Work when index == 3 => SoulmatesText.Get("UI.CompanionWheel.WorkActions.MineArea"),
 			RootBranch.Games when index == 0 => SoulmatesText.Get("Games.Rps.Title"),
 			RootBranch.Emotes or RootBranch.Bond when index >= 0 && index < ActiveNativeCategories.Length
 				=> EmoteCategoryLabel(ActiveNativeCategories[index]),
@@ -996,6 +1005,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 	}
 
 	private static WheelIcon RootIcon(RootBranch root) => root switch {
+		RootBranch.Pets => new WheelIcon(IconKind.Item, ItemID.Carrot),
 		RootBranch.Critters => new WheelIcon(IconKind.Emote, EmoteID.CritterBunny),
 		RootBranch.Commands => new WheelIcon(IconKind.Emote, EmoteID.EmoteFight),
 		RootBranch.Work => new WheelIcon(IconKind.Emote, EmoteID.ItemPickaxe),
@@ -1031,7 +1041,8 @@ public sealed partial class CompanionWheelSystem : ModSystem
 				_ => EmoteID.EmoteWink
 			});
 		if (activeBranch == RootBranch.Work)
-			return new WheelIcon(IconKind.Emote, index == 0 ? EmoteID.ItemCog : EmoteID.EmoteRun);
+			return index == 2 ? new WheelIcon(IconKind.Item, ItemID.SpelunkerPotion)
+				: new WheelIcon(IconKind.Emote, index == 0 ? EmoteID.ItemCog : index == 1 ? EmoteID.EmoteRun : EmoteID.ItemPickaxe);
 		if (activeBranch == RootBranch.Games && index == 0)
 			return new WheelIcon(IconKind.Emote, EmoteID.RPSScissors);
 		if (activeBranch is RootBranch.Emotes or RootBranch.Bond && index >= 0 && index < ActiveNativeCategories.Length)
@@ -1083,7 +1094,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 			: new WheelIcon(IconKind.Emote, EmoteID.EmoteConfused);
 	}
 
-	private static string RootLabel(RootBranch root) => root == RootBranch.Items
+	private static string RootLabel(RootBranch root) => root == RootBranch.Pets ? SoulmatesText.Get("Pets.Inventory") : root == RootBranch.Items
 		? SoulmatesText.EnumName(TalkCategory.Items) : SoulmatesText.Get($"UI.CompanionWheel.Categories.{root}");
 
 	private string QuickActionLabel(CompanionQuickAction action)
@@ -1100,7 +1111,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 
 	private int BranchNodeCount(RootBranch activeBranch) => activeBranch switch {
 		RootBranch.Critters => CritterActions.Length + 1,
-		RootBranch.Commands => CommandActions.Length, RootBranch.Work => 2,
+		RootBranch.Commands => CommandActions.Length, RootBranch.Work => 4,
 		RootBranch.Games => 1,
 		RootBranch.Emotes or RootBranch.Bond => ActiveNativeCategories.Length, _ => 0
 	};
@@ -1120,7 +1131,8 @@ public sealed partial class CompanionWheelSystem : ModSystem
 	private int EntriesOnNativePage(NativeCategory category)
 		=> Math.Clamp(category.Entries.Length - nativePage * NativePageSize, 0, NativePageSize);
 
-	private Vector2 RootPosition(int index) => center + RootAngle(index).ToRotationVector2() * RootRadius * LayoutScale;
+	private Vector2 RootPosition(int index) => center + RootAngle(index).ToRotationVector2()
+		* (context == WheelContext.Companion ? 84f : RootRadius) * LayoutScale;
 
 	private int WorldNodeCount => worldPage == 0 ? PointModes.Length : 3;
 	private Vector2 WorldNodePosition(int index) => center

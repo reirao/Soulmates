@@ -1,5 +1,7 @@
 # Soulmates
 
+**0.23.2 - Clear Pet Actions | Beta Candidate.** Right-click her > Pets opens pet management; Details opens her character window. Give real pet items into twelve dedicated slots. The first gift selects automatically; left-click an owned pet to summon, right-click to take it back. Status distinguishes no summon, waiting and an active familiar. Direct ore-search and area-mining commands are back beside Config/Last. [Release notes](releases/0.23.2.md) and [local verification](tests/CLEAR-PET-ACTIONS-0.23.2-2026-10-09.md) separate automated evidence from the creator's positive playtest. Workshop upload, moderation and subscriber delivery are separate steps.
+
 Soulmates is a tModLoader mod about creating companions that feel personal. The reusable **Soulcore** opens a small companion creator. Each finished companion is stored in its own **Soulbound Sigil** with a persistent name, appearance, personality, talent, bond, mood, and energy.
 
 ## AI-assisted development disclosure
@@ -8,11 +10,11 @@ Soulmates is an experimental project created with extensive AI assistance across
 
 ## Getting Started
 
-1. Subscribe to the [existing Workshop item](https://steamcommunity.com/sharedfiles/filedetails/?id=3807130821), enable Soulmates and reload mods. Check for **0.22.2 - Living Critters** under Mods. The [matching GitHub beta release](https://github.com/reirao/Soulmates/releases/tag/v0.22.2) provides the verified package directly; do not install duplicate copies. Steam upload, approval and subscriber delivery are separate checks.
+1. Subscribe to the [existing Workshop item](https://steamcommunity.com/sharedfiles/filedetails/?id=3807130821), enable Soulmates and reload mods. Check for **0.23.2 - Clear Pet Actions** under Mods. The [matching GitHub beta release](https://github.com/reirao/Soulmates/releases/tag/v0.23.2) provides the package directly; do not install duplicate copies. Steam upload, approval and subscriber delivery are separate checks.
 2. Enter a world. The one-time starter kit provides a Soulcore and three Blank Sigils; the recipes below also let you craft replacements.
 3. Use the Soulcore or right-click it in the inventory. Choose the companion and bind a Sigil. The Soulcore is reusable; use the new Sigil to summon her and keep it in your inventory.
 4. Right-click her for companion tools; right-click yourself for player tools. Work opens Config and Last. Games contains Rock, paper, scissors. Critters contains Watch, Company, Catch Critters, Off and Companion pet. Ordinary catching already has the built-in basic net capability.
-5. Commands controls autonomy, Pause/Resume/Abort and separate Ask/Always/Never rules. Yes permits one opportunity; Always remembers permission for that ability. Details or `V` opens conversations and stats; Pack separates equipment, resources and the uncapped wallet.
+5. Commands controls autonomy, Pause/Resume/Abort and separate Ask/Always/Never rules. Yes permits one opportunity; Always remembers permission for that ability. Details opens conversations and stats; Pack separates equipment, resources and the uncapped wallet. Pets opens from her wheel or character panel: give an eligible item from your real inventory, then left-click its owned slot to summon. Right-click returns it. Favorites are protected.
 
 If she is waiting, check the active assignment, Stay/Pause, autonomy, the ability's permission and energy. Recovery needs a reserve before work resumes. Watch does not catch; Company and Collect have different permissions. If a native NPC/chest/item handles a right-click, Terraria mode deliberately leaves that interaction alone. Select Me/Soulmate for explicit world context, and use X/Escape to leave it.
 
@@ -20,7 +22,11 @@ For a first check use [the character/critter checklist](tests/PLAYTEST-CRITTER-C
 
 0.22.2 repairs expired-spawn critter recognition, ground visibility and moving-animal visits. Installed on October 8, it received the creator's positive in-game confirmation and Workshop upload on October 9. Its [repair evidence and acceptance steps](tests/LIVING-CRITTERS-0.22.2-2026-10-08.md) distinguish isolated native tests from that player report, not an exhaustive graphical acceptance run.
 
-## Features
+## The V Key Lesson
+
+V was advertised as working without a real end-to-end keyboard test. The player reported otherwise. Injecting a software trigger proved only the handler, not that a physical key reached it. That mistaken claim stays documented here rather than being quietly erased. The optional shortcut now reports its actual binding; **V is not promised fixed**. Use the companion wheel's **Details** or **Pets** instead. Future input claims must distinguish handler tests, engine key mapping and a real client keypress.
+
+## Features (0.23.2)
 
 - Craft a reusable Soulcore and Blank Sigils.
 - Receive one Soulcore and three Blank Sigils once per character as a starter kit.
@@ -61,8 +67,8 @@ For a first check use [the character/critter checklist](tests/PLAYTEST-CRITTER-C
 - Tree context uses Terraria's trunk classifications, including mushroom trees, for its native tree symbol. Forestry remains reachable during a shake cooldown or on a non-shakeable tree and reports when no supported action is available. Automatic shake planning rejects unsupported tree/soil combinations instead of repeatedly selecting them; native tree-shake loot remains authoritative. Bare-branch pruning is limited to verified vanilla side-twig frames, not palm fronds or other unverified families.
 - Nearby witnessed critter deaths can prompt personality-specific sorrow or an apology, and stronger disapproval when Terraria records player attack credit. Unknown causes do not accuse a particular player. Native catches are not deaths; reactions are rate-limited, wait behind ongoing speech and grant no XP or penalties. Soul Bolts cannot accidentally hit harmless critters. 0.22.2 fixes the expired-spawn classification that excluded ordinary animals; individual live reaction timing still needs focused checks.
 - AETHER's existing cosmetic native-sprite flock still represents up to six real carried insects and disappears when withdrawn. No free critters or combat swarm are created.
-- Critters > Companion pet selects one Zephyr Fish or Baby Hornet backed by a real Zephyr Fish/Nectar item in her Equipment pack. Store the item through Talk > Pack, then choose its native icon. Missing items cannot be selected. The item is not consumed or moved out of cargo; the selection persists on the Sigil. Dismiss clears the selection; withdrawing its last supporting item ends the pet. Recall, owner death and changing companions remove its projectile without losing cargo.
-- The companion familiar is a harmless Soulmates projectile with Terraria's animated pet sprite and companion-following movement, not the original player-anchored pet AI. It neither adds player buffs nor replaces your own pet. Only these two flying vanity pets are supported; ground pets, light pets and modded pet items are not implemented. Appearance Muse, real Critter Company and AETHER's insect flock remain separate.
+- Pets opens directly from her wheel and character panel. Twelve dedicated slots hold real eligible reusable pet-summoning items; inventory paging lets you give an item without selecting a hotbar slot. Favorites stay with the player. The first gift to empty pet storage selects automatically; later gifts do not replace the selection or override dismissal. Left-click an owned pet to summon; right-click returns its item. The selected pet persists on the Sigil. Dismiss, final withdrawal, recall, owner death and switching companions clean up its familiar without losing cargo. Existing pet items in equipment remain discoverable.
+- Pet support follows registered item/buff/projectile metadata, not a fixed two-item whitelist. The harmless familiar uses native animated frames with custom floating movement and basic light where appropriate. It neither consumes the item nor adds player buffs or replaces your pet. Original player-pet AI, special utility abilities and arbitrary modded drawing are not copied; individual visual families still need playtests. Appearance Muse, real Critter Company and AETHER's insect flock remain separate.
 - Personality-driven autonomous moments add small surprises without overriding combat, Stay, explicit assignments, or low-energy recovery.
 - Persistent companion experience with 20 levels earned from combat, healing, work, and shared moments.
 - Use the compact Companion Soulwheel for commands, work, bonding, direct pack access, and details.
@@ -96,8 +102,8 @@ For a first check use [the character/critter checklist](tests/PLAYTEST-CRITTER-C
 - Companions illuminate dark spaces and reveal the nearby world map as they explore.
 - Work refusals are deterministic and explain whether mood or energy is too low.
 - The selected work routine survives recalls and summons; exact live targets do not survive recall or reloading. Area work ends when no eligible target remains and reports when a new assignment is needed.
-- Press the configurable **Talk to Companion** hotkey (`V` by default) to open Talk Mode without selecting the Sigil.
-- Choose **Details** on the companion action wheel, or press `V`, to open the resizable Talk Mode with a real level bar, mining approach, bond, mood, energy, pack, memories, and conversations.
+- The optional **Talk to Companion** shortcut is configurable under Controls. The Sigil reports its actual assignment; no fixed key is guaranteed.
+- Choose **Details** on the companion action wheel to open the resizable Talk Mode with a real level bar, mining approach, bond, mood, energy, pack, memories, and conversations.
 - Stay is a true world anchor: companions defend that location without drifting back to the player.
 - Play in all nine languages supported by Terraria 1.4.4: English, German, Italian, French, Spanish, Russian, Brazilian Portuguese, Polish, and Simplified Chinese. Soulmates follows the game's selected language; no separate language setting is needed.
 - Optional local **AETHER Field Notes** record anonymized gameplay events and compact behavior signals for playtesting; nothing is uploaded. Use `/soulfeedback on` to opt in, `/soulfeedback note <text>` for an observation, and `/soulfeedback bug <what happened>` to save a bug with its recent gameplay context.
@@ -105,13 +111,17 @@ For a first check use [the character/critter checklist](tests/PLAYTEST-CRITTER-C
 
 The current release supports single-player and server-authoritative multiplayer companions. Summoning, recalling, conversations, jobs, pack actions, and trinkets are validated by the server and synchronized back to the owning player.
 
-## Current Build
+## Verification And History
+
+**0.23.2** passed 93,883 native-engine assertions, 182 independent audit expectations and 54,971 static/localization assertions. The installed package matches all 81 production source files; production builds reported no warnings or errors. All nine catalogs have 933 keys. The creator subsequently reported a positive playtest and requested publication. That is not exhaustive graphical, physical-key or connected multiplayer acceptance. See [the exact installation record](tests/CLEAR-PET-ACTIONS-0.23.2-2026-10-09.md) and [beta gates](BETA.md).
+
+### Previous Published Baseline
 
 **0.22.2 - Living Critters | Beta Candidate.** Installed in the normal client on October 8, 2026. The creator confirms it works in play and has uploaded it to the existing Workshop item; Steam records **October 9 at 08:05 CEST**, with review pending at the publication check. Upload, approval and each subscriber's installed version are separate checks. See [release notes](releases/0.22.2.md) and [installation verification](tests/CLIENT-INSTALL-0.22.2-2026-10-08.md).
 
 The root critter failure was Terraria's temporary spawn-protection flag: after it expires, harmless catchable animals need not remain `friendly`. 0.22.2 uses their permanent native classification, keeps ground-level visibility valid, aligns approach/reach and improves real follower catch-up without bypassing walls or native physics. Critter/drop context works over cuttable foliage; missing pet items give a visible explanation. The [repair report](tests/LIVING-CRITTERS-0.22.2-2026-10-08.md) preserves the cause, failed baseline and counterchecks. Earlier cargo, speech, Soulcore animation and minimap repairs remain included.
 
-Details/`V` separates Conversation, Equipment and Diagnostics, with portrait/vitals and an independent reply strip. Tool displays, item-backed pets, cargo and Pause/Resume/Abort retain existing actions; tools are capabilities, not generic armor slots. Explicit wrench export writes `SoulmatesFeedback/diagnostic-latest.txt` locally without enabling recording or uploading. MP labels client state, not server history; technical details remain English.
+Details separates Conversation, Equipment and Diagnostics, with portrait/vitals and an independent reply strip. Tool displays, item-backed pets, cargo and Pause/Resume/Abort retain existing actions; tools are capabilities, not generic armor slots. Explicit wrench export writes `SoulmatesFeedback/diagnostic-latest.txt` locally without enabling recording or uploading. MP labels client state, not server history; technical details remain English.
 
 The release also includes semantic emote categories, per-Sigil Work **Config/Last**, the bounded tunnel compass, shared critter scheduling and two item-backed flying pets from the intervening candidates. Zephyr Fish/Nectar are the only supported pet items; the harmless follower uses native animation, not original player-pet AI. Ordinary critter catching has a built-in basic net capability. Existing Sigils remain compatible; all multiplayer peers need **0.22.2**.
 
@@ -161,7 +171,7 @@ For local playtests, open the paper-plane icon on the Companion Soulwheel or ent
 - Polish / Polski (`pl-PL`)
 - Simplified Chinese (`zh-Hans`)
 
-All nine Terraria 1.4.4 languages have complete 918-key catalogs in 0.22.2. Soulmates follows Terraria's language selection, with English as fallback. Seven translations are AI-authored; native-speaker corrections are welcome. Some MP replies retain the server language; technical diagnostics remain English. See [localization maintenance](tests/localization/README.md).
+All nine Terraria 1.4.4 languages have complete 933-key catalogs in 0.23.2. Soulmates follows Terraria's language selection, with English as fallback. Seven translations are AI-authored; native-speaker corrections are welcome. Some MP replies retain the server language; technical diagnostics remain English. See [localization maintenance](tests/localization/README.md).
 
 ## Install for development
 

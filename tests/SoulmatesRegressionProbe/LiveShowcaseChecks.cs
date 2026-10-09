@@ -45,7 +45,7 @@ public sealed partial class EngineChecks
 				mate.Profile.WorkPaused = true;
 				state.Bind(sigil, mate, Soulmates.Common.Dialogue.TalkCategory.Pack);
 				UIElement pack = (UIElement)GetState("packElement");
-				check(pack.Children.Count() == 4, "Showcase cargo tabs were never initialized or initialized twice at scale " + scale);
+				check(pack.Children.Count() == Enum.GetValues<CompanionStorage>().Length + 1, "Showcase cargo tabs were never initialized or initialized twice at scale " + scale);
 				Rectangle slot = (Rectangle)pack.GetType().GetMethod("CalculateSlotBounds", flags)!
 					.Invoke(null, new object[] { pack.GetDimensions().ToRectangle(), 0, false })!;
 				Vector2 point = slot.Center.ToVector2();

@@ -66,7 +66,7 @@ public sealed partial class CompanionWheelSystem
 
 	private void DrawWorkActions(SpriteBatch spriteBatch, Color accent, float reveal)
 	{
-		Vector2 parent = BranchPosition(RootBranch.Work, 0, 2);
+		Vector2 parent = BranchPosition(RootBranch.Work, 0, BranchNodeCount(RootBranch.Work));
 		for (int i = 0; i < WorkActions.Length; i++) DrawNode(spriteBatch,
 			Vector2.Lerp(parent, WorkConfigPosition(i), reveal), 32f, accent,
 			hoverLayer == HoverLayer.WorkConfig && hoverIndex == i, false, WorkActionIcon(i));

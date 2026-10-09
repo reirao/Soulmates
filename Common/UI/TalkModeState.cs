@@ -49,7 +49,8 @@ public sealed partial class TalkModeState : UIState
 	private bool resizing;
 	private Vector2 resizeStartMouse;
 	private Vector2 resizeStartSize;
-	public bool HasActiveBinding => sigil is not null && companion?.NPC.active == true;
+	public bool HasActiveBinding => sigil is not null && companion?.NPC.active == true
+		&& sigil.Profile.Id == companion.Profile.Id && companion.FindBoundSigil() is not null;
 	private CompanionProfile? DisplayProfile => companion?.NPC.active == true ? companion.Profile : sigil?.Profile;
 
 	public override void OnInitialize()
@@ -433,8 +434,9 @@ public sealed partial class TalkModeState : UIState
 
 	private void WithdrawStorageSlot(CompanionStorage storage, int index, bool singleItem)
 	{
-		if (awaitingResponse || companion?.NPC.active != true)
+		if (awaitingResponse || companion is null || !HasActiveBinding)
 			return;
+		if (storage == CompanionStorage.Pets && !singleItem) { SelectPetItem(index); return; }
 		if (Main.netMode == NetmodeID.MultiplayerClient) {
 			awaitingResponse = true;
 			responseWaitTicks = 0;
@@ -556,6 +558,7 @@ internal sealed class TalkIconButton(int emoteId) : UIElement
 
 internal sealed class TalkItemButton(int itemType) : UIElement
 {
+	public int ItemType { get; set; } = itemType;
 	public string HoverText { get; set; } = "";
 	public string BadgeText { get; set; } = "";
 	public bool ShowHoverTooltip { get; set; } = true;
@@ -571,12 +574,14 @@ internal sealed class TalkItemButton(int itemType) : UIElement
 		spriteBatch.Draw(slot, center, null, IsMouseHovering ? Color.White
 			: Selected ? new Color(174, 232, 217) : Color.White * 0.86f,
 			0f, slot.Size() * 0.5f, size / slot.Width, SpriteEffects.None, 0f);
-		Main.instance.LoadItem(itemType);
-		Texture2D texture = TextureAssets.Item[itemType].Value;
-		Rectangle source = Main.itemAnimations[itemType]?.GetFrame(texture) ?? texture.Bounds;
-		float scale = Math.Min(size * 0.58f / source.Width, size * 0.58f / source.Height);
-		spriteBatch.Draw(texture, center, source, Color.White, 0f, source.Size() * 0.5f,
-			scale, SpriteEffects.None, 0f);
+		if (ItemType > 0) {
+			Main.instance.LoadItem(ItemType);
+			Texture2D texture = TextureAssets.Item[ItemType].Value;
+			Rectangle source = Main.itemAnimations[ItemType]?.GetFrame(texture) ?? texture.Bounds;
+			float scale = Math.Min(size * 0.58f / source.Width, size * 0.58f / source.Height);
+			spriteBatch.Draw(texture, center, source, Color.White, 0f, source.Size() * 0.5f,
+				scale, SpriteEffects.None, 0f);
+		}
 		if (BadgeText.Length > 0) {
 			float badgeScale = Math.Min(0.38f, (size - 2f) / Math.Max(1f,
 				FontAssets.MouseText.Value.MeasureString(BadgeText).X));

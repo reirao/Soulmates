@@ -233,7 +233,7 @@ public sealed class SoulmatesPlayer : ModPlayer
 			return;
 		bool rightPressed = Main.mouseRight && !rightMouseDown;
 		rightMouseDown = Main.mouseRight;
-		if (Main.gameMenu || Player.dead || SoulmatesUIInput.IsTyping || SoulmatesUIInput.IsCaptured) {
+		if (Main.gameMenu || Player.dead || SoulmatesUIInput.IsTyping) {
 			queuedSelfSoulwheel = false;
 			return;
 		}
@@ -242,6 +242,18 @@ public sealed class SoulmatesPlayer : ModPlayer
 		InitiativePromptSystem initiativePrompt = ModContent.GetInstance<InitiativePromptSystem>();
 		TalkModeSystem talkMode = ModContent.GetInstance<TalkModeSystem>();
 		FeedbackMailboxSystem mailbox = ModContent.GetInstance<FeedbackMailboxSystem>();
+		// The character shortcut must also work while its own wheel captures mouse input.
+		if (Soulmates.TalkKeybind.JustPressed && !initiativePrompt.IsOpen && !mailbox.IsOpen
+			&& !ModContent.GetInstance<SoulCreatorSystem>().IsOpen && Main.mouseItem.IsAir && Player.talkNPC < 0) {
+			queuedSelfSoulwheel = false;
+			if (talkMode.IsOpen) talkMode.Close();
+			else if (companion?.FindBoundSigil() is { } sigil) talkMode.Open(sigil, companion);
+			return;
+		}
+		if (SoulmatesUIInput.IsCaptured) {
+			queuedSelfSoulwheel = false;
+			return;
+		}
 		if (Soulmates.EmoteKeybind.JustPressed && companion is not null && !Main.playerInventory
 			&& !talkMode.IsOpen && !companionWheel.IsOpen && !initiativePrompt.IsOpen && !mailbox.IsOpen) {
 			companionWheel.OpenEmotes(companion);
@@ -250,12 +262,6 @@ public sealed class SoulmatesPlayer : ModPlayer
 		if (companion is not null && rightPressed)
 			QueueSelfSoulwheel(companion, companionWheel, initiativePrompt, talkMode);
 
-		if (!Soulmates.TalkKeybind.JustPressed || companion is null || companionWheel.IsOpen
-			|| initiativePrompt.IsOpen || mailbox.IsOpen)
-			return;
-		if (companion.FindBoundSigil() is not { } sigil)
-			return;
-		talkMode.Open(sigil, companion);
 	}
 
 	private void QueueSelfSoulwheel(SoulboundCompanion companion, CompanionWheelSystem companionWheel,

@@ -18,6 +18,7 @@ public sealed partial class CompanionProfile
 	{
 		Pack.Clear();
 		Resources.Clear();
+		PetItems.Clear();
 		WalletCopper = BigInteger.Zero;
 		PetItemType = 0;
 	}
@@ -29,11 +30,20 @@ public sealed partial class CompanionProfile
 		&& item.bait <= 0 && !item.accessory;
 
 	public static CompanionStorage StorageFor(Item item) => CoinValue(item.type) > 0
-		? CompanionStorage.Wallet : IsResource(item) ? CompanionStorage.Resources : CompanionStorage.Pack;
+		? CompanionStorage.Wallet : CompanionPets.IsPetItem(item) ? CompanionStorage.Pets
+		: IsResource(item) ? CompanionStorage.Resources : CompanionStorage.Pack;
+
+	public int StorageCapacity(CompanionStorage storage) => storage switch {
+		CompanionStorage.Resources => MaximumResourceSlots,
+		CompanionStorage.Pets => MaximumPetSlots,
+		CompanionStorage.Wallet => 4,
+		_ => PackCapacity
+	};
 
 	public List<Item> StorageItems(CompanionStorage storage) => storage switch {
 		CompanionStorage.Resources => Resources,
 		CompanionStorage.Pack => Pack,
+		CompanionStorage.Pets => PetItems,
 		_ => throw new ArgumentOutOfRangeException(nameof(storage))
 	};
 

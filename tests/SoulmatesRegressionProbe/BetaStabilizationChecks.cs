@@ -83,6 +83,7 @@ public sealed partial class EngineChecks
 		// 0.21 extends the profile; mixed mod versions are not a supported network session.
 		using (var extension = new BinaryWriter(legacy, Encoding.UTF8, true)) {
 			extension.Write((byte)CompanionMiningDirection.Auto); extension.Write((byte)CompanionTunnelEnd.Passage); extension.Write(false);
+			extension.Write((byte)0); // 0.23 adds the separate pet inventory before its active selection.
 			extension.Write(0); // No selected carried pet in an old profile.
 		}
 		check(current.ToArray().SequenceEqual(legacy.ToArray()), "Profile write has an unexpected work extension");

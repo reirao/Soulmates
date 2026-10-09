@@ -21,7 +21,7 @@ namespace Soulmates.Common.UI;
 
 public sealed partial class TalkModeState
 {
-	internal enum CharacterView { Conversation, Equipment, Diagnostics }
+	internal enum CharacterView { Conversation, Equipment, Diagnostics, Pets }
 	private CharacterView characterView;
 	private readonly List<(CharacterView View, TalkItemButton Button)> viewButtons = [];
 	private readonly List<TalkItemButton> petButtons = [];
@@ -44,6 +44,7 @@ public sealed partial class TalkModeState
 			var button = new TalkItemButton(view switch {
 				CharacterView.Conversation => ItemID.Book,
 				CharacterView.Equipment => ItemID.Toolbox,
+				CharacterView.Pets => ItemID.Carrot,
 				_ => ItemID.Wrench
 			});
 			button.OnLeftClick += (_, _) => { if (!awaitingResponse) SelectCharacterView(view); };
@@ -68,11 +69,11 @@ public sealed partial class TalkModeState
 			if (kind == "Trinket") slot.OnRightClick += (_, _) => RemoveTrinket();
 			equipmentSlots.Add(slot); equipmentContents.Append(slot);
 		}
-		for (int i = 0; i <= CompanionPets.SupportedItems.Count; i++) {
+		for (int i = 0; i < 2; i++) {
 			int choice = i;
-			int type = i < CompanionPets.SupportedItems.Count ? CompanionPets.SupportedItems[i] : ItemID.FallenStar;
+			int type = i == 0 ? ItemID.Carrot : ItemID.FallenStar;
 			var button = new TalkItemButton(type);
-			button.OnLeftClick += (_, _) => SelectPetItem(choice);
+			button.OnLeftClick += (_, _) => { if (choice == 0) OpenPetInventory(); else SelectPetItem(-1); };
 			petButtons.Add(button); equipmentContents.Append(button);
 		}
 		packElement!.Remove(); packLabel!.Remove(); equipmentContents.Append(packElement);
@@ -85,6 +86,7 @@ public sealed partial class TalkModeState
 		diagnosticText = new CompanionResponseElement { LeftAligned = true, ShowHoverTooltip = false };
 		exportButton = new TalkItemButton(ItemID.PaperAirplaneA);
 		exportButton.OnLeftClick += (_, _) => ExportDiagnostics();
+		InitializePetView();
 		SelectCharacterView(CharacterView.Conversation);
 	}
 	internal void SelectCharacterView(CharacterView view)
@@ -92,7 +94,7 @@ public sealed partial class TalkModeState
 		characterView = view; diagnosticRefresh = 0;
 		foreach (var entry in categoryButtons) entry.Button.Remove();
 		foreach (var button in optionButtons) button.Remove();
-		chooseWordsLabel?.Remove(); itemTopics?.Remove(); equipmentPanel?.Remove(); diagnosticText?.Remove(); exportButton?.Remove();
+		chooseWordsLabel?.Remove(); itemTopics?.Remove(); equipmentPanel?.Remove(); diagnosticText?.Remove(); exportButton?.Remove(); petPanel?.Remove();
 		if (view == CharacterView.Conversation) {
 			if (category == TalkCategory.Pack) category = TalkCategory.Care;
 			foreach (var entry in categoryButtons) rootPanel!.Append(entry.Button);
@@ -109,11 +111,14 @@ public sealed partial class TalkModeState
 		else if (view == CharacterView.Diagnostics && diagnosticText is not null && exportButton is not null) {
 			rootPanel!.Append(diagnosticText); rootPanel.Append(exportButton);
 		}
+		else if (view == CharacterView.Pets && petPanel is not null) {
+			rootPanel!.Append(petPanel); petPanel.Activate(); RefreshPetSources();
+		}
 		UpdateCharacterViews(); ApplyLayout(force: true);
 	}
 	private void LayoutCharacterViews(float left, float width, float bottom)
 	{
-		float size = Math.Min(32f, width / 7f);
+		float size = Math.Min(32f, Math.Max(1f, (width - 24f) / 7f));
 		for (int i = 0; i < viewButtons.Count; i++) Place(viewButtons[i].Button, left + i * (size + 4f), 40f, size, size);
 		for (int i = 0; i < taskButtons.Count; i++) Place(taskButtons[i].Button, left + width - (3 - i) * (size + 3f), 40f, size, size);
 		if (equipmentPanel is not null && equipmentContents is not null) {
@@ -132,6 +137,7 @@ public sealed partial class TalkModeState
 		}
 		if (diagnosticText is not null) Place(diagnosticText, left, 116f, width, Math.Max(17f, bottom - 116f));
 		if (exportButton is not null) Place(exportButton, left, 82f, 28f, 28f);
+		LayoutPetView(left, width, bottom);
 		static void Place(UIElement element, float x, float y, float w, float h) {
 			element.Left.Set(x, 0f); element.Top.Set(y, 0f); element.Width.Set(w, 0f); element.Height.Set(h, 0f);
 		}
@@ -142,6 +148,7 @@ public sealed partial class TalkModeState
 		foreach (var entry in taskButtons) entry.Button.HoverText = SoulmatesText.EnumName(entry.Action);
 		for (int i = 0; i < cargoButtons.Count; i++) cargoButtons[i].HoverText = CompanionDialogueEngine.GetOptions(TalkCategory.Pack)[i + 1];
 		if (exportButton is not null) exportButton.HoverText = SoulmatesText.Get("UI.Character.Export");
+		RefreshPetLabels();
 	}
 	private void UpdateCharacterViews()
 	{
@@ -149,15 +156,13 @@ public sealed partial class TalkModeState
 		if (companion is null) return;
 		foreach (var entry in taskButtons) entry.Button.Selected = entry.Action == CompanionQuickAction.Pause && companion.Profile.WorkPaused;
 		for (int i = 0; i < petButtons.Count; i++) {
-			int type = i < CompanionPets.SupportedItems.Count ? CompanionPets.SupportedItems[i] : 0;
-			petButtons[i].Selected = companion.Profile.PetItemType == type;
-			petButtons[i].HoverText = type == 0 ? SoulmatesText.Get("Pets.Dismiss")
-				: SoulmatesText.Get(companion.Profile.PetItemType == type ? "Pets.Selected"
-				: CompanionPets.IsCarried(companion.Profile, type) ? "Pets.Choose" : "Pets.Missing", Lang.GetItemNameValue(type));
+			petButtons[i].Selected = i == 0 && companion.Profile.PetItemType != 0;
+			petButtons[i].HoverText = SoulmatesText.Get(i == 0 ? "Pets.Inventory" : "Pets.Dismiss");
 		}
 		if (characterView == CharacterView.Diagnostics && diagnosticRefresh-- <= 0) {
 			diagnosticRefresh = 60; diagnosticText?.SetText(companion.DiagnosticText(), resetScroll: false);
 		}
+		if (characterView == CharacterView.Pets) RefreshPetSources();
 	}
 	private Item? EquipmentItem(string kind)
 	{
@@ -184,18 +189,23 @@ public sealed partial class TalkModeState
 			return SoulmatesText.Get("UI.Character.LearnedPick", Math.Max(35, companion.Profile.ObservedPickPower));
 		return SoulmatesText.Get($"UI.Character.Slots.{kind}") + ": " + (item?.Name ?? SoulmatesText.Get("UI.Character.Empty"));
 	}
-	private void SelectPetItem(int choice)
+	internal void OpenPetInventory()
 	{
-		if (companion is null || awaitingResponse) return;
-		int type = choice < CompanionPets.SupportedItems.Count ? CompanionPets.SupportedItems[choice] : 0;
-		int slot = type == 0 ? -1 : companion.Profile.Pack.FindIndex(i => !i.IsAir && i.type == type);
-		if (type != 0 && slot < 0) { SetResponse(SoulmatesText.Get("Pets.Missing", Lang.GetItemNameValue(type)), false); return; }
+		if (awaitingResponse) return;
+		petSourcePage = 0; petScroll = 0f;
+		SelectCharacterView(CharacterView.Pets);
+	}
+	private void SelectPetItem(int slot)
+	{
+		if (companion is null || awaitingResponse || !HasActiveBinding) return;
+		if (slot < -1 || slot >= companion.Profile.PetItems.Count) return;
+		int type = slot < 0 ? 0 : companion.Profile.PetItems[slot].type;
 		if (Main.netMode == NetmodeID.MultiplayerClient) {
 			expectedPetResponse = type;
 			awaitingResponse = awaitingEquipmentResponse = true; responseWaitTicks = 0; global::Soulmates.Soulmates.SendPetConfigRequest(companion.Profile, slot);
 		}
 		else {
-			bool ok = companion.ConfigurePet(slot, type, slot < 0 ? new byte[32] : companion.Profile.StorageToken(CompanionStorage.Pack, slot));
+			bool ok = companion.ConfigurePet(slot, type, slot < 0 ? new byte[32] : companion.Profile.StorageToken(CompanionStorage.Pets, slot));
 			SetResponse(SoulmatesText.Get(ok ? type == 0 ? "Pets.Dismiss" : "Pets.Selected" : "TargetOrders.Invalid", Lang.GetItemNameValue(type)), ok);
 		}
 	}

@@ -8,6 +8,8 @@ using Soulmates.Content.Projectiles;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.GameInput;
+using Soulmates.Common.UI;
 
 namespace Soulmates.Content.NPCs;
 
@@ -93,6 +95,7 @@ public sealed partial class SoulboundCompanion
 			text.AppendLine($"Rule {ability.Kind}: {Profile.GetInitiativePolicy(ability.Kind)}; stamina {ability.HasStamina(Profile)}; attention ready {attention.IsReady(ability.Kind)}");
 		text.AppendLine($"Cargo: equipment {Profile.PackLoad}/{Profile.PackCapacity}; resources {Profile.ResourceLoad}; per-type limit {Profile.ResourceCarryLimit}; wallet {Profile.WalletCopper}");
 		text.AppendLine($"Pet item: {Profile.PetItemType}; supported {CompanionPets.VisualFor(Profile.PetItemType) > 0}; carried {CompanionPets.IsCarried(Profile, Profile.PetItemType)}");
+		text.AppendLine($"Pet inventory: {Profile.PetItems.Count}/{CompanionProfile.MaximumPetSlots}; {string.Join(", ", Profile.PetItems.Select(item => item.type))}");
 		int pets = 0;
 		foreach (Projectile projectile in Main.ActiveProjectiles)
 			if (projectile.ModProjectile is CompanionFamiliar familiar && familiar.BelongsTo(this)) {
@@ -100,6 +103,10 @@ public sealed partial class SoulboundCompanion
 				text.AppendLine($"Familiar {projectile.whoAmI}: item {(int)projectile.ai[1]}, frame {projectile.frame}, life {projectile.timeLeft}, distance {Microsoft.Xna.Framework.Vector2.Distance(projectile.Center, NPC.Center):0}px");
 			}
 		text.AppendLine($"Own familiar count: {pets}. Supported items: {string.Join(", ", CompanionPets.SupportedItems)}");
+		if (!Main.dedServ) {
+			text.AppendLine($"Details shortcut: {CompanionControls.DetailsKeys}; input mode: {PlayerInput.CurrentInputMode}");
+			text.AppendLine($"Input gates: typing {SoulmatesUIInput.IsTyping}; captured {SoulmatesUIInput.IsCaptured}; cursor item {!Main.mouseItem.IsAir}; NPC dialogue {Main.LocalPlayer.talkNPC >= 0}");
+		}
 		text.AppendLine("Nearby critters (at most 12, within 30 tiles):");
 		int shown = 0;
 		foreach (NPC target in Main.ActiveNPCs) {

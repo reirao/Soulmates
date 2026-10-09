@@ -26,6 +26,17 @@ namespace SoulmatesAuditProbe;
 
 public sealed class SoulmatesAuditProbe : Mod { }
 
+public sealed class MetadataPetItem : ModItem
+{
+    public int Marker;
+    public override string Texture => "Terraria/Images/Item_603";
+    public override void SetDefaults() => Item.DefaultToVanitypet(ProjectileID.Bunny, BuffID.PetBunny);
+    public override void SaveData(TagCompound tag) => tag["marker"] = Marker;
+    public override void LoadData(TagCompound tag) => Marker = tag.GetInt("marker");
+    public override void NetSend(BinaryWriter writer) => writer.Write(Marker);
+    public override void NetReceive(BinaryReader reader) => Marker = reader.ReadInt32();
+}
+
 public sealed class ReducedStackResource : ModItem
 {
     public int Marker;

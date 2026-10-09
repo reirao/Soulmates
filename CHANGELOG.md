@@ -1,5 +1,29 @@
 # Soulmates Development History
 
+## Soulmates 0.23.2 - Clear Pet Actions (Beta Candidate)
+
+- Withdraw the unsupported fixed-V claim after the player's real-client countercheck. Current instructions use Details; the Sigil displays the actual assignment or an unassigned state, without forcing keys.
+- Left-click summons an owned pet; right-click returns its real item. The first gift to empty pet storage selects it automatically. Additional gifts preserve selection/dismissal.
+- Show no summon, waiting or active familiar separately; add shortcut/input state to diagnostics and pet selections to optional local field notes.
+- Extend normal-update checks with Eucalyptus Sap. Physical-key, rendered and connected multiplayer acceptance remain separate.
+- The creator reports a positive playtest and publishes to the existing Workshop item on October 9 at 11:15 CEST. Steam moderation and subscriber delivery remain separate. Preserve the unsupported V claim as an explicit testing lesson, not a promised fix.
+
+## Soulmates 0.23.1 - Pets Within Reach (Local Beta Candidate)
+
+- Handle the registered character trigger before Soulwheel mouse capture. Correction: the subsequent real-client report says V does not work; injected-trigger checks did not establish physical key mapping. Existing remapped/unbound controls are not overwritten.
+- Add a direct companion-wheel Pets entry and a dedicated Pets character tab. Show reusable pet items from the player's inventory with paging and direct giving, alongside owned slots and dismissal. Keep the Equipment shortcut and Critters' owned-pet choices.
+- Protect favorited items, full storage, changed item metadata and stale companions. Use the same authoritative insertion policy and receipt/rollback protocol as cargo, not invented items or a second storage implementation. No new persistent profile field.
+- Localize labels in nine languages and check native UI hit targets, transfers, rollback and existing ore commands. Graphical and connected multiplayer acceptance remain separate. No new media or public upload in this pass.
+
+## Soulmates 0.23.0 - Pet Inventory (Local Beta Candidate)
+
+- Restore directly visible Work > Find nearby ore and Mine area entries while retaining Config/Last, mining modes and permission filters. Nearby ore selection dispatches a validated fresh target, not cached terrain.
+- Replace the two predefined pet choices with a live, paged selection of owned reusable summon items. Detect items from loaded vanity/light-pet metadata rather than an item whitelist.
+- Add twelve separate pet slots and a character-window Pets tab. Existing pack pet items migrate without loss; normal deposits, withdrawals, full-inventory handling and multiplayer acknowledgements use the shared cargo transaction.
+- Keep one selected harmless familiar beside the player's pet. Selection survives save/load, clone and profile transport; ItemIO identity preserves registered mod-item selections and custom data. Withdrawal, dismissal, recall and identity changes remove the follower without consuming the summon item.
+- Reuse projectile sprite frames with bounded companion-following movement and basic light for registered light pets. Do not activate player buffs, replicate special utility abilities, or claim full original pet AI/custom-drawing compatibility.
+- Prepared and checked locally, then installed in the normal client October 9, 2026. Not publicly uploaded or graphically playtested. See releases/0.23.0.md, the focused engine report and tests/CLIENT-INSTALL-0.23.0-2026-10-09.md.
+
 ## Soulmates 0.22.2 - Living Critters (Beta Candidate)
 
 - Recognize harmless native critters after their temporary spawn immunity expires. Terraria's transient `friendly` flag is no longer mistaken for a permanent species classification; retain native catch-item/type, damage, boss/town, statue, released-animal and gold protections.

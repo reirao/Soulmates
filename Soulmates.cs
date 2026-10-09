@@ -46,7 +46,8 @@ public sealed class Soulmates : Mod
 		InventoryReceipt,
 		InventoryResolved,
 		MiningConfigRequest,
-		PetConfigRequest
+		PetConfigRequest,
+		PetStoreRequest
 	}
 
 	internal static ModKeybind TalkKeybind { get; private set; } = null!;
@@ -199,13 +200,21 @@ public sealed class Soulmates : Mod
 
 	internal static void SendPetConfigRequest(CompanionProfile profile, int slot)
 	{
-		if (Main.netMode != NetmodeID.MultiplayerClient || slot < -1 || slot >= profile.Pack.Count) return;
+		if (Main.netMode != NetmodeID.MultiplayerClient || slot < -1 || slot >= profile.PetItems.Count) return;
 		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
 		packet.Write((byte)MessageType.PetConfigRequest);
 		packet.Write(profile.Id.ToByteArray()); packet.Write(slot);
-		packet.Write(slot < 0 ? 0 : profile.Pack[slot].type);
-		packet.Write(slot < 0 ? new byte[32] : profile.StorageToken(CompanionStorage.Pack, slot));
+		packet.Write(slot < 0 ? 0 : profile.PetItems[slot].type);
+		packet.Write(slot < 0 ? new byte[32] : profile.StorageToken(CompanionStorage.Pets, slot));
 		packet.Send();
+	}
+
+	internal static void SendPetStoreRequest(Guid profileId, int slot, byte[] token)
+	{
+		if (Main.netMode != NetmodeID.MultiplayerClient || slot < 0 || slot >= 50 || token.Length != 32) return;
+		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
+		packet.Write((byte)MessageType.PetStoreRequest);
+		packet.Write(profileId.ToByteArray()); packet.Write((byte)slot); packet.Write(token); packet.Send();
 	}
 
 	internal static void SendCreateCompanionRequest(CompanionProfile profile)
@@ -353,6 +362,7 @@ public sealed class Soulmates : Mod
 			MessageType.MiningRuleRequest => 22,
 			MessageType.MiningConfigRequest => 19,
 			MessageType.PetConfigRequest => 56,
+			MessageType.PetStoreRequest => 49,
 			_ => 1
 		};
 		if (reader.BaseStream.CanSeek && reader.BaseStream.Length - reader.BaseStream.Position < minimumBytes)
@@ -375,6 +385,9 @@ public sealed class Soulmates : Mod
 				break;
 			case MessageType.PetConfigRequest:
 				HandlePetConfigRequest(reader, whoAmI);
+				break;
+			case MessageType.PetStoreRequest:
+				HandlePetStoreRequest(reader, whoAmI);
 				break;
 			case MessageType.ProfileUpdate:
 				HandleProfileUpdate(reader);
@@ -788,6 +801,15 @@ public sealed class Soulmates : Mod
 		if (Main.netMode != NetmodeID.Server || FindRequestCompanion(Main.player[whoAmI], profileId) is not { } companion
 			|| !companion.ConfigurePet(slot, expectedType, token)) return;
 		SendProfileUpdate(Main.player[whoAmI], companion);
+	}
+
+	private void HandlePetStoreRequest(BinaryReader reader, int whoAmI)
+	{
+		Guid profileId = ReadGuid(reader);
+		int slot = reader.ReadByte(); byte[] token = reader.ReadBytes(32);
+		if (Main.netMode != NetmodeID.Server || FindRequestCompanion(Main.player[whoAmI], profileId) is not { } companion) return;
+		bool accepted = companion.StorePetItem(slot, token, out string reply);
+		SendInteractionResponse(whoAmI, companion, new CompanionConversationResult(reply, accepted), quick: false);
 	}
 
 	private void HandleDirectOrderRequest(BinaryReader reader, int whoAmI)

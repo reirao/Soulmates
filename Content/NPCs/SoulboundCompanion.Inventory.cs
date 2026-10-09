@@ -28,6 +28,26 @@ public sealed partial class SoulboundCompanion
 		if (CompanionInventorySync.IsPending(Owner)) return SoulmatesText.Get("TargetOrders.TargetLost");
 		using var inventorySync = new CompanionInventorySync(Owner);
 		Item selected = Owner.inventory[Owner.selectedItem];
+		return StoreInventoryItem(selected);
+	}
+
+	internal bool StorePetItem(int slot, byte[] token, out string reply)
+	{
+		reply = SoulmatesText.Get("TargetOrders.TargetLost");
+		if (Main.netMode == NetmodeID.MultiplayerClient || !NPC.active || !Owner.active || Owner.dead
+			|| FindBoundSigil() is null || CompanionInventorySync.IsPending(Owner)
+			|| slot < 0 || slot >= 50 || token.Length != 32) return false;
+		Item item = Owner.inventory[slot];
+		if (item.favorited || !CompanionPets.IsPetItem(item)
+			|| !CompanionInventorySync.Token(item).AsSpan().SequenceEqual(token)) return false;
+		using var inventorySync = new CompanionInventorySync(Owner);
+		int before = item.stack;
+		reply = StoreInventoryItem(item);
+		return item.stack < before || item.IsAir;
+	}
+
+	private string StoreInventoryItem(Item selected)
+	{
 		if (selected.IsAir)
 			return SoulmatesText.Get("Pack.SelectedEmpty");
 		if (!CanCarry(selected))
@@ -37,14 +57,19 @@ public sealed partial class SoulboundCompanion
 		if (storage != CompanionStorage.Wallet && Profile.ItemCount(selected.type) >= carryLimit)
 			return SoulmatesText.Get("Pack.ItemLimit", selected.Name, carryLimit);
 		int itemType = selected.type;
+		bool firstPet = storage == CompanionStorage.Pets && Profile.PetItems.Count == 0 && Profile.PetItemType == 0;
 		int moved = Profile.Store(selected);
 		if (moved <= 0)
-			return SoulmatesText.Get(storage == CompanionStorage.Resources ? "Storage.ResourcesFull" : "Pack.Full",
+			return SoulmatesText.Get(storage == CompanionStorage.Resources ? "Storage.ResourcesFull"
+				: storage == CompanionStorage.Pets ? "Pets.Full" : "Pack.Full",
 				Profile.PackLoad, Profile.PackCapacity);
+		if (firstPet) Profile.PetItemType = itemType;
+		UpdateEquippedPet();
 		SyncProfileToBoundSigil();
 		NPC.netUpdate = true;
 		SoulmatesFeedbackSystem.Record("pack_stored", ("item_type", itemType), ("amount", moved),
-			("pack_load", Profile.PackLoad));
+			("pack_load", Profile.PackLoad), ("pet_selected", firstPet));
+		if (firstPet) return SoulmatesText.Get("Pets.Selected", Lang.GetItemNameValue(itemType));
 		return SoulmatesText.Get("Storage.Stored", moved, SoulmatesText.EnumName(storage));
 	}
 
@@ -53,7 +78,7 @@ public sealed partial class SoulboundCompanion
 		if (CompanionInventorySync.IsPending(Owner)) return SoulmatesText.Get("TargetOrders.TargetLost");
 		using var inventorySync = new CompanionInventorySync(Owner);
 		int moved = 0;
-		foreach (List<Item> storage in new[] { Profile.Pack, Profile.Resources }) {
+		foreach (List<Item> storage in new[] { Profile.Pack, Profile.Resources, Profile.PetItems }) {
 			for (int i = storage.Count - 1; i >= 0; i--) {
 				Item stored = storage[i];
 				while (!stored.IsAir) {
@@ -67,12 +92,13 @@ public sealed partial class SoulboundCompanion
 		}
 		for (int slot = 0; slot < 4; slot++)
 			moved += TransferWalletCoins(CompanionProfile.WalletCoinType(slot), singleItem: false);
+		UpdateEquippedPet();
 		SyncProfileToBoundSigil();
 		NPC.netUpdate = true;
 		SoulmatesFeedbackSystem.Record("pack_unloaded", ("amount", moved), ("pack_load", Profile.PackLoad));
 		return moved > 0
 			? SoulmatesText.Get("Storage.Returned", moved)
-			: Profile.PackLoad == 0 && Profile.ResourceLoad == 0 && Profile.WalletCopper.IsZero
+			: Profile.PackLoad == 0 && Profile.ResourceLoad == 0 && Profile.PetItems.Count == 0 && Profile.WalletCopper.IsZero
 				? SoulmatesText.Get("Pack.AlreadyEmpty") : SoulmatesText.Get("Pack.InventoryFull");
 	}
 
@@ -109,6 +135,7 @@ public sealed partial class SoulboundCompanion
 
 		if (stored.stack <= 0)
 			storage.RemoveAt(index);
+		UpdateEquippedPet();
 		SyncProfileToBoundSigil();
 		NPC.netUpdate = true;
 		SoulmatesFeedbackSystem.Record("pack_withdrawn", ("item_type", itemType), ("amount", moved),

@@ -303,6 +303,8 @@ public sealed partial class EngineChecks
 		Item oldItem = Main.item[11]; NPC oldBunny = Main.npc[1];
 		var oldView = Main.GameViewMatrix;
 		var keys = new List<string>();
+		FieldInfo currentProfile = typeof(PlayerInput).GetField("_currentProfile", BindingFlags.Static | BindingFlags.NonPublic)!;
+		object? oldProfile = currentProfile.GetValue(null);
 		try {
 			foreach (var entry in new[] { (talkKey, "ProbeTalk"), (emoteKey, "ProbeEmotes") }) {
 				var key = (ModKeybind)Activator.CreateInstance(typeof(ModKeybind), flags, null,
@@ -312,6 +314,14 @@ public sealed partial class EngineChecks
 				PlayerInput.Triggers.JustPressed.KeyStatus[fullName] = false;
 				keys.Add(fullName);
 			}
+			var inputProfile = new PlayerInputProfile("Probe");
+			foreach (var input in inputProfile.InputModes.Values) input.SetupKeys();
+			var keyboard = inputProfile.InputModes[InputMode.Keyboard];
+			keyboard.KeyStatus[keys[0]] = [];
+			currentProfile.SetValue(null, inputProfile);
+			PropertyInfo detailsKeys = modType.Assembly.GetType("Soulmates.Common.UI.CompanionControls")!
+				.GetProperty("DetailsKeys", BindingFlags.Static | BindingFlags.NonPublic)!;
+			check((string)detailsKeys.GetValue(null)! == SoulmatesText.Get("UI.Character.Unbound"), "Unbound Details key is falsely advertised as V");
 			Main.GameViewMatrix = new Terraria.Graphics.SpriteViewMatrix(null!);
 			Main.GameViewMatrix.SetViewportOverride(new Microsoft.Xna.Framework.Graphics.Viewport(0, 0, 1280, 720));
 			Main.GameViewMatrix.Zoom = new Vector2(1.4f);
@@ -366,10 +376,38 @@ public sealed partial class EngineChecks
 			WorldRightClick(mate.NPC.Center);
 			check(wheel.IsOpen && typeof(CompanionWheelSystem).GetField("context", flags)!.GetValue(wheel)!.ToString() == "Companion",
 				"Production companion-right-click does not open its own wheel");
+			var talk = ModContent.GetInstance<TalkModeSystem>();
+			void PressTalk(string key = "B") {
+				PlayerInput.Triggers.JustPressed.KeyStatus[keys[0]] = false;
+				keyboard.Processkey(PlayerInput.Triggers.JustPressed, key, InputMode.Keyboard);
+				controls.ProcessTriggers(new TriggersSet());
+				PlayerInput.Triggers.JustPressed.KeyStatus[keys[0]] = false;
+			}
+			PressTalk("V"); check(!talk.IsOpen && wheel.IsOpen, "Unbound V unexpectedly opened Details");
+			keyboard.KeyStatus[keys[0]] = ["B"];
+			check((string)detailsKeys.GetValue(null)! == "B", "Details hint ignores a customized key assignment");
+			PressTalk("V"); check(!talk.IsOpen, "Hardcoded V bypasses the configured key");
+			PressTalk(); check(talk.IsOpen && !wheel.IsOpen, "Mapped shortcut is swallowed by companion wheel input capture");
+			PressTalk(); check(!talk.IsOpen, "Mapped shortcut cannot close its own character panel");
+			PressTalk(); check(talk.IsOpen, "Mapped shortcut cannot open character panel from world"); talk.Close();
+			Main.mouseItem = new Item(ItemID.CopperOre); PressTalk();
+			check(!talk.IsOpen && Main.mouseItem.type == ItemID.CopperOre, "Mapped shortcut hides a held cursor item"); Main.mouseItem = new Item();
+			Main.drawingPlayerChat = true; PressTalk(); check(!talk.IsOpen, "Mapped shortcut steals text entry"); Main.drawingPlayerChat = false;
+			Main.LocalPlayer.SetTalkNPC(1); PressTalk(); check(!talk.IsOpen, "Mapped shortcut steals native NPC dialogue"); Main.LocalPlayer.SetTalkNPC(-1);
+			wheel.Open(mate);
+			var roots = ((IEnumerable)typeof(CompanionWheelSystem).GetField("CompanionRoots", flags | BindingFlags.Static)!.GetValue(null)!).Cast<object>().ToList();
+			int petIndex = roots.FindIndex(root => root.ToString() == "Pets");
+			check(petIndex >= 0, "Companion wheel has no direct Pets root");
+			if (petIndex >= 0) WheelClick((Vector2)typeof(CompanionWheelSystem).GetMethod("RootPosition", flags)!.Invoke(wheel, new object[] { petIndex })!);
+			var state = typeof(TalkModeSystem).GetField("talkState", flags)!.GetValue(talk)!;
+			check(talk.IsOpen && !wheel.IsOpen && typeof(TalkModeState).GetField("characterView", flags)!.GetValue(state)!.ToString() == "Pets",
+				"Direct wheel pet root does not reach character pet manager"); talk.Close();
 		}
 		finally {
 			wheel.ExitMouseMode(); talkKey.SetValue(null, oldTalkKey); emoteKey.SetValue(null, oldEmoteKey);
+			ModContent.GetInstance<TalkModeSystem>().Close(); Main.drawingPlayerChat = false; Main.mouseItem = new Item();
 			foreach (string key in keys) PlayerInput.Triggers.JustPressed.KeyStatus.Remove(key);
+			currentProfile.SetValue(null, oldProfile);
 			Main.item[11] = oldItem; Main.npc[1] = oldBunny; Main.GameViewMatrix = oldView;
 			Main.mouseLeft = Main.mouseRight = false;
 		}

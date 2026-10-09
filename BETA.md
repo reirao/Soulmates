@@ -2,7 +2,13 @@
 
 ## Current decision
 
-**0.22.2 - Living Critters is the current beta candidate.** Normal-client installation was verified on October 8, 2026. On October 9 the creator confirms a successful playtest and Workshop publication; Steam records the matching patch at 08:05 CEST with review pending at the publication check. This does not close individual acceptance gates or establish universal subscriber delivery. The existing maturity criteria in VERSIONING.md still apply.
+**0.23.2 - Clear Pet Actions supersedes 0.23.1.** The creator reports a positive playtest and requests publication. [Release notes](releases/0.23.2.md) cover the twelve-slot pet inventory, restored ore commands, left-click summoning, right-click returns, first-gift selection and visible pet state. Native checks pass 93,883 assertions, the independent audit 182 expectations and static/localization checks 54,971 assertions. Production builds have no warnings/errors; the installed package matches all 81 source files. All multiplayer peers require 0.23.2. Actual publication and subscriber delivery are separate from this acceptance decision.
+
+**V remains unverified in real play, not declared fixed.** The player reports that it did not work in the real 0.23.1 client. Earlier trigger-injection tests were not physical keyboard acceptance. Fixed-V claims are withdrawn and preserved as [the V key lesson](README.md#the-v-key-lesson); the Sigil reports the actual binding. Use her wheel's Details/Pets entries. A positive general playtest does not close this specific gate or exhaustive graphical/connected multiplayer acceptance.
+
+**Local 0.23.0 - Pet Inventory is installed in the normal client, not publicly published.** [Installation was verified October 9](tests/CLIENT-INSTALL-0.23.0-2026-10-09.md); the loaded version still needs its startup check. It restores direct ore-search/area-mining entries beside Config/Last and adds twelve separate real-item pet slots. Registered reusable vanity/light summon items supply the visual; one harmless familiar follows the companion with custom movement. Native player buffs, special utility abilities and arbitrary modded drawing are not cloned. Existing Sigil tags migrate without deleting cargo; the network profile now includes pet inventory, so all peers must use 0.23.0. Graphical pet-family acceptance and connected multiplayer remain open. Details: [candidate notes](releases/0.23.0.md).
+
+**0.22.2 - Living Critters is the public baseline.** Normal-client installation was verified on October 8, 2026. On October 9 the creator confirms a successful playtest and Workshop publication; Steam records the matching patch at 08:05 CEST with review pending at the publication check. This does not close individual acceptance gates or establish universal subscriber delivery. The existing maturity criteria in VERSIONING.md still apply.
 
 The core scope focuses on correctness, balance, usability and compatibility. The requested 0.21.0 refinement added bounded work controls and two item-backed pets; its normal-client installation is verified separately. Local 0.22.0 repairs critter scheduling and introduces a character/diagnostic view without adding abilities or profile fields. Additional minigames, generic pet-buff slots, combat critter swarms, procedural art and wider autonomous systems are not required for beta or promised for 1.0.
 
@@ -16,7 +22,7 @@ The core scope focuses on correctness, balance, usability and compatibility. The
 
 ## Frozen core scope
 
-0.22.2 supersedes the historical preparation states above. It repairs transient-friendly critter rejection, native ground visibility, moving-animal approach/following and cuttable-foliage context, and explains missing pet items. The exact tested package, negative baseline and normal-update counterchecks are documented in [the repair report](tests/LIVING-CRITTERS-0.22.2-2026-10-08.md); [installation](tests/CLIENT-INSTALL-0.22.2-2026-10-08.md) and the creator's positive playtest are separate evidence. No new schema, pet families or automatic permission grants are introduced. All peers require 0.22.2.
+0.23.2 includes the historical repairs above and the requested pet-inventory refinement. All peers require 0.23.2. The creator published the package to the existing Workshop item on October 9 at 11:15 CEST; the observed Steam page still requires moderator approval. Upload does not establish subscriber delivery. Earlier paragraphs preserve preparation states, not current installation instructions.
 
 - Reusable Soulcore creation, unique Sigils, persistent identity and progression; exactly one active companion per player.
 - Native-first input, separate Player/Companion Soulwheels, captured world contexts, item topics, the existing Games branch and mailbox.
@@ -31,16 +37,16 @@ The core scope focuses on correctness, balance, usability and compatibility. The
 
 | Gate | Evidence required | Current status |
 | --- | --- | --- |
-| Production build | MSBuild and native package compiler without warnings/errors; exact package identity | 0.22.2 passes, including all 79 source hashes, two runs of 90,691 native assertions, 176 independent expectations and 54,126 static/localization assertions; see tests/LIVING-CRITTERS-0.22.2-2026-10-08.md |
+| Production build | MSBuild and native package compiler without warnings/errors; exact package identity | 0.23.2 passes: 81 source hashes, 93,883 native assertions, 182 independent expectations and 54,971 static/localization assertions; see tests/CLEAR-PET-ACTIONS-0.23.2-2026-10-09.md |
 | Data safety | Mixed cargo, wallet, legacy saves, clone and binary transport; rejected and duplicate transactions | Automated pass, including the hand-written 0.19.9 wire fixture; graphical upgrade/reload still pending |
 | Behavior control | Priority combinations, instance isolation, consent, pause/resume/abort, recovery, target replacement and recall | Automated pass; visual timing and perceived usefulness still pending |
-| Single-player | Fresh Classic character/world plus an upgraded existing Sigil; every primary control and three save/reload cycles | Genuine 0.22.0 Classic showcase plus creator's positive 0.22.2 playtest; full action coverage and reload cycles remain pending |
+| Single-player | Fresh Classic character/world plus an upgraded existing Sigil; every primary control and three save/reload cycles | Genuine 0.22.0 Classic showcase plus creator's positive 0.22.2/0.23.2 playtests; full action coverage and reload cycles remain pending |
 | Critters and forestry | Visible greeting/loss, Company/Collect, Off/recall, pause/resume; normal/snow/palm/gem/mushroom tree contexts and supported actions | Expired-spawn rejection reproduced and repaired in 0.22.2; normal NPC/projectile updates and creator playtest pass. Individual live loss timing, tree families and every pet combination still need focused coverage |
 | Connected multiplayer | Two real clients in host-and-play and a dedicated server; switching, simultaneous pickup, transactions, disconnect/reconnect | Pending; disconnected packet fixtures are not this test |
 | Progression and pacing | Early tools, stronger tools and hardmode; protected terrain; resource limits at levels 1/10/20; work and recovery | Native boundary fixtures pass; actual progression session pending |
-| Interface | Creator, every wheel branch, answer selection, pack, mailbox typing, native right-click and speech/emotes at common UI scales | Layout/input fixtures pass; rendered 800x600, 1280x720 and 1920x1080 checks pending |
+| Interface | Creator, every wheel branch, answer selection, pack, mailbox typing, native right-click and speech/emotes at common UI scales | Layout/input fixtures pass; physical V key reported failing and not certified fixed. Use Details/Pets. Rendered 800x600, 1280x720 and 1920x1080 checks pending |
 | Endurance | At least one 60-minute single-player and one 60-minute connected multiplayer session with saved/reloaded cargo | Pending; accelerated AI ticks are not a substitute |
-| Public delivery | Maintainer approves candidate; one current Workshop log, matching Git release, verified subscriber delivery | Creator approves 0.22.2; Workshop entry at 08:05 CEST on October 9. The matching GitHub package is the exact installed artifact. Steam review and per-subscriber delivery remain separate checks |
+| Public delivery | Maintainer approves candidate; one current Workshop log, matching Git release, verified subscriber delivery | Creator approves 0.23.2; Workshop entry at 11:15 CEST on October 9. GitHub synchronization is prepared separately. Steam review and per-subscriber delivery remain separate checks |
 
 A failed acceptance gate remains open until reproduced, repaired and retested. Passing older versions or another package's hash does not close a gate. Freeze new functionality while these checks are being completed.
 

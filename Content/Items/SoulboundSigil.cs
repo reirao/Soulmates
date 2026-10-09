@@ -143,6 +143,8 @@ public sealed class SoulboundSigil : ModItem
 		if (Profile.Routine != CompanionJob.None)
 			tooltips.Add(new TooltipLine(Mod, "Assignment", SoulmatesText.Get("Tooltips.Sigil.Assignment", SoulmatesText.EnumName(Profile.Routine))));
 		tooltips.Add(new TooltipLine(Mod, "Controls", SoulmatesText.Get("Tooltips.Sigil.Controls")));
+		if (!Main.dedServ)
+			tooltips.Add(new TooltipLine(Mod, "DetailsShortcut", SoulmatesText.Get("UI.Character.Shortcut", CompanionControls.DetailsKeys)));
 		tooltips.Add(new TooltipLine(Mod, "Emotes", SoulmatesText.Get("Tooltips.Sigil.Emotes")));
 	}
 

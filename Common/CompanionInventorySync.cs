@@ -207,7 +207,7 @@ internal sealed class CompanionInventorySync : IDisposable
 		return new Guid(bytes);
 	}
 	private static bool Same(Item a, Item b) => Serialize(a).AsSpan().SequenceEqual(Serialize(b));
-	private static byte[] Token(Item item) => SHA256.HashData(Serialize(item));
+	internal static byte[] Token(Item item) => SHA256.HashData(Serialize(item));
 	private static byte[] Serialize(Item item)
 	{
 		using var stream = new MemoryStream();

@@ -5,6 +5,7 @@ using Soulmates.Content.Projectiles;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Soulmates.Common.Feedback;
 
 namespace Soulmates.Content.NPCs;
 
@@ -16,14 +17,25 @@ public sealed partial class SoulboundCompanion
 			|| FindBoundSigil() is null || CompanionInventorySync.IsPending(owner) || token.Length != 32) return false;
 		if (slot == -1 && expectedType == 0) Profile.PetItemType = 0;
 		else {
-			if (slot < 0 || slot >= Profile.Pack.Count || !token.AsSpan().SequenceEqual(Profile.StorageToken(CompanionStorage.Pack, slot))
-				|| Profile.Pack[slot].type != expectedType || !CompanionPets.IsCarried(Profile, expectedType)) return false;
+			if (slot < 0 || slot >= Profile.PetItems.Count || !token.AsSpan().SequenceEqual(Profile.StorageToken(CompanionStorage.Pets, slot))
+				|| Profile.PetItems[slot].type != expectedType || !CompanionPets.IsCarried(Profile, expectedType)) return false;
 			Profile.PetItemType = expectedType;
 		}
 		SyncProfileToBoundSigil();
 		NPC.netUpdate = true;
 		UpdateEquippedPet();
+		SoulmatesFeedbackSystem.Record("pet_selection", ("item_type", Profile.PetItemType), ("summoned", HasEquippedPet));
 		return true;
+	}
+
+	internal bool HasEquippedPet {
+		get {
+			if (Profile.PetItemType == 0) return false;
+			foreach (Projectile projectile in Main.ActiveProjectiles)
+				if (projectile.ModProjectile is CompanionFamiliar pet && pet.BelongsTo(this)
+					&& (int)projectile.ai[1] == Profile.PetItemType) return true;
+			return false;
+		}
 	}
 
 	private void UpdateEquippedPet()

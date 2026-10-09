@@ -3,6 +3,10 @@ Mods: {
 		UI.Character.Conversation: "Conversation"
 		UI.Character.Equipment: "Equipment"
 		UI.Character.Diagnostics: "Diagnostics"
+		UI.Character.Pets: "Pets"
+		Pets.YourItems: "Your pet items"
+		Pets.NoItems: "No unfavorited pet items in your inventory."
+		Pets.Give: "Give pet item: {0}"
 		UI.Character.Export: "Export local diagnosis"
 		UI.Character.Exported: "Diagnosis saved locally: SoulmatesFeedback/diagnostic-latest.txt"
 		UI.Character.ExportFailed: "The local diagnosis could not be written."
@@ -13,7 +17,18 @@ Mods: {
 		UI.Character.Slots.Axe: "Available pruning axe"
 		UI.Character.Slots.Trinket: "Active trinket"
 		Pets.Title: Companion pet
-		Pets.Choose: "Summon from pack: {0}"
+		Pets.Inventory: "Pet inventory"
+		Pets.InventoryCount: "Pets {0}/{1}"
+		Pets.Controls: "Left-click: summon. Right-click: take back."
+		Pets.StoredOnly: "No pet summoned."
+		Pets.Active: "Summoned: {0}"
+		Pets.Waiting: "Waiting for pet: {0}"
+		UI.Character.Unbound: "Not assigned (Controls)"
+		UI.Character.Shortcut: "Details shortcut: {0}"
+		Pets.Full: "My pet inventory is full. Take a pet item back first."
+		Enums.CompanionStorage.Pets: "Pets"
+		UI.CompanionWheel.WorkMenu.FindOre: "Find nearby ore"
+		Pets.Choose: "Summon from pet inventory: {0}"
 		Pets.Selected: "Following me: {0}"
 		Pets.Missing: "Not in my pack: {0}"
 		Pets.Dismiss: Dismiss my pet
@@ -50,7 +65,7 @@ Mods: {
 		Items.Uses.Food: Food gives a well-fed buff. It is worth keeping for a longer outing.
 		Items.Uses.Ores: Ore can become bars at a furnace. The right pickaxe still matters.
 		Items.Uses.Tools: Tools open up different work. My basic net catches ordinary critters; a carried lava-proof net upgrades it.
-		Items.Uses.Pets: I can keep a Zephyr Fish or Baby Hornet from an item in my pack. Choose it under Critters, Companion pet. Other pet items still use your own pet slot. Company is for real world animals.
+		Items.Uses.Pets: Give me a reusable pet-summoning item for my pet inventory, then choose its icon. One harmless companion follows me without using your pet slot. Special player-bound abilities are not copied. Company is for real world animals.
 		Social.Critters.LavaNet: This lava critter needs a lava-proof net in my equipment. My basic net cannot safely catch it.
 		Items.Uses.Weapons: This is combat equipment, not building material. I will keep it safe for you.
 		Items.Uses.Recovery: This helps with health, mana, or a buff. Its actual effect matters more than its colour.
@@ -768,7 +783,7 @@ Mods: {
 				Resourcefulness: Mining knowledge: {0}% pick power  |  {1} observed materials
 				MiningApproach: Mining approach: {0}
 				Assignment: Active assignment: {0}
-				Controls: Use: summon  |  Right-click companion: action wheel  |  V: details  |  Up + Right-click: recall
+				Controls: Use: summon  |  Right-click companion: wheel / Details  |  Up + Right-click: recall
 				Emotes: Emotes: right-click yourself or press G for the Player Emote Wheel
 			}
 		}

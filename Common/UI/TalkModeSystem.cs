@@ -52,6 +52,11 @@ public sealed class TalkModeSystem : ModSystem
 
 	internal void ReceiveNetworkResponse(CompanionProfile profile, string reply, bool accepted)
 		=> talkState?.ReceiveNetworkResponse(profile, reply, accepted);
+	internal void OpenPetInventory(SoulboundSigil sigil, SoulboundCompanion companion)
+	{
+		Open(sigil, companion, TalkCategory.Pack);
+		talkState?.OpenPetInventory();
+	}
 	internal void ReceiveEquipmentProfile(CompanionProfile profile, string message)
 		=> talkState?.ReceiveEquipmentProfile(profile, message);
 	internal void ReceiveTaskResponse(CompanionProfile profile, string reply, bool accepted)

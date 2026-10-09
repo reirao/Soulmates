@@ -184,6 +184,7 @@ public sealed partial class EngineChecks
 		float oldScale = Main.UIScale;
 		List<int> oldLearned = mate.Profile.LearnedMiningTiles.ToList();
 		List<Item> oldPack = mate.Profile.Pack.Select(item => item.Clone()).ToList();
+		List<Item> oldPets = mate.Profile.PetItems.Select(item => item.Clone()).ToList();
 		int oldPet = mate.Profile.PetItemType;
 		CompanionCritterMode oldCritterMode = mate.Profile.CritterMode;
 		try {
@@ -191,7 +192,10 @@ public sealed partial class EngineChecks
 			foreach (float scale in new[] { 1f, 1.5f, 2f }) foreach (string culture in SupportedCultures) {
 				Main.UIScale = scale; Terraria.Localization.LanguageManager.Instance.SetLanguage(culture);
 				wheel.Open(mate); type.GetMethod("ActivateRoot", flags)!.Invoke(wheel, new[] { branch });
-				Click("BranchPosition", branch, 0, 2);
+				Click("BranchPosition", branch, 2, 4);
+				check((bool)type.GetField("nearbyOreMenu", flags)!.GetValue(wheel)!, "Direct ore-search button does not open nearby ores");
+				Click("center");
+				Click("BranchPosition", branch, 0, 4);
 				check((bool)type.GetProperty("ShowWorkActions", flags)!.GetValue(wheel)!, "Config click did not unfold work actions");
 				Click("WorkConfigPosition", 5);
 				Click("MiningApproachPosition", 4);
@@ -234,10 +238,10 @@ public sealed partial class EngineChecks
 				Click("center"); check((bool)type.GetProperty("ShowWorkActions", flags)!.GetValue(wheel)!, "Mining modes Back skipped Config");
 				Click("center"); check(type.GetField("workPage", flags)!.GetValue(wheel)!.ToString() == "Closed", "Config Back did not restore two slots");
 				mate.Profile.LastWork = mate.Profile.WorkRecipe(CompanionWorkKind.GatherTarget);
-				Click("BranchPosition", branch, 1, 2);
+				Click("BranchPosition", branch, 1, 4);
 				check(!wheel.IsOpen && ModContent.GetInstance<DirectOrderSystem>().IsActive, "Last target did not arm a fresh directed tool");
 				ModContent.GetInstance<DirectOrderSystem>().Cancel();
-				mate.Profile.Pack.Clear(); mate.Profile.PetItemType = 0;
+				mate.Profile.Pack.Clear(); mate.Profile.PetItems.Clear(); mate.Profile.PetItemType = 0;
 				object critters = Enum.Parse(type.GetNestedType("RootBranch", flags)!, "Critters");
 				foreach (int index in new[] { 1, 2, 0, 3 }) {
 					wheel.Open(mate); type.GetMethod("ActivateRoot", flags)!.Invoke(wheel, new[] { critters });
@@ -248,21 +252,68 @@ public sealed partial class EngineChecks
 				wheel.Open(mate); type.GetMethod("ActivateRoot", flags)!.Invoke(wheel, new[] { critters });
 				Click("BranchPosition", critters, 4, 5);
 				check((bool)type.GetField("petsMenu", flags)!.GetValue(wheel)!, "Companion pet menu is not reachable");
-				typeof(SoulboundCompanion).GetField("speechTimer", flags)!.SetValue(mate, 0);
-				Click("PetPosition", 0); check(mate.Profile.PetItemType == 0, "Missing pet item can be equipped from the wheel");
-				check((int)typeof(SoulboundCompanion).GetField("speechTimer", flags)!.GetValue(mate)! > 0
-					&& (string)typeof(SoulboundCompanion).GetField("speechText", flags)!.GetValue(mate)!
-						== SoulmatesText.Get("Pets.Missing", Lang.GetItemNameValue(ItemID.ZephyrFish)),
-					"Missing pet wheel selection gives no visible explanation");
+				check((int)type.GetProperty("PetNodeCount", flags)!.GetValue(wheel)! == 2,
+					"Empty pet inventory still presents predefined creatures");
 				mate.Profile.Store(new Item(ItemID.ZephyrFish));
 				Click("PetPosition", 0); check(mate.Profile.PetItemType == ItemID.ZephyrFish, "Owned pet wheel button has no effect");
 				check(!((string)type.GetMethod("PetLabel", flags)!.Invoke(wheel, new object[] { 0 })!).Contains("Mods.Soulmates"),
 					"Pet tooltip leaks a localization key");
 				Click("PetPosition", 2); check(mate.Profile.PetItemType == 0, "Pet wheel cannot dismiss");
 				Click("center"); check(!(bool)type.GetField("petsMenu", flags)!.GetValue(wheel)!, "Pet Back does not restore critter choices");
+				mate.Profile.ClearCargo();
+				int[] items = CompanionPets.SupportedItems.Take(12).ToArray();
+				foreach (int itemType in items) mate.Profile.Store(new Item(itemType));
+				Click("BranchPosition", critters, 4, 5);
+				for (int page = 0; page < 3; page++) {
+					for (int item = 0; item < 4; item++) {
+						Click("PetPosition", item);
+						check(mate.Profile.PetItemType == items[page * 4 + item], "Paged pet wheel equips the wrong owned item");
+					}
+					Click("PetPosition", 7);
+				}
+				check((int)type.GetField("petPage", flags)!.GetValue(wheel)! == 0, "Pet Next does not wrap to first page");
+				Click("PetPosition", 6);
+				check((int)type.GetField("petPage", flags)!.GetValue(wheel)! == 2, "Pet Previous does not wrap to last page");
 			}
+			CheckOreShortcutDispatch(check, mate, wheel, Click);
 		}
 		finally { wheel.Close(); Main.UIScale = oldScale; mate.Profile.LearnedMiningTiles = oldLearned;
-			mate.Profile.Pack = oldPack; mate.Profile.PetItemType = oldPet; mate.Profile.CritterMode = oldCritterMode; }
+			mate.Profile.Pack = oldPack; mate.Profile.PetItems = oldPets; mate.Profile.PetItemType = oldPet; mate.Profile.CritterMode = oldCritterMode; }
+	}
+
+	private static void CheckOreShortcutDispatch(Action<bool, string> check, SoulboundCompanion mate,
+		CompanionWheelSystem wheel, Action<string, object[]> click)
+	{
+		const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+		Tilemap oldMap = Main.tile;
+		CompanionProfile oldProfile = mate.Profile.Clone();
+		Vector2 oldOwner = Main.LocalPlayer.Center, oldMate = mate.NPC.Center;
+		try {
+			Main.tile = (Tilemap)Activator.CreateInstance(typeof(Tilemap), flags, null, new object[] { (ushort)100, (ushort)100 }, null)!;
+			Main.LocalPlayer.Center = mate.NPC.Center = new Point(50, 50).ToWorldCoordinates();
+			mate.Profile.Talent = CompanionTalent.Miner; mate.Profile.Energy = mate.Profile.Mood = 100;
+			Tile copper = Main.tile[52, 50]; copper.HasTile = true; copper.TileType = TileID.Copper;
+			Tile tin = Main.tile[54, 50]; tin.HasTile = true; tin.TileType = TileID.Tin;
+			object work = Enum.Parse(typeof(CompanionWheelSystem).GetNestedType("RootBranch", flags)!, "Work");
+			wheel.Open(mate); click("RootPosition", new object[] { 1 }); click("BranchPosition", new object[] { work, 2, 4 });
+			var choices = (System.Collections.ICollection)typeof(CompanionWheelSystem).GetField("nearbyOreChoices", flags)!.GetValue(wheel)!;
+			check(choices.Count == 2, "Ore shortcut did not discover the two real nearby ore types");
+			click("OreTargetPosition", new object[] { 0 });
+			check(!wheel.IsOpen && mate.CurrentJob == CompanionJob.Mine && mate.Profile.LastWork?.Kind == CompanionWorkKind.MineTarget,
+				"Ore shortcut selection did not dispatch a real mining assignment");
+			mate.SetCommand(false);
+			wheel.Open(mate); click("RootPosition", new object[] { 1 }); click("BranchPosition", new object[] { work, 2, 4 });
+			copper.HasTile = false;
+			click("OreTargetPosition", new object[] { 0 });
+			check(wheel.IsOpen && choices.Count == 1 && mate.CurrentJob == CompanionJob.None, "Disappeared ore was mined from a stale wheel target");
+			click("OreTargetPosition", new object[] { 1 });
+			check(!wheel.IsOpen && ModContent.GetInstance<DirectOrderSystem>().IsActive, "Ore shortcut lost manual targeting when terrain changed");
+		}
+		finally {
+			wheel.Close(); ModContent.GetInstance<DirectOrderSystem>().Cancel(); mate.SetCommand(false);
+			Main.tile = oldMap; Main.LocalPlayer.Center = oldOwner; mate.NPC.Center = oldMate;
+			mate.Profile = oldProfile;
+			if (mate.FindBoundSigil() is { } sigil) sigil.Profile = oldProfile.Clone();
+		}
 	}
 }

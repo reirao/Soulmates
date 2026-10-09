@@ -1,10 +1,8 @@
-Soulmates 0.22.2 - Living Critters | Beta Candidate
+Soulmates 0.23.2 - Clear Pet Actions | Beta Candidate
 
-- Recognize harmless native critters after temporary spawn immunity expires. The changing friendly flag no longer disables greetings, company, catching or witnessed-death reactions.
-- Keep ground-level sightings valid using native visibility checks. Solid walls still block actions.
-- Match visit completion to the existing invitation/catch reach and adapt approach speed to moving animals. Real followers catch up sooner without replacing native physics or despawning.
-- Open critter/drop context over cuttable foliage while keeping native furniture and torch priority.
-- Explain missing companion-pet items visibly. Supported own pets remain carried Zephyr Fish and Nectar; ownership, recall and the player's own pet are preserved.
-- Add normal NPC/projectile update checks for direct and approved automatic visits/catches, aged deaths, cargo conservation and pet lifetime/animation. Existing permissions and Sigil format stay unchanged.
+- Corrected the unsupported fixed-V instruction. Details remains on her wheel; the Sigil shows the actual assigned shortcut or that it is unassigned. Custom bindings are not overwritten.
+- Left-click her owned pet to summon it; right-click to take its real item back. A first pet gift selects it automatically, without replacing an existing pet or overriding dismissal when adding another item.
+- Pet management distinguishes no summon, waiting and an active familiar. Diagnosis includes input assignments/gates; opt-in field notes record pet selections.
+- Added the reported Eucalyptus Sap pet to normal-update regression coverage. Native art uses harmless custom following, not original pet AI or special utilities.
 
-The creator confirms a successful 0.22.2 playtest. Repeated isolated engine counterchecks also pass; full progression, endurance and connected multiplayer remain open. This entry covers 0.22.2 only; earlier history is separate.
+The creator reports a positive playtest. V is not promised fixed: a software-trigger test did not establish a physical keypress. Exhaustive graphical and connected multiplayer acceptance remain open. All peers should use 0.23.2. This entry covers this patch only; earlier history stays separate.

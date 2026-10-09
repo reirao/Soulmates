@@ -89,7 +89,8 @@ public sealed partial class EngineChecks : ModSystem
 		}
 		try {
 			Mod soulmates = ModLoader.GetMod("Soulmates");
-			Version expectedVersion = Version.Parse(Environment.GetEnvironmentVariable("SOULMATES_EXPECTED_TEST_VERSION") ?? "0.22.2");
+			Version expectedVersion = Version.Parse(Environment.GetEnvironmentVariable("SOULMATES_EXPECTED_TEST_VERSION") ?? "0.23.2");
+			InspectSavedPetState();
 			Check(soulmates.Version == expectedVersion, "Wrong packaged version: " + soulmates.Version);
 			Check(!soulmates.FileExists("icon_small.rawimg") && !soulmates.FileExists("icon_small.png"),
 				"Optional mini-icon reintroduced the installed packer's exhausted-stream conversion");

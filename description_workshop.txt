@@ -1,8 +1,8 @@
 [h1]Soulmates[/h1]
 Create a personal companion with the reusable Soulcore. Her Soulbound Sigil keeps appearance, personality, growth, memories and cargo.
 
-[b]Version: 0.22.2 - Living Critters | Beta Candidate[/b]
-Repairs aged-critter recognition, ground sightings, moving-animal visits, following and death reactions. Missing pet items now give a visible reply.
+[b]Version: 0.23.2 - Clear Pet Actions | Beta Candidate[/b]
+Clear pet controls/status and actual shortcut assignments. Ore shortcuts remain.
 [b]Languages:[/b] EN, DE, IT, FR, ES, RU, PT-BR, PL and Simplified Chinese. Follows Terraria. New translations are AI-authored; corrections welcome. Some MP replies still use the server language.
 [url=https://github.com/reirao/Soulmates]Source and release notes[/url]
 
@@ -11,8 +11,8 @@ Characters receive a Soulcore and three Blank Sigils once. Use the Soulcore, cho
 
 [h2]Small Wheels, Clear Intentions[/h2]
 [list]
-[*]Right-click her for tools; yourself for Emotes, Point and Mailbox. Details/V opens Conversation, Equipment and Diagnostics with portrait, vitals, replies, cargo and pet choices. Tools display capabilities, not armor slots. G opens all 151 native emotes in categories. Bond groups Feelings, Gestures and Care; Games has Rock, paper, scissors.
-[*]Work opens Config and Last. Config unfolds area/pointed work, mining modes and filters. Last remembers accepted work per Sigil; failed orders, Look and setting changes do not replace it. Pointed work asks for a fresh target, not an old position or item slot.
+[*]Right-click her for tools; yourself for Emotes, Point and Mailbox. Details opens Conversation, Equipment, Diagnostics and Pets. The Sigil shows the actual Details key assignment, not a guaranteed V. Tools display capabilities, not armor. Player Emotes offers all 151 native symbols in categories. Bond groups Feelings, Gestures and Care; Games has Rock, paper, scissors.
+[*]Work offers Find nearby ore and Mine area beside Config/Last. Config unfolds work, mining modes and filters. Last remembers accepted work per Sigil; failed orders, Look and settings do not replace it. Pointed work asks for a fresh target, not old coordinates or slots.
 [*]Mining Mode offers Adaptive, Tunnel, Vein and Surface. Tunnel compass: Up/Right/Down/Left/Auto. Short: eight steps; Until opening: up to 24, bounded by work radius. Cardinal routes stop at liquid, unstable material, protected blocks and decorations, also after planning. Config starts no work; changes replan active area mining.
 [*]Automatic ore/material filters use native icons and paging. Ores start allowed; observed terrain needs opt-in. Direct orders never bypass plant protection, tool strength or progression rules.
 [*]Terraria is the default mouse mode: native interactions first. Unhandled nearby NPC/drop/resource clicks open context; air and furniture do not. Me/Soulmate arms world right-click. Targets stay fixed while choosing. Right-click in a wheel cycles modes; X/Escape exits. Inventory, typing, NPC dialogue and cursor-held items keep priority.
@@ -20,11 +20,11 @@ Characters receive a Soulcore and three Blank Sigils once. Use the Soulcore, cho
 [/list]
 
 [h2]A Helpful Little Soul[/h2]
-She defends, heals by talent, retrieves real drops, mines safe materials and investigates treasure. Stay anchors her. Energy recovers during following and work; effort is charged in batches. Exhaustion rebuilds a reserve before resuming; Care > Rest is optional.
+She defends, heals by talent, retrieves drops, mines safely and investigates treasure. Stay anchors her. Following/work restore energy; effort costs are batched. Exhaustion rebuilds a reserve; Care > Rest is optional.
 
 Company/Collect share attention with work; personal questions do not block approved Always visits. Ask/Never still apply. Learning is local game logic, not online AI. Defense, pause and assignments keep priority.
 
-Forester shakes supported trees, clears fallen logs and replants real carried acorns. A carried axe allows verified dry side-twig pruning; living/unsupported parts stay protected. Equipment can support attacks, light, food, recovery and crafting suggestions.
+Forester shakes supported trees, clears fallen logs and replants carried acorns. An axe allows verified dry-twig pruning; living/unsupported parts stay protected. Equipment supports attacks, light, food, recovery and crafting suggestions.
 
 [h2]Critters Are Not Item Pets[/h2]
 Watch observes and greets without catching. Company invites one real natural critter, or three for AETHER. Native collisions, health and despawning remain; no copies, noclip or teleporting. Invited animals stay with her when autonomy is disabled. Ground followers can hop at small obstacles; Pause stops guided movement. Off/recall releases them.
@@ -33,20 +33,20 @@ Catch Critters (formerly Pet Collect) includes a basic net capability, not a wit
 
 Clicked eligible creatures offer Look, Company and Collect. Explicit visits work even with autonomy off, without granting future consent. Automatic visits still need permission, energy and free attention. Hover/selection feedback shows watching, follower count, pause, busy/manual state or consent. Native critter greetings pair creature/gesture symbols with a reply. Witnessed deaths can prompt queued grief or disapproval; catches are not deaths. Live timing still needs testing.
 
-Critters > Companion pet selects a real Zephyr Fish/Nectar item in her Equipment pack. One harmless Zephyr Fish or Baby Hornet follows her alongside your own pet. The item stays in cargo, unconsumed; Dismiss, withdrawal and recall remove the follower. Selection persists per Sigil. Native animated art uses companion-following movement, not vanilla player-pet AI. Only these two flying pets are supported; light, ground and modded pets are not.
+Pets opens from her wheel and character panel. Give real pet items; favorites stay with you. The first gift to empty pet storage selects it automatically. Twelve owned slots: left-click summons, right-click takes back. Status shows no summon, waiting or an active familiar. Additional gifts do not replace a selected pet or override dismissal. Critters retains paged choices. One harmless familiar follows her without item consumption or changing your pet/buffs. Selection persists; dismissal, final withdrawal and recall remove it. Native frames use custom floating movement; light pets give basic light. Original pet AI, special utilities and complex drawing are not copied. No fixed item whitelist.
 
-AETHER has every talent/perk; up to six real carried insects form a cosmetic flock. Appearance, real Company animals, item-backed pets and the flock are separate. No combat swarm or player pet/buff replacement.
+AETHER has every talent/perk and a cosmetic flock of up to six carried insects. Appearance, Company animals and item pets remain separate. No combat swarm or player buff replacement.
 
 [h2]Remember, Answer, Carry[/h2]
-Town visits use native emotes and personality-aware replies. Resident relationships and real shared memories persist. Talk > Items discusses categories and held examples; "Do you remember?" recalls actual moments. Speech stays near her; unanswered questions hold its fade. Personal symbol answers affect mood, bond and saved tone without approving unrelated work. Quiet/Calm/Chatty adjusts personal questions, not permission prompts.
+Town visits use native emotes and personal replies. Relationships and shared memories persist. Talk > Items discusses categories; "Do you remember?" recalls actual moments. Speech stays near her; open questions hold its fade. Symbol answers affect mood, bond and tone, not work permission. Quiet/Calm/Chatty adjusts personal questions, not permission prompts.
 
 20 levels and five bond ranks. Equipment has 8-12 slots and a 99-unit reserve per type. Resources have 60 stack slots and 50 units per level and type: 500 at level 10, 1,000 at level 20. Wallet money is uncapped. Native stack limits apply. Withdraw stacks or individual items; anything that cannot fit stays. "Here for you!" offers savings to accept, keep or defer. Multiplayer inventory conflicts reject transfers instead of overwriting slots.
 
 [h2]Feedback and Current Scope[/h2]
-Diagnostics (wrench tab) shows live activity, permissions, stamina, nearby critter gates and owned pets. Export writes SoulmatesFeedback/diagnostic-latest.txt locally, without enabling recording or uploading anything. In MP the view labels client state, not server history.
+Diagnostics shows activity, permissions, stamina, critter gates, owned pets and shortcut/input state. Export writes SoulmatesFeedback/diagnostic-latest.txt locally, without recording or uploading. MP labels client state, not server history.
 AETHER Mailbox: paper-plane icon or /soulfeedback. Optional Field Notes are off by default. Everything stays local; nothing uploads or automatically reaches the developer. Automatic records omit names, chat and exact positions; typed notes keep your text. Share only notes you want reviewed.
 
-Beta candidate: the creator reports a successful 0.22.2 playtest. Loss timing, progression, endurance and connected MP still need tests. All peers need 0.22.2. Report action, expected/actual result and solo/MP; happy moments too. [url=https://github.com/reirao/Soulmates/tree/main/media/current/showcase-0.22.0]20 real 0.22.0 showcase pictures[/url] (Oct 5, before this patch). Workshop gallery: Oct 1.
+The creator reports a positive 0.23.2 playtest. Beta acceptance, progression, endurance and connected MP remain open; all peers need 0.23.2. Report action, expected/actual result and solo/MP; happy moments too. V is not promised fixed: a software trigger never proved a real keypress. That testing mistake stays documented. Gallery images show older builds, not current-version proof.
 
 [h2]Development Disclosure[/h2]
 Extensive AI assistance in code, writing, UI and visuals. Workshop/mod icons and Soulkin art are AI-generated; other named native sprites, items, inventory icons and emotes reuse Terraria assets. No online AI service runs in the mod.
