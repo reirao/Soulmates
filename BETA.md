@@ -26,7 +26,7 @@ The core scope focuses on correctness, balance, usability and compatibility. The
 
 ## Current Core Scope
 
-0.24.0 includes the historical repairs above, the pet inventory and the requested small intent/reward refinement. All peers require 0.24.0. The last verified Workshop package before this publication pass was 0.23.2, uploaded October 9 at 11:15 CEST with review pending. Upload does not establish subscriber delivery. Earlier preparation states are historical, not current installation instructions.
+0.24.0 includes the historical repairs above, the pet inventory and the requested small intent/reward refinement. All peers require 0.24.0. Steam records its Workshop update October 9 at 14:43 CEST; GitHub's beta release followed at 14:47 CEST. Steam moderation is still pending at the publication check. Upload does not establish subscriber delivery. Earlier preparation states are historical, not current installation instructions.
 
 - Reusable Soulcore creation, unique Sigils, persistent identity and progression; exactly one active companion per player.
 - Native-first input, separate Player/Companion Soulwheels, captured world contexts, item topics, the existing Games branch and mailbox.
@@ -50,7 +50,7 @@ The core scope focuses on correctness, balance, usability and compatibility. The
 | Progression and pacing | Early tools, stronger tools and hardmode; protected terrain; resource limits at levels 1/10/20; work and recovery | Native boundary fixtures pass; actual progression session pending |
 | Interface | Creator, every wheel branch, answer selection, pack, mailbox typing, native right-click and speech/emotes at common UI scales | Layout/input fixtures pass; physical V key reported failing and not certified fixed. Use Details/Pets. Rendered 800x600, 1280x720 and 1920x1080 checks pending |
 | Endurance | At least one 60-minute single-player and one 60-minute connected multiplayer session with saved/reloaded cargo | Pending; accelerated AI ticks are not a substitute |
-| Public delivery | Maintainer approves candidate; one current Workshop log, matching Git release, verified subscriber delivery | Creator approves 0.24.0. Publication is tracked separately from installation and first playtest. The previous 0.23.2 Workshop/GitHub asset matched; that does not certify delivery of 0.24.0. Steam review and per-subscriber delivery remain separate checks |
+| Public delivery | Maintainer approves candidate; one current Workshop log, matching Git release, verified subscriber delivery | Creator approves 0.24.0. Steam records the update October 9 at 14:43 CEST; GitHub beta followed at 14:47 CEST. Its asset is aligned to the separately retested Workshop download; the earlier installed candidate stays separately identified. Steam moderation and per-subscriber delivery remain separate checks |
 
 A failed acceptance gate remains open until reproduced, repaired and retested. Passing older versions or another package's hash does not close a gate. Freeze new functionality while these checks are being completed.
 

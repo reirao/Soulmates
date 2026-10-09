@@ -122,6 +122,8 @@ The current release supports single-player and server-authoritative multiplayer 
 
 **0.24.0** passed 94,235 native-engine assertions, 198 independent audit expectations and 55,855 static/localization assertions. The installed package matches all 83 production source files; production builds reported no warnings or errors. All nine catalogs have 949 keys. The creator subsequently reported a positive first playtest and requested publication. That is not exhaustive graphical, physical-key, endurance or connected multiplayer acceptance. See [scope and checks](tests/INTENT-LEARNING-0.24.0-2026-10-09.md), [exact installation](tests/CLIENT-INSTALL-0.24.0-2026-10-09.md) and [beta gates](BETA.md).
 
+The creator's 14:43 CEST Workshop upload was downloaded directly and independently rerun with the same engine/audit pass counts. GitHub distributes that exact public package. Its assembly/catalog formatting differs from the earlier locally installed candidate; all 83 sources and all nine catalogs' key/value pairs match. [Publication verification](tests/PUBLICATION-0.24.0-2026-10-09.md) preserves both hashes rather than pretending they were byte-identical. Steam moderation is still separate from upload.
+
 ### Earlier Published History
 
 **0.22.2 - Living Critters | Beta Candidate.** Installed in the normal client on October 8, 2026. The creator confirms it works in play and has uploaded it to the existing Workshop item; Steam records **October 9 at 08:05 CEST**, with review pending at the publication check. Upload, approval and each subscriber's installed version are separate checks. See [release notes](releases/0.22.2.md) and [installation verification](tests/CLIENT-INSTALL-0.22.2-2026-10-08.md).

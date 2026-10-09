@@ -2,7 +2,7 @@
 Create a personal companion with the reusable Soulcore. Her Soulbound Sigil keeps appearance, personality, growth, memories and cargo.
 
 [b]Version: 0.24.0 - Learning Together | Beta Candidate[/b]
-Learns preferences from requests, observations and evaluations in the answer wheel.
+GitHub beta and Workshop upload: 0.24.0. Steam review/delivery remain separate.
 [b]Languages:[/b] EN, DE, IT, FR, ES, RU, PT-BR, PL and Simplified Chinese. Follows Terraria. New translations are AI-authored; corrections welcome. Some MP replies still use the server language.
 [url=https://github.com/reirao/Soulmates]Source and release notes[/url]
 

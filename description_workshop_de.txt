@@ -2,7 +2,7 @@
 Der wiederverwendbare Soulcore erstellt Companions. Ihr Sigil speichert Aussehen, Persönlichkeit, Fortschritt, Erinnerungen und Fracht.
 
 [b]Version: 0.24.0 - Learning Together | Beta-Kandidat[/b]
-Lernt Vorlieben aus Aufträgen, Beobachtungen und Bewertungen im Antwortrad.
+GitHub/Workshop-Upload: 0.24.0. Steam-Freigabe ausstehend.
 [b]Sprachen:[/b] EN, DE, IT, FR, ES, RU, PT-BR, PL und vereinfachtes Chinesisch. Folgt Terraria. Neue Übersetzungen sind KI-verfasst; Korrekturen willkommen. Manche MP-Antworten nutzen noch die Serversprache.
 [url=https://github.com/reirao/Soulmates]Quellcode und Versionshinweise[/url]
 
@@ -20,14 +20,14 @@ Charaktere erhalten einmal Soulcore und drei Blank Sigils. Nutze den Soulcore, w
 [/list]
 
 [h2]Eine Hilfreiche Kleine Seele[/h2]
-Sie verteidigt, heilt nach Talent, sammelt Drops, baut sicher ab und sucht Schätze. Bleiben verankert sie. Folgen/Arbeit regenerieren Energie; Kosten werden gebündelt. Nach Erschöpfung baut sie Reserve auf. Pause ist optional.
+Sie verteidigt, heilt nach Talent, sammelt, baut sicher ab und sucht Schätze. Bleiben verankert sie. Energie regeneriert; nach Erschöpfung gilt eine Reserve. Zusätzliche Ruhehilfe ist optional.
 
 Vorhandene Aktionen lernen Vorlieben aus Gewohnheiten, Aufträgen und Ergebnissen je Situation. Nach Erfolg fragt sie gelegentlich „War das hilfreich?“ im Antwortrad. Bewertungen lenken spätere Auswahl. Später, Schweigen und Abbrechen sind neutral. Still schaltet Bewertungen ab. Fragen/Immer/Nie, Verteidigung, Pause und Aufträge behalten Vorrang. Lokale Logik, kein freies Bauen oder Online-KI.
 
 Forester schüttelt geeignete Bäume, räumt tote Stämme und pflanzt mitgetragene Eicheln. Eine Axt erlaubt geprüfte trockene Seitenzweige; lebende/ungeeignete Teile bleiben geschützt. Ausrüstung unterstützt Angriffe, Licht, Nahrung und Crafting-Ideen.
 
 [h2]Critter Sind Keine Item-Pets[/h2]
-Beobachten begrüßt ohne Fang. Gesellschaft lädt ein echtes natürliches Tier ein, AETHER bis zu drei. Native Kollisionen, Gesundheit und Despawning bleiben; keine Kopien, Teleports oder Noclip. Eingeladene Tiere folgen auch bei deaktivierter Autonomie. Bodentiere können kleine Hindernisse überspringen; Pause stoppt geführte Bewegung. Aus/Rückruf gibt sie frei.
+Beobachten begrüßt ohne Fang. Gesellschaft lädt ein echtes Tier ein, AETHER bis zu drei. Kollisionen, Gesundheit und Despawning bleiben; keine Kopien, Teleports oder Noclip. Tiere folgen auch ohne Autonomie, springen über kleine Hindernisse und halten bei Pause. Aus/Rückruf gibt sie frei.
 
 Tierfang (zuvor Pet Collect) hat eine eingebaute Basisnetz-Fähigkeit, kein entnehmbares Gratisitem. Lava-Tiere brauchen ein mitgetragenes lavafestes Netz. Native Fanglogik und Frachtgrenzen gelten; goldene, statuenbeschworene und freigelassene Tiere sind geschützt.
 
@@ -35,7 +35,7 @@ Geeignete Tiere bieten Ansehen, Gesellschaft und Fangen. Direkte Besuche gehen o
 
 Pets öffnet über ihr Rad und einen Charakter-Reiter. Gib echte Pet-Items; Favoriten bleiben bei dir. Das erste Geschenk an einen leeren Pet-Beutel wird ausgewählt. Zwölf Slots: Linksklick beschwört, Rechtsklick nimmt zurück. Status: kein Pet, wartend oder beschworen. Weitere Geschenke ersetzen keine Auswahl und heben Entlassen nicht auf. Tiere behält die Auswahl mit Seiten. Ein harmloser Begleiter folgt ohne Itemverbrauch oder Änderung deiner Pets/Buffs. Auswahl bleibt pro Sigil; Entlassen, letzte Entnahme und Rückruf entfernen ihn. Native Bilder mit eigener Flugbewegung; Lichtpets geben Basislicht. Original-Pet-KI, Sonderfähigkeiten und komplexe Mod-Grafik werden nicht kopiert. Keine feste Item-Liste.
 
-AETHER hat alle Talente/Perks und einen kosmetischen Schwarm aus bis zu sechs mitgetragenen Insekten. Erscheinung, Welttiere und Item-Pets bleiben getrennt. Kein Kampfschwarm oder Ersatz deiner Buff-Slots.
+AETHER hat alle Talente/Perks und bis zu sechs mitgetragene Insekten als kosmetischen Schwarm. Erscheinung, Welttiere und Item-Pets bleiben getrennt; kein Kampf oder Buff-Ersatz.
 
 [h2]Erinnern, Antworten, Tragen[/h2]
 Bewohner nutzen native Emotes und persönliche Antworten. Beziehungen und Erinnerungen bleiben gespeichert. Items bespricht Kategorien; „Erinnerst du dich?“ erzählt erlebte Momente. Offene Fragen halten das Ausblenden an. Symbole beeinflussen Stimmung, Bindung und Tonfall, nicht Arbeitserlaubnisse. Still/Ruhig/Gesprächig regelt persönliche Fragen.
@@ -46,7 +46,7 @@ Bewohner nutzen native Emotes und persönliche Antworten. Beziehungen und Erinne
 Diagnose zeigt Aktivität, Regeln, Energie, Critter-Hindernisse, Pets und Tasten-/Eingabezustand. Export: lokal in SoulmatesFeedback/diagnostic-latest.txt, ohne Aufzeichnung oder Upload. MP zeigt Client-Zustand, keine Serverhistorie.
 AETHER-Briefkasten: Papierflieger oder /soulfeedback. Optionale Feldnotizen starten ausgeschaltet. Alles bleibt lokal; nichts wird hochgeladen oder automatisch an Entwickler gesendet. Automatische Einträge enthalten keine Namen, Chats oder exakten Positionen; getippte Notizen behalten deinen Text. Teile nur, was du prüfen lassen möchtest.
 
-Erster 0.24.0-Spieltest positiv. Langzeitspiel und echtes MP bleiben offen; alle brauchen 0.24.0. Upload, Freigabe und Auslieferung sind getrennt: geladene Version prüfen. Bitte Aktion, Soll/Ist und Solo/MP melden. V unbestätigt. Bilder zeigen ältere Builds.
+Erster 0.24.0-Spieltest positiv; Langzeitspiel und echtes MP offen. Alle brauchen 0.24.0. Upload ist keine Auslieferung: Version prüfen. Bitte Aktion, Soll/Ist und Solo/MP melden. V unbestätigt; Bilder zeigen ältere Builds.
 
 [h2]Entwicklungshinweis[/h2]
 Umfangreiche KI-Unterstützung für Code, Texte, UI und Grafik. Workshop-/Mod-Icons und Soulkin sind KI-generiert; weitere benannte native Sprites, Items, Inventarsymbole und Emotes stammen aus Terraria. Kein Online-KI-Dienst im Spiel.
