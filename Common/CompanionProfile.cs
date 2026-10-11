@@ -215,7 +215,8 @@ public enum CompanionStorage : byte
 	Pack,
 	Resources,
 	Wallet,
-	Pets
+	Pets,
+	Summons
 }
 
 public enum BondRank : byte
@@ -247,7 +248,8 @@ public enum CompanionMemoryKind : byte
 	InsectCompanion,
 	ItemFound,
 	CritterMet,
-	CritterLost
+	CritterLost,
+	SummonGift
 }
 
 public sealed class CompanionMemory
@@ -319,6 +321,7 @@ public sealed class CompanionMemory
 		CompanionMemoryKind.ItemFound => SoulmatesText.Get("Stories.ItemFound", Detail),
 		CompanionMemoryKind.CritterMet => SoulmatesText.Get("Stories.CritterMet", Detail),
 		CompanionMemoryKind.CritterLost => SoulmatesText.Get("Stories.CritterLost", Detail),
+		CompanionMemoryKind.SummonGift => SoulmatesText.Get("Retinue.Memory", Detail),
 		_ => SoulmatesText.Get("Memories.New")
 	};
 
@@ -426,7 +429,7 @@ public sealed partial class CompanionProfile
 	public int PackLoad => Pack.Count(item => !item.IsAir);
 	public int ResourceLoad => Resources.Count(item => !item.IsAir);
 	public int ResourceCarryLimit => Level * ResourcesPerLevel;
-	public IEnumerable<Item> CarriedItems => Pack.Concat(Resources).Concat(PetItems);
+	public IEnumerable<Item> CarriedItems => Pack.Concat(Resources).Concat(PetItems).Concat(SummonItems);
 	public string LatestMemory => Memories.Count > 0 ? Memories[^1].Describe() : LastMemory;
 	public bool IsAether => Name.Equals("AETHER", StringComparison.OrdinalIgnoreCase);
 	public bool ForesterUnlocked => IsAether || Talent == CompanionTalent.Gatherer
@@ -485,6 +488,9 @@ public sealed partial class CompanionProfile
 			LastWork = LastWork,
 			PetItemType = PetItemType,
 			PetItems = PetItems.Where(item => !item.IsAir).Select(item => item.Clone()).ToList(),
+			SummonItems = SummonItems.Where(item => !item.IsAir).Select(item => item.Clone()).ToList(),
+			RetinueEnabled = RetinueEnabled,
+			RetinueItemType = RetinueItemType,
 			AutonomyEnabled = AutonomyEnabled,
 			EvilMode = EvilMode,
 			WorkPaused = WorkPaused,
@@ -515,6 +521,7 @@ public sealed partial class CompanionProfile
 		};
 		clone.IntentLearning = IntentLearning.Clone();
 		clone.Places = Places.Clone();
+		ClonePersonalPlansTo(clone);
 		CompanionAbilityRegistry.CopyPolicies(this, clone);
 		return clone;
 	}
@@ -565,6 +572,8 @@ public sealed partial class CompanionProfile
 		CompanionAbilityRegistry.SavePolicies(this, tag);
 		SaveWork(tag);
 		SavePet(tag);
+		SaveRetinue(tag);
+		SavePersonalPlans(tag);
 		tag["intentLearning"] = IntentLearning.Save();
 		tag["places"] = Places.Save();
 		return tag;
@@ -629,6 +638,8 @@ public sealed partial class CompanionProfile
 		CompanionAbilityRegistry.LoadPolicies(profile, tag);
 		profile.LoadWork(tag);
 		profile.LoadPet(tag);
+		profile.LoadRetinue(tag);
+		profile.LoadPersonalPlans(tag);
 		if (tag.ContainsKey("intentLearning")) profile.IntentLearning = CompanionIntentLearning.Load(tag.GetCompound("intentLearning"));
 		if (tag.ContainsKey("places")) profile.Places = CompanionPlaces.Load(tag.GetCompound("places"));
 		if (tag.ContainsKey("learnedMiningKeys")) profile.LoadMiningKnowledge(tag.GetList<string>("learnedMiningKeys"));
@@ -691,6 +702,8 @@ public sealed partial class CompanionProfile
 		IntentLearning.Write(writer);
 		writer.Write(EvilMode);
 		Places.Write(writer);
+		WriteRetinue(writer);
+		WritePersonalPlans(writer);
 	}
 
 	public static CompanionProfile Read(BinaryReader reader)
@@ -754,6 +767,8 @@ public sealed partial class CompanionProfile
 		profile.IntentLearning = CompanionIntentLearning.Read(reader);
 		profile.EvilMode = reader.ReadBoolean();
 		profile.Places = CompanionPlaces.Read(reader);
+		profile.ReadRetinue(reader);
+		profile.ReadPersonalPlans(reader);
 		profile.Normalize();
 		return profile;
 	}
@@ -1025,6 +1040,8 @@ public sealed partial class CompanionProfile
 			LastMemory = LastMemory[..240];
 		NormalizePack();
 		NormalizePet();
+		NormalizeRetinue();
+		NormalizePersonalPlans();
 		LearnedMiningTiles = LearnedMiningTiles.Where(type => type >= 0 && type <= ushort.MaxValue)
 			.Distinct().Take(MaximumLearnedMiningTiles).ToList();
 		NormalizeMiningRules();
@@ -1038,6 +1055,7 @@ public sealed partial class CompanionProfile
 		Pack = [];
 		Resources = [];
 		PetItems = [];
+		SummonItems = [];
 		WalletCopper = BigInteger.Max(BigInteger.Zero, WalletCopper);
 		foreach (Item item in items) {
 			int coinValue = CoinValue(item.type);
@@ -1045,6 +1063,8 @@ public sealed partial class CompanionProfile
 				WalletCopper += (BigInteger)item.stack * coinValue;
 			else if (CompanionPets.IsPetItem(item))
 				PetItems.Add(item);
+			else if (CompanionRetinue.IsStaff(item))
+				SummonItems.Add(item);
 			else if (IsResource(item))
 				Resources.Add(item);
 			else
@@ -1053,6 +1073,7 @@ public sealed partial class CompanionProfile
 		SplitLegacyStacks(Pack, MaximumPackSlots);
 		SplitLegacyStacks(Resources, MaximumResourceSlots);
 		SplitLegacyStacks(PetItems, MaximumPetSlots);
+		SplitLegacyStacks(SummonItems, MaximumSummonSlots);
 	}
 
 	private static void SplitLegacyStacks(List<Item> storage, int capacity)
@@ -1075,10 +1096,11 @@ public sealed partial class CompanionProfile
 
 	public string DescribePack()
 	{
-		if (PackLoad == 0 && ResourceLoad == 0 && PetItems.Count == 0 && WalletCopper.IsZero)
+		if (PackLoad == 0 && ResourceLoad == 0 && PetItems.Count == 0 && SummonItems.Count == 0 && WalletCopper.IsZero)
 			return SoulmatesText.Get("Pack.Empty");
 		return SoulmatesText.Get("Storage.Description", PackLoad, PackCapacity, ResourceLoad,
 			ResourceCarryLimit, DescribeWallet()) + (PetItems.Count == 0 ? "" : " / "
-				+ SoulmatesText.Get("Pets.InventoryCount", PetItems.Count, MaximumPetSlots));
+				+ SoulmatesText.Get("Pets.InventoryCount", PetItems.Count, MaximumPetSlots))
+			+ (SummonItems.Count == 0 ? "" : " / " + SoulmatesText.Get("Retinue.InventoryCount", SummonItems.Count, MaximumSummonSlots));
 	}
 }

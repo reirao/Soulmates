@@ -63,6 +63,7 @@ public sealed partial class SoulboundCompanion
 		writer.Write((sbyte)facing);
 		writer.Write((byte)ReflectionKind);
 		writer.Write((byte)ReflectionContext);
+		WritePersonalPlanState(writer);
 	}
 
 	public override void ReceiveExtraAI(BinaryReader reader)
@@ -131,6 +132,7 @@ public sealed partial class SoulboundCompanion
 		var reflected = new CompanionIntent((CompanionInitiativeKind)reader.ReadByte(), (CompanionIntentContext)reader.ReadByte());
 		if (!CompanionIntentLearning.Valid(reflected)) throw new InvalidDataException("Invalid reflected intention.");
 		reflectionIntent = pendingQuestion == CompanionQuestion.Reflection ? reflected : null;
+		ReadPersonalPlanState(reader);
 		if (Main.netMode != NetmodeID.MultiplayerClient || !TryGetOwner(out Player owner) || owner.whoAmI != Main.myPlayer)
 			return;
 		foreach (Item item in owner.inventory) {

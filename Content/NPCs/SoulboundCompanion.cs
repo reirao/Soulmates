@@ -167,6 +167,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 		: autonomyActivity != AutonomyActivity.None ? $"autonomy_{autonomyActivity}"
 		: IsAttendingCritter ? $"critter_{Profile.CritterMode}"
 		: socialNpcTarget >= 0 ? "socializing"
+		: CurrentPersonalPlan != CompanionPersonalPlanKind.None ? $"personal_{CurrentPersonalPlan}"
 		: brainState.ToString();
 	public CompanionJob CurrentJob => activeJob;
 	public bool HasPendingInitiative => pendingAutonomyActivity != AutonomyActivity.None;
@@ -198,6 +199,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 			? SoulmatesText.Get("Status.Recovering")
 			: Profile.Routine != CompanionJob.None
 			? SoulmatesText.Get("Status.Assignment", SoulmatesText.EnumName(Profile.Routine))
+			: CurrentPersonalPlan != CompanionPersonalPlanKind.None ? PersonalPlanStatusText
 			: SoulmatesText.Get("Status.Watching", (int)(DefenseRange / 16f));
 	public int CurrentJobRadius => (activeJob != CompanionJob.None ? activeJob : Profile.Routine) switch {
 		CompanionJob.Mine => MiningRadiusTiles,
@@ -266,7 +268,11 @@ public sealed partial class SoulboundCompanion : ModNPC
 			return;
 		}
 		if (Main.netMode != NetmodeID.MultiplayerClient) {
-			if (CompanionInventorySync.IsPending(owner)) { NPC.velocity *= 0.8f; return; }
+			if (CompanionInventorySync.IsPending(owner)) {
+				CancelPersonalPlan("inventory_pending");
+				NPC.velocity *= 0.8f;
+				return;
+			}
 			if (!ClaimActiveSlot(owner))
 				return;
 			if (FindBoundSigil() is null) {
@@ -293,6 +299,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 		if (!Profile.WorkPaused) UpdateResourcefulness();
 		UpdateNatureCompanions();
 		UpdateEquippedPet();
+		UpdateRetinue();
 		UpdateAmbientStories();
 		if (attackCooldown > 0)
 			attackCooldown--;

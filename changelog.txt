@@ -1,11 +1,9 @@
-Soulmates 0.25.1 - Home Within Reach | Beta
+Soulmates 0.26.0 - Little Company | Beta
 
-New since the public 0.24.0:
-- Added bounded home memory per Sigil and world. Furnished shelter, an actual selected bed and resident housing provide distinct evidence. Familiarity never assigns ownership; only your answer does. Home storage is not automatically rediscovered as treasure.
-- Added the permanent Home entry with Terraria's house symbol. Discuss or reclassify a shelter immediately: our home, her home, just a stop or Later. Works at Stay, with autonomy off or Quiet, while respecting work, resident housing and unanswered questions. Replies revalidate the captured place.
-- Added optional EVIL, off by default: theatrical banter and celebrations of genuine work. Toggle in Commands or the laughing-face Details button. Consent, tasks, rewards, damage and critter empathy stay unchanged.
-- Hardened protected native input, stale targets/replies, mood/energy recovery, work timeouts, threat priority, critter identity and familiar binding. Answer symbols fade at fixed clickable positions.
-- Fixed rapid multiplayer mining-compass choices losing preceding edits while awaiting the server. Separated the eleven companion root hit areas.
-- Completed 997 text keys in all nine Terraria languages.
+- Added bounded idle undertakings around classified homes, real equipped familiars and familiar building supplies. Only completed visits become memories; no autonomous construction.
+- Existing evaluations shape per-Sigil preferences; story conversations can recall the last completed personal undertaking. Work, danger, Stay, Pause, consent and inventory safety remain first.
+- Added a real-item Retinue inventory inside Pets and cargo. Give reusable unfavorited summon staves, select company with left-click and return items with right-click. Later gifts respect dismissal.
+- Normal companions select 1/2/3 distinct staff types at levels 1/10/20. AETHER selects every distinct owned type, within 64 item slots. Duplicates do not add helpers.
+- Helpers use native artwork and bounded companion-owned combat, not original player-minion AI. Player pets, buffs, minion and sentry slots remain separate. Recall, switching, dismissal and final withdrawal retire bound effects. Critters remain protected.
 
-The creator reports a successful 0.25.1 test. Automated checks pass; full GUI, physical V, two-client multiplayer, endurance and progression acceptance remain open. All peers need 0.25.1. No autonomous building or online AI. This entry contains this release only, not older changelogs.
+All peers need 0.26.0. The creator reports a positive playtest; full GUI, physical keys, connected multiplayer, progression and endurance acceptance remain open. This entry contains only 0.26.0 changes.

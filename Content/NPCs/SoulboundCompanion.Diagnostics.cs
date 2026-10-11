@@ -96,6 +96,9 @@ public sealed partial class SoulboundCompanion
 			text.AppendLine($"Learned {ability.Kind}: score {Profile.IntentLearning.Score(intent)}, feedback {Profile.IntentLearning.Feedback(intent)}, attempts {Profile.IntentLearning.Attempts(intent)}");
 		}
 		text.AppendLine($"Observed construction supplies (item use, not placement proof): {string.Join(", ", Profile.IntentLearning.BuildingSupplies)}");
+		text.AppendLine($"Personal plan: {CurrentPersonalPlan}; remaining {PersonalPlanTicksRemaining}; observed {PersonalPlanObservedTicks}; returning {IsReturningFromPersonalPlan}; last stop {LastPersonalPlanStopReason}; memory {Profile.PersonalPlans.LastCompleted}");
+		foreach (CompanionPersonalPlanKind kind in Enum.GetValues<CompanionPersonalPlanKind>())
+			if (CompanionPersonalPlans.Valid(kind)) text.AppendLine($"Preference {kind}: {Profile.PersonalPlans.Preference(kind)}; cooldown {Profile.PersonalPlans.Cooldown(kind)}");
 		text.AppendLine($"Critters: {Profile.CritterMode}; {CritterGate()}; company {CritterCompanyCount()}/{(Profile.IsAether ? 3 : 1)}");
 		text.AppendLine($"Visit: {(critterTarget is null ? "none" : $"NPC {critterTarget.whoAmI}, type {critterTarget.type}")}; directed {directedCritterVisit}; ticks {critterVisitTicks}; net {EffectiveCritterNet().type}; catch cooldown {insectCatchCooldown}");
 		text.AppendLine($"Loss: cooldown {critterLossCooldown}; queued {pendingCritterLossKey.Length > 0}; care {pendingCritterCareTicks}");
@@ -104,6 +107,11 @@ public sealed partial class SoulboundCompanion
 		text.AppendLine($"Cargo: equipment {Profile.PackLoad}/{Profile.PackCapacity}; resources {Profile.ResourceLoad}; per-type limit {Profile.ResourceCarryLimit}; wallet {Profile.WalletCopper}");
 		text.AppendLine($"Pet item: {Profile.PetItemType}; supported {CompanionPets.VisualFor(Profile.PetItemType) > 0}; carried {CompanionPets.IsCarried(Profile, Profile.PetItemType)}");
 		text.AppendLine($"Pet inventory: {Profile.PetItems.Count}/{CompanionProfile.MaximumPetSlots}; {string.Join(", ", Profile.PetItems.Select(item => item.type))}");
+		text.AppendLine($"Retinue: enabled {Profile.RetinueEnabled}; owned {Profile.SummonItems.Count}/{CompanionProfile.MaximumSummonSlots}; selected types {string.Join(", ", CompanionRetinue.ActiveItems(Profile).Select(item => item.type))}");
+		int retainers = 0;
+		foreach (Projectile projectile in Main.ActiveProjectiles)
+			if (projectile.ModProjectile is CompanionRetainer retainer && retainer.BelongsTo(this)) retainers++;
+		text.AppendLine($"Retinue present: {retainers}; pending inventory: {CompanionInventorySync.IsPending(Owner)}; native artwork, companion-bound combat");
 		int pets = 0;
 		foreach (Projectile projectile in Main.ActiveProjectiles)
 			if (projectile.ModProjectile is CompanionFamiliar familiar && familiar.BelongsTo(this)) {

@@ -1,9 +1,9 @@
 [h1]Soulmates[/h1]
 Create a personal companion with the reusable Soulcore. Her Soulbound Sigil keeps appearance, personality, growth, memories, cargo and pets.
 
-[b]0.25.1 - Home Within Reach | Beta[/b]
-New since 0.24.0: remembered homes, a permanent Home wheel entry, optional EVIL and focused input/behavior repairs. Check the loaded version under Mods; upload, Steam approval and subscriber delivery are separate.
-[url=https://github.com/reirao/Soulmates/releases/tag/v0.25.1]Release and source[/url]
+[b]0.26.0 - Little Company | Beta[/b]
+Small personal undertakings and her own staff-equipped retinue join memories, homes and learning. Check the loaded version under Mods; upload and Steam approval are separate.
+[url=https://github.com/reirao/Soulmates]Source and releases[/url]
 
 [h2]Start Together[/h2]
 Characters receive a Soulcore and three Blank Sigils once. Choose name, talent, personality, colors, aura and Soulkin, Bunny, Slime, Bird or Squirrel appearance, then bind a Sigil. Use it to summon her and keep it in your inventory. One companion per player; switching retires old effects. Soulcore stays reusable. AETHER has all talents and learned perks.
@@ -32,15 +32,20 @@ Existing abilities learn modest contextual preferences from observations, accept
 [h2]Critters and Item Pets[/h2]
 Watch greets without catching. Company invites supported real wild critters with bounded native movement; AETHER up to three. Collect includes ordinary net capability; lava critters need an eligible lava-proof net. Gold, statue-spawned and released creatures remain protected. Distance, visibility, permissions, tasks and recovery still matter. Catching and death have separate reactions. Off/recall releases invited creatures.
 
-Give real reusable vanity/light summon items through Pets. Favorites stay with you. Twelve owned slots: left-click summons, right-click returns the item. The first gift selects only if storage is empty; later gifts preserve selection/dismissal. One harmless familiar follows her separately from your pet. Native artwork uses custom movement/basic light, not original player-pet AI, special abilities or arbitrary modded drawing. AETHER's carried insects can form a separate cosmetic swarm.
+Pets: the upper row shows eligible items still in your inventory; the lower twelve slots hold her real pet items. Left-click summons, right-click returns the item. Wheel symbols select, not duplicate; she must keep the item. Favorites stay with you. First gift selects only if empty; later gifts respect dismissal. One harmless familiar follows separately from your pet. Native art uses custom movement/basic light, not original pet AI or arbitrary modded drawing. AETHER's carried insects can form a cosmetic swarm.
+
+[h2]Her Little Company[/h2]
+Pets now switches to Retinue with a staff symbol. Gift real unfavorited reusable summon staves; left-click an owned staff calls company, right-click returns it. First explicit gift selects only if empty; later gifts respect dismissal. Normal companions select 1/2/3 distinct types at levels 1/10/20; AETHER selects every owned type, within 64 item slots. Duplicates do not add helpers. Native art with bounded companion combat, not original minion AI or arbitrary modded drawing. Your buffs and summon slots stay separate. Recall, switching, dismissal and final withdrawal clean up effects.
+
+Safe idle visits to a classified nearby home, company for her actual familiar and reflections on observed building supplies become memories only after completion and return. Existing answers shape preferences; existing stories recall them. Work, danger, Stay, Pause and consent retain priority. No building is added.
 
 [h2]Carry and Remember[/h2]
 20 levels, five bond ranks. Equipment: 8-12 slots, 99 units per type. Resources: 60 slots, 50 units per level/type, up to 1,000 at level 20. Wallet: no gameplay currency cap. Native stack limits apply; transfers preserve real items and leave anything that does not fit. Savings can be offered to you. MP inventory conflicts reject transfers instead of overwriting items.
 
 [h2]Languages, Feedback and Beta Scope[/h2]
-EN, DE, IT, FR, ES, RU, PT-BR, PL and Simplified Chinese follow Terraria, with 997 complete keys each. AI-authored translations need corrections; some MP replies use server language.
+Nine Terraria languages. AI-authored translations need corrections; some MP replies use server language.
 
-The creator reports a successful latest test of installed 0.25.1. Automated production, engine, audit and localization checks pass; [url=https://github.com/reirao/Soulmates/blob/main/tests/HOME-WIRING-0.25.1-2026-10-11.md]verification details[/url] distinguish fixtures from actual play. Full GUI, physical V, connected two-client MP, endurance and progression acceptance remain open. All peers need 0.25.1. Gallery images show older builds.
+The creator reports a positive 0.26.0 playtest. Full GUI, physical V, two-client MP, endurance and progression acceptance remain open. All peers need 0.26.0. Gallery images show older builds.
 
 AETHER Mailbox: paper-plane icon or /soulfeedback. Optional Field Notes start off and stay local. Nothing uploads or automatically reaches the developer. Automatic notes omit names, chat and coordinates; place coordinates stay in the game save. Typed notes retain your text. Share only what you choose. Please report version, action, expected/actual result and solo/MP. Thank you for helping this companion grow; the creator has limited playtime, so your observations matter.
 

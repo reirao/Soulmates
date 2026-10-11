@@ -19,6 +19,9 @@ public sealed partial class CompanionProfile
 		Pack.Clear();
 		Resources.Clear();
 		PetItems.Clear();
+		SummonItems.Clear();
+		RetinueEnabled = false;
+		RetinueItemType = 0;
 		WalletCopper = BigInteger.Zero;
 		PetItemType = 0;
 	}
@@ -31,11 +34,13 @@ public sealed partial class CompanionProfile
 
 	public static CompanionStorage StorageFor(Item item) => CoinValue(item.type) > 0
 		? CompanionStorage.Wallet : CompanionPets.IsPetItem(item) ? CompanionStorage.Pets
+		: CompanionRetinue.IsStaff(item) ? CompanionStorage.Summons
 		: IsResource(item) ? CompanionStorage.Resources : CompanionStorage.Pack;
 
 	public int StorageCapacity(CompanionStorage storage) => storage switch {
 		CompanionStorage.Resources => MaximumResourceSlots,
 		CompanionStorage.Pets => MaximumPetSlots,
+		CompanionStorage.Summons => MaximumSummonSlots,
 		CompanionStorage.Wallet => 4,
 		_ => PackCapacity
 	};
@@ -44,6 +49,7 @@ public sealed partial class CompanionProfile
 		CompanionStorage.Resources => Resources,
 		CompanionStorage.Pack => Pack,
 		CompanionStorage.Pets => PetItems,
+		CompanionStorage.Summons => SummonItems,
 		_ => throw new ArgumentOutOfRangeException(nameof(storage))
 	};
 

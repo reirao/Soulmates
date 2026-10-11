@@ -49,14 +49,16 @@ public sealed partial class SoulboundCompanion
 		if (observedIntentTicks > 0) observedIntentTicks--;
 		if (intentRequestCooldown > 0) intentRequestCooldown--;
 		if (reflectionCooldown > 0) reflectionCooldown--;
-		if (reflectionTicks > 0 && !HasPendingQuestion && --reflectionTicks == 0) reflectionIntent = null;
+		if (reflectionTicks > 0 && !HasPendingQuestion && --reflectionTicks == 0) ClearReflection();
 		TickEvilPersona();
 		TickPlaceAwareness();
+		TickPersonalPlans();
 	}
 	private void BeginLearningIntent(CompanionInitiativeKind kind, bool requested,
 		CompanionIntentContext? context = null)
 	{
 		if (Main.netMode == NetmodeID.MultiplayerClient) return;
+		CancelPersonalPlan("work_started");
 		var intent = new CompanionIntent(kind, context ?? CurrentIntentContext());
 		if (!CompanionIntentLearning.Valid(intent)) return;
 		learningIntent = intent;
@@ -86,6 +88,7 @@ public sealed partial class SoulboundCompanion
 	}
 	private void ClearReflection()
 	{
+		ClearPersonalPlansRuntime();
 		reflectionIntent = null;
 		reflectionTicks = 0;
 	}
@@ -96,6 +99,12 @@ public sealed partial class SoulboundCompanion
 	}
 	private void EvaluateReflection(CompanionAnswer answer)
 	{
+		if (Main.netMode == NetmodeID.MultiplayerClient) return;
+		if (personalPlanReflection is { } personal) {
+			Profile.PersonalPlans.Evaluate(personal.Kind, answer);
+			TraceDiagnostic($"personal plan evaluation: {personal.Kind}; {answer}; preference={Profile.PersonalPlans.Preference(personal.Kind)}");
+			return;
+		}
 		if (reflectionIntent is not { } intent) return;
 		Profile.IntentLearning.Evaluate(intent, answer);
 		TraceDiagnostic($"player evaluation: {intent.Kind}/{intent.Context}; {answer}; preference={Profile.IntentLearning.Feedback(intent)}");

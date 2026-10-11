@@ -437,6 +437,7 @@ public sealed partial class TalkModeState : UIState
 		if (awaitingResponse || companion is null || !HasActiveBinding)
 			return;
 		if (storage == CompanionStorage.Pets && !singleItem) { SelectPetItem(index); return; }
+		if (storage == CompanionStorage.Summons && !singleItem) { SelectRetinueItem(index); return; }
 		if (Main.netMode == NetmodeID.MultiplayerClient) {
 			awaitingResponse = true;
 			responseWaitTicks = 0;

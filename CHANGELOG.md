@@ -1,5 +1,13 @@
 # Soulmates Development History
 
+## Soulmates 0.26.0 - Little Company (Local Beta Candidate)
+
+- Embed bounded personal idle undertakings in existing attention and movement: revisit a classified nearby home, keep a real equipped familiar company, or reflect on a carried supply observed during building. Revalidate live targets; return before recording completion. No terrain edits or invented achievements.
+- Keep personal preferences and the last completed undertaking per Sigil across clone, save and transport. Reuse the existing evaluation answers and story conversation; Later, silence and cancellation remain neutral. Work, defense, pause, Stay, consent and pending inventory transactions retain priority.
+- Add a real-item Retinue inventory inside the existing Pets panel and cargo tabs. Gifted reusable summon staves preserve metadata; favorite protection and acknowledged transfers remain. AETHER selects all distinct owned types; normal companions select 1/2/3 at levels 1/10/20. Duplicates do not add helpers.
+- Bind helpers and their attacks to the current companion/Sigil. Dismissal, final withdrawal, recall, switching and owner loss retire their effects. Use native projectile artwork with bounded companion-controlled melee/ranged/sentry behavior, not original player-minion AI, player buffs or player minion/sentry slots. Harmless critters are not targets. No online AI or free item duplication.
+- Prepare a local 0.26.0 candidate only. New GUI, physical input, connected multiplayer and long-session acceptance are not claimed; 0.25.1 remains the preceding publication record.
+
 ## Soulmates 0.25.1 - Home Within Reach (Beta)
 
 - Add the missing permanent Home entry to the companion wheel, using Terraria's native map spawn-house icon. Open the existing four-answer conversation explicitly, including at Stay, with autonomy off or Quiet questions. Automatic home questions still require separated visits and follow the personal-question cadence.

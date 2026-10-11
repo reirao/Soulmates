@@ -119,6 +119,7 @@ public sealed partial class EngineChecks : ModSystem
 			CheckCargoLayout(Check);
 			CheckAttention(Check);
 			CheckIntentLearning(Check);
+			PersonalPlanChecks.Run(Check);
 			CheckEvilPersona(Check);
 			CheckWorkBeta(Check);
 			CheckWheelBeta(Check);
@@ -138,6 +139,7 @@ public sealed partial class EngineChecks : ModSystem
 			CheckGamesAndCritters(Check);
 			CheckWorkRecipes(Check, ModLoader.GetMod("Soulmates"));
 			CheckCompanionPets(Check, ModLoader.GetMod("Soulmates"));
+			CheckRetinue(Check, soulmates);
 			CheckCritterScheduling(Check);
 			CheckAbilityRegistry(Check);
 			CheckActivityDispatch(Check);

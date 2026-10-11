@@ -48,6 +48,7 @@ public sealed partial class SoulboundCompanion
 
 	private string TellRememberedStory(int cursor, CompanionItemTopic topic = CompanionItemTopic.All)
 	{
+		long position = Math.Abs((long)cursor);
 		CompanionMemory[] memories = Profile.Memories.Where(memory => topic == CompanionItemTopic.All
 			|| memory.Kind == CompanionMemoryKind.ItemFound && memory.Amount == (int)topic
 			|| topic == CompanionItemTopic.Ores && memory.Kind == CompanionMemoryKind.MiningCompleted
@@ -55,8 +56,13 @@ public sealed partial class SoulboundCompanion
 			|| topic == CompanionItemTopic.Recovery && memory.Kind == CompanionMemoryKind.HealerAid
 			|| topic == CompanionItemTopic.Critters && memory.Kind is CompanionMemoryKind.CritterMet
 				or CompanionMemoryKind.CritterLost or CompanionMemoryKind.InsectCompanion).Reverse().ToArray();
+		string personal = topic == CompanionItemTopic.All ? Profile.LastPersonalPlanMemory : "";
+		if (personal.Length > 0) {
+			position %= memories.Length + 1;
+			if (position == 0) return personal;
+			position--;
+		}
 		if (memories.Length == 0) return SoulmatesText.Get("Stories.Beginning") + " " + DescribePresent();
-		long position = Math.Abs((long)cursor);
 		CompanionMemory memory = memories[(int)(position % memories.Length)];
 		if (Profile.Voice == CompanionVoice.Direct) return memory.Describe();
 		string theme = memory.Kind switch {

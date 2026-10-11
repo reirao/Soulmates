@@ -47,7 +47,8 @@ public sealed class Soulmates : Mod
 		InventoryResolved,
 		MiningConfigRequest,
 		PetConfigRequest,
-		PetStoreRequest
+		PetStoreRequest,
+		RetinueConfigRequest
 	}
 
 	internal static ModKeybind TalkKeybind { get; private set; } = null!;
@@ -217,6 +218,17 @@ public sealed class Soulmates : Mod
 		packet.Write(profileId.ToByteArray()); packet.Write((byte)slot); packet.Write(token); packet.Send();
 	}
 
+	internal static void SendRetinueConfigRequest(CompanionProfile profile, int slot)
+	{
+		if (Main.netMode != NetmodeID.MultiplayerClient || slot < -1 || slot >= profile.SummonItems.Count) return;
+		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
+		packet.Write((byte)MessageType.RetinueConfigRequest);
+		packet.Write(profile.Id.ToByteArray()); packet.Write(slot);
+		packet.Write(slot < 0 ? 0 : profile.SummonItems[slot].type);
+		packet.Write(slot < 0 ? new byte[32] : profile.StorageToken(CompanionStorage.Summons, slot));
+		packet.Send();
+	}
+
 	internal static void SendCreateCompanionRequest(CompanionProfile profile)
 	{
 		if (Main.netMode != NetmodeID.MultiplayerClient)
@@ -363,6 +375,7 @@ public sealed class Soulmates : Mod
 			MessageType.MiningConfigRequest => 19,
 			MessageType.PetConfigRequest => 56,
 			MessageType.PetStoreRequest => 49,
+			MessageType.RetinueConfigRequest => 56,
 			_ => 1
 		};
 		if (reader.BaseStream.CanSeek && reader.BaseStream.Length - reader.BaseStream.Position < minimumBytes)
@@ -388,6 +401,9 @@ public sealed class Soulmates : Mod
 				break;
 			case MessageType.PetStoreRequest:
 				HandlePetStoreRequest(reader, whoAmI);
+				break;
+			case MessageType.RetinueConfigRequest:
+				HandleRetinueConfigRequest(reader, whoAmI);
 				break;
 			case MessageType.ProfileUpdate:
 				HandleProfileUpdate(reader);
@@ -810,6 +826,18 @@ public sealed class Soulmates : Mod
 		if (Main.netMode != NetmodeID.Server || FindRequestCompanion(Main.player[whoAmI], profileId) is not { } companion) return;
 		bool accepted = companion.StorePetItem(slot, token, out string reply);
 		SendInteractionResponse(whoAmI, companion, new CompanionConversationResult(reply, accepted), quick: false);
+	}
+
+	private void HandleRetinueConfigRequest(BinaryReader reader, int whoAmI)
+	{
+		Guid profileId = ReadGuid(reader);
+		int slot = reader.ReadInt32(), expectedType = reader.ReadInt32();
+		byte[] token = reader.ReadBytes(32);
+		if (Main.netMode != NetmodeID.Server || FindRequestCompanion(Main.player[whoAmI], profileId) is not { } companion) return;
+		bool accepted = companion.ConfigureRetinue(slot, expectedType, token);
+		SendInteractionResponse(whoAmI, companion, new CompanionConversationResult(
+			SoulmatesText.Get(accepted ? slot < 0 ? "Retinue.Dismiss" : "Retinue.Selected" : "TargetOrders.TargetLost",
+				Lang.GetItemNameValue(expectedType)), accepted), quick: false);
 	}
 
 	private void HandleDirectOrderRequest(BinaryReader reader, int whoAmI)

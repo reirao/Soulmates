@@ -15,6 +15,7 @@ internal sealed class CompanionPackElement(
 	Action<CompanionStorage, int, bool> withdraw) : UIElement
 {
 	internal bool PetsOnly { get; init; }
+	internal bool SummonsOnly { get; set; }
 	private readonly List<(CompanionStorage Storage, TalkItemButton Button)> tabs = [];
 	private TalkItemButton? pageButton;
 	private CompanionStorage selectedStorage;
@@ -22,11 +23,12 @@ internal sealed class CompanionPackElement(
 	private int PageCount => selectedStorage == CompanionStorage.Wallet ? 1
 		: Math.Max(1, ((getProfile()?.StorageItems(selectedStorage).Count ?? 0) + 11) / 12);
 
-	internal void SelectStorage(CompanionStorage storage) { selectedStorage = PetsOnly ? CompanionStorage.Pets : storage; page = 0; }
+	internal void SelectStorage(CompanionStorage storage) { selectedStorage = PetsOnly
+		? SummonsOnly ? CompanionStorage.Summons : CompanionStorage.Pets : storage; page = 0; }
 
 	public void Reset()
 	{
-		selectedStorage = PetsOnly ? CompanionStorage.Pets : InitialStorage(getProfile());
+		selectedStorage = PetsOnly ? SummonsOnly ? CompanionStorage.Summons : CompanionStorage.Pets : InitialStorage(getProfile());
 		page = 0;
 	}
 
@@ -34,6 +36,7 @@ internal sealed class CompanionPackElement(
 		=> profile is null || profile.PackLoad > 0 ? CompanionStorage.Pack
 			: profile.ResourceLoad > 0 ? CompanionStorage.Resources
 			: profile.PetItems.Count > 0 ? CompanionStorage.Pets
+			: profile.SummonItems.Count > 0 ? CompanionStorage.Summons
 			: !profile.WalletCopper.IsZero ? CompanionStorage.Wallet : CompanionStorage.Pack;
 
 	public override void OnInitialize()
@@ -44,21 +47,22 @@ internal sealed class CompanionPackElement(
 				CompanionStorage.Resources => ItemID.CopperOre,
 				CompanionStorage.Wallet => ItemID.GoldCoin,
 				CompanionStorage.Pets => ItemID.Carrot,
+				CompanionStorage.Summons => ItemID.SlimeStaff,
 				_ => ItemID.PiggyBank
 			};
 			var button = new TalkItemButton(icon) {
 				ShowHoverTooltip = false,
-				Left = new StyleDimension((int)storage * 30f, 0f),
+				Left = new StyleDimension(tabs.Count * 30f, 0f),
 				Width = new StyleDimension(26f, 0f),
 				Height = new StyleDimension(26f, 0f)
 			};
-			button.OnLeftClick += (_, _) => { selectedStorage = storage; page = 0; };
+			button.OnLeftClick += (_, _) => { SelectStorage(storage); };
 			tabs.Add((storage, button));
 			Append(button);
 		}
 		pageButton = new TalkItemButton(ItemID.Book) {
 			ShowHoverTooltip = false,
-			Left = new StyleDimension(90f, 0f),
+			Left = new StyleDimension(tabs.Count * 30f, 0f),
 			Width = new StyleDimension(26f, 0f),
 			Height = new StyleDimension(26f, 0f)
 		};
@@ -81,7 +85,7 @@ internal sealed class CompanionPackElement(
 
 	private void LayoutTabs()
 	{
-		float step = Math.Min(30f, GetDimensions().Width / 5f);
+		float step = Math.Min(30f, GetDimensions().Width / (tabs.Count + 1));
 		float size = Math.Max(1f, step - Math.Min(4f, step * 0.2f));
 		int index = 0;
 		foreach ((CompanionStorage storage, TalkItemButton button) in tabs) {
@@ -106,12 +110,15 @@ internal sealed class CompanionPackElement(
 			return;
 		page = Math.Clamp(page, 0, PageCount - 1);
 		foreach ((CompanionStorage storage, TalkItemButton button) in tabs) {
-			button.Selected = storage == selectedStorage;
-			button.HoverText = SoulmatesText.EnumName(storage);
-			button.BadgeText = storage switch {
+			CompanionStorage effectiveStorage = PetsOnly && SummonsOnly ? CompanionStorage.Summons : storage;
+			if (PetsOnly) button.ItemType = SummonsOnly ? ItemID.SlimeStaff : ItemID.Carrot;
+			button.Selected = effectiveStorage == selectedStorage;
+			button.HoverText = SoulmatesText.EnumName(effectiveStorage);
+			button.BadgeText = effectiveStorage switch {
 				CompanionStorage.Resources => profile.ResourceLoad.ToString(),
 				CompanionStorage.Wallet => profile.WalletCopper.IsZero ? "0" : "+",
 				CompanionStorage.Pets => profile.PetItems.Count.ToString(),
+				CompanionStorage.Summons => profile.SummonItems.Count.ToString(),
 				_ => profile.PackLoad.ToString()
 			};
 		}
@@ -122,7 +129,7 @@ internal sealed class CompanionPackElement(
 		CalculatedStyle area = GetDimensions();
 		string summary = Summary(profile, selectedStorage);
 		foreach ((CompanionStorage storage, TalkItemButton button) in tabs)
-			if (button.IsMouseHovering) summary = Summary(profile, storage);
+			if (button.IsMouseHovering) summary = Summary(profile, PetsOnly && SummonsOnly ? CompanionStorage.Summons : storage);
 		if (pageButton?.IsMouseHovering == true && PageCount > 1)
 			summary = SoulmatesText.Get("Storage.PageHint");
 		float headerWidth = Math.Min((tabs.Count + 1) * 30f, area.Width);
@@ -137,6 +144,8 @@ internal sealed class CompanionPackElement(
 			spriteBatch.Draw(background, bounds, enabled ? Color.White : Color.White * 0.35f);
 			Item? item = items is not null && index < items.Count ? items[index] : null;
 			if (selectedStorage == CompanionStorage.Pets && item?.type == profile.PetItemType)
+				spriteBatch.Draw(background, bounds, Color.LightGreen * 0.45f);
+			if (selectedStorage == CompanionStorage.Summons && item is not null && CompanionRetinue.IsActive(profile, item.type))
 				spriteBatch.Draw(background, bounds, Color.LightGreen * 0.45f);
 			int coinType = selectedStorage == CompanionStorage.Wallet ? CompanionProfile.WalletCoinType(slot) : 0;
 			int type = coinType > 0 ? coinType : item?.type ?? 0;
@@ -164,6 +173,7 @@ internal sealed class CompanionPackElement(
 				Main.HoverItem = item!.Clone();
 				Main.hoverItemName = item.HoverName;
 				if (selectedStorage == CompanionStorage.Pets) Main.hoverItemName += "\n" + SoulmatesText.Get("Pets.Controls");
+				if (selectedStorage == CompanionStorage.Summons) Main.hoverItemName += "\n" + SoulmatesText.Get("Retinue.Controls");
 			}
 		}
 		if (selectedStorage == CompanionStorage.Wallet)
@@ -177,6 +187,7 @@ internal sealed class CompanionPackElement(
 				Math.Max(1, (profile.ResourceLoad + 11) / 12), profile.ResourceLoad),
 		CompanionStorage.Wallet => SoulmatesText.Get("Storage.Unlimited"),
 		CompanionStorage.Pets => SoulmatesText.Get("Pets.InventoryCount", profile.PetItems.Count, CompanionProfile.MaximumPetSlots),
+		CompanionStorage.Summons => SoulmatesText.Get("Retinue.InventoryCount", profile.SummonItems.Count, CompanionProfile.MaximumSummonSlots),
 		_ => $"{SoulmatesText.EnumName(storage)} {profile.PackLoad}/{profile.PackCapacity}"
 	};
 

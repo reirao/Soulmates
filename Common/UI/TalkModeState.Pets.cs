@@ -18,6 +18,8 @@ public sealed partial class TalkModeState
 	private CompanionResponseElement? petStatusLabel;
 	private TalkItemButton? petSourcePager;
 	private TalkItemButton? petDismissButton;
+	private TalkItemButton? retinueTabButton;
+	private bool retinueView;
 	private readonly List<TalkItemButton> petSourceButtons = [];
 	private readonly List<(int Slot, byte[] Token)> petSourceItems = [];
 	private int petSourcePage;
@@ -53,8 +55,17 @@ public sealed partial class TalkModeState
 		petInventory = new CompanionPackElement(() => DisplayProfile, WithdrawStorageSlot) { PetsOnly = true };
 		petInventory.SelectStorage(CompanionStorage.Pets); petContents.Append(petInventory);
 		petDismissButton = new TalkItemButton(ItemID.FallenStar);
-		petDismissButton.OnLeftClick += (_, _) => SelectPetItem(-1);
+		petDismissButton.OnLeftClick += (_, _) => { if (retinueView) SelectRetinueItem(-1); else SelectPetItem(-1); };
 		petContents.Append(petDismissButton);
+		retinueTabButton = new TalkItemButton(ItemID.SlimeStaff);
+		retinueTabButton.OnLeftClick += (_, _) => {
+			if (awaitingResponse) return;
+			retinueView = !retinueView; petSourcePage = 0;
+			petInventory!.SummonsOnly = retinueView;
+			petInventory.SelectStorage(retinueView ? CompanionStorage.Summons : CompanionStorage.Pets);
+			RefreshPetLabels(); RefreshPetSources();
+		};
+		petContents.Append(retinueTabButton);
 	}
 
 	private void LayoutPetView(float left, float width, float bottom)
@@ -64,7 +75,8 @@ public sealed partial class TalkModeState
 		petScrollMaximum = Math.Max(0f, 258f - petPanel.Height.Pixels);
 		petScroll = Math.Clamp(petScroll, 0f, petScrollMaximum);
 		Place(petContents, 0f, -petScroll, width, 258f);
-		Place(petSourceLabel!, 0f, 0f, Math.Max(1f, width - 34f), 20f);
+		Place(retinueTabButton!, width - 62f, 0f, 28f, 28f);
+		Place(petSourceLabel!, 0f, 0f, Math.Max(1f, width - 68f), 20f);
 		Place(petSourcePager!, width - 28f, 0f, 28f, 28f);
 		Place(petEmptyLabel!, 0f, 32f, width, 68f);
 		float slot = Math.Min(40f, (width - 8f) / 3f);
@@ -80,10 +92,14 @@ public sealed partial class TalkModeState
 
 	private void RefreshPetLabels()
 	{
-		petSourceLabel?.SetText(SoulmatesText.Get("Pets.YourItems"));
-		petEmptyLabel?.SetText(SoulmatesText.Get("Pets.NoItems"));
+		petSourceLabel?.SetText(SoulmatesText.Get(retinueView ? "Retinue.YourItems" : "Pets.YourItems"));
+		petEmptyLabel?.SetText(SoulmatesText.Get(retinueView ? "Retinue.NoItems" : "Pets.NoItems"));
 		if (petSourcePager is not null) petSourcePager.HoverText = SoulmatesText.Get("Storage.PageHint");
-		if (petDismissButton is not null) petDismissButton.HoverText = SoulmatesText.Get("Pets.Dismiss");
+		if (petDismissButton is not null) petDismissButton.HoverText = SoulmatesText.Get(retinueView ? "Retinue.Dismiss" : "Pets.Dismiss");
+		if (retinueTabButton is not null) {
+			retinueTabButton.ItemType = retinueView ? ItemID.Carrot : ItemID.SlimeStaff;
+			retinueTabButton.HoverText = SoulmatesText.Get(retinueView ? "Pets.Inventory" : "Retinue.Inventory");
+		}
 	}
 
 	private void RefreshPetSources()
@@ -92,12 +108,15 @@ public sealed partial class TalkModeState
 			string status = companion.Profile.PetItemType == 0 ? SoulmatesText.Get("Pets.StoredOnly")
 				: SoulmatesText.Get(companion.HasEquippedPet ? "Pets.Active" : "Pets.Waiting",
 					Lang.GetItemNameValue(companion.Profile.PetItemType));
+			if (retinueView) status = SoulmatesText.Get(companion.Profile.RetinueEnabled ? "Retinue.Active" : "Retinue.StoredOnly",
+				CompanionRetinue.ActiveItems(companion.Profile).Count(), companion.Profile.SummonItems.Count);
 			petStatusLabel.SetText(status, resetScroll: false);
 		}
 		petSourceItems.Clear();
 		foreach (int slot in Enumerable.Range(0, Math.Min(50, Main.LocalPlayer.inventory.Length))) {
 			Item item = Main.LocalPlayer.inventory[slot];
-			if (!item.favorited && CompanionPets.IsPetItem(item)) petSourceItems.Add((slot, CompanionInventorySync.Token(item)));
+			if (!item.favorited && (retinueView ? CompanionRetinue.IsStaff(item) : CompanionPets.IsPetItem(item)))
+				petSourceItems.Add((slot, CompanionInventorySync.Token(item)));
 		}
 		petSourcePage = Math.Clamp(petSourcePage, 0, PetSourcePageCount - 1);
 		for (int i = 0; i < petSourceButtons.Count; i++) {
@@ -105,7 +124,7 @@ public sealed partial class TalkModeState
 			TalkItemButton button = petSourceButtons[i];
 			bool present = index < petSourceItems.Count;
 			button.ItemType = present ? Main.LocalPlayer.inventory[petSourceItems[index].Slot].type : 0;
-			button.HoverText = present ? SoulmatesText.Get("Pets.Give", Lang.GetItemNameValue(button.ItemType)) : "";
+			button.HoverText = present ? SoulmatesText.Get(retinueView ? "Retinue.Give" : "Pets.Give", Lang.GetItemNameValue(button.ItemType)) : "";
 			button.IgnoresMouseInteraction = !present || awaitingResponse;
 			if (present && button.Parent is null) petContents!.Append(button);
 			if (!present) button.Remove();
@@ -142,5 +161,21 @@ public sealed partial class TalkModeState
 			SetResponse(reply, accepted);
 		}
 		RefreshPetSources(); Recalculate();
+	}
+
+	private void SelectRetinueItem(int slot)
+	{
+		if (companion is null || awaitingResponse || !HasActiveBinding || slot < -1 || slot >= companion.Profile.SummonItems.Count) return;
+		int type = slot < 0 ? 0 : companion.Profile.SummonItems[slot].type;
+		if (Main.netMode == NetmodeID.MultiplayerClient) {
+			awaitingResponse = true; responseWaitTicks = 0;
+			global::Soulmates.Soulmates.SendRetinueConfigRequest(companion.Profile, slot);
+		}
+		else {
+			bool accepted = companion.ConfigureRetinue(slot, type, slot < 0 ? new byte[32]
+				: companion.Profile.StorageToken(CompanionStorage.Summons, slot));
+			SetResponse(SoulmatesText.Get(accepted ? slot < 0 ? "Retinue.Dismiss" : "Retinue.Selected" : "TargetOrders.TargetLost",
+				Lang.GetItemNameValue(type)), accepted);
+		}
 	}
 }

@@ -150,6 +150,39 @@ public sealed partial class EngineChecks
 			finally { Main.LocalPlayer.inventory = oldInventory; Call("RefreshPetSources"); }
 			check(state.HasActiveBinding && ReferenceEquals(mate.FindBoundSigil(), sigil),
 				"Character fixture replaced the panel's bound inventory Sigil");
+			Item[] beforeRetinue = SnapshotInventory();
+			try {
+				Main.LocalPlayer.inventory[25] = new Item(ItemID.SlimeStaff);
+				Main.LocalPlayer.inventory[26] = new Item(ItemID.ImpStaff) { favorited = true };
+				Main.LocalPlayer.inventory[27] = new Item(ItemID.RubyStaff);
+				Click((UIElement)Get("retinueTabButton")!, "retinue inventory toggle");
+				check((bool)Get("retinueView")! && pack.GetType().GetField("selectedStorage", flags)!.GetValue(pack)!.Equals(CompanionStorage.Summons)
+					&& ((IEnumerable)Get("petSourceItems")!).Cast<object>().Count() == 1, "Retinue picker includes favorites/magic weapons or opens pet storage");
+				Click(Button("petSourceButtons", 0), "give summon staff");
+				check(Main.LocalPlayer.inventory[25].IsAir && mate.Profile.ItemCount(ItemID.SlimeStaff) == 1
+					&& mate.Profile.RetinueEnabled && Main.projectile.Count(p => p.active && p.ModProjectile is CompanionRetainer) == 1,
+					"Retinue gift click failed real transfer, selection or spawn");
+				var storageTabs = ((IEnumerable)pack.GetType().GetField("tabs", flags)!.GetValue(pack)!).Cast<object>().ToArray();
+				Click((UIElement)storageTabs[0].GetType().GetField("Item2")!.GetValue(storageTabs[0])!, "retinue storage header");
+				check(pack.GetType().GetField("selectedStorage", flags)!.GetValue(pack)!.Equals(CompanionStorage.Summons),
+					"Retinue header silently switched owned slots back to pets");
+				Click((UIElement)Get("petDismissButton")!, "dismiss retinue");
+				check(!mate.Profile.RetinueEnabled && mate.Profile.ItemCount(ItemID.SlimeStaff) == 1
+					&& !Main.projectile.Any(p => p.active && p.ModProjectile is CompanionRetainer), "Retinue dismiss lost cargo or retained helpers");
+				Main.LocalPlayer.inventory[25] = new Item(ItemID.ImpStaff); Call("RefreshPetSources");
+				Click(Button("petSourceButtons", 0), "later summon staff gift");
+				check(!mate.Profile.RetinueEnabled && mate.Profile.ItemCount(ItemID.ImpStaff) == 1, "A later retinue gift overrode dismissal");
+				PetClick(0, false);
+				check(mate.Profile.RetinueEnabled && mate.Profile.RetinueItemType == ItemID.SlimeStaff, "Owned retinue click did not call company");
+				PetClick(0, true); PetClick(0, true);
+				check(mate.Profile.SummonItems.Count == 0 && !mate.Profile.RetinueEnabled
+					&& Main.LocalPlayer.inventory.Any(item => item.type == ItemID.SlimeStaff)
+					&& Main.LocalPlayer.inventory[26].favorited, "Retinue return clicks lost a staff, stole a favorite or kept effects selected");
+				Click((UIElement)Get("retinueTabButton")!, "return to pet inventory");
+				check(!(bool)Get("retinueView")! && pack.GetType().GetField("selectedStorage", flags)!.GetValue(pack)!.Equals(CompanionStorage.Pets),
+					"Retinue manager cannot return to the existing pet inventory");
+			}
+			finally { Main.LocalPlayer.inventory = beforeRetinue; Call("RefreshPetSources"); }
 			Click(Button("taskButtons", 0, true), "pause"); check(mate.Profile.WorkPaused, "Character pause button does nothing");
 			Click(Button("taskButtons", 1, true), "resume"); check(!mate.Profile.WorkPaused, "Character resume button does nothing");
 			Click(Button("taskButtons", 2, true), "abort"); check(mate.Profile.WorkPaused && mate.CurrentJob == CompanionJob.None, "Character abort button does nothing");

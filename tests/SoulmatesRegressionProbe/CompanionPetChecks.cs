@@ -50,7 +50,17 @@ public sealed partial class EngineChecks
 				check(!ReferenceEquals(copy.PetItems[0], profile.PetItems[0]), "Pet selection shallow-copied the owned item");
 			}
 			check(stream.Position == stream.Length, "Pet transport leaves extra bytes");
-			stream.Position = stream.Length - 4;
+			// Locate the pet selection before the independently versioned learning/place/retinue tail.
+			using var tail = new MemoryStream();
+			using (var writer = new BinaryWriter(tail, Encoding.UTF8, true)) {
+				profile.IntentLearning.Write(writer); writer.Write(profile.EvilMode); profile.Places.Write(writer);
+				writer.Write((byte)0); writer.Write(profile.RetinueEnabled); writer.Write(profile.RetinueItemType);
+				profile.PersonalPlans.Write(writer);
+			}
+			stream.Position = stream.Length - tail.Length - sizeof(int);
+			using (var selection = new BinaryReader(stream, Encoding.UTF8, true))
+				check(selection.ReadInt32() == itemType, "Pet corruption fixture missed the selected item field");
+			stream.Position -= sizeof(int);
 			using (var writer = new BinaryWriter(stream, Encoding.UTF8, true)) writer.Write((int)ItemID.CopperOre);
 			stream.Position = 0; bool refused = false;
 			try { using var invalid = new BinaryReader(stream, Encoding.UTF8, true); CompanionProfile.Read(invalid); }

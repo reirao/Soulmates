@@ -113,8 +113,7 @@ public sealed partial class SoulboundCompanion
 		}
 		else if (question == CompanionQuestion.Reflection) {
 			reflectionCooldown = PersonalQuestionInterval;
-			SpeakLocalized("Conversation.Reflection.Question", SoulmatesText.EnumName(ReflectionKind)
-				+ " (" + SoulmatesText.Get($"Conversation.Reflection.Contexts.{ReflectionContext}") + ")");
+			SpeakLocalized("Conversation.Reflection.Question", ReflectionSubject);
 			ShowNativeExpression(InitiativeEmote(ReflectionKind), EmoteID.EmoteConfused);
 		}
 		else if (question == CompanionQuestion.Wallet) {

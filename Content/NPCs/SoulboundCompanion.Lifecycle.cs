@@ -77,6 +77,7 @@ public sealed partial class SoulboundCompanion
 
 	private void StopOwnedEffects()
 	{
+		ClearPersonalPlansRuntime();
 		ClearEvilCelebration();
 		activityCoordinator?.Reset();
 		ClearNativeExpression();
@@ -96,6 +97,10 @@ public sealed partial class SoulboundCompanion
 				&& (int)projectile.ai[1] == NPC.whoAmI)
 				projectile.Kill();
 			else if (projectile.active && projectile.ModProjectile is CompanionFamiliar familiar && familiar.BelongsTo(this))
+				projectile.Kill();
+			else if (projectile.active && projectile.ModProjectile is CompanionRetainer retainer && retainer.BelongsTo(this))
+				projectile.Kill();
+			else if (projectile.active && projectile.ModProjectile is CompanionRetinueBolt bolt && bolt.BelongsTo(this))
 				projectile.Kill();
 		}
 		guardianTarget = -1;

@@ -1,4 +1,4 @@
-Soulmates 0.25.1 - Home Within Reach | Beta Candidate
+Soulmates 0.26.0 - Little Company | Beta
 
 Create personal companions with the reusable Soulcore. Each Soulbound Sigil carries one companion's appearance, personality, talent, mood, energy, bond, level, learned preferences, cargo, pets and memories. Keep the active Sigil in your inventory. A companion named AETHER has all talents and learned perks. One companion per player; switching retires old effects.
 
@@ -7,6 +7,12 @@ Right-click her for companion tools; yourself for player tools and categorized n
 
 LEARNING TOGETHER
 Existing abilities use separate Ask/Always/Never permissions. Observations, accepted requests, actual outcomes and occasional evaluations shape bounded per-Sigil preferences. Approval, another idea and less of this guide later choices; Later, silence and cancellation are neutral. Quiet disables automatic personal questions. Local game logic, not online AI, free-building or a replacement for explicit commands.
+
+SMALL PERSONAL UNDERTAKINGS
+During safe idle time she may revisit a classified nearby home, keep her real familiar company or reflect on a carried building supply she has observed you use. She returns before recording a completed memory. Existing answers shape her preferences, and Do you remember? can recall the outcome. Work, danger, Stay, Pause, consent and inventory safety retain priority. No building or remodeling is added.
+
+HER OWN LITTLE COMPANY
+Pets has a staff-symbol toggle for a separate Retinue inventory. Give real unfavorited reusable summon staves; left-click an owned staff to call company and right-click to return it. First explicit gift selects only when storage is empty; later gifts respect dismissal. Normal companions select 1/2/3 distinct staff types at levels 1/10/20; AETHER selects all distinct owned types, within 64 item slots. Duplicates do not multiply helpers. Native projectile artwork uses bounded companion melee/ranged/sentry combat, not original player-minion AI or arbitrary modded drawing. Your buffs, pet, minion and sentry slots stay separate. Recall, switching, dismissal and final withdrawal retire bound effects.
 
 A PLACE TO BELONG
 Shelter and interesting loot have different meanings. A chosen bed, assigned NPC housing and familiar sheltered places provide different evidence. Repeated returns can lead to a question in the existing answer wheel: our home, her little home, just a stop, or later. Only your answer establishes shared or companion ownership. Bounded place memory is per Sigil and world-scoped; changed shelter is rechecked. Recognized home storage is not automatically announced as unexplored treasure; explicit treasure search remains available. She does not construct or remodel houses.
@@ -32,7 +38,7 @@ Nine languages follow Terraria: EN, DE, IT, FR, ES, RU, PT-BR, PL and Simplified
 Optional local Mailbox and Field Notes are off by default. No automatic uploads or online AI. Typed reports stay on this computer. Automatic notes omit account/character/world names, chat and coordinates. Place coordinates remain in the local game save, not the notes.
 
 HONEST BETA
-The creator reports a successful latest test of the installed 0.25.1. Automated engine checks do not certify every rendered interaction, physical key, long campaign or connected multiplayer session. All peers need 0.25.1. Upload, Steam approval and subscriber delivery are separate checks. Please report version, action, expected result and observed result. Thank you for helping this little companion grow.
+The creator reports a positive playtest of 0.26.0. Automated engine checks do not certify every rendered interaction, physical key, long campaign or connected multiplayer session. All peers need 0.26.0. Upload, Steam approval and subscriber delivery are separate checks. Please report version, action, expected result and observed result. Thank you for helping this little companion grow.
 
 AI-assisted development: code, writing, interfaces and visual work used extensive AI assistance. Icons and original Soulkin art are AI-generated; other creature/item/inventory/emote graphics reuse Terraria assets.
 Source, history and checks: https://github.com/reirao/Soulmates

@@ -89,6 +89,11 @@ public sealed partial class EngineChecks
 			extension.Write(new byte[169]);
 			extension.Write(false); // 0.25 appends an opt-in persona, never a permission.
 			extension.Write((byte)1); extension.Write((byte)0); // Bounded, versioned place memory; no records.
+			// 0.26 appends retinue ownership, then bounded personal preferences and completed memory.
+			extension.Write((byte)0); extension.Write(false); extension.Write(0);
+			extension.Write((byte)1);
+			for (int i = 0; i < 3; i++) { extension.Write((sbyte)0); extension.Write(0); }
+			extension.Write((byte)CompanionPersonalPlanKind.None);
 		}
 		check(current.ToArray().SequenceEqual(legacy.ToArray()), "Profile write has an unexpected work extension");
 		legacy.Position = 0;

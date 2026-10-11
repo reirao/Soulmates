@@ -1508,5 +1508,31 @@ Mods: {
 		UI.CompanionWheel.EmoteGroups.Debuffs: Ailments
 		UI.CompanionWheel.EmoteGroups.Bosses: Bosses
 		UI.CompanionWheel.EmoteGroups.Care: Care
+		Enums.CompanionStorage.Summons: Retinue
+		Retinue.Memory: I remember when you gave me {0}.
+		Retinue.InventoryCount: Staves {0}/{1}
+		Retinue.Full: My retinue inventory is full.
+		Retinue.Gift: Thank you for {0}. I will keep it with my own staves.
+		Retinue.Dismiss: My little company can rest now.
+		Retinue.Selected: I will call my company with {0} first.
+		Retinue.Controls: "Left-click: call company. Right-click: take back."
+		Retinue.YourItems: Your summon staves
+		Retinue.NoItems: No eligible unfavorited summon staves.
+		Retinue.Inventory: Retinue inventory
+		Retinue.Active: "Selected: {0} | owned staves: {1}"
+		Retinue.StoredOnly: Staves stored; company resting.
+		Retinue.Give: Give {0}
+		Projectiles.CompanionRetainer.DisplayName: Soul Retainer
+		Projectiles.CompanionRetinueBolt.DisplayName: Retinue Spark
+		PersonalPlans.Returning: Coming back to you
+		PersonalPlans.Status.HomeVisit: Checking on our little home
+		PersonalPlans.Status.PetCompany: Keeping {0} company
+		PersonalPlans.Status.SupplyReflection: Thinking about {0}
+		PersonalPlans.Subject.HomeVisit: my little visit home
+		PersonalPlans.Subject.PetCompany: keeping {0} company
+		PersonalPlans.Subject.SupplyReflection: looking at {0} from our building supplies
+		PersonalPlans.Memory.HomeVisit: I checked on our little home and came back to you. It still felt like somewhere to belong.
+		PersonalPlans.Memory.PetCompany: I spent a quiet moment with {0}, then came back to you.
+		PersonalPlans.Memory.SupplyReflection: I looked at {0}, remembering how you used it while building. Then I came back to you.
 	}
 }

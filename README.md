@@ -1,5 +1,15 @@
 # Soulmates
 
+**0.26.0 - Little Company | Beta.** Small idle undertakings reuse known homes, her real familiar and observed building supplies. Only completed visits become personal memories; existing evaluations shape bounded preferences. Explicit work, danger, Stay, Pause, consent and inventory safety keep priority. No autonomous construction is added.
+
+**Gifted summon staves** have a separate Retinue inventory within the existing Pets panel. Use its staff symbol to switch inventories, give an unfavorited staff, left-click an owned staff to call company and right-click to take it back. The first explicit gift selects only when the inventory is empty; later gifts respect dismissal. Ordinary companions select 1/2/3 distinct staff types at levels 1/10/20. AETHER selects every distinct owned type at once, within 64 actual storage slots. Duplicate staves do not duplicate helpers. Native projectile artwork uses bounded companion combat, not original player-minion AI or arbitrary modded rendering. Player pets, buffs, minion and sentry slots remain separate. All peers need 0.26.0.
+
+[0.26.0 verification and playtest checklist](tests/LITTLE-COMPANY-0.26.0-2026-10-11.md) separates engine evidence from graphical acceptance.
+
+The exact checked candidate was [installed in the normal client](tests/CLIENT-INSTALL-0.26.0-2026-10-11.md), with backups and unchanged saves. The creator reports a positive playtest and requests publication. [Release notes](releases/0.26.0.md) describe current scope; upload, Steam approval and subscriber delivery are separate checks. Older gallery footage is not a new 0.26.0 playtest.
+
+## Previous Publication
+
 **0.25.1 - Home Within Reach | Beta.** Her wheel now has a permanent Home entry using Terraria's native house symbol. Discuss or reclassify the current shelter without waiting for automatic questions, including at Stay, with autonomy off or Quiet. Remembered homes, optional EVIL and focused behavior/input repairs join the existing learning, cargo and pets. Rapid multiplayer compass edits preserve consecutive choices. The creator reports a successful latest test of the [installed candidate](tests/CLIENT-INSTALL-0.25.1-2026-10-11.md) and requests publication. [Release/download](https://github.com/reirao/Soulmates/releases/tag/v0.25.1), [changes](releases/0.25.1.md) and [wiring checks](tests/HOME-WIRING-0.25.1-2026-10-11.md) distinguish automated evidence from real play. Upload, Steam moderation and subscriber delivery remain separate checks.
 
 Pets opens directly from her wheel; Details opens her character window. Twelve real pet slots, ore-search shortcuts and Config/Last remain included. The [0.24.0 publication record](tests/PUBLICATION-0.24.0-2026-10-09.md) is historical evidence for that version, not delivery evidence for this candidate.
@@ -14,7 +24,7 @@ Soulmates is an experimental project created with extensive AI assistance across
 
 ## Getting Started
 
-1. Check the loaded version under Mods: **0.25.1 - Home Within Reach**. Use the [existing Workshop item](https://steamcommunity.com/sharedfiles/filedetails/?id=3807130821) or [GitHub beta](https://github.com/reirao/Soulmates/releases/tag/v0.25.1). Upload, approval and subscriber delivery are separate checks; a changed description is not proof of the installed version. Avoid duplicate mod copies. All multiplayer peers need 0.25.1.
+1. Check the loaded version under Mods: **0.26.0 - Little Company**. Use the [existing Workshop item](https://steamcommunity.com/sharedfiles/filedetails/?id=3807130821) or [GitHub beta](https://github.com/reirao/Soulmates/releases/tag/v0.26.0). Upload, approval and subscriber delivery are separate checks; a changed description is not proof of the installed version. Avoid duplicate mod copies. All multiplayer peers need 0.26.0.
 2. Enter a world. The one-time starter kit provides a Soulcore and three Blank Sigils; the recipes below also let you craft replacements.
 3. Use the Soulcore or right-click it in the inventory. Choose the companion and bind a Sigil. The Soulcore is reusable; use the new Sigil to summon her and keep it in your inventory.
 4. Right-click her for companion tools; right-click yourself for player tools. Work opens Config and Last. Games contains Rock, paper, scissors. Critters contains Watch, Company, Catch Critters, Off and Companion pet. Ordinary catching already has the built-in basic net capability.
@@ -40,7 +50,11 @@ Use **Home** on her wheel to open the place choices yourself, or to reclassify a
 
 EVIL is off by default and saved per Sigil. Toggle it in her **Commands** wheel or the **fourth task button in Details**, marked with a laughing face. Safe idle remarks and celebrations of actual completed work turn small successes into tiny grand schemes. Theatrical Rock, paper, scissors quips follow the existing fair result. This changes expression only: consent, task selection, rewards, cargo, damage, terrain and empathy for hurt critters remain intact. Celebration waits for free attention behind threats, work, questions and critter reactions.
 
-## Features (0.25.1)
+## Features (0.26.0)
+
+- Small completed idle undertakings become personal memories and use the existing evaluation answers. Work, danger, Stay, Pause and consent retain priority; no autonomous building is added.
+- Pets also contains Retinue: real gifted summon staves power companion-owned helpers. Ordinary companions select 1/2/3 distinct types at levels 1/10/20; AETHER selects all owned types within 64 slots. Native art does not imply original minion AI or arbitrary modded rendering.
+- The upper gift row shows eligible items still in your inventory; the lower inventory holds her actual items. Wheel symbols are selection shortcuts, not extra copies. She must retain the item to use it. One vanity/light familiar can accompany her alongside the separate combat retinue.
 
 - Native-first input protects inventory, typing, NPC dialogue, cursor-held items and alternate item actions. Captured targets and pending answers reject stale companion/Sigil identities instead of redirecting an old selection.
 - Answer-wheel nodes fade into fixed positions, matching their hit targets while opening.
@@ -133,9 +147,11 @@ EVIL is off by default and saved per Sigil. Toggle it in her **Commands** wheel 
 - Optional local **AETHER Field Notes** record anonymized gameplay events and compact behavior signals for playtesting; nothing is uploaded. Use `/soulfeedback on` to opt in, `/soulfeedback note <text>` for an observation, and `/soulfeedback bug <what happened>` to save a bug with its recent gameplay context.
 - Open the in-game **AETHER Mailbox** from the paper-plane icon on the Companion Soulwheel, or with `/soulfeedback`, to save ordinary feedback or a contextual bug report locally without leaving Terraria.
 
-The implementation supports single-player and server-authoritative multiplayer companions. Summoning, recalling, conversations, jobs, pack actions, and trinkets are validated by the server and synchronized back to the owning player. All peers testing this candidate need 0.25.1; connected multiplayer acceptance remains open.
+The implementation supports single-player and server-authoritative multiplayer companions. Summoning, recalling, conversations, jobs, pack actions, and trinkets are validated by the server and synchronized back to the owning player. All peers need 0.26.0; connected multiplayer acceptance remains open.
 
 ## Verification And History
+
+**0.26.0 beta:** the creator reports a positive playtest of the installed candidate. Native regression has 100,745 assertions and no failures; independent audit has 490 passes and no failures; static/localization checks cover 1,023 keys in nine catalogs. Production compilation has zero warnings/errors. See the [exact candidate report](tests/LITTLE-COMPANY-0.26.0-2026-10-11.md). Full graphical, physical-key, two-client MP, progression and endurance acceptance remain open. Publication metadata is rebuilt and rechecked separately.
 
 **0.25.1 beta:** production builds have zero warnings/errors; native regression, independent audit and static/localization checks pass. All nine catalogs have 997 complete keys. The [wiring report](tests/HOME-WIRING-0.25.1-2026-10-11.md) preserves the installed candidate's exact identity; publication metadata is rebuilt separately. The creator reports a successful current test. Automated checks and that encouraging report do not close full GUI, physical V, two-client multiplayer, endurance or progression acceptance.
 
