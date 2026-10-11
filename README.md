@@ -4,7 +4,7 @@
 
 Pets opens directly from her wheel; Details opens her character window. Twelve real pet slots, ore-search shortcuts and Config/Last remain included. The [0.24.0 publication record](tests/PUBLICATION-0.24.0-2026-10-09.md) is historical evidence for that version, not delivery evidence for this candidate.
 
-[0.25.1 publication status](tests/PUBLICATION-0.25.1-2026-10-11.md): GitHub beta and download verified. Workshop upload/text saving await the creator's Family View unlock and permission to take over the running loader. No 0.25.1 Steam delivery is claimed yet.
+[0.25.1 publication status](tests/PUBLICATION-0.25.1-2026-10-11.md): the creator has uploaded to the existing Workshop item; Steam update metadata and the current Steam-managed package are verified. GitHub's downloaded asset matches that package exactly and passes repeated native checks. Steam web-text saving still awaits the Codex editor's Family View unlock; moderation and subscriber delivery remain separate.
 
 Soulmates is a tModLoader mod about creating companions that feel personal. The reusable **Soulcore** opens a small companion creator. Each finished companion is stored in its own **Soulbound Sigil** with a persistent name, appearance, personality, talent, bond, mood, and energy.
 

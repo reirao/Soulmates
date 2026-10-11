@@ -4,7 +4,7 @@ October 11, 2026. After installation the creator reports "klappt jetzt" and
 explicitly requests GitHub/Steam publication and text updates. This is a
 positive current playtest report, not exhaustive beta acceptance.
 
-## GitHub: Published And Download Verified
+## Initial GitHub Publication
 
 Release: https://github.com/reirao/Soulmates/releases/tag/v0.25.1
 
@@ -38,31 +38,60 @@ changes since public 0.24.0, including the previously local 0.25.0 work, rather
 than appending old release logs. Historical installation/preparation receipts
 retain their original scope and hashes.
 
-## Steam: Awaiting User Actions
+## Steam Upload And Current GitHub Asset
 
-Existing Workshop item: 3807130821. Its visible public page before editing
-still showed 0.24.0 and the October 9 update, with moderator approval pending.
-The description editor and changelog then require the locked Family View PIN.
-The user has been asked to unlock it themselves; no PIN is collected or entered.
-No alternate route is used to bypass this access control.
+The creator subsequently clarifies that they already uploaded the binary.
+No second upload was performed. Steam's published-file API for existing item
+3807130821 reports update time **October 11, 21:32:32 CEST**, visibility 0 and
+content handle `2062317107204218111`. The normal loader log records building
+0.25.1 and submitting the existing-item update at 21:32:25. The Steam-managed
+2026.8 package was copied read-only into the workspace for verification.
 
-Native activation of the running tModLoader window was rejected to protect the
-user's live game. The user has been asked to save, return to the main menu and
-explicitly permit window takeover. No retry, focus workaround, game closure or
-native input followed that rejection. If the upload's final confirmation also
-accepts terms, obtain action-time approval before that step.
+- Current package: Soulmates 0.25.1, loader 2026.8.3.0, **1,636,248 bytes**.
+- SHA256: `A88D9E5ADD177FBB4F2F3BB2FC20AFC2201DB0D50744A8251E414F22AD7C360A`.
+- Native payload and all 86 production-source hashes pass; 114 entries, with
+  no tests, private notes, saves or gallery content packaged.
+- Against the initial GitHub artifact, 98 entries match. Nine catalogs are
+  reserialized as nested Hjson; structured comparison confirms all 997 keys
+  and values per language are identical. Metadata, descriptions, DLL and PDB
+  differ. This is not a binary-identical build of the earlier artifact.
+- This exact Steam-managed artifact passes **97,809 native assertions** and
+  **490 independent expectations**, with zero failures.
+- GitHub's sole mod asset was replaced with this artifact, then downloaded
+  again. Its package verification and SHA256 match exactly. The earlier GitHub
+  download remains locally preserved; source tag v0.25.1 was not moved.
 
-No 0.25.1 Workshop binary upload, server-side description save, changelog edit,
-moderation approval or subscriber delivery is established by this record.
-Both descriptions and the single-release changelog are ready locally. The
-existing gallery is left untouched and remains labeled as older footage.
+This verifies Steam-managed cache plus creator upload, official update metadata
+and normal-loader logs. The public API returns no direct download URL; no new
+independent CDN archive download or universal subscriber delivery is claimed.
+The legacy 2026.7 package remains historical, not current-feature evidence.
+
+## Steam Text: Awaiting Editor Unlock
+
+The creator permits loader takeover and reports Family View unlocked. No
+loader takeover is needed after their binary-upload clarification. The Codex
+browser editor still shows Family View after a fresh reload, so the user is
+asked to unlock that specific tab themselves. No PIN is collected or entered,
+and no alternate authenticated write route bypasses the access control.
+
+Both current descriptions and the one-release changelog are prepared, but
+server-side text saving and changelog correction are not yet established.
+The uploaded artifact retains earlier prepared-description wording; these
+web-text corrections do not require another binary upload. The existing
+gallery remains untouched and accurately labeled as older footage.
+Steam moderation and each subscriber's loaded version remain separate checks.
 
 ## Evidence And Open Gates
 
 Local receipts: `outputs/publication-0.25.1/package-verification.json`,
 `github-release.json`, `github-package-verification.json`,
 `installed-candidate-comparison.json`, `engine-checks.txt`, `audit-checks.txt`
-and `github.jpg`. These output files are excluded from Git and the mod asset.
+and `github.jpg`. Follow-up receipts include `steam-file-details.json`,
+`steam-cache-package-verification.json`, `steam-package-comparison.json`,
+`steam-catalog-comparison.json`, `steam-engine-checks.txt`,
+`steam-audit-checks.txt`, `aligned-github-release.json` and
+`aligned-github-package-verification.json`. These outputs are excluded from
+Git and the mod asset.
 
 The CLI's initial sandboxed credential check could not access Windows keyring.
 The same existing login works outside the sandbox; no new credential or access
