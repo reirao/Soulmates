@@ -36,7 +36,7 @@
 | Progression and pacing | Early tools through hardmode, protected terrain, capacity and work/recovery in actual play | Open. Controlled boundary fixtures do not replace a progression session. |
 | Interface and physical keys | Creator, wheels, answers, cargo, typing and native interactions at common UI scales; physical shortcut | Real GUI acceptance remains open, including 800x600, 1280x720 and 1920x1080. V is unverified; use Details/Pets. |
 | Endurance | A 60-minute single-player and a 60-minute connected multiplayer session, with saved/reloaded cargo | Open. Accelerated AI ticks do not replace these sessions. |
-| Installation and public delivery | Separate approval, verified installation, one current Workshop log, matching GitHub package and subscriber checks | Exact 0.25.1 candidate installed and verified in the normal client; prior package and local saves backed up. No public upload, loaded-client or subscriber delivery is established. |
+| Installation and public delivery | Separate approval, verified installation, one current Workshop log, matching GitHub package and subscriber checks | Installed candidate verified; creator reports success. GitHub beta and download verified. Steam upload/text save await Family View unlock and loader takeover permission; moderation/subscriber delivery remain separate. See [publication status](tests/PUBLICATION-0.25.1-2026-10-11.md). |
 
 A failed gate remains open until reproduced, repaired and retested. Older passes and package hashes do not close a candidate gate. These docs describe implemented scope, not a future feature roadmap.
 
