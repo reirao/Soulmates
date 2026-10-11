@@ -8,6 +8,8 @@
 
 The exact checked candidate was [installed in the normal client](tests/CLIENT-INSTALL-0.26.0-2026-10-11.md), with backups and unchanged saves. The creator reports a positive playtest and requests publication. [Release notes](releases/0.26.0.md) describe current scope; upload, Steam approval and subscriber delivery are separate checks. Older gallery footage is not a new 0.26.0 playtest.
 
+[0.26.0 publication verified](tests/PUBLICATION-0.26.0-2026-10-11.md): GitHub distributes the exact independently retested Steam-managed package. Both Workshop descriptions and the single current changelog are updated, along with the existing Terraria forum post/title. Steam moderation remains pending; subscriber delivery is separate. No duplicate upload or new gameplay footage was created.
+
 ## Previous Publication
 
 **0.25.1 - Home Within Reach | Beta.** Her wheel now has a permanent Home entry using Terraria's native house symbol. Discuss or reclassify the current shelter without waiting for automatic questions, including at Stay, with autonomy off or Quiet. Remembered homes, optional EVIL and focused behavior/input repairs join the existing learning, cargo and pets. Rapid multiplayer compass edits preserve consecutive choices. The creator reports a successful latest test of the [installed candidate](tests/CLIENT-INSTALL-0.25.1-2026-10-11.md) and requests publication. [Release/download](https://github.com/reirao/Soulmates/releases/tag/v0.25.1), [changes](releases/0.25.1.md) and [wiring checks](tests/HOME-WIRING-0.25.1-2026-10-11.md) distinguish automated evidence from real play. Upload, Steam moderation and subscriber delivery remain separate checks.
