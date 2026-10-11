@@ -50,9 +50,10 @@ public sealed partial class TalkModeState
 			button.OnLeftClick += (_, _) => { if (!awaitingResponse) SelectCharacterView(view); };
 			viewButtons.Add((view, button)); rootPanel!.Append(button);
 		}
-		foreach (CompanionQuickAction action in new[] { CompanionQuickAction.Pause, CompanionQuickAction.Resume, CompanionQuickAction.Abort }) {
+		foreach (CompanionQuickAction action in new[] { CompanionQuickAction.Pause, CompanionQuickAction.Resume, CompanionQuickAction.Abort, CompanionQuickAction.ToggleEvil }) {
 			var button = new TalkIconButton(action == CompanionQuickAction.Pause ? EmoteID.EmoteSleep
-				: action == CompanionQuickAction.Resume ? EmoteID.EmoteRun : EmoteID.EmoteScowl);
+				: action == CompanionQuickAction.Resume ? EmoteID.EmoteRun
+				: action == CompanionQuickAction.ToggleEvil ? EmoteID.EmoteLaugh : EmoteID.EmoteScowl);
 			button.OnLeftClick += (_, _) => ControlTask(action);
 			taskButtons.Add((action, button)); rootPanel!.Append(button);
 		}
@@ -118,9 +119,9 @@ public sealed partial class TalkModeState
 	}
 	private void LayoutCharacterViews(float left, float width, float bottom)
 	{
-		float size = Math.Min(32f, Math.Max(1f, (width - 24f) / 7f));
+		float size = Math.Min(32f, Math.Max(1f, (width - 28f) / 8f));
 		for (int i = 0; i < viewButtons.Count; i++) Place(viewButtons[i].Button, left + i * (size + 4f), 40f, size, size);
-		for (int i = 0; i < taskButtons.Count; i++) Place(taskButtons[i].Button, left + width - (3 - i) * (size + 3f), 40f, size, size);
+		for (int i = 0; i < taskButtons.Count; i++) Place(taskButtons[i].Button, left + width - (taskButtons.Count - i) * (size + 3f), 40f, size, size);
 		if (equipmentPanel is not null && equipmentContents is not null) {
 			Place(equipmentPanel, left, 82f, width, Math.Max(1f, bottom - 82f));
 			float slot = Math.Min(44f, (width - 12f) / 4f);
@@ -154,7 +155,12 @@ public sealed partial class TalkModeState
 	{
 		foreach (var entry in viewButtons) entry.Button.Selected = entry.View == characterView;
 		if (companion is null) return;
-		foreach (var entry in taskButtons) entry.Button.Selected = entry.Action == CompanionQuickAction.Pause && companion.Profile.WorkPaused;
+		foreach (var entry in taskButtons) {
+			entry.Button.Selected = entry.Action == CompanionQuickAction.ToggleEvil ? companion.Profile.EvilMode
+				: entry.Action == CompanionQuickAction.Pause && companion.Profile.WorkPaused;
+			if (entry.Action == CompanionQuickAction.ToggleEvil)
+				entry.Button.HoverText = SoulmatesText.Get(companion.Profile.EvilMode ? "UI.Wheel.EvilOn" : "UI.Wheel.EvilOff");
+		}
 		for (int i = 0; i < petButtons.Count; i++) {
 			petButtons[i].Selected = i == 0 && companion.Profile.PetItemType != 0;
 			petButtons[i].HoverText = SoulmatesText.Get(i == 0 ? "Pets.Inventory" : "Pets.Dismiss");

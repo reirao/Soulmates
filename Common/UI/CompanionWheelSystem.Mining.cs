@@ -86,9 +86,8 @@ public sealed partial class CompanionWheelSystem
 			SoulmatesText.Get(MiningFilterEnabled(index) ? "UI.CompanionWheel.MiningFilter.Enabled" : "UI.CompanionWheel.MiningFilter.Disabled"));
 	}
 
-	private void DrawMiningFilter(SpriteBatch spriteBatch, Color accent, float reveal)
+	private void DrawMiningFilter(SpriteBatch spriteBatch, Color accent)
 	{
-		Vector2 parent = WorkConfigPosition(Array.IndexOf(WorkActions, WheelWorkAction.MiningApproach));
 		for (int i = 0; i < MiningFilterNodeCount; i++) {
 			int type = miningFilterCategory < 0 ? -1 : MiningFilterEntry(i);
 			WheelIcon icon = miningFilterCategory < 0
@@ -99,7 +98,7 @@ public sealed partial class CompanionWheelSystem
 				: CompanionMiningRules.ItemType(type) is > ItemID.None and var itemType
 					? new WheelIcon(IconKind.Item, itemType) : new WheelIcon(IconKind.Emote, EmoteID.ItemPickaxe);
 			bool enabled = miningFilterCategory >= 0 && MiningFilterEnabled(i);
-			DrawNode(spriteBatch, Vector2.Lerp(parent, MiningFilterPosition(i), reveal), 32f,
+			DrawNode(spriteBatch, MiningFilterPosition(i), 32f,
 				miningFilterCategory < 0 || enabled || type is -2 or -3 ? accent : Color.Gray,
 				hoverLayer == HoverLayer.MiningFilter && hoverIndex == i, enabled, icon);
 		}

@@ -30,7 +30,7 @@ public sealed partial class CompanionWheelSystem
 	{
 		if (mode is < SoulwheelMouseMode.Terraria or > SoulwheelMouseMode.Companion) return;
 		SoulboundCompanion? target = companion ?? SoulboundCompanion.FindFor(Main.LocalPlayer);
-		if (mode == SoulwheelMouseMode.Terraria || target?.NPC.active != true) {
+		if (mode == SoulwheelMouseMode.Terraria || HasProtectedInput || !IsLocalCompanion(target)) {
 			ExitMouseMode();
 			return;
 		}
@@ -60,9 +60,9 @@ public sealed partial class CompanionWheelSystem
 
 	internal void OpenContext(SoulboundCompanion target, SoulwheelTarget snapshot, Vector2 uiMouse)
 	{
+		if (!snapshot.IsCurrent) return;
 		if (MouseMode == SoulwheelMouseMode.Terraria && !snapshot.CanOfferFallback) return;
-		Open(target, WheelContext.Contextual, null);
-		if (!open) return;
+		if (!Open(target, WheelContext.Contextual, null)) return;
 		center = ClampCenter(uiMouse);
 		contextTarget = snapshot;
 		if (MouseMode == SoulwheelMouseMode.Player) {
@@ -88,6 +88,7 @@ public sealed partial class CompanionWheelSystem
 
 	private void ActivateContextAction(int index)
 	{
+		if (HasProtectedInput || !HasCurrentCompanion) { ExitMouseMode(); return; }
 		if (index < 0 || index >= contextActions.Count || companion?.NPC.active != true) return;
 		SoulboundCompanion target = companion;
 		ContextAction action = contextActions[index];
@@ -114,7 +115,13 @@ public sealed partial class CompanionWheelSystem
 		if (snapshot.NpcSlot >= 0 && action is ContextAction.Look or ContextAction.Company or ContextAction.Collect) {
 			CompanionNpcAction npcAction = action == ContextAction.Company ? CompanionNpcAction.Company
 				: action == ContextAction.Collect ? CompanionNpcAction.Collect : CompanionNpcAction.Look;
+			bool allowed = npcAction switch {
+				CompanionNpcAction.Company => snapshot.CanInviteCritter(target),
+				CompanionNpcAction.Collect => snapshot.CanCollectCritter(target),
+				_ => snapshot.CanObserveNpc(target)
+			};
 			Close();
+			if (!allowed) return;
 			if (Main.netMode == NetmodeID.MultiplayerClient)
 				global::Soulmates.Soulmates.SendNpcContextRequest(target.Profile.Id, npcAction, snapshot.NpcSlot, snapshot.NpcType);
 			else {

@@ -1,54 +1,50 @@
 [h1]Soulmates[/h1]
-Der wiederverwendbare Soulcore erstellt Companions. Ihr Sigil speichert Aussehen, Persönlichkeit, Fortschritt, Erinnerungen und Fracht.
+Der wiederverwendbare Soulcore erstellt persönliche Companions. Ihr Soulbound Sigil bewahrt Aussehen, Persönlichkeit, Fortschritt, Erinnerungen, Fracht und Pets.
 
-[b]Version: 0.24.0 - Learning Together | Beta-Kandidat[/b]
-GitHub/Workshop-Upload: 0.24.0. Steam-Freigabe ausstehend.
-[b]Sprachen:[/b] EN, DE, IT, FR, ES, RU, PT-BR, PL und vereinfachtes Chinesisch. Folgt Terraria. Neue Übersetzungen sind KI-verfasst; Korrekturen willkommen. Manche MP-Antworten nutzen noch die Serversprache.
-[url=https://github.com/reirao/Soulmates]Quellcode und Versionshinweise[/url]
+[b]0.25.1 - Home Within Reach | Beta[/b]
+Neu seit 0.24.0: gemerkte Zuhause-Orte, ein fester Zuhause-Eintrag im Rad, optionales EVIL und gezielte Eingabe-/Verhaltenskorrekturen. Prüfe die geladene Version unter Mods: Upload, Steam-Freigabe und Auslieferung sind getrennt.
+[url=https://github.com/reirao/Soulmates/releases/tag/v0.25.1]Release und Quellcode[/url]
 
 [h2]Zusammen Anfangen[/h2]
-Charaktere erhalten einmal Soulcore und drei Blank Sigils. Nutze den Soulcore, wähle Namen, Talent, Persönlichkeit, Farben, Aura und Soulkin, Hase, Schleim, Vogel oder Eichhörnchen als Erscheinung, dann binde ein Sigil. Beschwöre sie damit und behalte es im Inventar. Ein Companion pro Spieler; Wechsel beendet alte Effekte. Der Soulcore bleibt nutzbar. Alte Sigils bleiben kompatibel.
+Charaktere erhalten einmal Soulcore und drei Blank Sigils. Wähle Namen, Talent, Persönlichkeit, Farben, Aura und Erscheinung, dann binde ein Sigil. Beschwöre sie damit und behalte es im Inventar. Ein Companion pro Spieler; Wechsel beendet alte Effekte. Soulcore bleibt nutzbar. AETHER hat alle Talente und erlernten Perks.
+
+[h2]Ein Ort Zum Dazugehören[/h2]
+Geschlossene möblierte Räume, dein tatsächlich vorhandenes gültiges Spawn-Bett und zugewiesene NPC-Wohnungen liefern verschiedene Hinweise. Begrenztes Ortsgedächtnis gilt pro Sigil und Welt. Getrennte Rückkehrbesuche machen einen Unterschlupf vertraut; Herumstehen zählt nicht mehrfach. Vertraut bedeutet nicht Eigentum.
+
+[b]Zuhause[/b] in ihrem Rad trägt Terrarias Haussymbol. Besprich einen gültigen Unterschlupf direkt oder ordne ihn neu ein: unser Zuhause, ihr kleines Zuhause, nur ein Halt oder Später. Auch bei Stay, ausgeschalteter Autonomie und ruhigen Fragen. Laufende Arbeit, NPC-Wohnungen und offene Fragen werden respektiert. Antworten prüfen Welt und Raum erneut. Heimtruhen werden nicht automatisch als neue Schätze entdeckt; ausdrückliche Schatzsuche bleibt. Sie baut oder renoviert keine Häuser.
+
+[h2]Optionales EVIL[/h2]
+Standardmäßig aus, pro Sigil gespeichert. Umschalten in Befehle oder mit dem vierten Aufgabenknopf in Details (lachendes Gesicht). Ruhekommentare, Feiern echter Arbeitserfolge und theatralisches Schere-Stein-Papier machen kleine Erfolge zu großen Schurkenplänen. Nur Darstellung: Zustimmung, Aufgaben, Belohnungen, Fracht, Schaden, Gelände und Mitgefühl bleiben erhalten. Wichtigere Aufmerksamkeit hat Vorrang.
 
 [h2]Kleine Räder, Klare Aufträge[/h2]
 [list]
-[*]Rechtsklick auf sie: Werkzeuge; auf dich: Emotes, Zeigen, Briefkasten. Details öffnet Gespräch, Ausrüstung, Diagnose und Pets. Das Sigil zeigt die tatsächliche Details-Taste, kein garantiertes V. Werkzeuge zeigen Fähigkeiten, keine Rüstung. Spieler-Emotes bietet alle 151 nativen Symbole in Kategorien. Bindung gruppiert Gefühle, Gesten, Fürsorge; Spiele enthält Schere, Stein, Papier.
-[*]Arbeit bietet Erzsuche und Bereichsabbau direkt neben Einstellen/Zuletzt. Einstellen bietet Aufträge, Abbaumodi und Filter. Zuletzt speichert angenommene Arbeit pro Sigil; Fehler, Ansehen und Einstellungen überschreiben sie nicht. Zielaufträge brauchen ein frisches Ziel statt alter Positionen oder Slots.
-[*]Abbaumodus: Adaptiv, Tunnel, Ader, Oberfläche. Tunnel-Kompass: Oben/Rechts/Unten/Links/Auto. Kurz: acht Schritte; Bis Öffnung: bis 24, vom Radius begrenzt. Routen stoppen an Flüssigkeit, instabilem Material, Schutz und Dekorationen, auch nach Planung. Einstellen startet keine Arbeit; Änderungen planen Bereichsabbau neu.
-[*]Automatische Erz-/Materialfilter nutzen native Symbole und Seiten. Erze starten erlaubt, beobachteter Boden braucht Freigabe. Direkte Aufträge umgehen nie Pflanzenschutz, Werkzeugstärke oder Fortschrittsregeln.
-[*]Terraria ist Standard: native Interaktionen zuerst. Unbehandelte NPC-/Drop-/Ressourcenklicks öffnen Kontext, Luft und Möbel nicht. Ich/Soulmate aktiviert Welt-Rechtsklick. Das Ziel bleibt beim Auswählen erhalten. Rechtsklick im Rad wechselt Modi, X/Escape beendet sie. Inventar, Tippen, NPC-Dialog und Cursor-Items behalten Vorrang.
-[*]Befehle > Initiativregeln: Fragen / Immer / Nie getrennt für Sammeln, Bergbau, Forst, Schätze, Gesellschaft und Fang. Ja gilt für ein Ziel. Direkte Aufträge und Zuletzt erlauben keine Automatismen. Pause behält Arbeit, Fortsetzen setzt fort, Abbrechen löscht sie und hält Automatismen an. Verteidigung bleibt.
+[*]Rechtsklick auf sie: Companion-Werkzeuge; auf dich: Spielerwerkzeuge und native Emote-Kategorien. Details öffnet Gespräch, Ausrüstung, Fracht, Pets und lesbare Diagnose. Pets öffnet direkt über ihr Rad. Das Sigil zeigt die tatsächliche Details-Taste; V bleibt im echten Spiel unbestätigt.
+[*]Terraria ist Standard: native Interaktionen zuerst. Inventar, Tippen, NPC-Dialog, Cursor-Items und alternative Item-Aktionen behalten Vorrang. Ich/Soulmate aktiviert gezieltes Zeigen; X/Escape beendet es. Veraltete Companion-/Sigil-Ziele und Antworten werden abgelehnt. Antwortsymbole blenden an festen Positionen ein.
+[*]Arbeit bietet Erzsuche, Bereichsabbau, Einstellen und Zuletzt. Zuletzt merkt angenommene Arbeit pro Sigil; Zielaufträge brauchen ein frisches Ziel. Abbau: Adaptiv, Tunnel, Ader, Oberfläche, begrenzter Kompass und Erz-/Materialfilter. Pflanzen, Setzlinge, Dekorationen, Flüssigkeiten, Werkzeuge und Fortschritt bleiben geschützt. Schnelle MP-Kompassklicks bewahren aufeinanderfolgende Entscheidungen.
+[*]Initiativregeln: Fragen/Immer/Nie getrennt für Sammeln, Bergbau, Forst, Schätze, Gesellschaft und Fang. Ja gilt einmal. Direkte Aufträge und Zuletzt erlauben keine Automatismen. Pause behält Arbeit, Fortsetzen setzt fort, Abbrechen löscht sie und hält Automatismen an. Verteidigung bleibt.
 [/list]
 
-[h2]Eine Hilfreiche Kleine Seele[/h2]
-Sie verteidigt, heilt nach Talent, sammelt, baut sicher ab und sucht Schätze. Bleiben verankert sie. Energie regeneriert; nach Erschöpfung gilt eine Reserve. Zusätzliche Ruhehilfe ist optional.
+[h2]Hilfreiche Gesellschaft[/h2]
+Sie verteidigt, heilt nach Talent, sammelt echte Drops, baut sicher ab und pflegt Wälder. Energie und Stimmung erholen sich natürlich; Erschöpfung braucht eine Reserve. Arbeit prüft aktuelle Ziele und Zeitgrenzen. Echte Gefahren haben Vorrang vor Trainingspuppen.
 
-Vorhandene Aktionen lernen Vorlieben aus Gewohnheiten, Aufträgen und Ergebnissen je Situation. Nach Erfolg fragt sie gelegentlich „War das hilfreich?“ im Antwortrad. Bewertungen lenken spätere Auswahl. Später, Schweigen und Abbrechen sind neutral. Still schaltet Bewertungen ab. Fragen/Immer/Nie, Verteidigung, Pause und Aufträge behalten Vorrang. Lokale Logik, kein freies Bauen oder Online-KI.
+Vorhandene Fähigkeiten lernen begrenzte Vorlieben aus Beobachtungen, Aufträgen und echten Ergebnissen. Gelegentliche Bewertungen nutzen das Antwortrad; Später, Schweigen und Abbrechen sind neutral. Still schaltet persönliche Fragen ab. Vorlieben erteilen keine Erlaubnis. Bau-Item-Nutzung liefert Kontext, keinen Platzierungsbeweis oder autonomes Bauen. Bewohner, Erinnerungen und Item-Gespräche nutzen native Emotes und persönliche Antworten. Lokale Spiellogik, keine Online-KI.
 
-Forester schüttelt geeignete Bäume, räumt tote Stämme und pflanzt mitgetragene Eicheln. Eine Axt erlaubt geprüfte trockene Seitenzweige; lebende/ungeeignete Teile bleiben geschützt. Ausrüstung unterstützt Angriffe, Licht, Nahrung und Crafting-Ideen.
+[h2]Welttiere und Item-Pets[/h2]
+Beobachten begrüßt ohne Fang. Gesellschaft lädt unterstützte echte Wildtiere mit begrenzter nativer Bewegung ein; AETHER bis zu drei. Fang enthält eine Basisnetz-Fähigkeit; Lava-Tiere brauchen ein geeignetes lavafestes Netz. Goldene, statuenbeschworene und freigelassene Tiere bleiben geschützt. Entfernung, Sicht, Erlaubnis, Arbeit und Erholung gelten weiter. Fang und Tod lösen getrennte Reaktionen aus. Aus/Rückruf gibt eingeladene Tiere frei.
 
-[h2]Critter Sind Keine Item-Pets[/h2]
-Beobachten begrüßt ohne Fang. Gesellschaft lädt ein echtes Tier ein, AETHER bis zu drei. Kollisionen, Gesundheit und Despawning bleiben; keine Kopien, Teleports oder Noclip. Tiere folgen auch ohne Autonomie, springen über kleine Hindernisse und halten bei Pause. Aus/Rückruf gibt sie frei.
+Gib echte wiederverwendbare Vanity-/Lichtpet-Items über Pets. Favoriten bleiben bei dir. Zwölf Slots: Linksklick beschwört, Rechtsklick gibt das Item zurück. Nur das erste Geschenk in leeren Speicher wählt automatisch; weitere bewahren Auswahl/Entlassen. Ein harmloser Begleiter folgt getrennt von deinem Pet. Native Bilder mit eigener Bewegung/Basislicht, keine Kopie originaler Pet-KI, Sonderfähigkeiten oder beliebiger Mod-Grafik. AETHERs mitgetragene Insekten können einen getrennten kosmetischen Schwarm bilden.
 
-Tierfang (zuvor Pet Collect) hat eine eingebaute Basisnetz-Fähigkeit, kein entnehmbares Gratisitem. Lava-Tiere brauchen ein mitgetragenes lavafestes Netz. Native Fanglogik und Frachtgrenzen gelten; goldene, statuenbeschworene und freigelassene Tiere sind geschützt.
+[h2]Tragen und Erinnern[/h2]
+20 Level, fünf Bindungsränge. Ausrüstung: 8-12 Plätze, 99 Stück pro Typ. Ressourcen: 60 Plätze, 50 Stück pro Level/Typ, bis 1.000 auf Level 20. Geldtasche ohne Spielwährungslimit. Native Stapelgrenzen gelten. Transfers erhalten echte Items; Überhänge bleiben. Ersparnisse kann sie dir anbieten. MP-Inventarkonflikte lehnen Transfers ab, statt Items zu überschreiben.
 
-Geeignete Tiere bieten Ansehen, Gesellschaft und Fangen. Direkte Besuche gehen ohne Autonomie, erlauben aber keine Automatismen. Diese brauchen Freigabe, Energie und Aufmerksamkeit. Hover zeigt Hindernisse. Symbole begrüßen; beobachtete Tode können Bedauern auslösen. Fang ist kein Tod; Timing braucht Tests.
+[h2]Sprachen, Feedback und Beta-Stand[/h2]
+EN, DE, IT, FR, ES, RU, PT-BR, PL und vereinfachtes Chinesisch folgen Terraria, mit je 997 vollständigen Schlüsseln. KI-verfasste Übersetzungen brauchen Korrekturen; manche MP-Antworten nutzen die Serversprache.
 
-Pets öffnet über ihr Rad und einen Charakter-Reiter. Gib echte Pet-Items; Favoriten bleiben bei dir. Das erste Geschenk an einen leeren Pet-Beutel wird ausgewählt. Zwölf Slots: Linksklick beschwört, Rechtsklick nimmt zurück. Status: kein Pet, wartend oder beschworen. Weitere Geschenke ersetzen keine Auswahl und heben Entlassen nicht auf. Tiere behält die Auswahl mit Seiten. Ein harmloser Begleiter folgt ohne Itemverbrauch oder Änderung deiner Pets/Buffs. Auswahl bleibt pro Sigil; Entlassen, letzte Entnahme und Rückruf entfernen ihn. Native Bilder mit eigener Flugbewegung; Lichtpets geben Basislicht. Original-Pet-KI, Sonderfähigkeiten und komplexe Mod-Grafik werden nicht kopiert. Keine feste Item-Liste.
+Der Ersteller meldet einen erfolgreichen aktuellen Test der installierten 0.25.1. Automatische Produktions-, Engine-, Audit- und Sprachprüfungen bestehen; [url=https://github.com/reirao/Soulmates/blob/main/tests/HOME-WIRING-0.25.1-2026-10-11.md]Prüfbelege[/url] trennen Fixtures vom echten Spiel. Vollständige GUI, physisches V, Zwei-Client-MP, Langzeitspiel und Fortschritt bleiben offen. Alle brauchen 0.25.1. Bilder zeigen ältere Builds.
 
-AETHER hat alle Talente/Perks und bis zu sechs mitgetragene Insekten als kosmetischen Schwarm. Erscheinung, Welttiere und Item-Pets bleiben getrennt; kein Kampf oder Buff-Ersatz.
-
-[h2]Erinnern, Antworten, Tragen[/h2]
-Bewohner nutzen native Emotes und persönliche Antworten. Beziehungen und Erinnerungen bleiben gespeichert. Items bespricht Kategorien; „Erinnerst du dich?“ erzählt erlebte Momente. Offene Fragen halten das Ausblenden an. Symbole beeinflussen Stimmung, Bindung und Tonfall, nicht Arbeitserlaubnisse. Still/Ruhig/Gesprächig regelt persönliche Fragen.
-
-20 Level, fünf Bindungsränge. Ausrüstung: 8-12 Plätze und 99 Stück pro Typ. Ressourcen: 60 Stapelplätze und 50 Stück pro Level und Typ, also 500 auf Level 10 und 1.000 auf Level 20. Geldtasche unbegrenzt. Native Stapelgrenzen gelten. Stapel/Einzelitems entnehmen; was nicht passt, bleibt. „Hier für dich!“ bietet Ersparnisse zum Annehmen, Behalten oder Verschieben. MP-Inventarkonflikte lehnen Transfers ab, statt Slots zu überschreiben.
-
-[h2]Feedback und Ist-Zustand[/h2]
-Diagnose zeigt Aktivität, Regeln, Energie, Critter-Hindernisse, Pets und Tasten-/Eingabezustand. Export: lokal in SoulmatesFeedback/diagnostic-latest.txt, ohne Aufzeichnung oder Upload. MP zeigt Client-Zustand, keine Serverhistorie.
-AETHER-Briefkasten: Papierflieger oder /soulfeedback. Optionale Feldnotizen starten ausgeschaltet. Alles bleibt lokal; nichts wird hochgeladen oder automatisch an Entwickler gesendet. Automatische Einträge enthalten keine Namen, Chats oder exakten Positionen; getippte Notizen behalten deinen Text. Teile nur, was du prüfen lassen möchtest.
-
-Erster 0.24.0-Spieltest positiv; Langzeitspiel und echtes MP offen. Alle brauchen 0.24.0. Upload ist keine Auslieferung: Version prüfen. Bitte Aktion, Soll/Ist und Solo/MP melden. V unbestätigt; Bilder zeigen ältere Builds.
+AETHER-Briefkasten: Papierflieger oder /soulfeedback. Optionale Feldnotizen starten aus und bleiben lokal. Nichts lädt hoch oder erreicht automatisch Entwickler. Automatische Notizen enthalten keine Namen, Chats oder Koordinaten; Ortskoordinaten bleiben im Spielstand. Getippte Notizen behalten deinen Text. Teile nur, was du auswählst. Bitte Version, Aktion, Soll/Ist und Solo/MP melden. Danke fürs Mithelfen: Der Ersteller kann privat nur wenig spielen, deshalb zählen eure Beobachtungen.
 
 [h2]Entwicklungshinweis[/h2]
-Umfangreiche KI-Unterstützung für Code, Texte, UI und Grafik. Workshop-/Mod-Icons und Soulkin sind KI-generiert; weitere benannte native Sprites, Items, Inventarsymbole und Emotes stammen aus Terraria. Kein Online-KI-Dienst im Spiel.
+KI-Unterstützung für Code, Texte, UI und Grafik. Workshop-/Mod-Icons und Soulkin sind KI-generiert; weitere Tier-/Item-/Inventar-/Emote-Grafiken stammen aus Terraria. Kein Online-KI-Dienst im Mod.
 
-[url=https://steamcommunity.com/sharedfiles/filedetails/?id=3807130821]Workshop[/url] | [url=https://github.com/reirao/Soulmates/issues]Bugberichte[/url]
+[url=https://github.com/reirao/Soulmates/issues]Bugberichte[/url]

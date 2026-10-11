@@ -633,7 +633,7 @@ public sealed class Soulmates : Mod
 
 		ApplyClientProfile(profile);
 		ModContent.GetInstance<TalkModeSystem>().ReceiveTaskResponse(profile, reply, accepted);
-		if (SoulboundCompanion.FindFor(Main.LocalPlayer) is { } companion && companion.Profile.Id == profile.Id)
+		if (!string.IsNullOrWhiteSpace(reply) && SoulboundCompanion.FindFor(Main.LocalPlayer) is { } companion && companion.Profile.Id == profile.Id)
 			companion.ShowSpeech(reply);
 		SoundEngine.PlaySound(accepted ? SoundID.Chat : SoundID.MenuClose);
 	}

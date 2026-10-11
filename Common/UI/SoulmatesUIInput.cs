@@ -18,5 +18,6 @@ internal static class SoulmatesUIInput
 
 	public static bool CanPresentInitiative => !Main.dedServ && !Main.gameMenu
 		&& !Main.LocalPlayer.dead && !Main.playerInventory && Main.LocalPlayer.talkNPC < 0
+		&& Main.mouseItem.IsAir
 		&& !IsTyping && !IsCaptured;
 }

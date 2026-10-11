@@ -70,7 +70,8 @@ public enum CompanionQuestion : byte
 	Company,
 	Wallet,
 	CritterCare,
-	Reflection
+	Reflection,
+	Home
 }
 
 public enum CompanionAnswer : byte
@@ -170,7 +171,9 @@ public enum CompanionQuickAction : byte
 	QuestionsChatty,
 	CritterCompanyPolicy,
 	CritterCollectPolicy,
-	RepeatLastWork
+	RepeatLastWork,
+	ToggleEvil,
+	DiscussHome
 }
 
 public enum CompanionQuestionCadence : byte { Quiet, Calm, Chatty }
@@ -359,6 +362,8 @@ public sealed partial class CompanionProfile
 	public CompanionJob Routine { get; set; }
 	public CompanionMiningApproach MiningApproach { get; set; } = CompanionMiningApproach.Adaptive;
 	public bool AutonomyEnabled { get; set; } = true;
+	public bool EvilMode { get; set; }
+	public CompanionPlaces Places { get; set; } = new();
 	public bool WorkPaused { get; set; }
 	public CompanionCritterMode CritterMode { get; set; } = CompanionCritterMode.Watch;
 	public CompanionInitiativePolicy GatheringInitiative { get; set; } = CompanionInitiativePolicy.Ask;
@@ -481,6 +486,7 @@ public sealed partial class CompanionProfile
 			PetItemType = PetItemType,
 			PetItems = PetItems.Where(item => !item.IsAir).Select(item => item.Clone()).ToList(),
 			AutonomyEnabled = AutonomyEnabled,
+			EvilMode = EvilMode,
 			WorkPaused = WorkPaused,
 			CritterMode = CritterMode,
 			Bond = Bond,
@@ -508,6 +514,7 @@ public sealed partial class CompanionProfile
 			Relationships = Relationships.Select(relation => relation.Clone()).ToList()
 		};
 		clone.IntentLearning = IntentLearning.Clone();
+		clone.Places = Places.Clone();
 		CompanionAbilityRegistry.CopyPolicies(this, clone);
 		return clone;
 	}
@@ -529,6 +536,7 @@ public sealed partial class CompanionProfile
 			["routine"] = (byte)Routine,
 			["miningApproach"] = (byte)MiningApproach,
 			["autonomyEnabled"] = AutonomyEnabled,
+			["evilMode"] = EvilMode,
 			["workPaused"] = WorkPaused,
 			["critterMode"] = (byte)CritterMode,
 			["bond"] = Bond,
@@ -558,6 +566,7 @@ public sealed partial class CompanionProfile
 		SaveWork(tag);
 		SavePet(tag);
 		tag["intentLearning"] = IntentLearning.Save();
+		tag["places"] = Places.Save();
 		return tag;
 	}
 
@@ -580,6 +589,7 @@ public sealed partial class CompanionProfile
 			MiningApproach = tag.ContainsKey("miningApproach")
 				? (CompanionMiningApproach)tag.GetByte("miningApproach") : CompanionMiningApproach.Adaptive,
 			AutonomyEnabled = !tag.ContainsKey("autonomyEnabled") || tag.GetBool("autonomyEnabled"),
+			EvilMode = tag.ContainsKey("evilMode") && tag.GetBool("evilMode"),
 			WorkPaused = tag.ContainsKey("workPaused") && tag.GetBool("workPaused"),
 			CritterMode = tag.ContainsKey("critterMode")
 				? (CompanionCritterMode)tag.GetByte("critterMode") : CompanionCritterMode.Watch,
@@ -620,6 +630,7 @@ public sealed partial class CompanionProfile
 		profile.LoadWork(tag);
 		profile.LoadPet(tag);
 		if (tag.ContainsKey("intentLearning")) profile.IntentLearning = CompanionIntentLearning.Load(tag.GetCompound("intentLearning"));
+		if (tag.ContainsKey("places")) profile.Places = CompanionPlaces.Load(tag.GetCompound("places"));
 		if (tag.ContainsKey("learnedMiningKeys")) profile.LoadMiningKnowledge(tag.GetList<string>("learnedMiningKeys"));
 		profile.Normalize();
 		return profile;
@@ -678,6 +689,8 @@ public sealed partial class CompanionProfile
 		WriteWork(writer);
 		WritePet(writer);
 		IntentLearning.Write(writer);
+		writer.Write(EvilMode);
+		Places.Write(writer);
 	}
 
 	public static CompanionProfile Read(BinaryReader reader)
@@ -739,6 +752,8 @@ public sealed partial class CompanionProfile
 		profile.ReadWork(reader);
 		profile.ReadPet(reader);
 		profile.IntentLearning = CompanionIntentLearning.Read(reader);
+		profile.EvilMode = reader.ReadBoolean();
+		profile.Places = CompanionPlaces.Read(reader);
 		profile.Normalize();
 		return profile;
 	}

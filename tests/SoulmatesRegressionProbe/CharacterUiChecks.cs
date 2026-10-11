@@ -29,6 +29,9 @@ public sealed partial class EngineChecks
 			object value = ((IEnumerable)Get(field)!).Cast<object>().ElementAt(index);
 			return (UIElement)(tuple ? value.GetType().GetField("Item2")!.GetValue(value)! : value);
 		}
+		// Inventory restores must retain the actual ModItem bound to the open character panel.
+		Item[] SnapshotInventory() => Main.LocalPlayer.inventory
+			.Select(item => ReferenceEquals(item.ModItem, sigil) ? item : item.Clone()).ToArray();
 		void Click(UIElement expected, string label) {
 			Rectangle bounds = expected.GetDimensions().ToRectangle(); Vector2 position = bounds.Center.ToVector2();
 			UIElement actual = state.GetElementAt(position);
@@ -36,7 +39,7 @@ public sealed partial class EngineChecks
 			actual?.LeftClick(new UIMouseEvent(actual, position));
 		}
 		Projectile[] previous = Main.projectile;
-		float oldScale = Main.UIScale;
+		float oldScale = Main.UIScaleWanted;
 		int oldWidth = Main.screenWidth, oldHeight = Main.screenHeight;
 		FieldInfo inputWidth = typeof(Terraria.GameInput.PlayerInput).GetField("_originalScreenWidth", BindingFlags.Static | BindingFlags.NonPublic)!;
 		FieldInfo inputHeight = typeof(Terraria.GameInput.PlayerInput).GetField("_originalScreenHeight", BindingFlags.Static | BindingFlags.NonPublic)!;
@@ -111,13 +114,13 @@ public sealed partial class EngineChecks
 			Click((UIElement)Get("petDismissButton")!, "dismiss slot");
 			check(mate.Profile.PetItemType == 0 && mate.Profile.ItemCount(ItemID.Nectar) == 1 && mate.Profile.ItemCount(ItemID.ZephyrFish) == 1, "Character dismiss consumed or lost actual items");
 			Call("RefreshPetSources"); check(PetStatus() == SoulmatesText.Get("Pets.StoredOnly"), "Dismissed pet still looks summoned");
-			Item[] beforeReturn = Main.LocalPlayer.inventory.Select(item => item.Clone()).ToArray();
+			Item[] beforeReturn = SnapshotInventory();
 			PetClick(1, true);
 			check(mate.Profile.ItemCount(ItemID.Nectar) == 0 && mate.Profile.PetItemType == 0, "Pet right-click did not return its real item");
 			check(Main.LocalPlayer.inventory.Where(item => item.type == ItemID.Nectar).Sum(item => item.stack)
 				== beforeReturn.Where(item => item.type == ItemID.Nectar).Sum(item => item.stack) + 1, "Pet right-click lost its real item");
 			Main.LocalPlayer.inventory = beforeReturn;
-			Item[] oldInventory = Main.LocalPlayer.inventory.Select(item => item.Clone()).ToArray();
+			Item[] oldInventory = SnapshotInventory();
 			try {
 				Main.LocalPlayer.inventory[25] = new Item(ItemID.CompanionCube);
 				Main.LocalPlayer.inventory[26] = new Item(ItemID.Carrot) { favorited = true };
@@ -145,9 +148,15 @@ public sealed partial class EngineChecks
 				check(Main.LocalPlayer.inventory[16].IsAir, "Second pet page dispatched the wrong inventory slot");
 			}
 			finally { Main.LocalPlayer.inventory = oldInventory; Call("RefreshPetSources"); }
+			check(state.HasActiveBinding && ReferenceEquals(mate.FindBoundSigil(), sigil),
+				"Character fixture replaced the panel's bound inventory Sigil");
 			Click(Button("taskButtons", 0, true), "pause"); check(mate.Profile.WorkPaused, "Character pause button does nothing");
 			Click(Button("taskButtons", 1, true), "resume"); check(!mate.Profile.WorkPaused, "Character resume button does nothing");
 			Click(Button("taskButtons", 2, true), "abort"); check(mate.Profile.WorkPaused && mate.CurrentJob == CompanionJob.None, "Character abort button does nothing");
+			Click(Button("taskButtons", 3, true), "EVIL on");
+			check(mate.Profile.EvilMode && sigil.Profile.EvilMode && mate.Profile.WorkPaused, "Character persona button lost binding or resumed aborted work");
+			Click(Button("taskButtons", 3, true), "EVIL off");
+			check(!mate.Profile.EvilMode && !sigil.Profile.EvilMode, "Character persona button cannot switch off");
 			Click(Button("viewButtons", 2, true), "diagnostics");
 			string diagnosis = (string)((object)Get("diagnosticText")!).GetType().GetField("text", flags)!.GetValue(Get("diagnosticText"))!;
 			check(diagnosis.Contains("single-player authority") && diagnosis.Contains("Critters:") && diagnosis.Contains("Own familiar count:"), "Diagnostic tab has no live brain/critter/pet state");
@@ -172,9 +181,10 @@ public sealed partial class EngineChecks
 			CheckLiveShowcase(check, state, mate, sigil);
 		}
 		finally {
-			Main.projectile = previous; Main.UIScale = oldScale;
+			Main.projectile = previous;
 			Main.screenWidth = oldWidth; Main.screenHeight = oldHeight;
 			inputWidth.SetValue(null, oldInputWidth); inputHeight.SetValue(null, oldInputHeight);
+			Main.UIScale = oldScale;
 		}
 	}
 }

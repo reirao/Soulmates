@@ -89,7 +89,7 @@ public sealed partial class SoulboundCompanion
 	}
 	private bool TickFollowActivity()
 	{
-		RecoverEnergy(120, Profile.Trinket == CompanionTrinket.HearthRibbon ? 3 : 2, recoverMood: false);
+		RecoverEnergy(120, Profile.Trinket == CompanionTrinket.HearthRibbon ? 3 : 2, recoverMood: autonomyRecoveryPaused);
 		Vector2 followTarget = Owner.Center + new Vector2(-Owner.direction * 66f, -58f);
 		float distance = Vector2.Distance(NPC.Center, followTarget);
 		if (distance > 1200f) {

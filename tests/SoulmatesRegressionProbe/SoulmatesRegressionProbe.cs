@@ -119,6 +119,14 @@ public sealed partial class EngineChecks : ModSystem
 			CheckCargoLayout(Check);
 			CheckAttention(Check);
 			CheckIntentLearning(Check);
+			CheckEvilPersona(Check);
+			CheckWorkBeta(Check);
+			CheckWheelBeta(Check);
+			CheckMiningConfigWheel(Check);
+			CheckPromptBeta(Check);
+			CheckPlaceBeta(Check);
+			CheckHomeIntegration(Check);
+			CheckCritterBetaRefinement(Check, soulmates);
 			CheckPointingAndInitiative(Check);
 			CheckRelationships(Check);
 			CheckNature(Check);
@@ -725,9 +733,13 @@ public sealed partial class EngineChecks : ModSystem
 					promptType.GetField("openProfileId", flags)!.SetValue(prompt, companion.Profile.Id);
 					promptType.GetField("conversation", flags)!.SetValue(prompt, true);
 					promptType.GetField("openQuestionId", flags)!.SetValue(prompt, companion.QuestionId);
-					Main.myPlayer = 0;
-					promptType.GetMethod("Respond", flags)!.Invoke(prompt, new object[] { index });
-					Main.myPlayer = 255;
+					bool menu = Main.gameMenu, inventory = Main.playerInventory;
+					Item cursor = Main.mouseItem;
+					try {
+						Main.myPlayer = 0; Main.gameMenu = Main.playerInventory = false; Main.mouseItem = new Item();
+						promptType.GetMethod("Respond", flags)!.Invoke(prompt, new object[] { index });
+					}
+					finally { Main.myPlayer = 255; Main.gameMenu = menu; Main.playerInventory = inventory; Main.mouseItem = cursor; }
 					check(!companion.HasPendingQuestion, "Radial answer did not reach the companion: " + index);
 					if (index < 3) check(companion.Profile.Voice == (index == 0 ? CompanionVoice.Direct
 						: index == 1 ? CompanionVoice.Playful : CompanionVoice.Soft), "Radial answer changed the wrong preference: " + index);

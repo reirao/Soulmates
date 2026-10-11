@@ -17,10 +17,11 @@ public sealed class CompanionFamiliar : ModProjectile
 {
 	private Guid companionId;
 	private int bindingWait;
+	private bool readyToDraw;
 	public override string Texture => $"Terraria/Images/Projectile_{ProjectileID.ZephyrFish}";
 	internal void Bind(Guid id) => companionId = id;
-	internal bool BelongsTo(SoulboundCompanion companion) => companionId == companion.Profile.Id
-		&& (int)Projectile.ai[0] == companion.NPC.whoAmI;
+	internal bool BelongsTo(SoulboundCompanion companion) => companionId != Guid.Empty && companionId == companion.Profile.Id
+		&& Projectile.ai[0] == companion.NPC.whoAmI;
 	public override void SetDefaults()
 	{
 		Projectile.width = Projectile.height = 24;
@@ -43,6 +44,7 @@ public sealed class CompanionFamiliar : ModProjectile
 	}
 	public override void AI()
 	{
+		readyToDraw = false;
 		int index = (int)Projectile.ai[0];
 		SoulboundCompanion? companion = index >= 0 && index < Main.maxNPCs && Main.npc[index].active
 			? Main.npc[index].ModNPC as SoulboundCompanion : null;
@@ -63,6 +65,7 @@ public sealed class CompanionFamiliar : ModProjectile
 		Projectile.timeLeft = 2;
 		int visual = CompanionPets.VisualFor(itemType);
 		if (visual <= 0) { Projectile.Kill(); return; }
+		readyToDraw = true;
 		if (ProjectileID.Sets.LightPet[visual]) Lighting.AddLight(Projectile.Center, 0.45f, 0.45f, 0.45f);
 		Vector2 goal = companion.NPC.Center + new Vector2(-companion.NPC.direction * 52f,
 			-12f + MathF.Sin(Projectile.localAI[0]++ / 45f) * 5f);
@@ -78,6 +81,7 @@ public sealed class CompanionFamiliar : ModProjectile
 	}
 	public override bool PreDraw(ref Color lightColor)
 	{
+		if (!readyToDraw) return false;
 		int visual = CompanionPets.VisualFor((int)Projectile.ai[1]);
 		if (visual == 0) return false;
 		Main.instance.LoadProjectile(visual);

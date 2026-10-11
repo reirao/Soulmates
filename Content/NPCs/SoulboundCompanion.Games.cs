@@ -41,7 +41,9 @@ public sealed partial class SoulboundCompanion
 		RpsOutcome outcome = CompanionRps.Resolve(playerMove, companionMove);
 		string text = SoulmatesText.Get("Games.Rps.Round", SoulmatesText.Get($"Games.Rps.Moves.{playerMove}"),
 			SoulmatesText.Get($"Games.Rps.Moves.{companionMove}"), SoulmatesText.Get($"Games.Rps.Outcomes.{outcome}"));
-		if (Profile.Voice != CompanionVoice.Direct)
+		if (Profile.EvilMode && Profile.Energy >= 5 && Profile.Mood >= 15)
+			text += " " + SoulmatesText.Get($"Evil.Games.{outcome}");
+		else if (Profile.Voice != CompanionVoice.Direct)
 			text += " " + SoulmatesText.Get(Profile.Energy < 5 || Profile.Mood < 15
 				? "Games.Rps.Quiet" : $"Games.Rps.Replies.{outcome}.{Profile.Personality}");
 		ShowSpeech(text);

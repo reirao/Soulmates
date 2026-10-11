@@ -38,7 +38,7 @@ public sealed partial class SoulboundCompanion
 		if (Main.netMode == NetmodeID.MultiplayerClient || CompanionInventorySync.IsPending(Owner)) return;
 		ObserveIntentContext(CompanionIntentContext.Building);
 		// This records use of a construction item, not proof that a tile was successfully placed.
-		if (item.createTile >= 0 || item.createWall > 0) Profile.IntentLearning.ObserveBuildingSupply(BuildingSupplyKey(item));
+		if (item.createTile >= TileID.Dirt || item.createWall > WallID.None) Profile.IntentLearning.ObserveBuildingSupply(BuildingSupplyKey(item));
 		SyncProfileToBoundSigil();
 		NPC.netUpdate = true;
 	}
@@ -50,6 +50,8 @@ public sealed partial class SoulboundCompanion
 		if (intentRequestCooldown > 0) intentRequestCooldown--;
 		if (reflectionCooldown > 0) reflectionCooldown--;
 		if (reflectionTicks > 0 && !HasPendingQuestion && --reflectionTicks == 0) reflectionIntent = null;
+		TickEvilPersona();
+		TickPlaceAwareness();
 	}
 	private void BeginLearningIntent(CompanionInitiativeKind kind, bool requested,
 		CompanionIntentContext? context = null)
@@ -69,6 +71,7 @@ public sealed partial class SoulboundCompanion
 		if (Main.netMode == NetmodeID.MultiplayerClient || learningIntent is not { } intent) return;
 		learningIntent = null;
 		Profile.IntentLearning.Completed(intent, successful);
+		if (successful) QueueEvilCelebration(intent.Kind);
 		// Keep one immutable result to discuss; later work cannot change what the question refers to.
 		if (successful && reflectionIntent is null && reflectionCooldown <= 0
 			&& Profile.QuestionCadence != CompanionQuestionCadence.Quiet) {

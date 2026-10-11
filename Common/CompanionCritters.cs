@@ -16,6 +16,9 @@ public enum CompanionNpcAction : byte { Look, Company, Collect }
 
 public static class CompanionCritters
 {
+	internal static bool IsCurrent(NPC npc) => npc.active && npc.life > 0 && npc.whoAmI >= 0
+		&& npc.whoAmI < Main.maxNPCs && ReferenceEquals(Main.npc[npc.whoAmI], npc);
+
 	public static bool IsCritter(NPC npc) => npc.catchItem > 0 || npc.type > NPCID.None
 		&& npc.type < NPCID.Sets.CountsAsCritter.Length && NPCID.Sets.CountsAsCritter[npc.type];
 
@@ -45,7 +48,9 @@ public static class CompanionCritters
 	public static bool SupportsCompany(int type) => type is NPCID.Bunny or NPCID.Squirrel or NPCID.SquirrelRed
 		or NPCID.Bird or NPCID.BirdBlue or NPCID.BirdRed or NPCID.Butterfly or NPCID.Firefly or NPCID.LightningBug;
 
-	public static bool CanUseNet(NPC npc, Item net) => !net.IsAir && ItemID.Sets.CatchingTool[net.type]
+	public static bool CanUseNet(NPC npc, Item net) => !net.IsAir && net.type > ItemID.None
+		&& net.type < ItemID.Sets.CatchingTool.Length && net.type < ItemID.Sets.LavaproofCatchingTool.Length
+		&& npc.catchItem > ItemID.None && npc.catchItem < ItemID.Sets.IsLavaBait.Length && ItemID.Sets.CatchingTool[net.type]
 		&& (!ItemID.Sets.IsLavaBait[npc.catchItem] || ItemID.Sets.LavaproofCatchingTool[net.type]);
 
 	public static int EmoteFor(NPC npc) => npc.type switch {
@@ -58,6 +63,14 @@ public static class CompanionCritters
 
 public sealed class CompanionCritterLife : GlobalNPC
 {
+	public override void SetDefaults(NPC npc)
+	{
+		// Terraria can reuse the same NPC object and species for a different spawn.
+		if (npc.whoAmI < 0 || npc.whoAmI >= Main.maxNPCs || !ReferenceEquals(Main.npc[npc.whoAmI], npc)) return;
+		foreach (NPC candidate in Main.ActiveNPCs)
+			if (candidate.ModNPC is SoulboundCompanion companion) companion.ForgetCritter(npc);
+	}
+
 	public override void OnKill(NPC npc)
 	{
 		if (Main.netMode == NetmodeID.MultiplayerClient || !CompanionCritters.IsHarmless(npc)
@@ -117,13 +130,15 @@ public sealed class CompanionCritterCompany : GlobalNPC
 			Leave(npc);
 			return;
 		}
+		Player owner = Main.player[(int)companion.NPC.ai[0]];
 		Vector2 offset = companion.NPC.Center - npc.Center;
 		float separation = npc.noGravity ? offset.Length() : MathF.Abs(offset.X);
 		if (separation > 96f) catchingUp = true;
 		else if (separation < 48f) catchingUp = false;
 		bool lineOfSight = Collision.CanHitLine(npc.position, npc.width, npc.height,
 			companion.NPC.position, companion.NPC.width, companion.NPC.height);
-		if (catchingUp && !companion.Profile.WorkPaused && (lineOfSight || !npc.noGravity && MathF.Abs(offset.Y) <= 160f)) {
+		if (catchingUp && !companion.Profile.WorkPaused && !CompanionInventorySync.IsPending(owner)
+			&& (npc.noGravity ? lineOfSight : MathF.Abs(offset.Y) <= 160f)) {
 			if (npc.noGravity) {
 				Vector2 desired = offset.SafeNormalize(Vector2.Zero) * Math.Min(4f, Math.Max(0f, offset.Length() - 36f) / 24f);
 				npc.velocity = desired;
@@ -158,6 +173,7 @@ public sealed class CompanionCritterCompany : GlobalNPC
 		byte[] id = reader.ReadBytes(16);
 		if (index < 0 || index >= Main.maxNPCs || id.Length != 16) throw new InvalidDataException("Invalid critter company binding.");
 		Guid identity = new(id);
+		if (identity == Guid.Empty) throw new InvalidDataException("Invalid critter company identity.");
 		if (companionIndex != index || companionId != identity) catchingUp = false;
 		companionIndex = index;
 		companionId = identity;

@@ -342,6 +342,8 @@ public sealed partial class SoulboundCompanion
 
 	private void UpdateTreasureJob()
 	{
+		if (hasJobTarget && !IsTreasureTargetPresent(jobTarget))
+			hasJobTarget = false;
 		if (!hasJobTarget && !FindNearestChest(out jobTarget)) {
 			CompleteJob(SoulmatesText.Get("Jobs.Treasure.Empty", TreasureRadiusTiles), success: false);
 			return;
@@ -432,6 +434,10 @@ public sealed partial class SoulboundCompanion
 
 	private void UpdateGatherJob()
 	{
+		if (jobTimer > 7200) {
+			CompleteJob(SoulmatesText.Get("Jobs.Gathering.Timeout", jobCount), success: false);
+			return;
+		}
 		if (gatherForestAction != ForestAction.None) {
 			UpdateGatherForestTask();
 			return;
@@ -499,8 +505,6 @@ public sealed partial class SoulboundCompanion
 				return;
 			}
 		}
-		if (jobTimer > 7200)
-			CompleteJob(SoulmatesText.Get("Jobs.Gathering.Timeout", jobCount), success: false);
 	}
 
 	private void UpdateGatherForestTask()
@@ -539,13 +543,16 @@ public sealed partial class SoulboundCompanion
 		SyncPackState();
 	}
 
+	private static bool IsTreasureTargetPresent(Point target) => WorldGen.InWorld(target.X, target.Y, 10)
+		&& Main.chest.Any(chest => chest is not null && chest.x == target.X && chest.y == target.Y);
+
 	private bool FindNearestChest(out Point result)
 	{
 		result = Point.Zero;
 		float radius = TreasureRadiusTiles * 16f;
 		float bestDistance = radius * radius;
 		foreach (Chest? chest in Main.chest) {
-			if (chest is null)
+			if (chest is null || !WorldGen.InWorld(chest.x, chest.y, 10))
 				continue;
 			Vector2 position = new Vector2(chest.x * 16f, chest.y * 16f);
 			float distance = Vector2.DistanceSquared(jobOrigin, position);
@@ -1028,6 +1035,8 @@ public sealed partial class SoulboundCompanion
 
 	private void CompleteJob(string memory, bool success, CompanionMemoryKind? memoryKind = null, int memoryAmount = 0)
 	{
+		if (Main.netMode == NetmodeID.MultiplayerClient || activeJob == CompanionJob.None)
+			return;
 		CompleteLearningIntent(success);
 		SoulmatesFeedbackSystem.Record("job_completed", ("job", activeJob.ToString()),
 			("success", success), ("work_count", jobCount), ("memory_amount", memoryAmount),

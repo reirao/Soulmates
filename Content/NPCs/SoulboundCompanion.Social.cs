@@ -107,6 +107,8 @@ public sealed partial class SoulboundCompanion
 			key = "Social.Autonomous.Context.LowMood";
 		else if (Owner.statLife < Owner.statLifeMax2 / 3)
 			key = "Social.Autonomous.Context.Hurt";
+		else if (PlaceSpeechKey() is { } placeKey)
+			key = placeKey;
 		else if (Main.raining)
 			key = "Social.Autonomous.Context.Rain";
 		else if (Owner.ZoneRockLayerHeight || Owner.ZoneUnderworldHeight)
@@ -164,7 +166,7 @@ public sealed partial class SoulboundCompanion
 		}
 		if (!ownerUsingItem)
 			return;
-		if (held.createTile >= 0 && held.createTile != TileID.Saplings || held.createWall > 0 || held.hammer > 0) {
+		if (held.createTile >= TileID.Dirt && held.createTile != TileID.Saplings || held.createWall > WallID.None || held.hammer > 0) {
 			ObserveBuildingUse(held);
 			return;
 		}

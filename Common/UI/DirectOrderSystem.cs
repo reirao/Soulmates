@@ -23,6 +23,7 @@ public sealed class DirectOrderSystem : ModSystem
 	private bool rightMouseDown;
 	private CompanionTargetOrder order;
 	private SoulboundCompanion? companion;
+	private Guid companionId;
 	private string cachedLabel = "";
 	private string wrappedLabel = "";
 	private float cachedLabelWidth;
@@ -31,9 +32,12 @@ public sealed class DirectOrderSystem : ModSystem
 
 	public void Begin(SoulboundCompanion target, CompanionTargetOrder targetOrder)
 	{
-		if (Main.dedServ || Main.gameMenu || Main.LocalPlayer.dead || target.NPC.active != true)
+		if (Main.dedServ || Main.gameMenu || Main.LocalPlayer.dead || CompanionWheelSystem.HasProtectedInput
+			|| !CompanionWheelSystem.IsLocalCompanion(target) || !Enum.IsDefined(targetOrder))
 			return;
+		ModContent.GetInstance<CompanionWheelSystem>().Close();
 		companion = target;
+		companionId = target.Profile.Id;
 		order = targetOrder;
 		leftMouseDown = Main.mouseLeft;
 		rightMouseDown = Main.mouseRight;
@@ -45,6 +49,7 @@ public sealed class DirectOrderSystem : ModSystem
 	{
 		active = false;
 		companion = null;
+		companionId = Guid.Empty;
 		leftMouseDown = false;
 		rightMouseDown = false;
 	}
@@ -55,8 +60,8 @@ public sealed class DirectOrderSystem : ModSystem
 	{
 		if (!active)
 			return;
-		if (Main.gameMenu || Main.LocalPlayer.dead || Main.playerInventory || companion?.NPC.active != true
-			|| SoulboundCompanion.FindFor(Main.LocalPlayer) != companion) {
+		if (Main.gameMenu || Main.LocalPlayer.dead || CompanionWheelSystem.HasProtectedInput
+			|| !CompanionWheelSystem.IsLocalCompanion(companion) || companion!.Profile.Id != companionId) {
 			Cancel();
 			return;
 		}
@@ -75,6 +80,9 @@ public sealed class DirectOrderSystem : ModSystem
 			SoundEngine.PlaySound(SoundID.MenuClose with { Volume = 0.45f });
 			return;
 		}
+		// Native UI owns its hover clicks; still track button edges so a held click cannot become an order later.
+		if (Main.LocalPlayer.mouseInterface) return;
+		Main.blockMouse = true;
 		if (rightPressed) {
 			Main.mouseRightRelease = false;
 			SoulboundCompanion target = companion;
@@ -101,16 +109,14 @@ public sealed class DirectOrderSystem : ModSystem
 			}
 			SoundEngine.PlaySound(SoundID.MenuClose with { Volume = 0.35f, Pitch = 0.2f });
 		}
-
-		Main.LocalPlayer.mouseInterface = true;
-		Main.blockMouse = true;
 	}
 
 	private bool TryResolveTarget(out Point tileTarget, out int itemTarget)
 	{
 		tileTarget = SoulmatesUISpace.WorldMouse.ToTileCoordinates();
 		itemTarget = SoulwheelTarget.FindHoveredItem(SoulmatesUISpace.WorldMouse);
-		if (companion?.NPC.active != true)
+		if (CompanionWheelSystem.HasProtectedInput || Main.LocalPlayer.mouseInterface
+			|| !CompanionWheelSystem.IsLocalCompanion(companion) || companion!.Profile.Id != companionId)
 			return false;
 		return order switch {
 			CompanionTargetOrder.Mine => companion.CanTargetMining(tileTarget),
@@ -132,7 +138,8 @@ public sealed class DirectOrderSystem : ModSystem
 
 	private bool Draw()
 	{
-		if (!active || companion?.NPC.active != true)
+		if (!active || !CompanionWheelSystem.IsLocalCompanion(companion) || companion!.Profile.Id != companionId
+			|| CompanionWheelSystem.HasProtectedInput || Main.LocalPlayer.mouseInterface)
 			return true;
 
 		bool valid = TryResolveTarget(out Point tileTarget, out int itemTarget);

@@ -1,10 +1,11 @@
-Soulmates 0.24.0 - Learning Together | Beta Candidate
+Soulmates 0.25.1 - Home Within Reach | Beta
 
-- Added bounded, saved contextual preferences to the existing shared attention selector. Accepted orders and observed habits provide cues; actual completed actions provide modest outcome evidence.
-- Successful work can ask "Was that helpful?" through the existing four-symbol answer wheel. Feedback applies to the captured action and situation, not whatever she happens to be doing when the player answers.
-- Approval, another idea and less of this influence later selection. Later, silence, changed targets and player cancellation do not punish her or alter automatic permissions.
-- Construction-item use provides local context and a small preference for familiar building supplies during gathering. It is not proof of successful tile placement, pattern recognition or a free-building system.
-- Evaluation shares the personal question cadence and honors Quiet. Existing work, consent, pause, defense, cargo and tool/progression rules remain in control.
-- Learning is separate per Sigil, cloned, saved and transported with bounded validation. Diagnostics exposes current intent, context, learned scores and evaluations. Existing Sigils begin with neutral estimates.
+New since the public 0.24.0:
+- Added bounded home memory per Sigil and world. Furnished shelter, an actual selected bed and resident housing provide distinct evidence. Familiarity never assigns ownership; only your answer does. Home storage is not automatically rediscovered as treasure.
+- Added the permanent Home entry with Terraria's house symbol. Discuss or reclassify a shelter immediately: our home, her home, just a stop or Later. Works at Stay, with autonomy off or Quiet, while respecting work, resident housing and unanswered questions. Replies revalidate the captured place.
+- Added optional EVIL, off by default: theatrical banter and celebrations of genuine work. Toggle in Commands or the laughing-face Details button. Consent, tasks, rewards, damage and critter empathy stay unchanged.
+- Hardened protected native input, stale targets/replies, mood/energy recovery, work timeouts, threat priority, critter identity and familiar binding. Answer symbols fade at fixed clickable positions.
+- Fixed rapid multiplayer mining-compass choices losing preceding edits while awaiting the server. Separated the eleven companion root hit areas.
+- Completed 997 text keys in all nine Terraria languages.
 
-The creator reports a positive first 0.24.0 playtest. Full graphical, endurance and connected multiplayer acceptance remain open. All multiplayer peers must use 0.24.0. V remains unconfirmed; use her wheel's Details and Pets routes. This entry contains this version only; older history stays separate.
+The creator reports a successful 0.25.1 test. Automated checks pass; full GUI, physical V, two-client multiplayer, endurance and progression acceptance remain open. All peers need 0.25.1. No autonomous building or online AI. This entry contains this release only, not older changelogs.

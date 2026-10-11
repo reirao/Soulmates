@@ -80,6 +80,8 @@ public sealed partial class SoulboundCompanion
 			|| action is CompanionQuickAction.Details or CompanionQuickAction.QuestionSettings)
 			return new(SoulmatesText.Get("TargetOrders.Invalid"), false);
 		if (action == CompanionQuickAction.RepeatLastWork) return RepeatLastWork();
+		if (action == CompanionQuickAction.ToggleEvil) return ToggleEvilMode();
+		if (action == CompanionQuickAction.DiscussHome) return DiscussHome();
 		if (QuestionCadenceFor(action) is CompanionQuestionCadence cadence) {
 			Profile.QuestionCadence = cadence;
 			ClearChoiceQuestion();
@@ -220,6 +222,10 @@ public sealed partial class SoulboundCompanion
 	public CompanionConversationResult Converse(TalkCategory category, int option, int memoryCursor,
 		CompanionItemTopic itemTopic = CompanionItemTopic.All)
 	{
+		if (Main.netMode == NetmodeID.MultiplayerClient || !NPC.active || !Enum.IsDefined(category)
+			|| option is < 0 or > 2 || !TryGetOwner(out Player owner) || owner.dead
+			|| FindBoundSigil() is null || CompanionInventorySync.IsPending(owner))
+			return new(SoulmatesText.Get("TargetOrders.Invalid"), false);
 		if (category == TalkCategory.Items) return DiscussItems(itemTopic, option, memoryCursor);
 		DialogueResult result = CompanionDialogueEngine.Speak(Profile, category, option);
 		Profile.ChangeBond(result.BondDelta);
@@ -312,6 +318,7 @@ public sealed partial class SoulboundCompanion
 
 	private void CancelAssignment()
 	{
+		ClearEvilCelebration();
 		learningIntent = null;
 		ClearReflection();
 		ClearNativeExpression();
@@ -538,6 +545,7 @@ public sealed partial class SoulboundCompanion
 
 	private void SpeakLocalized(string key, string argument = "")
 	{
+		key = PersonaSpeechKey(key);
 		if (!ShowLocalizedSpeech(key, argument))
 			return;
 		if (Main.netMode == NetmodeID.Server)
@@ -546,7 +554,10 @@ public sealed partial class SoulboundCompanion
 
 	public bool ShowLocalizedSpeech(string key, string argument = "")
 	{
+		key = PersonaSpeechKey(key);
 		bool ambient = key.StartsWith("Social.", StringComparison.Ordinal)
+			|| key.StartsWith("Places.", StringComparison.Ordinal)
+			|| key.StartsWith("Evil.Ambient.", StringComparison.Ordinal)
 			|| key.StartsWith("Autonomy.Surprise.", StringComparison.Ordinal);
 		if (ambient && (speechTimer > 180 || HasPendingQuestion || HasPendingInitiative))
 			return false;

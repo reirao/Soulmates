@@ -1,5 +1,53 @@
 Mods: {
 	Soulmates: {
+		Conversation.Home.Heading: "Ein Ort zum Bleiben"
+		UI.CompanionWheel.Categories.Home: "Zuhause: über diesen Ort sprechen"
+		Enums.CompanionQuickAction.DiscussHome: "Über diesen Ort sprechen"
+		Conversation.Home.RequestedQuestion: "Was bedeutet uns dieser geschützte Ort?"
+		Conversation.Home.Busy: "Lass mich erst fertig werden. Danach können wir über diesen Ort sprechen."
+		Conversation.Home.ResidentHome: "Hier wohnt bereits jemand. Ich respektiere sein Zuhause."
+		Conversation.Home.NoShelter: "Hier erkenne ich keinen geschützten Raum. Lass uns drinnen sprechen, mit Wänden, Boden und etwas Einrichtung."
+		Conversation.Home.Question: "Wir kommen immer wieder an diesen geschützten Ort. Darf ich ihn Zuhause nennen?"
+		Conversation.Home.Choices.First: "Unser Zuhause"
+		Conversation.Home.Choices.Second: "Dein kleines Zuhause"
+		Conversation.Home.Choices.Third: "Nur ein Zwischenstopp, kein Zuhause"
+		Conversation.Home.Choices.Later: "Entscheiden wir später"
+		Conversation.Home.Reply.First: "Unseres. Ich merke mir diesen Ort, nicht nur die Dinge darin."
+		Conversation.Home.Reply.Second: "Ein Ort für mich? Das merke ich mir. Es ist schön, irgendwo dazuzugehören."
+		Conversation.Home.Reply.Third: "Nur ein Zwischenstopp. Verstanden. Vertraut bedeutet nicht immer Zuhause."
+		Places.PlayerHome: "Dein gewähltes Bett ist in der Nähe. Das ist dein Zuhause-Anker, kein unerforschter Schatz."
+		Places.Residence: "Hier wohnt jemand. Diese Vorräte gehören zu einem bewohnten Ort, nicht zu einer vergessenen Ruine."
+		Places.Shelter: "Wände, ein Boden, nützliche Möbel. Vielleicht ein Unterschlupf. Wem er gehört, weiß ich noch nicht."
+		Places.Familiar: "Ich kenne diesen geschützten Ort von unseren Besuchen. Vertraut, aber nicht unbedingt Zuhause."
+		Places.SharedHome: "Unser Zuhause. Ich erinnere mich an deine Worte. Schön, wieder hier zu sein."
+		Places.CompanionHome: "Mein kleines Zuhause. Du hast gesagt, ich darf es so nennen. Das habe ich mir gemerkt."
+		Places.FormerHome: "Ich erinnere mich an unseren Ort hier, aber der Unterschlupf hat sich verändert. Ich nehme nicht einfach an, dass er noch ein Zuhause ist."
+		Enums.CompanionQuickAction.ToggleEvil: "EVIL™-Persönlichkeit"
+		UI.Wheel.EvilOn: "EVIL™: an"
+		UI.Wheel.EvilOff: "EVIL™: aus"
+		Evil.Enabled: "EVIL™-Modus. Große Pläne, kleine Verbrechen gegen die Langeweile. Deine Regeln gelten weiter."
+		Evil.Disabled: "Umhang verstaut. Immer noch ich, immer auf deiner Seite."
+		Evil.Ambient.Tired: "Auch kleine Schurken brauchen Luft. Erst erholen, dann große Pläne."
+		Evil.Ambient.Hurt: "Der große Plan kann warten. Du bist wichtiger. Bleib bei mir."
+		Evil.Ambient.Rain: "Dramatisches Wetter. Ausgezeichnet. Nasse Socken waren nicht geplant."
+		Evil.Ambient.Underground: "Ein geheimes Versteck? Nein, nur noch eine Höhle. Ich mache trotzdem Notizen."
+		Evil.Ambient.Night: "Die Nacht fällt. Zeit für meine finsterste Tat: dir Gesellschaft leisten."
+		Evil.Ambient.Building: "Ich beobachte deinen Baustil. Jedes gute Versteck braucht etwas Persönliches."
+		Evil.Ambient.Scheme0: "Der heutige Plan: diesen Ort etwas besser hinterlassen. Verrate es niemandem."
+		Evil.Ambient.Scheme1: "Ich habe einen raffinierten Plan. Du, ich und keine verlorenen Sachen."
+		Evil.Ambient.Scheme2: "Mein finsterer Ruf wird diese ganze Hilfsbereitschaft kaum überleben."
+		Evil.Reflection.First: "Genehmigt! Das kommt in den großen Plan. Genau deine Art von Unfug."
+		Evil.Reflection.Second: "Dann ein anderer Plan. Ich kann erfinderisch sein, ohne Chaos anzurichten."
+		Evil.Reflection.Third: "Davon weniger. Auch ein Schurke hört auf seinen Lieblingsmenschen."
+		Evil.Outcomes.Gathering: "Lose Vorräte gesichert. Ein vernichtender Schlag gegen die Unordnung."
+		Evil.Outcomes.Mining: "Nützliches Material gesichert. Mein Untergrundreich beginnt sehr, sehr klein."
+		Evil.Outcomes.Forestry: "Waldpflege erledigt. Rücksichtslos verantwortungsbewusst."
+		Evil.Outcomes.Treasure: "Noch ein Geheimnis entdeckt. Wissen ist Macht. Und manchmal glänzt es."
+		Evil.Outcomes.CritterCompany: "Ein kleiner Verbündeter begleitet uns. Angeworben durch Freundlichkeit. Teuflisch."
+		Evil.Outcomes.CritterCollect: "Ein kleines Wesen sicher eingesammelt. Der große Plan hat winzige Füße."
+		Evil.Games.PlayerWin: "Du gewinnst. Offensichtlich mein raffinierter Plan, dich zum Lächeln zu bringen."
+		Evil.Games.CompanionWin: "Sieg! Ehrlich gewonnen. Mein Schurkenruf liegt in Trümmern."
+		Evil.Games.Draw: "Ein ebenso raffinierter Gegner. Das respektiere ich."
 		Conversation.Reflection.Heading: "Gemeinsam lernen"
 		Conversation.Reflection.Question: "War {0} hilfreich?"
 		Conversation.Reflection.Choices.First: "Ja, das hat geholfen."
@@ -689,7 +737,7 @@ Mods: {
 			SensingTreasure: Schatz aufspüren
 			AwaitingAnswer: FRAGT: {0}
 			Guarding: IM KAMPF
-			Recovering: ENERGIE ERHOLEN
+			Recovering: ERHOLT SICH
 			Watching: BEOBACHTET · {0} BLÖCKE
 			Assignment: Auftrag: {0}
 			AssignmentPaused: PAUSE · {0}

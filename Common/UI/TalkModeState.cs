@@ -452,7 +452,7 @@ public sealed partial class TalkModeState : UIState
 
 	private void SetResponse(string text, bool accepted)
 	{
-		if (response is null || sigil is null)
+		if (response is null || sigil is null || string.IsNullOrWhiteSpace(text))
 			return;
 		response.SetText($"\"{text}\"");
 		response.TextColor = accepted ? DisplayProfile?.EssenceColor ?? Color.White : Color.IndianRed;

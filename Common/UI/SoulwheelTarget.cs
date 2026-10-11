@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using Microsoft.Xna.Framework;
 using Soulmates.Common.Dialogue;
 using Soulmates.Content.NPCs;
@@ -20,9 +21,13 @@ internal sealed class SoulwheelTarget
 	public int NpcType => npcType;
 	private readonly Item? item;
 	private readonly int itemType;
+	private readonly int itemNetId;
+	private readonly int itemPrefix;
 	private readonly NPC? npc;
 	private readonly int npcSlot = -1;
 	private readonly int npcType;
+	private readonly int npcNetId;
+	private bool invalidated;
 	private readonly bool hasTile;
 	private readonly ushort tileType;
 	private readonly short frameX;
@@ -35,10 +40,12 @@ internal sealed class SoulwheelTarget
 		if (ItemSlot >= 0) {
 			item = Main.item[ItemSlot];
 			itemType = item.type;
+			itemNetId = item.netID;
+			itemPrefix = item.prefix;
 			return;
 		}
 		float nearest = float.MaxValue;
-		for (int i = 0; i < Main.maxNPCs; i++) {
+		for (int i = 0; i < Math.Min(Main.maxNPCs, Main.npc.Length); i++) {
 			NPC candidate = Main.npc[i];
 			if (i == ignoredNpc || !candidate.active || !candidate.Hitbox.Contains(worldMouse.ToPoint())) continue;
 			float distance = Vector2.DistanceSquared(candidate.Center, worldMouse);
@@ -47,6 +54,7 @@ internal sealed class SoulwheelTarget
 			npc = candidate;
 			npcSlot = i;
 			npcType = candidate.type;
+			npcNetId = candidate.netID;
 		}
 		if (npc is not null || !WorldGen.InWorld(Tile.X, Tile.Y, 1)) return;
 		Terraria.Tile tile = Main.tile[Tile.X, Tile.Y];
@@ -58,14 +66,23 @@ internal sealed class SoulwheelTarget
 
 	public bool IsCurrent {
 		get {
+			if (invalidated) return false;
+			bool current;
 			if (item is not null)
-				return ReferenceEquals(Main.item[ItemSlot], item) && item.active && !item.IsAir && item.type == itemType;
-			if (npc is not null)
-				return ReferenceEquals(Main.npc[npcSlot], npc) && npc.active && npc.type == npcType;
-			if (!WorldGen.InWorld(Tile.X, Tile.Y, 1)) return false;
-			Terraria.Tile tile = Main.tile[Tile.X, Tile.Y];
-			return tile.HasTile == hasTile && (!hasTile || tile.TileType == tileType
-				&& tile.TileFrameX == frameX && tile.TileFrameY == frameY);
+				current = ItemSlot >= 0 && ItemSlot < Main.item.Length
+					&& ReferenceEquals(Main.item[ItemSlot], item) && item.active && !item.IsAir
+					&& item.type == itemType && item.netID == itemNetId && item.prefix == itemPrefix;
+			else if (npc is not null)
+				current = npcSlot >= 0 && npcSlot < Main.npc.Length
+					&& ReferenceEquals(Main.npc[npcSlot], npc) && npc.active && npc.type == npcType && npc.netID == npcNetId;
+			else if (WorldGen.InWorld(Tile.X, Tile.Y, 1)) {
+				Terraria.Tile tile = Main.tile[Tile.X, Tile.Y];
+				current = tile.HasTile == hasTile && (!hasTile || tile.TileType == tileType
+					&& tile.TileFrameX == frameX && tile.TileFrameY == frameY);
+			}
+			else current = false;
+			invalidated = !current;
+			return current;
 		}
 	}
 
@@ -116,7 +133,7 @@ internal sealed class SoulwheelTarget
 	{
 		int result = -1;
 		float nearest = float.MaxValue;
-		for (int i = 0; i < Main.maxItems; i++) {
+		for (int i = 0; i < Math.Min(Main.maxItems, Main.item.Length); i++) {
 			Item candidate = Main.item[i];
 			if (!candidate.active || candidate.IsAir) continue;
 			Rectangle hitbox = candidate.Hitbox;

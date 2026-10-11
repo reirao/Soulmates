@@ -27,7 +27,7 @@ public sealed partial class SoulboundCompanion
 	{
 		if (++diagnosticTimer < 60) return;
 		diagnosticTimer = 0;
-		string state = $"{ActivityLane} / {FeedbackActivity} / critters={CritterGate()} / target={critterTarget?.type ?? 0}";
+		string state = $"{ActivityLane} / {FeedbackActivity} / evil={Profile.EvilMode} / critters={CritterGate()} / target={critterTarget?.type ?? 0}";
 		if (state != lastDiagnosticState) { TraceDiagnostic(state); lastDiagnosticState = state; }
 	}
 	internal string CritterGate()
@@ -85,6 +85,8 @@ public sealed partial class SoulboundCompanion
 		var text = new StringBuilder();
 		text.AppendLine($"Soulmates {Mod.Version} | Terraria {Main.versionNumber} | tModLoader {BuildInfo.tMLVersion} | {Main.netMode switch { 0 => "single-player authority", 1 => "client view (server owns decisions)", _ => "server authority" }}");
 		text.AppendLine($"Lane: {ActivityLane}; activity: {FeedbackActivity}; command: {FeedbackCommand}");
+		text.AppendLine($"EVIL persona: {Profile.EvilMode}; queued celebration: {evilCelebration?.ToString() ?? "none"}; expression only, no permission override");
+		text.AppendLine($"Places: {Profile.Places.Records.Count}/8 remembered; current evidence: {PlaceSpeechKey() ?? "none"}; candidate ownership requires an answer");
 		text.AppendLine($"Energy {Profile.Energy}/100; mood {Profile.Mood}/100; level {Profile.Level}; autonomy {Profile.AutonomyEnabled}; paused {Profile.WorkPaused}");
 		text.AppendLine($"Job: {activeJob}; routine: {Profile.Routine}; progress {jobCount}/{jobPlannedTotal}; recovery {jobRecoveryPaused}/{autonomyRecoveryPaused}");
 		text.AppendLine($"Question: {PendingQuestion} ({QuestionTicks}); initiative: {(HasPendingInitiative ? PendingInitiativeKind.ToString() : "none")} ({PendingInitiativeTicks})");

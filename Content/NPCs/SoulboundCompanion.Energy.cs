@@ -25,13 +25,14 @@ public sealed partial class SoulboundCompanion
 	{
 		if (Main.netMode == NetmodeID.MultiplayerClient) return;
 		bool recovering = Profile.AutonomyEnabled
-			&& Profile.Energy < (autonomyRecoveryPaused ? RecoveryReserve : 16);
+			&& (Profile.Energy < (autonomyRecoveryPaused ? RecoveryReserve : 16)
+				|| Profile.Mood < (autonomyRecoveryPaused ? 20 : 15));
 		if (recovering == autonomyRecoveryPaused) return;
 		autonomyRecoveryPaused = recovering;
 		if (recovering) ShowNativeEmote(EmoteID.EmoteSleep, 120);
 		else autonomyDecisionTimer = 0;
 		SoulmatesFeedbackSystem.Record(recovering ? "autonomy_recovery_started" : "autonomy_recovery_finished",
-			("energy", Profile.Energy));
+			("energy", Profile.Energy), ("mood", Profile.Mood));
 		NPC.netUpdate = true;
 	}
 }

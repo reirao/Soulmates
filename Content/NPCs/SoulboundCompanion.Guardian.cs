@@ -106,7 +106,7 @@ public sealed partial class SoulboundCompanion
 			float leash = DefenseLeash;
 			if (IsThreat(current)
 				&& Vector2.DistanceSquared(anchor, current.Center) <= leash * leash)
-				return current;
+				return current.type == NPCID.TargetDummy ? FindNearestThreat(anchor, DefenseRange) ?? current : current;
 		}
 		return FindNearestThreat(anchor, DefenseRange);
 	}
@@ -197,7 +197,9 @@ public sealed partial class SoulboundCompanion
 	private NPC? FindNearestThreat(Vector2 anchor, float range)
 	{
 		NPC? result = null;
+		NPC? trainingTarget = null;
 		float bestScore = float.MaxValue;
+		float nearestTrainingTarget = float.MaxValue;
 		for (int i = 0; i < Main.maxNPCs; i++) {
 			NPC candidate = Main.npc[i];
 			if (!IsThreat(candidate))
@@ -207,6 +209,13 @@ public sealed partial class SoulboundCompanion
 			float alertRange = defendingOwner || candidate.type == NPCID.TargetDummy ? range : Math.Min(range, PassiveAlertRange);
 			if (anchorDistance > alertRange * alertRange)
 				continue;
+			if (candidate.type == NPCID.TargetDummy) {
+				if (anchorDistance < nearestTrainingTarget) {
+					trainingTarget = candidate;
+					nearestTrainingTarget = anchorDistance;
+				}
+				continue;
+			}
 			float score = anchorDistance;
 			if (defendingOwner)
 				score *= 0.55f;
@@ -215,7 +224,7 @@ public sealed partial class SoulboundCompanion
 			bestScore = score;
 			result = candidate;
 		}
-		return result;
+		return result ?? trainingTarget;
 	}
 
 	private static bool IsThreat(NPC candidate)

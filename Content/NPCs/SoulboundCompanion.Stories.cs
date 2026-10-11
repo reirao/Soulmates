@@ -91,17 +91,23 @@ public sealed partial class SoulboundCompanion
 	{
 		if (Owner.statLife < Owner.statLifeMax2 / 3) return ("Social.Autonomous.Context.Hurt", "", EmoteID.EmoteFear);
 		NPC? nearby = null;
+		NPC? threat = null;
 		float distance = 260f * 260f;
+		float threatDistance = distance;
 		foreach (NPC npc in Main.ActiveNPCs) {
 			float current = Vector2.DistanceSquared(npc.Center, NPC.Center);
-			if (npc == NPC || npc.life <= 0 || current >= distance
+			if (npc == NPC || npc.life <= 0 || current >= 260f * 260f
 				|| !Collision.CanHitLine(NPC.Center, 1, 1, npc.Center, 1, 1)) continue;
-			distance = current;
-			nearby = npc;
+			if (!npc.friendly && npc.damage > 0 && current < threatDistance) {
+				threatDistance = current;
+				threat = npc;
+			}
+			if (current < distance) { distance = current; nearby = npc; }
 		}
-		if (nearby is not null) return (!nearby.friendly && nearby.damage > 0 ? "Stories.Present.Threat"
-			: nearby.townNPC ? "Stories.Present.Resident" : "Stories.Present.Creature", nearby.FullName,
-			!nearby.friendly && nearby.damage > 0 ? EmoteID.EmoteFear : EmoteID.EmoteHappiness);
+		if (threat is not null) return ("Stories.Present.Threat", threat.FullName, EmoteID.EmoteFear);
+		if (PlaceSpeechKey() is { } placeKey) return (placeKey, "", EmoteID.EmotionLove);
+		if (nearby is not null) return (nearby.townNPC ? "Stories.Present.Resident" : "Stories.Present.Creature",
+			nearby.FullName, EmoteID.EmoteHappiness);
 		Item? drop = null;
 		distance = 220f * 220f;
 		foreach (Item item in Main.ActiveItems) {

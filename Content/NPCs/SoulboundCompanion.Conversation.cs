@@ -33,12 +33,14 @@ public sealed partial class SoulboundCompanion
 	public Guid QuestionId => questionId;
 	public int QuestionTicks => Math.Max(0, questionTicks);
 
-	private bool CanKeepQuestion() => Profile.AutonomyEnabled && !Profile.WorkPaused && Command != StayCommand
-		&& Owner.active && !Owner.dead && FindBoundSigil() is not null
+	private bool CanKeepConversation() => Owner.active && !Owner.dead && FindBoundSigil() is not null
 		&& activeJob == CompanionJob.None && Profile.Routine == CompanionJob.None
 		&& !HasPendingInitiative
 		&& socialNpcTarget < 0
 		&& Vector2.DistanceSquared(NPC.Center, Owner.Center) <= 560f * 560f;
+
+	private bool CanKeepQuestion() => CanKeepConversation()
+		&& (pendingQuestion == CompanionQuestion.Home || Profile.AutonomyEnabled && !Profile.WorkPaused && Command != StayCommand);
 
 	private bool CanHoldQuestion() => CanKeepQuestion() && autonomyActivity == AutonomyActivity.None
 		&& !IsAttendingCritter && guardianTarget < 0 && Profile.Energy >= 20 && Profile.Mood >= 15;
@@ -76,6 +78,8 @@ public sealed partial class SoulboundCompanion
 			BeginChoiceQuestion(CompanionQuestion.CritterCare);
 		else if (walletQuestionCooldown <= 0 && Profile.WalletCopper - lastOfferedWallet >= 100)
 			BeginChoiceQuestion(CompanionQuestion.Wallet);
+		else if (CanOfferHomeQuestion())
+			BeginChoiceQuestion(CompanionQuestion.Home);
 		else if (companyQuestionCooldown <= 0)
 			BeginChoiceQuestion(CompanionQuestion.Company);
 	}
@@ -86,18 +90,28 @@ public sealed partial class SoulboundCompanion
 			|| Profile.QuestionCadence == CompanionQuestionCadence.Quiet
 			|| question != CompanionQuestion.Reflection && personalQuestionCooldown > 0
 			|| question == CompanionQuestion.Reflection && hasAskedPersonalQuestion && personalQuestionCooldown > 0
-			|| question is not (CompanionQuestion.Company or CompanionQuestion.Wallet or CompanionQuestion.CritterCare or CompanionQuestion.Reflection)
+			|| question is not (CompanionQuestion.Company or CompanionQuestion.Wallet or CompanionQuestion.CritterCare or CompanionQuestion.Reflection or CompanionQuestion.Home)
 			|| question == CompanionQuestion.Reflection && (reflectionIntent is null || reflectionCooldown > 0)
 			|| question == CompanionQuestion.CritterCare && (pendingCritterCareTicks <= 0 || pendingCritterCareName.Length == 0)
-			|| question == CompanionQuestion.Wallet && Profile.WalletCopper.IsZero)
+			|| question == CompanionQuestion.Wallet && Profile.WalletCopper.IsZero
+			|| question == CompanionQuestion.Home && !CaptureHomeQuestion())
 			return false;
+		return StartChoiceQuestion(question);
+	}
+
+	private bool StartChoiceQuestion(CompanionQuestion question, bool playerRequested = false)
+	{
 		pendingQuestion = question;
 		questionId = Guid.NewGuid();
 		questionTicks = InitiativeResponseTicks;
 		personalQuestionCooldown = PersonalQuestionInterval;
 		hasAskedPersonalQuestion = true;
 		// Offers are spaced even if unanswered; the wallet has no artificial "full" state.
-		if (question == CompanionQuestion.Reflection) {
+		if (question == CompanionQuestion.Home) {
+			SpeakLocalized(playerRequested ? "Conversation.Home.RequestedQuestion" : "Conversation.Home.Question");
+			ShowNativeExpression(EmoteID.EmotionLove, EmoteID.EmoteConfused);
+		}
+		else if (question == CompanionQuestion.Reflection) {
 			reflectionCooldown = PersonalQuestionInterval;
 			SpeakLocalized("Conversation.Reflection.Question", SoulmatesText.EnumName(ReflectionKind)
 				+ " (" + SoulmatesText.Get($"Conversation.Reflection.Contexts.{ReflectionContext}") + ")");
@@ -137,6 +151,7 @@ public sealed partial class SoulboundCompanion
 	{
 		if (HasPendingQuestion) ClearNativeExpression();
 		if (pendingQuestion == CompanionQuestion.Reflection) ClearReflection();
+		if (pendingQuestion == CompanionQuestion.Home) ClearHomeQuestion();
 		pendingQuestion = CompanionQuestion.None;
 		questionId = Guid.Empty;
 		questionTicks = 0;
@@ -152,12 +167,17 @@ public sealed partial class SoulboundCompanion
 		if (!CanKeepQuestion()) { ClearChoiceQuestion(); return false; }
 		if (guardianTarget >= 0) return false;
 		CompanionQuestion question = pendingQuestion;
+		if (question == CompanionQuestion.Home && !EvaluateHomeQuestion(answer)) { ClearChoiceQuestion(); return false; }
 		if (question == CompanionQuestion.Reflection) EvaluateReflection(answer);
 		ClearChoiceQuestion();
 		SoulmateEmoteObserver.ShowReply(Owner, QuestionAnswerEmote(question, (int)answer));
 		string reply;
 		bool reward = answer != CompanionAnswer.Later;
-		if (question == CompanionQuestion.Reflection) {
+		if (question == CompanionQuestion.Home) {
+			reward = false;
+			reply = answer == CompanionAnswer.Later ? "Conversation.Later" : $"Conversation.Home.Reply.{answer}";
+		}
+		else if (question == CompanionQuestion.Reflection) {
 			reward = answer == CompanionAnswer.First && interactionRewardCooldown <= 0;
 			if (reward) interactionRewardCooldown = 300;
 			reply = answer == CompanionAnswer.Later ? "Conversation.Later" : $"Conversation.Reflection.Reply.{answer}";
@@ -223,6 +243,9 @@ public sealed partial class SoulboundCompanion
 	}
 
 	internal static int QuestionAnswerEmote(CompanionQuestion question, int index) => question switch {
+		CompanionQuestion.Home => index switch {
+			0 => EmoteID.EmotionLove, 1 => EmoteID.EmoteHappiness, 2 => EmoteID.EmoteRun, _ => EmoteID.EmoteSleep
+		},
 		CompanionQuestion.Reflection => index switch {
 			0 => EmoteID.EmoteHappiness, 1 => EmoteID.EmoteConfused, 2 => EmoteID.EmoteScowl, _ => EmoteID.EmoteSleep
 		},

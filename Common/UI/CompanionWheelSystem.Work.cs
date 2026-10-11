@@ -1,7 +1,10 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Soulmates.Content.Items;
+using Soulmates.Content.NPCs;
 using Terraria;
 using Terraria.Audio;
 using Terraria.GameContent.UI;
@@ -17,6 +20,77 @@ public sealed partial class CompanionWheelSystem
 	private bool ShowWorkActions => branch == RootBranch.Work && workPage == WorkPage.Actions
 		&& !miningApproachMenu && !miningFilterMenu && !nearbyOreMenu;
 	private int MiningApproachNodeCount => MiningApproaches.Length + 2;
+	private readonly record struct MiningWheelConfig(CompanionMiningApproach Approach, CompanionMiningDirection Direction, CompanionTunnelEnd End)
+	{
+		public static MiningWheelConfig From(CompanionProfile profile) => new(profile.MiningApproach, profile.MiningDirection, profile.TunnelEnd);
+	}
+	private const int MiningConfigTimeoutTicks = 600;
+	private const int MaximumPendingMiningConfigs = 64;
+	private SoulboundSigil? miningConfigSigil;
+	private SoulboundCompanion? miningConfigCompanion;
+	private Guid miningConfigId;
+	private CompanionProfile? miningConfigObservedProfile;
+	private MiningWheelConfig miningConfigBaseline;
+	private readonly List<MiningWheelConfig> miningConfigRequests = [];
+	private MiningWheelConfig miningConfigDraft;
+	private int miningConfigWaitTicks;
+	private int miningConfigOpenTicks;
+
+	public override void PostUpdateInput()
+	{
+		ReconcileMiningConfigDraft();
+		if (miningConfigSigil is not null && ++miningConfigWaitTicks >= MiningConfigTimeoutTicks)
+			ResetMiningConfigDraft();
+	}
+
+	private void ResetMiningConfigDraft()
+	{
+		miningConfigSigil = null;
+		miningConfigCompanion = null;
+		miningConfigId = Guid.Empty;
+		miningConfigObservedProfile = null;
+		miningConfigBaseline = miningConfigDraft = default;
+		miningConfigRequests.Clear();
+		miningConfigWaitTicks = miningConfigOpenTicks = 0;
+	}
+
+	private void ReconcileMiningConfigDraft()
+	{
+		if (miningConfigSigil is null) return;
+		if (Main.netMode != NetmodeID.MultiplayerClient || Main.gameMenu || Main.LocalPlayer.dead
+			|| !open || HasProtectedInput || !HasCurrentCompanion || branch != RootBranch.Work
+			|| !ReferenceEquals(companion, miningConfigCompanion) || companion!.Profile.Id != miningConfigId
+			|| miningConfigSigil.Profile.Id != miningConfigId || !ReferenceEquals(companion.FindBoundSigil(), miningConfigSigil)
+			|| openTicks < miningConfigOpenTicks) {
+			ResetMiningConfigDraft();
+			return;
+		}
+		miningConfigOpenTicks = openTicks;
+		// Profile updates replace the snapshot; an unchanged snapshot is not an acknowledgement.
+		if (ReferenceEquals(companion.Profile, miningConfigObservedProfile)) return;
+		miningConfigObservedProfile = companion.Profile;
+		MiningWheelConfig actual = MiningWheelConfig.From(companion.Profile);
+		if (actual == miningConfigBaseline) return;
+		// An earlier full-config reply must not discard later deliberate clicks.
+		int acknowledged = miningConfigRequests.IndexOf(actual);
+		if (acknowledged >= 0) {
+			miningConfigRequests.RemoveRange(0, acknowledged + 1);
+			miningConfigBaseline = actual;
+			miningConfigWaitTicks = 0;
+			if (miningConfigRequests.Count == 0) ResetMiningConfigDraft();
+		}
+		else ResetMiningConfigDraft();
+		// Unrelated baseline updates and silently rejected requests expire without retrying.
+	}
+
+	private MiningWheelConfig CurrentMiningConfig
+	{
+		get {
+			ReconcileMiningConfigDraft();
+			return miningConfigSigil is not null ? miningConfigDraft
+				: companion is not null ? MiningWheelConfig.From(companion.Profile) : default;
+		}
+	}
 
 	private void ActivateWorkConfig(int index)
 	{
@@ -64,31 +138,55 @@ public sealed partial class CompanionWheelSystem
 	private Vector2 WorkConfigPosition(int index) => center + FanAngle(RootAngle(Array.IndexOf(ActiveRoots, RootBranch.Work)),
 		index, WorkActions.Length, MathHelper.ToRadians(148f)).ToRotationVector2() * NativeRadius * LayoutScale;
 
-	private void DrawWorkActions(SpriteBatch spriteBatch, Color accent, float reveal)
+	private void DrawWorkActions(SpriteBatch spriteBatch, Color accent)
 	{
-		Vector2 parent = BranchPosition(RootBranch.Work, 0, BranchNodeCount(RootBranch.Work));
 		for (int i = 0; i < WorkActions.Length; i++) DrawNode(spriteBatch,
-			Vector2.Lerp(parent, WorkConfigPosition(i), reveal), 32f, accent,
+			WorkConfigPosition(i), 32f, accent,
 			hoverLayer == HoverLayer.WorkConfig && hoverIndex == i, false, WorkActionIcon(i));
 	}
 
 	private void SetMiningConfig(CompanionMiningApproach approach, CompanionMiningDirection direction, CompanionTunnelEnd end)
 	{
-		if (companion?.NPC.active != true) return;
-		if (Main.netMode == NetmodeID.MultiplayerClient)
-			global::Soulmates.Soulmates.SendMiningConfigRequest(companion.Profile.Id, approach, direction, end);
-		else companion.ConfigureMining(approach, direction, end);
+		MiningWheelConfig current = CurrentMiningConfig;
+		// The approach picker supplies the last acknowledged direction/end from the other partial.
+		ApplyMiningConfig(new(approach, miningConfigSigil is not null ? current.Direction : direction,
+			miningConfigSigil is not null ? current.End : end));
+	}
+
+	private void ApplyMiningConfig(MiningWheelConfig config)
+	{
+		ReconcileMiningConfigDraft();
+		if (!open || !HasCurrentCompanion || HasProtectedInput || companion?.FindBoundSigil() is not { } sigil
+			|| sigil.Profile.Id != companionId || !Enum.IsDefined(config.Approach)
+			|| !Enum.IsDefined(config.Direction) || !Enum.IsDefined(config.End)) return;
+		if (Main.netMode == NetmodeID.MultiplayerClient) {
+			if (miningConfigRequests.Count >= MaximumPendingMiningConfigs) return;
+			if (config == CurrentMiningConfig) return;
+			if (miningConfigSigil is null) {
+				miningConfigSigil = sigil;
+				miningConfigCompanion = companion;
+				miningConfigId = companionId;
+				miningConfigObservedProfile = companion.Profile;
+				miningConfigBaseline = MiningWheelConfig.From(companion.Profile);
+				miningConfigWaitTicks = 0;
+				miningConfigOpenTicks = openTicks;
+			}
+			miningConfigDraft = config;
+			miningConfigRequests.Add(config);
+			global::Soulmates.Soulmates.SendMiningConfigRequest(miningConfigId, config.Approach, config.Direction, config.End);
+		}
+		else companion.ConfigureMining(config.Approach, config.Direction, config.End);
 		SoundEngine.PlaySound(SoundID.MenuTick);
 	}
 
 	private void ActivateCompass(int index)
 	{
 		if (companion is null || index < 0 || index > 5) return;
-		var profile = companion.Profile;
+		MiningWheelConfig config = CurrentMiningConfig;
 		CompanionMiningDirection direction = index == 4 ? CompanionMiningDirection.Auto : (CompanionMiningDirection)(index + 1);
-		SetMiningConfig(CompanionMiningApproach.Tunnel,
-			index < 5 ? direction : profile.MiningDirection,
-			index == 5 ? profile.TunnelEnd == CompanionTunnelEnd.Passage ? CompanionTunnelEnd.Short : CompanionTunnelEnd.Passage : profile.TunnelEnd);
+		ApplyMiningConfig(new(CompanionMiningApproach.Tunnel,
+			index < 5 ? direction : config.Direction,
+			index == 5 ? config.End == CompanionTunnelEnd.Passage ? CompanionTunnelEnd.Short : CompanionTunnelEnd.Passage : config.End));
 	}
 	private Vector2 CompassPosition(int index) => center + (index switch {
 		0 => new Vector2(0, -96), 1 => new Vector2(96, 0), 2 => new Vector2(0, 96), 3 => new Vector2(-96, 0),
@@ -99,13 +197,14 @@ public sealed partial class CompanionWheelSystem
 	private static string TunnelEndLabel(CompanionTunnelEnd end) => SoulmatesText.Get($"UI.CompanionWheel.WorkMenu.Ends.{end}");
 	private string CompassLabel(int index) => index < 5
 		? CompassDirectionLabel(index == 4 ? CompanionMiningDirection.Auto : (CompanionMiningDirection)(index + 1))
-		: SoulmatesText.Get("UI.CompanionWheel.WorkMenu.End", TunnelEndLabel(companion!.Profile.TunnelEnd));
+		: SoulmatesText.Get("UI.CompanionWheel.WorkMenu.End", TunnelEndLabel(CurrentMiningConfig.End));
 	private void DrawCompass(SpriteBatch spriteBatch, Color accent)
 	{
+		MiningWheelConfig config = CurrentMiningConfig;
 		for (int i = 0; i < 6; i++) {
 			var direction = i == 4 ? CompanionMiningDirection.Auto : (CompanionMiningDirection)(i + 1);
 			DrawNode(spriteBatch, CompassPosition(i), 40f, accent, hoverLayer == HoverLayer.Compass && hoverIndex == i,
-				i < 5 && companion!.Profile.MiningDirection == direction, i < 4 ? new WheelIcon(IconKind.Direction, i)
+				i < 5 && config.Direction == direction, i < 4 ? new WheelIcon(IconKind.Direction, i)
 					: i == 4 ? new WheelIcon(IconKind.Item, ItemID.Compass) : new WheelIcon(IconKind.Emote, EmoteID.ItemCog));
 		}
 	}

@@ -279,7 +279,7 @@ public sealed partial class SoulboundCompanion
 			return false;
 		}
 
-		if (autonomyWorkCount >= AutonomousMiningSweepLimit || !FindAutonomousOre(out autonomyTargetTile))
+		if (Profile.Energy < 16 || autonomyWorkCount >= AutonomousMiningSweepLimit || !FindAutonomousOre(out autonomyTargetTile))
 			FinishAutonomousMining();
 		NPC.netUpdate = true;
 		return autonomyActivity != AutonomyActivity.None;
@@ -287,6 +287,12 @@ public sealed partial class SoulboundCompanion
 
 	private bool UpdateAutonomousTreasure()
 	{
+		if (Main.netMode != NetmodeID.MultiplayerClient
+			&& (!IsTreasureTargetPresent(autonomyTargetTile) || IsKnownHomeChest(autonomyTargetTile))) {
+			CompleteLearningIntent(false);
+			CancelAutonomousActivity(180);
+			return false;
+		}
 		Vector2 target = autonomyTargetTile.ToWorldCoordinates(16f, -24f);
 		MoveTo(target, 5.5f, 0.07f);
 		if (Main.netMode == NetmodeID.MultiplayerClient)
@@ -603,6 +609,9 @@ public sealed partial class SoulboundCompanion
 				if (candidate == Point.Zero || !consideredTargets.Add(candidate)
 					|| tendedForestTargets.Contains(candidate))
 					continue;
+				if (activeJob == CompanionJob.None
+					&& !IsInitiativeTargetValid(AutonomyActivity.TendForest, -1, candidate, candidateAction))
+					continue;
 				float score = Vector2.DistanceSquared(candidate.ToWorldCoordinates(), NPC.Center) * priority;
 				if (candidateAction == ForestAction.PlantAcorn)
 					score += 12000f;
@@ -656,12 +665,13 @@ public sealed partial class SoulboundCompanion
 		float radius = 18f * 16f;
 		float bestDistance = radius * radius;
 		foreach (Chest? chest in Main.chest) {
-			if (chest is null)
+			if (chest is null || !WorldGen.InWorld(chest.x, chest.y, 10))
 				continue;
 			Vector2 position = new(chest.x * 16f, chest.y * 16f);
 			float distance = Vector2.DistanceSquared(Owner.Center, position);
 			if (distance < 72f * 72f || distance >= bestDistance)
 				continue;
+			if (IsKnownHomeChest(new Point(chest.x, chest.y))) continue;
 			bestDistance = distance;
 			result = new Point(chest.x, chest.y);
 		}
@@ -754,7 +764,7 @@ public sealed partial class SoulboundCompanion
 			AutonomyActivity.AssistMining => MiningInstinct
 				&& CanAutomaticallyMineTile(tile.X, tile.Y),
 			AutonomyActivity.InspectTreasure => TreasureInstinct
-				&& Main.chest.Any(chest => chest is not null && chest.x == tile.X && chest.y == tile.Y),
+				&& IsTreasureTargetPresent(tile) && !IsKnownHomeChest(tile),
 			AutonomyActivity.TendForest => forestAction switch {
 				ForestAction.ShakeTree => treeShakeCooldown <= 0 && TryFindTreeTrunk(tile, out _),
 				ForestAction.PruneBranch => HasPruningAxe() && IsBareTreeBranch(tile),

@@ -87,6 +87,8 @@ public sealed partial class EngineChecks
 			extension.Write(0); // No selected carried pet in an old profile.
 			// 0.24 appends 42 bounded estimates and an empty construction-supply list.
 			extension.Write(new byte[169]);
+			extension.Write(false); // 0.25 appends an opt-in persona, never a permission.
+			extension.Write((byte)1); extension.Write((byte)0); // Bounded, versioned place memory; no records.
 		}
 		check(current.ToArray().SequenceEqual(legacy.ToArray()), "Profile write has an unexpected work extension");
 		legacy.Position = 0;

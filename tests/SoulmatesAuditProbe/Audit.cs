@@ -250,6 +250,7 @@ public sealed partial class AuditChecks : ModSystem
             CheckCritterSchedulingAndDiagnosis(owner);
 			CheckIntentLearningBoundaries(mod, owner);
 
+            CheckBetaAdversarialCases(mod);
             CheckPanelGeometry();
             results.Add("Audit completed. Failed safety expectations=" + failedExpectations);
         }

@@ -77,6 +77,7 @@ public sealed partial class SoulboundCompanion
 
 	private void StopOwnedEffects()
 	{
+		ClearEvilCelebration();
 		activityCoordinator?.Reset();
 		ClearNativeExpression();
 		RetireNativeBubble();

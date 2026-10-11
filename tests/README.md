@@ -1,5 +1,24 @@
 # Soulmates Regression Checks
 
+The [0.25.1 Home wiring correction](HOME-WIRING-0.25.1-2026-10-11.md) adds
+production Home-root-to-answer checks and rapid multiplayer compass packet
+counterchecks. The native run passes 97,809 assertions; static/localization
+passes 58,547 assertions with 997 keys in nine catalogs. Production builds
+have zero warnings/errors. The exact candidate is installed; the creator reports
+a successful current test and requests publication. Publication metadata is
+rebuilt and rechecked separately. Full graphical, physical-input and connected-
+multiplayer acceptance remain separate.
+
+The local [0.25.0 A Place to Belong candidate](BETA-DEPTH-0.25.0-2026-10-11.md)
+passes **96,492 native assertions**, **490 independent expectations** and
+**58,211 static/localization assertions**, with 991 keys in nine catalogs.
+Production MSBuild and native compilation report zero warnings/errors. New
+coverage checks grounded room memory, captured home answers, EVIL presentation,
+protected input, recovery, work targets and critter/familiar identity. This pass
+does not install or publish the package or claim graphical/physical-key,
+connected multiplayer, progression or endurance acceptance. Older summaries
+below retain their original version's evidence, not current delivery claims.
+
 The current [0.24.0 Learning Together candidate](INTENT-LEARNING-0.24.0-2026-10-09.md) passes **94,235 native assertions**, **198 independent expectations** and **55,855 static/localization assertions**. Coverage includes observed construction-item use, conserved actual outcomes, context-stable evaluation replies through production UI handlers, replay rejection, per-Sigil persistence and existing authority/consent gates. The exact package is [installed](CLIENT-INSTALL-0.24.0-2026-10-09.md); the creator reports a positive first playtest. Graphical, physical-key, endurance and connected multiplayer acceptance remain separate. The following summaries preserve each older version's preparation state, not current installation instructions.
 
 The [0.23.2 Clear Pet Actions correction](CLEAR-PET-ACTIONS-0.23.2-2026-10-09.md) passes **93,883 native assertions**, **182 independent expectations** and **54,971 static/localization assertions**. It covers first-gift selection, explicit summon/return controls, active familiar state, the Eucalyptus Sap case and real key-assignment reporting. Its exact package is installed; the creator subsequently reports a positive playtest. Earlier injected shortcut triggers were not proof of a working physical V key. [That testing lesson remains explicit](../README.md#the-v-key-lesson), and keyboard/rendered/connected multiplayer acceptance remains separate.

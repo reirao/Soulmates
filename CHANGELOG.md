@@ -1,5 +1,22 @@
 # Soulmates Development History
 
+## Soulmates 0.25.1 - Home Within Reach (Beta)
+
+- Add the missing permanent Home entry to the companion wheel, using Terraria's native map spawn-house icon. Open the existing four-answer conversation explicitly, including at Stay, with autonomy off or Quiet questions. Automatic home questions still require separated visits and follow the personal-question cadence.
+- Allow manual reclassification of an existing home without inventing familiarity, rewards or permissions. Validate the captured world and room again on reply; respect assigned resident housing and ongoing work. Preserve unanswered questions rather than replacing their text or identity.
+- Keep the eleven companion root hit areas separate and cover the Home click-to-answer route at four viewports and three requested scales. Add all new labels and explanations to the nine supported languages.
+- Fix rapid multiplayer mining-compass edits overwriting earlier choices while their server response is pending. Keep client-side configuration separate from authoritative companion state.
+- Installed October 11; the creator reports a successful current test and requests publication. The public update includes the preceding local 0.25.0 home/EVIL work, without reposting older Workshop logs. Physical V, exhaustive graphical, connected multiplayer, endurance and progression acceptance remain separate checks.
+
+## Soulmates 0.25.0 - A Place to Belong (Local Beta Candidate)
+
+- Add bounded place memory per Sigil and world. Enclosed furnished rooms, the owner's actual valid selected bed and assigned resident home anchors provide distinct evidence. Count separated returns, not standing ticks; familiarity never assigns ownership.
+- Use the existing answer wheel for SharedHome, CompanionHome, NotHome or Later. Only the player's classification assigns a home role; Later leaves it unchanged. Recheck the captured world and room, including changed shelter, and do not offer resident housing for claiming. Exclude recognized home chests from automatic treasure rediscovery while retaining explicit treasure search. No autonomous house construction or remodeling.
+- Add optional EVIL, off by default and saved per Sigil. Toggle it through Commands or the fourth task button in Details (laughing face). Safe idle banter, actual completed-work celebrations and fair Rock, paper, scissors quips change presentation only. Consent, tasks, rewards, cargo, damage, terrain and critter empathy remain intact.
+- Harden native-first protected input, stale companion/Sigil targets and replies. Fade answer nodes at fixed hit positions. Improve mood/energy recovery, live-target checks, bounded work timeouts, real-threat priority over training dummies, critter validation and familiar binding/drawing.
+- Complete all nine language catalogs with 991 keys each. MSBuild and native package compilation pass with zero warnings/errors; native regression and static/localization checks pass. The independent audit also passes; exact package evidence is recorded in the [beta-depth report](tests/BETA-DEPTH-0.25.0-2026-10-11.md), without test totals repeated here.
+- Prepare local candidate documentation only: no installation or publication in this pass. Physical V, real GUI, two-client multiplayer, endurance and progression acceptance remain open. Optional notes stay local and off by default; automatic records omit names, chat and coordinates, while place coordinates remain in the local game save. Existing AI visual/native-asset disclosure remains applicable.
+
 ## Soulmates 0.24.0 - Learning Together (Beta Candidate)
 
 - Add bounded per-Sigil contextual preferences to the existing shared attention selector. Observations and accepted requests are cues; completed actions provide outcome evidence.

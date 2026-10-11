@@ -48,6 +48,7 @@ public sealed class InitiativePromptSystem : ModSystem
 	{
 		bool personal = !boundCompanion.HasPendingInitiative && boundCompanion.HasPendingQuestion;
 		if (!SoulmatesUIInput.CanPresentInitiative || !boundCompanion.HasPendingInitiative && !personal
+			|| !ReferenceEquals(SoulboundCompanion.FindFor(Main.LocalPlayer), boundCompanion)
 			|| !personal && (boundCompanion.PendingInitiativeTicks <= 0 || boundCompanion.InitiativeId == Guid.Empty)
 			|| boundCompanion.IsDefending
 			|| IsAwaitingReply(boundCompanion))
@@ -121,7 +122,7 @@ public sealed class InitiativePromptSystem : ModSystem
 				Open(pending);
 			return;
 		}
-		if (Main.gameMenu || Main.LocalPlayer.dead || Main.playerInventory || SoulmatesUIInput.IsTyping || companion?.NPC.active != true
+		if (Main.gameMenu || Main.LocalPlayer.dead || Main.playerInventory || SoulmatesUIInput.IsTyping || !Main.mouseItem.IsAir || companion?.NPC.active != true
 			|| companion.Profile.Id != openProfileId
 			|| (conversation ? !companion.HasPendingQuestion || companion.QuestionId != openQuestionId
 				: !companion.HasPendingInitiative || companion.PendingInitiativeTicks <= 0
@@ -160,7 +161,8 @@ public sealed class InitiativePromptSystem : ModSystem
 		if (index < 0 || index >= Responses.Length) return;
 		CompanionInitiativeResponse response = Responses[index];
 		SoulboundCompanion? target = companion;
-		if (target?.NPC.active != true || SoulboundCompanion.FindFor(Main.LocalPlayer) != target
+		if (Main.gameMenu || Main.LocalPlayer.dead || Main.playerInventory || SoulmatesUIInput.IsTyping || !Main.mouseItem.IsAir
+			|| target?.NPC.active != true || SoulboundCompanion.FindFor(Main.LocalPlayer) != target
 			|| target.Profile.Id != openProfileId
 			|| (conversation ? !target.HasPendingQuestion || target.QuestionId != openQuestionId
 				: !target.HasPendingInitiative || target.PendingInitiativeTicks <= 0
@@ -218,10 +220,9 @@ public sealed class InitiativePromptSystem : ModSystem
 
 		SpriteBatch spriteBatch = Main.spriteBatch;
 		Color accent = companion.Profile.EssenceColor;
-		float reveal = MathHelper.Clamp(openTicks / 8f, 0f, 1f);
 		float pulse = 1f + MathF.Sin(Main.GlobalTimeWrappedHourly * 4f) * 0.035f;
 		for (int i = 0; i < Responses.Length; i++) {
-			Vector2 position = Vector2.Lerp(center, ResponsePosition(i), reveal);
+			Vector2 position = ResponsePosition(i);
 			bool hovered = hoverIndex == i;
 			DrawNode(spriteBatch, position, hovered ? 43f * pulse : 38f, accent, hovered,
 				conversation ? AnswerEmote(i) : SoulboundCompanion.InitiativeResponseEmote(Responses[i]));
@@ -229,6 +230,7 @@ public sealed class InitiativePromptSystem : ModSystem
 		DrawNode(spriteBatch, center, 46f * pulse, accent, false,
 			conversation ? companion.PendingQuestion switch {
 				CompanionQuestion.Wallet => EmoteID.ItemGoldpile,
+				CompanionQuestion.Home => EmoteID.EmotionLove,
 				CompanionQuestion.CritterCare => EmoteID.CritterBunny,
 				CompanionQuestion.Reflection => SoulboundCompanion.InitiativeEmote(companion.ReflectionKind),
 				_ => EmoteID.EmoteConfused
@@ -301,17 +303,18 @@ public sealed class InitiativePromptSystem : ModSystem
 		return new Vector2(x, y);
 	}
 
-	private static void DrawNode(SpriteBatch spriteBatch, Vector2 position, float size, Color accent,
+	private void DrawNode(SpriteBatch spriteBatch, Vector2 position, float size, Color accent,
 		bool hovered, int emoteId)
 	{
 		Texture2D slot = TextureAssets.InventoryBack.Value;
+		float reveal = MathHelper.Clamp((openTicks + 1f) / 8f, 0f, 1f);
 		Color slotColor = hovered ? Color.White : Color.Lerp(Color.White, accent, 0.12f) * 0.94f;
-		spriteBatch.Draw(slot, position, null, slotColor, 0f, slot.Size() * 0.5f,
+		spriteBatch.Draw(slot, position, null, slotColor * reveal, 0f, slot.Size() * 0.5f,
 			size / slot.Width, SpriteEffects.None, 0f);
-		DrawEmoteIcon(spriteBatch, position, size * 0.64f, emoteId);
+		DrawEmoteIcon(spriteBatch, position, size * 0.64f, emoteId, Color.White * reveal);
 	}
 
-	private static void DrawEmoteIcon(SpriteBatch spriteBatch, Vector2 position, float maximumSize, int emoteId)
+	private static void DrawEmoteIcon(SpriteBatch spriteBatch, Vector2 position, float maximumSize, int emoteId, Color color)
 	{
 		if (emoteId < 0 || emoteId >= EmoteID.Count)
 			return;
@@ -322,7 +325,7 @@ public sealed class InitiativePromptSystem : ModSystem
 		Rectangle source = sheet.Frame(EmoteBubble.EMOTE_SHEET_HORIZONTAL_FRAMES,
 			EmoteBubble.EMOTE_SHEET_VERTICAL_FRAMES, column, row);
 		float scale = Math.Min(maximumSize / source.Width, maximumSize / source.Height);
-		spriteBatch.Draw(sheet, position, source, Color.White, 0f, source.Size() * 0.5f,
+		spriteBatch.Draw(sheet, position, source, color, 0f, source.Size() * 0.5f,
 			scale, SpriteEffects.None, 0f);
 	}
 
