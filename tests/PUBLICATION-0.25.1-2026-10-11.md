@@ -66,20 +66,31 @@ and normal-loader logs. The public API returns no direct download URL; no new
 independent CDN archive download or universal subscriber delivery is claimed.
 The legacy 2026.7 package remains historical, not current-feature evidence.
 
-## Steam Text: Awaiting Editor Unlock
+## Steam Text: Saved And Verified
 
-The creator permits loader takeover and reports Family View unlocked. No
-loader takeover is needed after their binary-upload clarification. The Codex
-browser editor still shows Family View after a fresh reload, so the user is
-asked to unlock that specific tab themselves. No PIN is collected or entered,
-and no alternate authenticated write route bypasses the access control.
+The first Codex editor attempt remained behind Family View. The creator then
+unlocked that specific tab themselves; the visible description editor was
+confirmed before editing. No PIN was collected or entered, and no alternate
+authenticated write route bypassed the access control. No loader takeover
+was needed after the binary-upload clarification.
 
-Both current descriptions and the one-release changelog are prepared, but
-server-side text saving and changelog correction are not yet established.
+On October 11, Steam confirmed both English and German description saves at
+21:53 CEST. Returned editor values match the prepared files after newline
+normalization; fresh English and German item pages display the current
+0.25.1 text. The title remains Soulmates. English is 7,012 UTF-8 bytes and
+German 7,296, both accepted without a size warning.
+
+The existing changelog entry `1791747152` was edited in place and verified
+on a fresh changelog page. It now describes changes since public 0.24.0,
+including the previously local 0.25.0 work, without the stale claim that it
+has not been installed or uploaded. Total entries remain **31**, unchanged;
+no duplicate entry was added and older entries were left intact.
+
 The uploaded artifact retains earlier prepared-description wording; these
 web-text corrections do not require another binary upload. The existing
 gallery remains untouched and accurately labeled as older footage.
-Steam moderation and each subscriber's loaded version remain separate checks.
+The fresh item/changelog pages still show **Steam moderation pending**.
+Each subscriber's loaded version remains a separate check.
 
 ## Evidence And Open Gates
 
@@ -90,8 +101,10 @@ and `github.jpg`. Follow-up receipts include `steam-file-details.json`,
 `steam-cache-package-verification.json`, `steam-package-comparison.json`,
 `steam-catalog-comparison.json`, `steam-engine-checks.txt`,
 `steam-audit-checks.txt`, `aligned-github-release.json` and
-`aligned-github-package-verification.json`. These outputs are excluded from
-Git and the mod asset.
+`aligned-github-package-verification.json`. Web-text evidence includes
+`steam-text-verification.json`, EN/DE save screenshots and before/after text,
+`steam-en.jpg`, `steam-de.jpg`, `steam-changelog.jpg` and
+`steam-moderation.jpg`. These outputs are excluded from Git and the mod asset.
 
 The CLI's initial sandboxed credential check could not access Windows keyring.
 The same existing login works outside the sandbox; no new credential or access
