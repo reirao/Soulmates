@@ -75,7 +75,10 @@ public sealed partial class EngineChecks
 				mate.Profile.CritterMode = CompanionCritterMode.Collect;
 				mate.Profile.CritterCollectInitiative = CompanionInitiativePolicy.Always;
 				Set("autonomyDecisionTimer", 0); Call("UpdateHelpfulAutonomy");
-				check(ReferenceEquals(Get("critterTarget"), bunny), "Shared scheduler cannot dispatch Collect with the built-in net: " + mode);
+				check(mate.PendingQuestion == CompanionQuestion.CritterEncounter && Get("critterTarget") is null && bunny.active,
+					"Shared scheduler skipped the individual Collect decision: " + mode);
+				check(mate.RespondToQuestion(mate.QuestionId, CompanionAnswer.Second) && ReferenceEquals(Get("critterTarget"), bunny),
+					"Individual Collect answer did not dispatch the built-in net: " + mode);
 			}
 		}
 		finally {

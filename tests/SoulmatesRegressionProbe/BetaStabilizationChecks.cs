@@ -193,6 +193,10 @@ public sealed partial class EngineChecks
 				Set("autonomyDecisionTimer", 0); Set("townNpcInteractionCooldown", 9999);
 				a.Tick();
 				check(a.Current == CompanionActivityLane.AutomaticWork, "Shared scheduler did not own the critter selection frame");
+				check(first.PendingQuestion == CompanionQuestion.CritterEncounter && bunny.active,
+					"Collect selection did not wait for the individual encounter answer");
+				check(a.Tick() == CompanionActivityLane.AwaitingReply && first.RespondToQuestion(first.QuestionId, CompanionAnswer.Second),
+					"Encounter answer did not dispatch Collect from the waiting lane");
 				a.Tick();
 				check(a.Current == CompanionActivityLane.Critters && first.CurrentJobName == SoulmatesText.Get("Status.Assignment",
 					SoulmatesText.EnumName(CompanionInitiativeKind.CritterCollect)), "Critter visit was invisible or reported as watching");

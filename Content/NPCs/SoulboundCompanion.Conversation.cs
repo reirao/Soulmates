@@ -40,7 +40,8 @@ public sealed partial class SoulboundCompanion
 		&& Vector2.DistanceSquared(NPC.Center, Owner.Center) <= 560f * 560f;
 
 	private bool CanKeepQuestion() => CanKeepConversation()
-		&& (pendingQuestion == CompanionQuestion.Home || Profile.AutonomyEnabled && !Profile.WorkPaused && Command != StayCommand);
+		&& (pendingQuestion is CompanionQuestion.Home or CompanionQuestion.Salvage or CompanionQuestion.SalvageArea or CompanionQuestion.CritterEncounter
+			|| Profile.AutonomyEnabled && !Profile.WorkPaused && Command != StayCommand);
 
 	private bool CanHoldQuestion() => CanKeepQuestion() && autonomyActivity == AutonomyActivity.None
 		&& !IsAttendingCritter && guardianTarget < 0 && Profile.Energy >= 20 && Profile.Mood >= 15;
@@ -59,7 +60,8 @@ public sealed partial class SoulboundCompanion
 			&& speechTimer <= 0 && pendingCritterLossKey.Length == 0) pendingCritterCareTicks--;
 		if (lastOfferedWallet > Profile.WalletCopper) lastOfferedWallet = Profile.WalletCopper;
 		if (HasPendingQuestion) {
-			if (!CanKeepQuestion() || --questionTicks <= 0) ClearChoiceQuestion();
+			if (!CanKeepQuestion() || pendingQuestion == CompanionQuestion.CritterEncounter && !IsCurrentCritterEncounter()
+				|| --questionTicks <= 0) ClearChoiceQuestion();
 			return;
 		}
 		if (reflectionIntent is not null && reflectionCooldown <= 0
@@ -107,7 +109,16 @@ public sealed partial class SoulboundCompanion
 		personalQuestionCooldown = PersonalQuestionInterval;
 		hasAskedPersonalQuestion = true;
 		// Offers are spaced even if unanswered; the wallet has no artificial "full" state.
-		if (question == CompanionQuestion.Home) {
+		if (question is CompanionQuestion.Salvage or CompanionQuestion.SalvageArea) {
+			SpeakLocalized(question == CompanionQuestion.Salvage ? "Salvage.Question" : "Salvage.AreaQuestion",
+				pendingSalvage.Count.ToString(), pendingSalvage[0].Name);
+			ShowNativeExpression(EmoteID.ItemPickaxe, EmoteID.EmoteConfused);
+		}
+		else if (question == CompanionQuestion.CritterEncounter && encounterCritter is { } animal) {
+			SpeakLocalized("Conversation.CritterEncounter.Question", animal.TypeName);
+			ShowNativeExpression(CompanionCritters.EmoteFor(animal), EmoteID.EmoteConfused);
+		}
+		else if (question == CompanionQuestion.Home) {
 			SpeakLocalized(playerRequested ? "Conversation.Home.RequestedQuestion" : "Conversation.Home.Question");
 			ShowNativeExpression(EmoteID.EmotionLove, EmoteID.EmoteConfused);
 		}
@@ -151,6 +162,8 @@ public sealed partial class SoulboundCompanion
 		if (HasPendingQuestion) ClearNativeExpression();
 		if (pendingQuestion == CompanionQuestion.Reflection) ClearReflection();
 		if (pendingQuestion == CompanionQuestion.Home) ClearHomeQuestion();
+		if (pendingQuestion is CompanionQuestion.Salvage or CompanionQuestion.SalvageArea) pendingSalvage.Clear();
+		if (pendingQuestion == CompanionQuestion.CritterEncounter) ClearCritterEncounter();
 		pendingQuestion = CompanionQuestion.None;
 		questionId = Guid.Empty;
 		questionTicks = 0;
@@ -165,6 +178,9 @@ public sealed partial class SoulboundCompanion
 			return false;
 		if (!CanKeepQuestion()) { ClearChoiceQuestion(); return false; }
 		if (guardianTarget >= 0) return false;
+		if (pendingQuestion is CompanionQuestion.Salvage or CompanionQuestion.SalvageArea)
+			return RespondToSalvage(answer);
+		if (pendingQuestion == CompanionQuestion.CritterEncounter) return RespondToCritterEncounter(answer);
 		CompanionQuestion question = pendingQuestion;
 		if (question == CompanionQuestion.Home && !EvaluateHomeQuestion(answer)) { ClearChoiceQuestion(); return false; }
 		if (question == CompanionQuestion.Reflection) EvaluateReflection(answer);
@@ -242,6 +258,14 @@ public sealed partial class SoulboundCompanion
 	}
 
 	internal static int QuestionAnswerEmote(CompanionQuestion question, int index) => question switch {
+		CompanionQuestion.CritterEncounter => index switch {
+			0 => EmoteID.EmotionLove, 1 => EmoteID.ItemBugNet, 2 => EmoteID.EmoteWink, _ => EmoteID.EmoteSleep
+		},
+		CompanionQuestion.Salvage => index switch {
+			0 => EmoteID.ItemPickaxe, 1 => EmoteID.ItemGoldpile, 2 => EmoteID.EmoteScowl, _ => EmoteID.EmoteSleep
+		},
+		CompanionQuestion.SalvageArea => index == 0 ? EmoteID.EmoteHappiness
+			: index == 3 ? EmoteID.EmoteSleep : index == 1 ? EmoteID.EmoteScowl : EmoteID.EmoteConfused,
 		CompanionQuestion.Home => index switch {
 			0 => EmoteID.EmotionLove, 1 => EmoteID.EmoteHappiness, 2 => EmoteID.EmoteRun, _ => EmoteID.EmoteSleep
 		},

@@ -12,7 +12,7 @@ using Terraria.ModLoader.IO;
 
 namespace Soulmates.Common;
 
-public enum CompanionNpcAction : byte { Look, Company, Collect }
+public enum CompanionNpcAction : byte { Look, Company, Collect, Meet }
 
 public static class CompanionCritters
 {
@@ -46,7 +46,8 @@ public static class CompanionCritters
 	public static bool IsCommon(NPC npc) => IsNatural(npc) && !NPCID.Sets.GoldCrittersCollection.Contains(npc.type);
 	public static bool CanKeepCompany(NPC npc) => IsCommon(npc) && SupportsCompany(npc.type);
 	public static bool SupportsCompany(int type) => type is NPCID.Bunny or NPCID.Squirrel or NPCID.SquirrelRed
-		or NPCID.Bird or NPCID.BirdBlue or NPCID.BirdRed or NPCID.Butterfly or NPCID.Firefly or NPCID.LightningBug;
+		or NPCID.Bird or NPCID.BirdBlue or NPCID.BirdRed or NPCID.Butterfly or NPCID.Firefly or NPCID.LightningBug
+		or NPCID.Scorpion or NPCID.ScorpionBlack;
 
 	public static bool CanUseNet(NPC npc, Item net) => !net.IsAir && net.type > ItemID.None
 		&& net.type < ItemID.Sets.CatchingTool.Length && net.type < ItemID.Sets.LavaproofCatchingTool.Length

@@ -231,6 +231,8 @@ public sealed class InitiativePromptSystem : ModSystem
 			conversation ? companion.PendingQuestion switch {
 				CompanionQuestion.Wallet => EmoteID.ItemGoldpile,
 				CompanionQuestion.Home => EmoteID.EmotionLove,
+			CompanionQuestion.Salvage or CompanionQuestion.SalvageArea => EmoteID.ItemPickaxe,
+			CompanionQuestion.CritterEncounter => EmoteID.CritterBunny,
 				CompanionQuestion.CritterCare => EmoteID.CritterBunny,
 				CompanionQuestion.Reflection => SoulboundCompanion.InitiativeEmote(companion.ReflectionKind),
 				_ => EmoteID.EmoteConfused

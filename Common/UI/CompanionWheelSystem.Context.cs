@@ -14,7 +14,7 @@ namespace Soulmates.Common.UI;
 
 public sealed partial class CompanionWheelSystem
 {
-	private enum ContextAction : byte { Point, Look, Gather, Mine, Forest, Emotes, Tools, Company, Collect }
+	private enum ContextAction : byte { Point, Look, Gather, Mine, Forest, Emotes, Tools, Company, Collect, Salvage, Meet }
 	private SoulwheelTarget? contextTarget;
 	private readonly List<ContextAction> contextActions = [];
 	public SoulwheelMouseMode MouseMode { get; private set; }
@@ -70,7 +70,9 @@ public sealed partial class CompanionWheelSystem
 			contextActions.Add(ContextAction.Emotes);
 		}
 		else {
+			if (snapshot.CanSalvage(target)) contextActions.Add(ContextAction.Salvage);
 			if (snapshot.CanObserveNpc(target)) contextActions.Add(ContextAction.Look);
+			if (snapshot.CanCollectCritter(target)) contextActions.Add(ContextAction.Meet);
 			if (snapshot.CanInviteCritter(target)) contextActions.Add(ContextAction.Company);
 			if (snapshot.CanCollectCritter(target)) contextActions.Add(ContextAction.Collect);
 			foreach (CompanionTargetOrder order in PointModes)
@@ -112,12 +114,25 @@ public sealed partial class CompanionWheelSystem
 			if (snapshot.CanOrder(target, CompanionTargetOrder.Look)) ExecuteContextOrder(target, snapshot, CompanionTargetOrder.Look);
 			return;
 		}
-		if (snapshot.NpcSlot >= 0 && action is ContextAction.Look or ContextAction.Company or ContextAction.Collect) {
+		if (action == ContextAction.Salvage && snapshot.Salvage is { } salvage) {
+			Close();
+			if (Main.netMode == NetmodeID.MultiplayerClient)
+				global::Soulmates.Soulmates.SendSalvageRequest(target.Profile.Id, snapshot.Tile, salvage.World, salvage.Fingerprint);
+			else {
+				var result = target.RequestSalvage(snapshot.Tile, salvage.World, salvage.Fingerprint);
+				target.ShowSpeech(result.Reply);
+				SoundEngine.PlaySound(result.Accepted ? SoundID.Chat : SoundID.MenuClose);
+			}
+			return;
+		}
+		if (snapshot.NpcSlot >= 0 && action is ContextAction.Look or ContextAction.Company or ContextAction.Collect or ContextAction.Meet) {
 			CompanionNpcAction npcAction = action == ContextAction.Company ? CompanionNpcAction.Company
-				: action == ContextAction.Collect ? CompanionNpcAction.Collect : CompanionNpcAction.Look;
+				: action == ContextAction.Collect ? CompanionNpcAction.Collect
+				: action == ContextAction.Meet ? CompanionNpcAction.Meet : CompanionNpcAction.Look;
 			bool allowed = npcAction switch {
 				CompanionNpcAction.Company => snapshot.CanInviteCritter(target),
 				CompanionNpcAction.Collect => snapshot.CanCollectCritter(target),
+				CompanionNpcAction.Meet => snapshot.CanCollectCritter(target),
 				_ => snapshot.CanObserveNpc(target)
 			};
 			Close();
@@ -161,17 +176,21 @@ public sealed partial class CompanionWheelSystem
 		ContextAction.Look => new(IconKind.Item, ItemID.Binoculars),
 		ContextAction.Gather => new(IconKind.Item, ItemID.TreasureMagnet),
 		ContextAction.Mine => new(IconKind.Item, ItemID.CopperPickaxe),
+		ContextAction.Salvage => new(IconKind.Item, ItemID.GrapplingHook),
 		ContextAction.Forest => new(IconKind.Emote, EmoteID.MiscTree),
 		ContextAction.Company => new(IconKind.Emote, EmoteID.EmotionLove),
+		ContextAction.Meet => new(IconKind.Emote, EmoteID.EmoteConfused),
 		ContextAction.Collect => new(IconKind.Item, ItemID.BugNet),
 		ContextAction.Emotes => new(IconKind.Emote, EmoteID.EmoteHappiness),
 		_ => new(IconKind.Emote, EmoteID.ItemCog)
 	};
 	private string ContextActionLabel(int index) => index < 0 || index >= contextActions.Count ? ""
+		: contextActions[index] == ContextAction.Salvage ? SoulmatesText.Get("Salvage.Action")
+		: contextActions[index] == ContextAction.Meet ? SoulmatesText.Get("Conversation.CritterEncounter.Action")
 		: contextActions[index] is ContextAction.Emotes or ContextAction.Tools
 			? SoulmatesText.Get($"UI.CompanionWheel.MouseModes.{contextActions[index]}")
 			: SoulmatesText.Get("UI.CompanionWheel.MouseModes.Target",
-				SoulmatesText.Get(contextActions[index] == ContextAction.Collect ? "UI.CompanionWheel.Actions.CritterCollect"
+				SoulmatesText.Get(contextActions[index] == ContextAction.Collect ? "Conversation.CritterEncounter.Choices.Second"
 					: contextActions[index] == ContextAction.Company ? "UI.CompanionWheel.Actions.CritterCompany"
 					: $"UI.CompanionWheel.MouseModes.{contextActions[index]}"), contextTarget?.Name ?? "");
 

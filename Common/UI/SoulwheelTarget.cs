@@ -19,6 +19,7 @@ internal sealed class SoulwheelTarget
 	public int ItemSlot { get; }
 	public int NpcSlot => npcSlot;
 	public int NpcType => npcType;
+	internal SalvageTarget? Salvage { get; }
 	private readonly Item? item;
 	private readonly int itemType;
 	private readonly int itemNetId;
@@ -62,6 +63,7 @@ internal sealed class SoulwheelTarget
 		tileType = tile.TileType;
 		frameX = tile.TileFrameX;
 		frameY = tile.TileFrameY;
+		Salvage = CompanionSalvage.Capture(Tile);
 	}
 
 	public bool IsCurrent {
@@ -87,9 +89,11 @@ internal sealed class SoulwheelTarget
 	}
 
 	public bool CanPoint => IsCurrent && (item is not null || npc is not null || hasTile);
-	public bool CanOfferFallback => CanPoint && !HasNativeInteractionPriority(Tile) && (item is not null || npc is not null
+	public bool CanOfferFallback => CanPoint && (Salvage is not null || !HasNativeInteractionPriority(Tile) && (item is not null || npc is not null
 		|| (!Main.tileFrameImportant[tileType] || SoulboundCompanion.IsTreeTrunk(tileType) || tileType == TileID.FallenLog)
-			&& !HasPlacedObject(Tile));
+			&& !HasPlacedObject(Tile)));
+	internal bool CanSalvage(SoulboundCompanion companion) => IsCurrent && Salvage is { IsCurrent: true }
+		&& companion.CanTargetSalvage(Tile);
 
 	internal static bool HasPlacedObject(Point tilePosition)
 	{
@@ -102,6 +106,7 @@ internal sealed class SoulwheelTarget
 	{
 		if (!HasPlacedObject(tilePosition)) return false;
 		ushort type = Main.tile[tilePosition.X, tilePosition.Y].TileType;
+		if (CompanionSalvage.IsSupported(type)) return false;
 		return TileID.Sets.Torch[type] || !Main.tileCut[type];
 	}
 	public bool CanObserveNpc(SoulboundCompanion companion) => IsCurrent && npc is not null && companion.CanTargetNpc(npcSlot);

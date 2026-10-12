@@ -68,9 +68,10 @@ public sealed partial class AuditChecks
         Expect(!mate.HasPendingInitiative && Field(mate, "critterTarget") is null && replacement.active,
             "Never blocks automatic catching even with a built-in net", "No permission bypass");
         mate.Profile.CritterCollectInitiative = CompanionInitiativePolicy.Ask;
-        Consider(catchCritter, replacement); Guid catchToken = mate.InitiativeId;
+        Consider(catchCritter, replacement); Guid catchToken = mate.QuestionId;
+        Expect(mate.PendingQuestion == CompanionQuestion.CritterEncounter, "Catch offer names one individual creature", "No destructive work before an encounter answer");
         mate.Profile.CritterMode = CompanionCritterMode.Watch;
-        Expect(!mate.RespondToInitiative(catchToken, CompanionInitiativeResponse.Always)
+        Expect(!mate.RespondToQuestion(catchToken, CompanionAnswer.Second)
             && mate.Profile.CritterCollectInitiative == CompanionInitiativePolicy.Ask && replacement.active,
             "Mode change invalidates a pending catch permission", "Watch remains non-destructive");
         npc.active = target.active = replacement.active = other.active = false;

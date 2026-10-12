@@ -1,5 +1,14 @@
 # Soulmates Development History
 
+## Soulmates 0.28.0 - Careful Finds (Beta)
+
+- Add a context-wheel Salvage action for whitelisted gems, pots, cobwebs and selected dungeon/underwater decorations. Ask for one object or captured matching finds, with a second unknown-origin confirmation for the bounded area. Recheck world, object frames, surroundings, tools, owner and question token before native destruction.
+- Persist conservative construction evidence in world data. Protect recognized homes, bed spawns, resident housing, wiring, paint/coatings, tile entities, unsafe supports and adjacent decorations. Unrecorded old objects remain unknown, not proven natural. There is no unrestricted decoration auto-demolition.
+- Reuse native multi-tile destruction and the shared real-item pickup transaction. Repair bottom-row legacy footprint capture; do not manufacture drops or kill each multi-tile cell separately. Pause, Resume, Abort, recall and switching retire or retain work through the existing coordinator.
+- Replace automatic net catches with individual encounter choices: try making friends, catch this one, observe or leave. Collect Always can find an encounter but cannot skip its answer. Add Meet to critter context actions and support both native scorpion species for temporary company.
+- Queue native catch receipts with actual item name and Pack/world-drop destination. Multiple catches cannot overwrite receipts; capture does not invent substitute items or treat caught critters as following pets. Meeting reuses native temporary Company and existing species memory, not a new persistent individual-relationship system.
+- Add engine regressions for both scorpion species, consent, delayed receipt order, native decoration placement/destruction, drop conservation, protection persistence and context handlers. Extend adversarial owner/token/truncation/direction checks and localized speech packet tests. Nine catalogs include new text. Installed October 12; the existing Workshop item records the upload at 14:18 CEST. Graphical, physical-input, connected-client and endurance acceptance remain open; uploading is not moderation approval or subscriber delivery.
+
 ## Soulmates 0.27.0 - Behind the Curtain (Beta)
 
 - Remove the gameplay level cap. Exact BigInteger XP and levels preserve the original quadratic curve, legacy save XP and stable historical wire prefix. Append current XP; matching peers are required. Resource limits and ordinary retinue size remain at their existing level-20 balance.

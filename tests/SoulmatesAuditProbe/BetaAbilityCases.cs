@@ -40,30 +40,31 @@ public sealed partial class AuditChecks
         NPC target = Main.npc[196]; target.SetDefaults(NPCID.Bunny); target.active = true; target.Center = mate.NPC.Center;
         mate.Profile.CritterMode = CompanionCritterMode.Collect;
         void Offer() {
+            Set(mate, "deferredCritter", null!); Set(mate, "deferredCritterTicks", 0);
             ((CompanionAttention)Field(mate, "attention")!).Reset();
             Call(mate, "ConsiderInitiative", Enum.Parse(activities, "CatchCritter"), -1, Point.Zero, Enum.Parse(forest, "None"), target);
         }
-        Offer(); Guid token = mate.InitiativeId;
-        Expect(mate.HasPendingInitiative, "Beta permission boundary has a valid catch offer", "Collect starts at Ask");
+        Offer(); Guid token = mate.QuestionId;
+        Expect(mate.PendingQuestion == CompanionQuestion.CritterEncounter, "Beta permission boundary has a valid individual encounter", "Collect asks what to do with this creature");
         Set(mate, "autonomyRecoveryPaused", true);
-        Expect(!mate.RespondToInitiative(token, CompanionInitiativeResponse.Always)
+        Expect(!mate.RespondToQuestion(token, CompanionAnswer.Second)
             && mate.Profile.CritterCollectInitiative == CompanionInitiativePolicy.Ask && target.active,
             "Recovery hold invalidates an old Always answer", "The reserve cannot be bypassed by delayed consent");
         Offer();
-        Expect(!mate.HasPendingInitiative && Field(mate, "critterTarget") is null,
+        Expect(!mate.HasPendingQuestion && Field(mate, "critterTarget") is null,
             "The same recovery gate prevents a fresh offer", "New and answered actions share one gate");
-        Set(mate, "autonomyRecoveryPaused", false); Offer(); token = mate.InitiativeId;
+        Set(mate, "autonomyRecoveryPaused", false); Offer(); token = mate.QuestionId;
         mate.Profile.Routine = CompanionJob.Mine;
-        Expect(!mate.RespondToInitiative(token, CompanionInitiativeResponse.Always) && target.active
+        Expect(!mate.RespondToQuestion(token, CompanionAnswer.Second) && target.active
             && mate.Profile.CritterCollectInitiative == CompanionInitiativePolicy.Ask,
             "A changed explicit routine invalidates old automatic consent", "No catch or persisted Always");
-        mate.Profile.Routine = CompanionJob.None; Offer(); token = mate.InitiativeId;
+        mate.Profile.Routine = CompanionJob.None; Offer(); token = mate.QuestionId;
         mate.Profile.CritterCollectInitiative = CompanionInitiativePolicy.Never;
-        Expect(!mate.RespondToInitiative(token, CompanionInitiativeResponse.Always) && target.active
+        Expect(!mate.RespondToQuestion(token, CompanionAnswer.Second) && target.active
             && mate.Profile.CritterCollectInitiative == CompanionInitiativePolicy.Never,
             "A changed Never rule invalidates old automatic consent", "A delayed answer cannot re-enable the ability");
         mate.Profile.CritterCollectInitiative = CompanionInitiativePolicy.Ask; Offer();
-        Expect(mate.RespondToInitiative(mate.InitiativeId, CompanionInitiativeResponse.Yes),
+        Expect(mate.RespondToQuestion(mate.QuestionId, CompanionAnswer.Second),
             "Removing the hold restores legitimate one-target consent", "Yes leaves the persistent rule at Ask");
         mate.PerformQuickAction(CompanionQuickAction.Pause);
         var coordinator = (CompanionActivityCoordinator)typeof(SoulboundCompanion).GetProperty("Activities", Private)!.GetValue(mate)!;

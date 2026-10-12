@@ -71,7 +71,10 @@ public enum CompanionQuestion : byte
 	Wallet,
 	CritterCare,
 	Reflection,
-	Home
+	Home,
+	Salvage,
+	SalvageArea,
+	CritterEncounter
 }
 
 public enum CompanionAnswer : byte
@@ -208,7 +211,8 @@ public enum CompanionJob : byte
 	None,
 	FindTreasure,
 	Mine,
-	Gather
+	Gather,
+	Salvage
 }
 
 public enum CompanionStorage : byte
@@ -1005,6 +1009,7 @@ public sealed partial class CompanionProfile
 		QuestionCadence = ValidEnum(QuestionCadence, CompanionQuestionCadence.Calm);
 		Trinket = ValidEnum(Trinket, CompanionTrinket.None);
 		Routine = ValidEnum(Routine, CompanionJob.None);
+		if (Routine == CompanionJob.Salvage) Routine = CompanionJob.None;
 		MiningApproach = ValidEnum(MiningApproach, CompanionMiningApproach.Adaptive);
 		CritterMode = ValidEnum(CritterMode, CompanionCritterMode.Watch);
 		CompanionAbilityRegistry.NormalizePolicies(this);

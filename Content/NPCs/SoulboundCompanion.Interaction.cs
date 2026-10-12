@@ -63,6 +63,8 @@ public sealed partial class SoulboundCompanion
 
 	public void StartJob(CompanionJob job)
 	{
+		// Salvage can only start with a fresh, captured, answered permit.
+		if (job == CompanionJob.Salvage) return;
 		if (IsBossChallenge) return;
 		SoulmatesFeedbackSystem.Record("job_started", ("job", job.ToString()),
 			("energy", Profile.Energy), ("pack_load", Profile.PackLoad));
@@ -297,6 +299,7 @@ public sealed partial class SoulboundCompanion
 
 	private void BeginJob(CompanionJob job)
 	{
+		ClearSalvageWork();
 		ClearNativeExpression();
 		ClearChoiceQuestion();
 		if (!TryGetOwner(out Player owner)) {
@@ -330,6 +333,7 @@ public sealed partial class SoulboundCompanion
 
 	private void CancelAssignment()
 	{
+		ClearSalvageWork();
 		ClearEvilCelebration();
 		learningIntent = null;
 		ClearReflection();
@@ -557,16 +561,16 @@ public sealed partial class SoulboundCompanion
 		ShowNativeEmote(emoteId, duration);
 	}
 
-	private void SpeakLocalized(string key, string argument = "")
+	private void SpeakLocalized(string key, string argument = "", string? secondArgument = null)
 	{
 		key = PersonaSpeechKey(key);
-		if (!ShowLocalizedSpeech(key, argument))
+		if (!ShowLocalizedSpeech(key, argument, secondArgument))
 			return;
 		if (Main.netMode == NetmodeID.Server)
-			global::Soulmates.Soulmates.SendCompanionSpeech(Owner, this, key, argument);
+			global::Soulmates.Soulmates.SendCompanionSpeech(Owner, this, key, argument, secondArgument);
 	}
 
-	public bool ShowLocalizedSpeech(string key, string argument = "")
+	public bool ShowLocalizedSpeech(string key, string argument = "", string? secondArgument = null)
 	{
 		key = PersonaSpeechKey(key);
 		bool ambient = key.StartsWith("Social.", StringComparison.Ordinal)
@@ -574,8 +578,13 @@ public sealed partial class SoulboundCompanion
 			|| key.StartsWith("Evil.Ambient.", StringComparison.Ordinal)
 			|| key.StartsWith("Autonomy.Surprise.", StringComparison.Ordinal);
 		if (ambient && (speechTimer > 180 || HasPendingQuestion || HasPendingInitiative))
+		{
+			if (Main.netMode == NetmodeID.MultiplayerClient && pendingCatchNotices.Count < 32
+				&& key is "Social.Critters.CatchReceipt" or "Social.Critters.CatchWorldReceipt")
+				pendingCatchNotices.Enqueue((key, argument));
 			return false;
-		ShowSpeech(SoulmatesText.Get(key, argument));
+		}
+		ShowSpeech(secondArgument is null ? SoulmatesText.Get(key, argument) : SoulmatesText.Get(key, argument, secondArgument));
 		return true;
 	}
 

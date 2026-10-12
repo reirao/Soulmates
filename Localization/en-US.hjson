@@ -1,5 +1,39 @@
 Mods: {
 	Soulmates: {
+		Salvage.Action: "Salvage: ask before removing"
+		Salvage.Kinds.Gem: "gem"
+		Salvage.Kinds.Pot: "pot"
+		Salvage.Kinds.Web: "cobweb"
+		Salvage.Kinds.Decoration: "decoration"
+		Salvage.Question: "This is {1}. I cannot tell who placed it. Only this object or matching finds nearby (up to {0})? Recognized homes and protected objects stay untouched."
+		Salvage.AreaQuestion: "Confirm these {0} captured matching finds ({1}) within 12 tiles? Their origin is unknown. New finds are not included."
+		Conversation.CritterEncounter.Action: "Meet this critter"
+		Conversation.CritterEncounter.Heading: "This little creature"
+		Conversation.CritterEncounter.Question: "Hello, {0}. Shall I try making friends, catch this one in my net, or just watch? Catching turns it into an item, not a follower."
+		Conversation.CritterEncounter.Choices.First: "Try making friends"
+		Conversation.CritterEncounter.Choices.Second: "Catch only this one"
+		Conversation.CritterEncounter.Choices.Third: "Just watch together"
+		Conversation.CritterEncounter.Choices.Later: "Leave this one alone"
+		Conversation.CritterEncounter.Watching: "Let's give this {0} some space and just watch."
+		Conversation.CritterEncounter.Leaving: "I'll leave this {0} alone for now."
+		Social.Critters.CatchReceipt: "Safely caught: {0}. It is an item in my pack, not a following pet. Open Pack to take it back."
+		Social.Critters.CatchWorldReceipt: "Caught {0}, but I could not store it. Its real item remains on the ground; please pick it up."
+		Salvage.Protected: "I will leave that alone: a build, home, wiring, unsafe support or protected object may be involved."
+		Salvage.Changed: "That find or its surroundings changed. I will not use an old permission."
+		Salvage.Cancelled: "Understood. Nothing will be removed."
+		Salvage.Started: "Carefully recovering {0} approved objects. Real drops go through my usual pickup."
+		Salvage.Completed: "Recovered {0} objects; left {1} changed or blocked finds alone."
+		Conversation.Salvage.Heading: "Salvage this find?"
+		Conversation.Salvage.Choices.First: "Only this object"
+		Conversation.Salvage.Choices.Second: "Matching finds nearby..."
+		Conversation.Salvage.Choices.Third: "Leave everything"
+		Conversation.Salvage.Choices.Later: "Not now"
+		Conversation.SalvageArea.Heading: "Confirm unknown origins"
+		Conversation.SalvageArea.Choices.First: "Yes, these captured finds only"
+		Conversation.SalvageArea.Choices.Second: "No, leave them"
+		Conversation.SalvageArea.Choices.Third: "Cancel"
+		Conversation.SalvageArea.Choices.Later: "Not now"
+		Enums.CompanionJob.Salvage: "Careful salvage"
 		UI.CompanionWheel.Categories.Evil: "EVIL: theatrical mischief"
 		Enums.CompanionQuickAction.BossChallenge: "Boss challenge"
 		UI.CompanionWheel.Actions.BossChallenge: "Boss challenge"
@@ -118,7 +152,7 @@ Mods: {
 		Autonomy.Initiative.Ask.CritterCompany: That little one looks curious. May I keep it company?
 		Autonomy.Initiative.Ask.CritterCollect: May I catch that common critter with my net?
 		Autonomy.Initiative.Always.CritterCompany: I will gently keep that little one company.
-		Autonomy.Initiative.Always.CritterCollect: I will carefully catch that common critter.
+		Autonomy.Initiative.Always.CritterCollect: I will ask what we should do with that little one before catching it.
 		Social.Critters.DirectBusy: Danger comes first. Point out that little one again when we are safe.
 		Enums.CompanionQuickAction.Pause: Pause
 		Enums.CompanionQuickAction.Resume: Resume
@@ -636,7 +670,7 @@ Mods: {
 				Actions: {
 					CritterWatch: WATCH CRITTERS
 					CritterCompany: CRITTER COMPANY
-					CritterCollect: PET COLLECT
+					CritterCollect: CRITTER ENCOUNTERS
 					CritterOff: LEAVE THEM ALONE
 					Follow: FOLLOW
 					Stay: STAY
@@ -1086,7 +1120,7 @@ Mods: {
 				Modes: {
 					Watch: I will notice little creatures without catching them.
 					Company: I will invite nearby common critters to keep me company. No cages, no copies.
-					Collect: My basic net is ready for nearby common critters when there is room. Lava critters need a better net in Equipment. Work and danger come first.
+					Collect: I will find nearby common critters and ask about each one before catching. My basic net is built in; lava critters need a better carried net. Work and danger come first.
 					Off: I will leave the critters to their own adventures.
 				}
 				Status: {

@@ -48,7 +48,8 @@ public sealed class Soulmates : Mod
 		MiningConfigRequest,
 		PetConfigRequest,
 		PetStoreRequest,
-		RetinueConfigRequest
+		RetinueConfigRequest,
+		SalvageRequest
 	}
 
 	internal static ModKeybind TalkKeybind { get; private set; } = null!;
@@ -303,7 +304,17 @@ public sealed class Soulmates : Mod
 		packet.Send();
 	}
 
-	internal static void SendCompanionSpeech(Player player, SoulboundCompanion companion, string key, string argument = "")
+	internal static void SendSalvageRequest(Guid profileId, Point target, Guid world, ulong fingerprint)
+	{
+		if (Main.netMode != NetmodeID.MultiplayerClient) return;
+		ModPacket packet = ModContent.GetInstance<Soulmates>().GetPacket();
+		packet.Write((byte)MessageType.SalvageRequest);
+		packet.Write(profileId.ToByteArray()); packet.Write(world.ToByteArray());
+		packet.Write((short)target.X); packet.Write((short)target.Y); packet.Write(fingerprint);
+		packet.Send();
+	}
+
+	internal static void SendCompanionSpeech(Player player, SoulboundCompanion companion, string key, string argument = "", string? secondArgument = null)
 	{
 		if (Main.netMode != NetmodeID.Server)
 			return;
@@ -312,6 +323,7 @@ public sealed class Soulmates : Mod
 		packet.Write(companion.Profile.Id.ToString());
 		packet.Write(key);
 		packet.Write(argument);
+		if (secondArgument is not null) packet.Write(secondArgument);
 		packet.Send(player.whoAmI);
 	}
 
@@ -376,11 +388,15 @@ public sealed class Soulmates : Mod
 			MessageType.PetConfigRequest => 56,
 			MessageType.PetStoreRequest => 49,
 			MessageType.RetinueConfigRequest => 56,
+			MessageType.SalvageRequest => 44,
 			_ => 1
 		};
 		if (reader.BaseStream.CanSeek && reader.BaseStream.Length - reader.BaseStream.Position < minimumBytes)
 			return;
 		switch (type) {
+			case MessageType.SalvageRequest:
+				HandleSalvageRequest(reader, whoAmI);
+				break;
 			case MessageType.TalkRequest:
 				HandleTalkRequest(reader, whoAmI);
 				break;
@@ -619,10 +635,11 @@ public sealed class Soulmates : Mod
 		Guid profileId = Guid.TryParse(reader.ReadString(), out Guid parsed) ? parsed : Guid.Empty;
 		string key = reader.ReadString();
 		string argument = reader.ReadString();
+		string? secondArgument = reader.BaseStream.Position < reader.BaseStream.Length ? reader.ReadString() : null;
 		if (Main.netMode != NetmodeID.MultiplayerClient || profileId == Guid.Empty)
 			return;
 		if (SoulboundCompanion.FindFor(Main.LocalPlayer) is { } companion && companion.Profile.Id == profileId)
-			companion.ShowLocalizedSpeech(key, argument);
+			companion.ShowLocalizedSpeech(key, argument, secondArgument);
 	}
 
 	private void HandleQuickActionRequest(BinaryReader reader, int whoAmI)
@@ -865,6 +882,17 @@ public sealed class Soulmates : Mod
 		CompanionConversationResult result = changedItem || changedTile
 			? new CompanionConversationResult(SoulmatesText.Get("TargetOrders.TargetLost"), false)
 			: companion.PerformDirectOrder(order, tileTarget, itemTarget);
+		SendInteractionResponse(whoAmI, companion, result, quick: true);
+	}
+
+	private void HandleSalvageRequest(BinaryReader reader, int whoAmI)
+	{
+		Guid profile = ReadGuid(reader), world = ReadGuid(reader);
+		Point target = new(reader.ReadInt16(), reader.ReadInt16());
+		ulong fingerprint = reader.ReadUInt64();
+		if (Main.netMode != NetmodeID.Server || whoAmI < 0 || whoAmI >= Main.maxPlayers
+			|| !Main.player[whoAmI].active || FindRequestCompanion(Main.player[whoAmI], profile) is not { } companion) return;
+		CompanionConversationResult result = companion.RequestSalvage(target, world, fingerprint);
 		SendInteractionResponse(whoAmI, companion, result, quick: true);
 	}
 

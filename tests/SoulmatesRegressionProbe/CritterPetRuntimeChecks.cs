@@ -68,7 +68,7 @@ public sealed partial class EngineChecks
 					animal.direction = animal.spriteDirection = 1; animal.velocity.X = 1;
 					return animal;
 				}
-				foreach (int type in new[] { NPCID.Bunny, NPCID.Squirrel, NPCID.Bird }) {
+				foreach (int type in new[] { NPCID.Bunny, NPCID.Squirrel, NPCID.Bird, NPCID.Scorpion, NPCID.ScorpionBlack }) {
 					// Earlier visits must not leave random follow momentum in the next species' success case.
 					npc.Center = owner.Center + new Vector2(-50, -60); npc.velocity = Vector2.Zero;
 					NPC animal = Critter(type);
@@ -104,7 +104,7 @@ public sealed partial class EngineChecks
 						escaped.GetGlobalNPC<CompanionCritterCompany>(), new object[] { mate })!,
 					$"Escaped bird bypassed the owner leash or was recruited at range, mode {mode}");
 				escaped.active = false; mate.PerformQuickAction(CompanionQuickAction.CritterOff);
-				foreach (int type in new[] { NPCID.Bunny, NPCID.Butterfly, NPCID.Firefly }) {
+				foreach (int type in new[] { NPCID.Bunny, NPCID.Butterfly, NPCID.Firefly, NPCID.Scorpion, NPCID.ScorpionBlack }) {
 					Main.dayTime = type != NPCID.Firefly;
 					NPC animal = Critter(type); int itemType = animal.catchItem;
 					var reply = (CompanionConversationResult)Call("PerformNpcContext", CompanionNpcAction.Collect, 19, type)!;
@@ -115,6 +115,8 @@ public sealed partial class EngineChecks
 					trace.Add($"catch end {type}/{mode}: {State(animal)}; cargo={mate.Profile.ItemCount(itemType)}");
 					check(!animal.active && mate.Profile.ItemCount(itemType) == 1 && sigil.Profile.ItemCount(itemType) == 1,
 						$"Native updates failed catch/cargo {type}, mode {mode}; active={animal.active}, amount={mate.Profile.ItemCount(itemType)}, animal={animal.Center}, mate={npc.Center}");
+					check(mate.Profile.Pack.Any(item => item.type == itemType && item.stack == 1),
+						$"Caught critter is not visible in ordinary Pack {type}, mode {mode}");
 					animal.active = false;
 					mate.PerformQuickAction(CompanionQuickAction.CritterOff); Tick(320);
 				}
@@ -135,10 +137,33 @@ public sealed partial class EngineChecks
 				mate.Profile.CritterCollectInitiative = CompanionInitiativePolicy.Always;
 				int beforeCatch = mate.Profile.ItemCount(ItemID.Bunny);
 				mate.PerformQuickAction(CompanionQuickAction.CritterCollect); Tick(360);
+				check(automatic.active && mate.PendingQuestion == CompanionQuestion.CritterEncounter && mate.Profile.ItemCount(ItemID.Bunny) == beforeCatch,
+					$"Automatic Collect failed to ask about the individual animal, mode {mode}");
+				check(mate.RespondToQuestion(mate.QuestionId, CompanionAnswer.Second), $"Native catch encounter answer failed, mode {mode}");
+				Tick(360);
 				check(!automatic.active && mate.Profile.ItemCount(ItemID.Bunny) == beforeCatch + 1
 					&& sigil.Profile.ItemCount(ItemID.Bunny) == beforeCatch + 1,
 					$"Native automatic Collect loses its caught critter or cargo, mode {mode}");
 				mate.PerformQuickAction(CompanionQuickAction.CritterOff); mate.Profile.AutonomyEnabled = false;
+				object receipts = Field("pendingCatchNotices")!;
+				receipts.GetType().GetMethod("Clear")!.Invoke(receipts, null);
+				mate.ShowSpeech("Let me finish this thought before I tell you what I caught.");
+				var caughtNames = new List<string>();
+				foreach (int type in new[] { NPCID.Scorpion, NPCID.ScorpionBlack }) {
+					NPC caught = Critter(type); caught.Center = npc.Center;
+					typeof(SoulboundCompanion).GetField("insectCatchCooldown", flags)!.SetValue(mate, 0);
+					caughtNames.Add(new Item(caught.catchItem).Name);
+					check((bool)Call("TryCatchCritter", false, caught)!, $"Queued native scorpion catch failed {type}, mode {mode}");
+					SettleServerInventory(mod);
+				}
+				check((int)receipts.GetType().GetProperty("Count")!.GetValue(receipts)! == 2,
+					$"Successive catches overwrite their delayed receipts, mode {mode}");
+				foreach (string name in caughtNames) {
+					typeof(SoulboundCompanion).GetField("speechTimer", flags)!.SetValue(mate, 0);
+					Call("UpdateCatchNotice");
+					check((string)Field("speechText")! == SoulmatesText.Get("Social.Critters.CatchReceipt", name),
+						$"Catch receipt lost its item name or delivery order, mode {mode}");
+				}
 				NPC witness = Critter(NPCID.Bunny); npc.Center = owner.Center + new Vector2(-50, -60);
 				int wallX = (int)((npc.Center.X + witness.Center.X) / 32f);
 				for (int y = 1; y < 90; y++) { Tile wall = Main.tile[wallX, y]; wall.HasTile = true; wall.TileType = TileID.Stone; }

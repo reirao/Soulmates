@@ -271,6 +271,33 @@ public sealed partial class EngineChecks
 				CompanionInitiativeKind kind = behavior == CompanionCritterMode.Company
 					? CompanionInitiativeKind.CritterCompany : CompanionInitiativeKind.CritterCollect;
 				Activity(); Guid token = mate.InitiativeId;
+				if (behavior == CompanionCritterMode.Collect) {
+					CompanionAnswer choice = (CompanionAnswer)(int)answer; token = mate.QuestionId;
+					check(mate.PendingQuestion == CompanionQuestion.CritterEncounter && target.active && Get("critterTarget") is null,
+						"Collect failed to present an individual four-choice encounter: " + mode);
+					check(!mate.RespondToQuestion(Guid.NewGuid(), choice) && mate.HasPendingQuestion,
+						"Forged encounter answer was accepted");
+					check(mate.RespondToQuestion(token, choice) && !mate.RespondToQuestion(token, choice),
+						"Individual encounter answer was refused or replayed: " + choice);
+					if (choice == CompanionAnswer.First) for (int i = 0; i < 65; i++) Activity();
+					else Activity();
+					check(choice == CompanionAnswer.Second ? !target.active && mate.Profile.ItemCount(ItemID.Bunny) == 1
+						: choice == CompanionAnswer.First ? target.active && Assigned(target)
+						: target.active && !Assigned(target) && Get("critterTarget") is null,
+						"Encounter choice did not perform exactly the selected native action: " + choice + "/" + mode);
+					check(mate.Profile.CritterCollectInitiative == CompanionInitiativePolicy.Ask,
+						"One-animal answer granted future catch permissions");
+					mate.SetCommand(false); mate.Profile.CritterMode = CompanionCritterMode.Collect;
+					((CompanionAttention)Get("attention")!).Reset(); Set("critterDecisionTimer", 0); Set("insectCatchCooldown", 0);
+					NPC another = Bunny(18); Activity();
+					check(mate.PendingQuestion == CompanionQuestion.CritterEncounter && another.active,
+						"New critter inherited an old individual decision");
+					token = mate.QuestionId; another.SetDefaults(NPCID.Squirrel); another.active = true;
+					check(!mate.RespondToQuestion(token, CompanionAnswer.Second) && another.active,
+						"Changed critter inherited an encounter permit");
+					ModContent.GetInstance<InitiativePromptSystem>().Close();
+					continue;
+				}
 				check(mate.HasPendingInitiative && mate.PendingInitiativeKind == kind && token != Guid.Empty && target.active
 					&& Get("critterTarget") is null && mate.Profile.ItemCount(ItemID.Bunny) == 0,
 					"Automatic critter action bypassed Ask: " + behavior + "/" + mode);

@@ -1,5 +1,39 @@
 Mods: {
 	Soulmates: {
+		Salvage.Action: "Bergen: vor dem Entfernen fragen"
+		Salvage.Kinds.Gem: "Edelstein"
+		Salvage.Kinds.Pot: "Vase"
+		Salvage.Kinds.Web: "Spinnwebe"
+		Salvage.Kinds.Decoration: "Dekoration"
+		Salvage.Question: "Das ist {1}. Ich kenne die Herkunft nicht. Nur dieses Objekt oder passende Funde daneben (bis zu {0})? Erkannte Zuhause und geschützte Objekte bleiben unangetastet."
+		Salvage.AreaQuestion: "Diese {0} erfassten passenden Funde ({1}) im Umkreis von 12 Blöcken bestätigen? Die Herkunft ist unbekannt. Neue Funde zählen nicht dazu."
+		Conversation.CritterEncounter.Action: "Dieses Tier kennenlernen"
+		Conversation.CritterEncounter.Heading: "Dieses kleine Wesen"
+		Conversation.CritterEncounter.Question: "Hallo, {0}. Soll ich Freundschaft versuchen, dieses Tier mit dem Netz fangen oder nur zuschauen? Ein Fang wird zum Item, nicht zum Begleiter."
+		Conversation.CritterEncounter.Choices.First: "Freundschaft versuchen"
+		Conversation.CritterEncounter.Choices.Second: "Nur dieses Tier fangen"
+		Conversation.CritterEncounter.Choices.Third: "Gemeinsam beobachten"
+		Conversation.CritterEncounter.Choices.Later: "Dieses Tier in Ruhe lassen"
+		Conversation.CritterEncounter.Watching: "Geben wir diesem {0} etwas Platz und schauen nur zu."
+		Conversation.CritterEncounter.Leaving: "Dieses {0} lasse ich erst einmal in Ruhe."
+		Social.Critters.CatchReceipt: "Sicher gefangen: {0}. Es liegt als Item in meinem Pack, nicht als folgendes Pet. Im Pack kannst du es zurücknehmen."
+		Social.Critters.CatchWorldReceipt: "{0} gefangen, aber ich konnte es nicht verstauen. Das echte Item liegt am Boden; sammle es bitte ein."
+		Salvage.Protected: "Das lasse ich stehen: Bau, Zuhause, Kabel, unsichere Stütze oder ein geschütztes Objekt könnten betroffen sein."
+		Salvage.Changed: "Der Fund oder seine Umgebung hat sich verändert. Die alte Erlaubnis gilt nicht mehr."
+		Salvage.Cancelled: "Verstanden. Es wird nichts entfernt."
+		Salvage.Started: "Ich berge vorsichtig {0} bestätigte Objekte. Echte Drops sammle ich wie gewohnt ein."
+		Salvage.Completed: "{0} Objekte geborgen; {1} veränderte oder blockierte Funde stehen gelassen."
+		Conversation.Salvage.Heading: "Diesen Fund bergen?"
+		Conversation.Salvage.Choices.First: "Nur dieses Objekt"
+		Conversation.Salvage.Choices.Second: "Passende Funde daneben..."
+		Conversation.Salvage.Choices.Third: "Alles stehen lassen"
+		Conversation.Salvage.Choices.Later: "Jetzt nicht"
+		Conversation.SalvageArea.Heading: "Unbekannte Herkunft bestätigen"
+		Conversation.SalvageArea.Choices.First: "Ja, nur die erfassten Funde"
+		Conversation.SalvageArea.Choices.Second: "Nein, stehen lassen"
+		Conversation.SalvageArea.Choices.Third: "Abbrechen"
+		Conversation.SalvageArea.Choices.Later: "Jetzt nicht"
+		Enums.CompanionJob.Salvage: "Vorsichtige Bergung"
 		UI.CompanionWheel.Categories.Evil: "EVIL: theatralischer Unfug"
 		Enums.CompanionQuickAction.BossChallenge: "Bossduell"
 		UI.CompanionWheel.Actions.BossChallenge: "Bossduell"
@@ -144,7 +178,7 @@ Mods: {
 		Autonomy.Initiative.Ask.CritterCompany: Das Kleine sieht neugierig aus. Darf ich ihm Gesellschaft leisten?
 		Autonomy.Initiative.Ask.CritterCollect: Darf ich dieses gewöhnliche Tier mit meinem Netz einfangen?
 		Autonomy.Initiative.Always.CritterCompany: Ich leiste dem Kleinen behutsam Gesellschaft.
-		Autonomy.Initiative.Always.CritterCollect: Ich fange dieses gewöhnliche Tier vorsichtig ein.
+		Autonomy.Initiative.Always.CritterCollect: Ich frage erst, was wir mit diesem kleinen Wesen tun sollen, bevor ich es fange.
 		Social.Critters.DirectBusy: Gefahr geht vor. Zeige mir das kleine Tier noch einmal, wenn wir sicher sind.
 		Enums.CompanionQuickAction.Pause: Pausieren
 		Enums.CompanionQuickAction.Resume: Fortsetzen
@@ -662,7 +696,7 @@ Mods: {
 				Actions: {
 					CritterWatch: TIERE BEOBACHTEN
 					CritterCompany: TIERGESELLSCHAFT
-					CritterCollect: TIERE SAMMELN
+					CritterCollect: TIERBEGEGNUNGEN
 					CritterOff: IN RUHE LASSEN
 					Follow: FOLGEN
 					Stay: WARTEN
@@ -1112,7 +1146,7 @@ Mods: {
 				Modes: {
 					Watch: Ich bemerke kleine Tiere, ohne sie einzufangen.
 					Company: Ich lade gewöhnliche Tiere in der Nähe ein, mich zu begleiten. Keine Käfige, keine Kopien.
-					Collect: Mein einfacher Kescher ist bereit für gewöhnliche Tiere in der Nähe, wenn Platz ist. Lava-Tiere brauchen ein besseres Netz in der Ausrüstung. Arbeit und Gefahren gehen vor.
+					Collect: Ich suche gewöhnliche Tiere in der Nähe und frage vor jedem Fang nach diesem Tier. Mein einfacher Kescher ist eingebaut; Lava-Tiere brauchen ein besseres mitgeführtes Netz. Arbeit und Gefahren gehen vor.
 					Off: Ich lasse die Tiere ihre eigenen Abenteuer erleben.
 				}
 				Status: {

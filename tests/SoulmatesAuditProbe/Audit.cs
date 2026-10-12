@@ -250,6 +250,7 @@ public sealed partial class AuditChecks : ModSystem
             CheckCritterSchedulingAndDiagnosis(owner);
 			CheckIntentLearningBoundaries(mod, owner);
 			CheckEndlessBossBoundaries(mod);
+			CheckCarefulSalvagePackets(mod);
 
             CheckBetaAdversarialCases(mod);
             CheckPanelGeometry();

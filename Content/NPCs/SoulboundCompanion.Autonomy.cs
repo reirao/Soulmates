@@ -693,6 +693,9 @@ public sealed partial class SoulboundCompanion
 		}
 
 		proposedIntentContext = CurrentIntentContext();
+		// Catching changes a living animal into an item: ask about this individual even under Always.
+		if (activity == AutonomyActivity.CatchCritter && targetNpc is not null)
+			return RequestCritterEncounter(targetNpc, playerRequested: false, kind).Accepted;
 		if (policy == CompanionInitiativePolicy.Always) {
 			ShowNativeEmote(InitiativeEmote(kind), 180);
 			SoulmatesFeedbackSystem.Record("initiative_auto_accept", ("action", kind.ToString()));

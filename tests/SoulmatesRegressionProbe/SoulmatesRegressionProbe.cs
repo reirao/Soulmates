@@ -128,6 +128,7 @@ public sealed partial class EngineChecks : ModSystem
 			CheckPromptBeta(Check);
 			CheckPlaceBeta(Check);
 			CheckHomeIntegration(Check);
+			CheckCarefulSalvage(Check, soulmates);
 			CheckCritterBetaRefinement(Check, soulmates);
 			CheckPointingAndInitiative(Check);
 			CheckRelationships(Check);
@@ -2478,6 +2479,43 @@ public sealed partial class EngineChecks : ModSystem
 			void Aim(Vector2 world) {
 				Vector2 screen = Vector2.Transform(world - Main.screenPosition, Main.GameViewMatrix.TransformationMatrix);
 				PlayerInput.MouseX = (int)screen.X; PlayerInput.MouseY = (int)screen.Y;
+			}
+			var beforeSalvageWorld = Main.ActiveWorldFileData;
+			var beforeSalvageProtection = new Terraria.ModLoader.IO.TagCompound();
+			var salvageProtection = ModContent.GetInstance<SalvageProtectionSystem>();
+			salvageProtection.SaveWorldData(beforeSalvageProtection);
+			try {
+				Main.ActiveWorldFileData = new Terraria.IO.WorldFileData("", false) { UniqueId = Guid.NewGuid() };
+				salvageProtection.ClearWorld(); companion.SetCommand(false);
+				player.inventory[0] = new Item(ModContent.ItemType<SoulboundSigil>());
+				((SoulboundSigil)player.inventory[0].ModItem).Profile = companion.Profile.Clone();
+				Point find = new(30, 40); Tile web = Main.tile[find];
+				web.HasTile = true; web.TileType = TileID.Cobweb; web.TileFrameX = web.TileFrameY = 0;
+				wheel.Close(); player.mouseInterface = false; controls.SetControls();
+				Aim(find.ToWorldCoordinates()); Queue(); Flush();
+				check(wheel.IsOpen && Actions().Contains("Salvage"), "Production right-click did not offer salvage on a web");
+				PlayerInput.MouseX = PlayerInput.MouseY = 0; Activate("Salvage");
+				check(!wheel.IsOpen && companion.PendingQuestion == CompanionQuestion.Salvage && web.HasTile,
+					"Actual salvage wheel button failed to ask about its captured target");
+				companion.RespondToQuestion(companion.QuestionId, CompanionAnswer.Third);
+				wheel.Close(); player.mouseInterface = false; controls.SetControls();
+				Aim(find.ToWorldCoordinates()); Queue(); Flush(); web.TileType = TileID.Dirt; Activate("Salvage");
+				check(!companion.HasPendingQuestion && web.HasTile, "Stale salvage wheel mutated a replacement block");
+				web.ClearEverything();
+				wheel.Close(); player.mouseInterface = false; controls.SetControls();
+				Aim(Main.npc[1].Center); Queue(); Flush();
+				check(wheel.IsOpen && Actions().Contains("Meet"), "Critter context lacks its individual encounter command");
+				string catchLabel = (string)wheelType.GetMethod("ContextActionLabel", flags)!.Invoke(wheel, [Actions().IndexOf("Collect")])!;
+				check(catchLabel.Contains(SoulmatesText.Get("Conversation.CritterEncounter.Choices.Second")),
+					"Direct critter command does not explicitly identify one-animal catching");
+				Activate("Meet");
+				check(companion.PendingQuestion == CompanionQuestion.CritterEncounter && Main.npc[1].active,
+					"Actual Meet button did not keep the clicked animal alive for its decision");
+				companion.RespondToQuestion(companion.QuestionId, CompanionAnswer.Later);
+			} finally {
+				companion.SetCommand(false); Main.ActiveWorldFileData = beforeSalvageWorld;
+				salvageProtection.ClearWorld(); salvageProtection.LoadWorldData(beforeSalvageProtection);
+				wheel.Close(); player.mouseInterface = false; controls.SetControls();
 			}
 			Aim(new Vector2(600, 500)); Queue(); Flush();
 			check(!wheel.IsOpen && !(bool)queued.GetValue(controls)!, "Native empty-air right-click opened a mod wheel");

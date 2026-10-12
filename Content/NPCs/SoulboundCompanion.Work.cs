@@ -292,6 +292,9 @@ public sealed partial class SoulboundCompanion
 			case CompanionJob.Gather:
 				UpdateGatherJob();
 				break;
+			case CompanionJob.Salvage:
+				UpdateSalvageJob();
+				break;
 		}
 	}
 
@@ -1064,6 +1067,7 @@ public sealed partial class SoulboundCompanion
 			Main.NewText(message, success ? Profile.EssenceColor : Color.LightGray);
 		activeJob = CompanionJob.None;
 		jobTimer = 0;
+		ClearSalvageWork();
 		jobCount = 0;
 		jobPlannedTotal = 0;
 		jobRecoveryPaused = false;

@@ -77,6 +77,7 @@ public sealed partial class SoulboundCompanion
 
 	private void StopOwnedEffects()
 	{
+		ClearSalvageWork();
 		if (IsBossChallenge) EndBossChallenge("Cancelled", announce: false);
 		ClearPersonalPlansRuntime();
 		ClearEvilCelebration();
@@ -89,6 +90,7 @@ public sealed partial class SoulboundCompanion
 		pendingCritterLossTicks = pendingCritterCareTicks = 0;
 		pendingCritterNotice = null;
 		pendingCritterNoticeKey = "";
+		pendingCatchNotices.Clear();
 		deferredCritter = null;
 		deferredCritterTicks = 0;
 		ReleaseCritterCompany();

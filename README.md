@@ -1,9 +1,11 @@
 # Soulmates
-## 0.27.0 - Behind the Curtain | Beta
+## 0.28.0 - Careful Finds | Beta
+
+**New: consent-first salvage and individual critter encounters.** Installed locally on October 12; the existing Workshop item records its 0.28.0 upload at 14:18 CEST. Steam approval and subscriber delivery are separate. [Release notes](releases/0.28.0.md) explain the implemented scope and remaining beta checks.
 
 Create a companion, give her a name and a place in your world, and grow together. Soulmates combines a reusable creator, persistent personalities, useful work, native-symbol Soulwheels, memories, pets and her own summoned company.
 
-[Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3807130821) | [GitHub release](https://github.com/reirao/Soulmates/releases/tag/v0.27.0) | [Terraria forum](https://forums.terraria.org/index.php?threads/152194/) | [Bug reports](https://github.com/reirao/Soulmates/issues)
+[Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3807130821) | [Current release: 0.28.0](https://github.com/reirao/Soulmates/releases/tag/v0.28.0) | [Terraria forum](https://forums.terraria.org/index.php?threads/152194/) | [Bug reports](https://github.com/reirao/Soulmates/issues)
 
 # YOUR COMPANION CAN BECOME THE BOSS
 
@@ -15,11 +17,11 @@ Turn on **EVIL** using the native angry-face symbol directly on her wheel. Then 
 
 **Stop safely:** Games > Stop, Commands > Abort/Pause, EVIL off or recall. Victory, owner loss/death, distance, a five-minute timeout or another world boss also ends it. Her inventory and memories survive; challenge shots and debuffs clear. **Work stays paused until Resume.** EVIL by itself remains theatrical expression, not permission to attack or destroy things.
 
-The creator reports a delighted installed 0.27.0 playtest. [Publication verified](tests/PUBLICATION-0.27.0-2026-10-12.md): GitHub distributes the exact independently retested Steam-managed package; both Workshop descriptions, the single current changelog and existing forum post/title are updated. This is encouraging real-player feedback, not complete progression, endurance or connected-multiplayer certification. Check the actual loaded version under Mods; Steam moderation remains pending and subscriber delivery is separate. [Release notes](releases/0.27.0.md) and [beta gates](BETA.md) describe the current scope.
+The creator's delighted 0.27.0 playtest remains encouraging historical feedback, not complete progression, endurance or connected-multiplayer certification for 0.28.0. Check the actual loaded version under Mods; Steam moderation and subscriber delivery remain separate. [Release notes](releases/0.28.0.md) and [beta gates](BETA.md) describe the current scope.
 
 ## Start Together
 
-1. Enable Soulmates in tModLoader 1.4.4 and reload. All multiplayer peers need **0.27.0**. Avoid duplicate local packages.
+1. Enable Soulmates in tModLoader 1.4.4 and reload. Use **0.28.0 on all multiplayer peers**. Avoid duplicate local packages.
 2. Characters receive a Soulcore and three Blank Sigils once. Replacements are craftable.
 3. Use the reusable Soulcore or right-click it in inventory. Choose a companion and bind a Sigil.
 4. Summon her with that Sigil and keep it in your inventory. One active companion per player; switching retires the old effects. Up + right-click the Sigil recalls her.
@@ -54,10 +56,18 @@ If she waits, check Stay/Pause, current assignment, autonomy, the ability's perm
 - Energy/mood recover naturally. Work effort costs one energy per eight retrieved stacks, four mined blocks or two forestry actions. Exhaustion rebuilds a 30-energy reserve before retained/automatic work resumes; combat pauses recovery.
 - Companions illuminate nearby darkness and reveal the world map around themselves. Craftable Starfinder Bell, Delver Charm and Hearth Ribbon alter existing capabilities.
 
+## Careful Salvage
+
+- Right-click a supported find and choose **Salvage**. Gems, pots, cobwebs, coral, books, bottles, water candles, statues, banners and the five vanilla painting sizes are eligible; this is not arbitrary dungeon/underwater furniture demolition.
+- Choose **Only this object**, **Matching finds nearby...**, leave or Later. Nearby requires a second confirmation of unknown origins and captures at most 16 same-type/style finds within 12 tiles. Later discoveries are not added to the permit.
+- Newly observed construction, recognized homes, beds, assigned housing, wiring, paint/coatings, tile entities, unsafe supports and protected objects block salvage. The entire multi-tile and its surroundings are checked again on approval and immediately before removal. Normal native tool progression still applies to embedded gems.
+- Old worlds do not contain a trustworthy universal placement history. An unrecorded find is **unknown**, not proven natural. Construction evidence is deliberately conservative and persists in the world save; mods that directly rewrite tiles may bypass placement observation.
+- Native destruction produces real drops; normal cargo collection owns pickup. Pause/Resume/Abort reuse the existing job controls. Salvage never grants standing permission to remove future objects.
+
 ## Personality And Memory
 
 - A shared attention selector weighs proximity, talent, observed habits and waiting time. Combat, explicit work, Stay and recovery take priority; repeated drops cannot indefinitely starve other eligible tasks.
-- **Ask/Always/Never** is independent for gathering, mining, forestry, treasure, Company and Collect. Yes allows one opportunity. Learning preferences never silently grant permission.
+- **Ask/Always/Never** is independent for gathering, mining, forestry, treasure, Company and Collect. Yes allows one opportunity. Learning preferences never silently grant permission. Collect Always may seek encounters, but catching now still asks about each individual animal. Salvage has no automatic Always permission.
 - Observations, accepted requests and actual outcomes shape bounded per-Sigil preferences. Occasional evaluations use the native-symbol answer wheel; Later, silence and cancellation are neutral. Quiet disables personal evaluations.
 - In safe idle moments she can visit a classified nearby home, keep her real familiar company or reflect on observed building supplies. Only completed undertakings become memories after return. This is not autonomous construction or copied architecture.
 - **Home** uses Terraria's house symbol to classify a valid shelter: our home, her little home, just a stop or Later. Room, actual bed and resident housing are different evidence. Familiarity is not ownership; changed rooms/worlds are rechecked. Recognized home chests are not automatically rediscovered as treasure.
@@ -69,8 +79,10 @@ If she waits, check Stay/Pause, current assignment, autonomy, the ability's perm
 
 These are separate systems, not interchangeable pet slots:
 
-- **Watch** greets nearby natural critters without catching. **Company** temporarily invites supported real bunnies, squirrels, birds, butterflies, fireflies and lightning bugs: one for ordinary companions, up to three for AETHER. Native physics, catching, damage and despawning still apply. No spawned copies or teleporting stragglers.
+- **Watch** greets nearby natural critters without catching. A specific encounter offers try making friends, catch this one, watch, or leave alone. The critter's context wheel also offers Meet. A moved, despawned or reused NPC invalidates the old answer; ignored animals get a short respite from repeat questions.
+- **Company** temporarily invites supported real bunnies, squirrels, birds, butterflies, fireflies, lightning bugs and both scorpion species: one for ordinary companions, up to three for AETHER. Native physics, catching, damage and despawning still apply. No spawned copies or teleporting stragglers. Meeting can lead to this existing temporary company behavior, not a persistent individual-animal relationship simulation.
 - **Collect** includes ordinary basic-net capability, not a free withdrawable net item. Lava species need an eligible carried lava-proof net. Gold, statue-spawned and player-released critters are protected. Distance, visibility, tasks, stamina and separate consent still matter.
+- Catching turns a native critter into its real item in the ordinary **Pack**, not a following pet. A queued receipt names the caught item and where to find it; multiple receipts do not overwrite one another. If a native drop could not be stored, it remains a real world item. No replacement critter item is invented.
 - Nearby witnessed deaths can provoke sorrow/apology and stronger disapproval when native player attack credit exists. Unknown causes do not accuse a player; catching is not death. Reactions are bounded and may wait behind speech. Individual live timing still needs feedback.
 - **Pets** has twelve real owned-item slots. The upper gift row is still your inventory; the lower row is hers. Give an unfavorited reusable pet item, left-click an owned slot to summon, right-click to return. The first gift selects only into empty storage; later gifts respect dismissal. Wheel icons select, not duplicate.
 - One harmless familiar follows separately from your own pet. Registered item/buff/projectile metadata supplies native animation and basic light with custom movement, not original player-pet AI, special utility or arbitrary modded drawing.
@@ -98,7 +110,7 @@ No online AI service runs in Soulmates. "Learning" means bounded local game syst
 
 ## Verification And Honesty
 
-0.27.0 passes **116,213 native assertions**, **501 independent audit expectations** and **60,730 static/localization assertions**, with **1,036 keys in nine catalogs**. Production compilation has zero warnings/errors. The test probe retains 33 existing nullable/Hjson warnings. [Exact candidate checks](tests/ENDLESS-BOSS-0.27.0-2026-10-12.md) and [installation receipt](tests/CLIENT-INSTALL-0.27.0-2026-10-12.md) keep identities and initial failed cases visible.
+0.28.0 passes **117,074 native assertions**, **516 independent audit expectations** and **62,632 static/localization assertions**, with **1,070 keys in nine catalogs**. Production compilation has zero warnings/errors. The test probe retains 33 existing nullable/Hjson warnings. [Candidate checks and installation](tests/CAREFUL-FINDS-0.28.0-2026-10-12.md) keep package identities and limits visible. The Steam-managed package is independently retested before distribution; matching sources/catalog values do not imply binary identity.
 
 The creator's successful 0.27.0 playtest is separate evidence. Full GUI families, physical inputs, later progression, long sessions, other-mod interactions and connected multiplayer remain open. [BETA.md](BETA.md) and [VERSIONING.md](VERSIONING.md) define acceptance, not an unagreed future roadmap.
 
@@ -110,7 +122,7 @@ We advertised V without a real end-to-end keypress test. A software trigger prov
 
 We sometimes grew features faster than we checked their complete interaction. Cargo bugs produced acorn/Gel piles; unlike stacks could merge incorrectly. Critter logic mistakenly used temporary spawn protection as permanent species classification. Visible buttons were not proof of finished behavior. Versions, repeated logs and old footage confused publication. Those failures prompted shared transfer rules, live identity checks, consent registration, repeated independent audits and exact package comparisons. A recent boss test also caught native ownership resetting hostile-projectile AI fields before the real-engine countercheck passed.
 
-The [complete changelog](CHANGELOG.md) and version-specific reports preserve that history. [changelog.txt](changelog.txt) contains **only this update**, so older logs are not republished. [0.26.0 publication](tests/PUBLICATION-0.26.0-2026-10-11.md) remains historical evidence, not proof of 0.27.0 subscriber delivery.
+The [complete changelog](CHANGELOG.md) and version-specific reports preserve that history. [changelog.txt](changelog.txt) contains **only this update**, so older logs are not republished. [0.27.0 publication](tests/PUBLICATION-0.27.0-2026-10-12.md) remains historical evidence, not proof of 0.28.0 subscriber delivery.
 
 ## Feedback And Privacy
 

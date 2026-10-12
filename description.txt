@@ -1,9 +1,9 @@
-Soulmates 0.27.0 - Behind the Curtain | Beta
+Soulmates 0.28.0 - Careful Finds | Beta
 
 Create personal companions with the reusable Soulcore. Each Soulbound Sigil carries one companion's appearance, personality, talent, mood, energy, bond, level, learned preferences, cargo, pets and memories. Keep the active Sigil in your inventory. A companion named AETHER has all talents and learned perks. One companion per player; switching retires old effects.
 
 YOUR COMPANION CAN BECOME THE BOSS
-The same companion, with the same memories and inventory. EVIL's angry face is directly on her wheel. Turn it on, open Games and click the secret eye, then confirm a real three-phase duel. Your character can take real damage. Stop/Abort, EVIL off or recall ends it; work stays paused until Resume. Details below explain the safeguards.
+The same companion, with the same memories and inventory. EVIL's angry face is on her wheel; Games reveals the confirmed boss duel. Real character damage. Safeguards below.
 
 SMALL WHEELS, CLEAR INTENTIONS
 Right-click her for companion tools; yourself for player tools and categorized native Emotes. Terraria is the default mouse mode and retains priority over ordinary interactions. Me and Soulmate offer explicit contextual pointing and orders. Work includes ore search, area mining, Config and Last. Mining offers Adaptive, Tunnel, Vein and Surface, automatic ore/material filters, compass directions and bounded passage digging. Tool progression, plants, saplings, decorations and liquid protection still apply. Pause keeps a task, Resume continues and Abort cancels it.
@@ -12,7 +12,7 @@ LEARNING TOGETHER
 Existing abilities use separate Ask/Always/Never permissions. Observations, accepted requests, actual outcomes and occasional evaluations shape bounded per-Sigil preferences. Approval, another idea and less of this guide later choices; Later, silence and cancellation are neutral. Quiet disables automatic personal questions. Local game logic, not online AI, free-building or a replacement for explicit commands.
 
 SMALL PERSONAL UNDERTAKINGS
-During safe idle time she may revisit a classified nearby home, keep her real familiar company or reflect on a carried building supply she has observed you use. She returns before recording a completed memory. Existing answers shape her preferences, and Do you remember? can recall the outcome. Work, danger, Stay, Pause, consent and inventory safety retain priority. No building or remodeling is added.
+During safe idle time she may revisit a classified home, keep her familiar company or reflect on an observed building supply. Return precedes a completed memory; existing answers shape preferences and stories. Work, danger, Stay, Pause and consent retain priority. No construction or remodeling.
 
 HER OWN LITTLE COMPANY
 Pets has a staff-symbol toggle for a separate Retinue inventory. Give real unfavorited reusable summon staves; left-click an owned staff to call company and right-click to return it. First explicit gift selects only when storage is empty; later gifts respect dismissal. Normal companions select 1/2/3 distinct staff types at levels 1/10/20; AETHER selects all distinct owned types, within 64 item slots. Duplicates do not multiply helpers. Native projectile artwork uses bounded companion melee/ranged/sentry combat, not original player-minion AI or arbitrary modded drawing. Your buffs, pet, minion and sentry slots stay separate. Recall, switching, dismissal and final withdrawal retire bound effects.
@@ -20,7 +20,7 @@ Pets has a staff-symbol toggle for a separate Retinue inventory. Give real unfav
 A PLACE TO BELONG
 Shelter and interesting loot have different meanings. A chosen bed, assigned NPC housing and familiar sheltered places provide different evidence. Repeated returns can lead to a question in the existing answer wheel: our home, her little home, just a stop, or later. Only your answer establishes shared or companion ownership. Bounded place memory is per Sigil and world-scoped; changed shelter is rechecked. Recognized home storage is not automatically announced as unexplored treasure; explicit treasure search remains available. She does not construct or remodel houses.
 
-Home on her wheel opens those four choices directly, even at Stay, with autonomy off or Quiet questions. Explicit requests need no repeated visits and can reclassify an existing home. Ongoing work and resident housing are respected.
+Home on her wheel opens these choices directly, including at Stay or with autonomy off.
 
 EVIL™
 Off by default; toggle the angry face directly on her wheel, Commands or the character panel. Normal EVIL is theatrical expression, not destructive permission. With EVIL on, Games reveals a secret eye: click once, then confirm to challenge her as a real three-phase boss. Two-second warmup, visible HP, telegraphed dashes and fan attacks. Your character can take real damage. No loot/XP, terrain edits or permanent companion death. Abort, Games stop, EVIL off or recall ends it; work stays paused until Resume. Inventory and memories survive. Other players and critters are not targets.
@@ -28,8 +28,11 @@ Off by default; toggle the angry face directly on her wheel, Commands or the cha
 USEFUL COMPANY
 Defense, talent-based healing, real drop collection, safe mining, forest tending and treasure awareness. Low energy and mood recover naturally. Real threats take priority over training dummies. Jobs validate current targets and bounded timeouts. Stale selections and replies cannot silently command another companion.
 
+CAREFUL FINDS
+Salvage in a find's context wheel asks for only this object or captured matching finds nearby. A second confirmation covers unknown origins, up to 16 matches within 12 tiles. Gems, pots, cobwebs and selected coral, books, bottles, candles, statues, banners and paintings are supported, not arbitrary furniture. Observed construction, recognized homes, beds, housing, wiring, paint, unsafe supports and protected objects block removal. Old objects have unknown provenance, not proven world ownership. Native destruction and normal pickup preserve real drops; Pause/Resume/Abort remain available.
+
 CRITTERS AND PETS
-Watch notices and greets; Company invites supported wild species using bounded native movement; Collect has built-in ordinary net capability. Lava critters need an eligible lava-proof net. Gold, statue-spawned and released creatures are protected. Catching and death have separate reactions. Permissions, distance, visibility, tasks and recovery still matter; Diagnostics shows the gates.
+Meet and nearby encounters offer try making friends, catch this one, watch or leave. Collect Always may find an encounter but still asks before catching. Company invites supported wild species, including both scorpions, using bounded native movement. Collect has built-in ordinary net capability; lava species need a carried eligible net. Gold, statue-spawned and released critters are protected. A catch becomes a real Pack item, not a follower; queued receipts name it and its destination. Temporary Company and existing species memory are not persistent individual-animal relationships. Catching and death remain distinct. Permissions, visibility, tasks and recovery still matter.
 
 Give her real reusable vanity/light summon items through Pets in her wheel or Details. Twelve owned-item slots. First gift selects only if empty. Left-click summons a harmless familiar using native pet artwork; right-click returns its real item. One companion-owned familiar, separate from the player's pet. No clone of arbitrary player-pet AI, buffs or modded drawing.
 
@@ -41,7 +44,7 @@ Nine languages follow Terraria: EN, DE, IT, FR, ES, RU, PT-BR, PL and Simplified
 Optional local Mailbox and Field Notes are off by default. No automatic uploads or online AI. Typed reports stay on this computer. Automatic notes omit account/character/world names, chat and coordinates. Place coordinates remain in the local game save, not the notes.
 
 HONEST BETA
-The creator reports a delighted installed 0.27.0 playtest and requests publication. Automated engine checks and that positive feedback do not certify every visual family, physical input, long campaigns or connected multiplayer. Upload, Steam approval and subscriber delivery are separate. All peers need 0.27.0. Please report version, action, expected result and observed result. Thank you for helping this little companion grow.
+0.28.0 was installed and uploaded October 12. Automated native engine and packet checks do not certify physical input, rendered gameplay, long campaigns or connected multiplayer. Upload, Steam approval and subscriber delivery are separate. All peers need 0.28.0. Please report version, action, expected result and observed result. Thank you for helping this little companion grow.
 
 AI-assisted development: code, writing, interfaces and visual work used extensive AI assistance. Icons and original Soulkin art are AI-generated; other creature/item/inventory/emote graphics reuse Terraria assets.
 Source, history and checks: https://github.com/reirao/Soulmates
