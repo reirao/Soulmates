@@ -15,7 +15,7 @@ Turn on **EVIL** using the native angry-face symbol directly on her wheel. Then 
 
 **Stop safely:** Games > Stop, Commands > Abort/Pause, EVIL off or recall. Victory, owner loss/death, distance, a five-minute timeout or another world boss also ends it. Her inventory and memories survive; challenge shots and debuffs clear. **Work stays paused until Resume.** EVIL by itself remains theatrical expression, not permission to attack or destroy things.
 
-The creator reports a delighted installed 0.27.0 playtest. The existing Workshop upload is verified and its exact Steam-managed package retested. This is encouraging real-player feedback, not complete progression, endurance or connected-multiplayer certification. Check the actual loaded version under Mods; upload, Steam approval and subscriber delivery remain separate. [Release notes](releases/0.27.0.md) and [beta gates](BETA.md) describe the current scope.
+The creator reports a delighted installed 0.27.0 playtest. [Publication verified](tests/PUBLICATION-0.27.0-2026-10-12.md): GitHub distributes the exact independently retested Steam-managed package; both Workshop descriptions, the single current changelog and existing forum post/title are updated. This is encouraging real-player feedback, not complete progression, endurance or connected-multiplayer certification. Check the actual loaded version under Mods; Steam moderation remains pending and subscriber delivery is separate. [Release notes](releases/0.27.0.md) and [beta gates](BETA.md) describe the current scope.
 
 ## Start Together
 
