@@ -1,6 +1,6 @@
 # Soulmates 0.28.1 - A Little Flock: candidate checks
 
-Date: October 12, 2026. Local beta candidate only, prepared after completing the 0.28.0 GitHub, Workshop text/changelog and forum publication. No 0.28.1 release or public description update was performed. After these checks, the exact candidate was [installed locally at 16:37 CEST](CLIENT-INSTALL-0.28.1-2026-10-12.md).
+Date: October 12, 2026. Initial local beta candidate checks, prepared after completing the 0.28.0 GitHub, Workshop text/changelog and forum publication. This verification itself did not publish or update public descriptions. Afterwards the exact candidate was [installed locally at 16:37 CEST](CLIENT-INSTALL-0.28.1-2026-10-12.md), then [published with explicit approval](PUBLICATION-0.28.1-2026-10-12.md). The original results below are unchanged.
 
 ## Exact Package
 
