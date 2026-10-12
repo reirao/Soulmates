@@ -33,10 +33,10 @@ public static class CompanionRetinue
 		if (!profile.RetinueEnabled) return [];
 		IEnumerable<Item> owned = profile.SummonItems.Where(IsStaff).DistinctBy(item => item.type);
 		if (profile.IsAether) return owned;
-		return owned.OrderByDescending(item => item.type == profile.RetinueItemType).Take(1 + profile.Level / 10);
+		return owned.OrderByDescending(item => item.type == profile.RetinueItemType).Take(1 + profile.BalancedLevel / 10);
 	}
 	public static bool IsActive(CompanionProfile profile, int itemType) => ActiveItems(profile).Any(item => item.type == itemType);
-	public static int Damage(CompanionProfile profile, Item item) => Math.Clamp(item.damage / 2, 2, 20 + profile.Level * 2);
+	public static int Damage(CompanionProfile profile, Item item) => Math.Clamp(item.damage / 2, 2, 20 + profile.BalancedLevel * 2);
 }
 
 public sealed partial class CompanionProfile

@@ -21,7 +21,7 @@ namespace Soulmates.Common.UI;
 
 public sealed partial class CompanionWheelSystem : ModSystem
 {
-	private enum RootBranch : byte { Commands, Work, Bond, Emotes, Pack, Details, Mailbox, Point, Critters, Items, Games, Pets, Home }
+	private enum RootBranch : byte { Commands, Work, Bond, Emotes, Pack, Details, Mailbox, Point, Critters, Items, Games, Pets, Home, Evil }
 	private enum HoverLayer : byte { None, Center, Root, Branch, Native, MiningApproach, OreTarget, InitiativeRule, MouseMode, ContextAction, Rps, MiningFilter, WorkConfig, Compass, Pet }
 	private enum IconKind : byte { Emote, Item, Back, Forward, Close, Direction, Home }
 	private enum WheelContext : byte { Companion, Player, World, Contextual }
@@ -31,7 +31,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 	private readonly record struct NearbyOreChoice(Point Tile, int ItemType);
 
 	private static readonly RootBranch[] CompanionRoots = [
-		RootBranch.Commands, RootBranch.Work, RootBranch.Critters, RootBranch.Bond, RootBranch.Games, RootBranch.Pack, RootBranch.Items, RootBranch.Details, RootBranch.Mailbox, RootBranch.Pets, RootBranch.Home
+		RootBranch.Commands, RootBranch.Work, RootBranch.Critters, RootBranch.Bond, RootBranch.Games, RootBranch.Pack, RootBranch.Items, RootBranch.Details, RootBranch.Mailbox, RootBranch.Pets, RootBranch.Home, RootBranch.Evil
 	];
 	private static readonly RootBranch[] PlayerRoots = [RootBranch.Emotes, RootBranch.Point, RootBranch.Mailbox];
 	private static readonly CompanionTargetOrder[] PointModes = [
@@ -98,6 +98,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 	private bool initiativeRulesMenu;
 	private bool questionSettingsMenu;
 	private bool rpsMenu;
+	private bool bossConfirmation;
 	private readonly List<NearbyOreChoice> nearbyOreChoices = [];
 	private HoverLayer hoverLayer;
 	private int hoverIndex = -1;
@@ -161,6 +162,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		leftMouseDown = Main.mouseLeft;
 		rightMouseDown = Main.mouseRight;
 		openTicks = 0;
+		bossConfirmation = false;
 		open = true;
 		SoundEngine.PlaySound(SoundID.MenuOpen with { Volume = 0.55f, Pitch = 0.18f });
 		return true;
@@ -169,6 +171,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 	public void Close()
 	{
 		open = false;
+		bossConfirmation = false;
 		openTicks = 0;
 		companion = null;
 		companionId = Guid.Empty;
@@ -400,6 +403,11 @@ public sealed partial class CompanionWheelSystem : ModSystem
 
 	private void ActivateRoot(RootBranch selected)
 	{
+		bossConfirmation = false;
+		if (selected == RootBranch.Evil) {
+			ExecuteQuickAction(CompanionQuickAction.ToggleEvil);
+			return;
+		}
 		if (selected == RootBranch.Home) {
 			ExecuteQuickAction(CompanionQuickAction.DiscussHome);
 			return;
@@ -479,8 +487,14 @@ public sealed partial class CompanionWheelSystem : ModSystem
 				break;
 			case RootBranch.Games:
 				if (index == 0) {
+					bossConfirmation = false;
 					rpsMenu = !rpsMenu;
 					SoundEngine.PlaySound(SoundID.MenuTick);
+				}
+				else if (index == 1 && (companion.Profile.EvilMode || companion.IsBossChallenge)) {
+					rpsMenu = false;
+					if (companion.IsBossChallenge || bossConfirmation) ExecuteQuickAction(CompanionQuickAction.BossChallenge);
+					else { bossConfirmation = true; SoundEngine.PlaySound(SoundID.MenuTick); }
 				}
 				break;
 			case RootBranch.Emotes:
@@ -811,8 +825,8 @@ public sealed partial class CompanionWheelSystem : ModSystem
 		for (int i = 0; i < roots.Length; i++) {
 			Vector2 position = RootPosition(i);
 			bool hovered = hoverLayer == HoverLayer.Root && hoverIndex == i;
-			bool active = branch == roots[i];
-			DrawNode(spriteBatch, position, hovered ? 46f * pulse : 41f, accent, hovered, active, RootIcon(roots[i]));
+			bool active = branch == roots[i] || roots[i] == RootBranch.Evil && companion.Profile.EvilMode;
+			DrawNode(spriteBatch, position, hovered ? 43f : 40f, accent, hovered, active, RootIcon(roots[i]));
 		}
 		if (branch is RootBranch activeBranch && activeBranch is not RootBranch.Pack and not RootBranch.Details) {
 			int count = BranchNodeCount(activeBranch);
@@ -978,6 +992,8 @@ public sealed partial class CompanionWheelSystem : ModSystem
 			RootBranch.Work when index == 2 => SoulmatesText.Get("UI.CompanionWheel.WorkMenu.FindOre"),
 			RootBranch.Work when index == 3 => SoulmatesText.Get("UI.CompanionWheel.WorkActions.MineArea"),
 			RootBranch.Games when index == 0 => SoulmatesText.Get("Games.Rps.Title"),
+			RootBranch.Games when index == 1 => SoulmatesText.Get(companion!.IsBossChallenge ? "BossChallenge.Stop"
+				: bossConfirmation ? "BossChallenge.Confirm" : "BossChallenge.Secret"),
 			RootBranch.Emotes or RootBranch.Bond when index >= 0 && index < ActiveNativeCategories.Length
 				=> EmoteCategoryLabel(ActiveNativeCategories[index]),
 			_ => ""
@@ -1020,6 +1036,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 
 	private static WheelIcon RootIcon(RootBranch root) => root switch {
 		RootBranch.Home => new WheelIcon(IconKind.Home, 0),
+		RootBranch.Evil => new WheelIcon(IconKind.Emote, EmoteID.EmoteAnger),
 		RootBranch.Pets => new WheelIcon(IconKind.Item, ItemID.Carrot),
 		RootBranch.Critters => new WheelIcon(IconKind.Emote, EmoteID.CritterBunny),
 		RootBranch.Commands => new WheelIcon(IconKind.Emote, EmoteID.EmoteFight),
@@ -1061,6 +1078,9 @@ public sealed partial class CompanionWheelSystem : ModSystem
 				: new WheelIcon(IconKind.Emote, index == 0 ? EmoteID.ItemCog : index == 1 ? EmoteID.EmoteRun : EmoteID.ItemPickaxe);
 		if (activeBranch == RootBranch.Games && index == 0)
 			return new WheelIcon(IconKind.Emote, EmoteID.RPSScissors);
+		if (activeBranch == RootBranch.Games && index == 1)
+			return companion!.IsBossChallenge ? new WheelIcon(IconKind.Emote, EmoteID.EmoteScowl)
+				: new WheelIcon(IconKind.Item, ItemID.SuspiciousLookingEye);
 		if (activeBranch is RootBranch.Emotes or RootBranch.Bond && index >= 0 && index < ActiveNativeCategories.Length)
 			return new WheelIcon(IconKind.Emote, ActiveNativeCategories[index].Icon);
 		return new WheelIcon(IconKind.Emote, EmoteID.EmoteConfused);
@@ -1133,7 +1153,7 @@ public sealed partial class CompanionWheelSystem : ModSystem
 	private int BranchNodeCount(RootBranch activeBranch) => activeBranch switch {
 		RootBranch.Critters => CritterActions.Length + 1,
 		RootBranch.Commands => CommandActions.Length, RootBranch.Work => 4,
-		RootBranch.Games => 1,
+		RootBranch.Games => companion is { } mate && (mate.Profile.EvilMode || mate.IsBossChallenge) ? 2 : 1,
 		RootBranch.Emotes or RootBranch.Bond => ActiveNativeCategories.Length, _ => 0
 	};
 

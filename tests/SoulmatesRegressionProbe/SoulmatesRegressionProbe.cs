@@ -121,6 +121,7 @@ public sealed partial class EngineChecks : ModSystem
 			CheckIntentLearning(Check);
 			PersonalPlanChecks.Run(Check);
 			CheckEvilPersona(Check);
+			CheckEndlessProgressionAndBoss(Check);
 			CheckWorkBeta(Check);
 			CheckWheelBeta(Check);
 			CheckMiningConfigWheel(Check);
@@ -378,7 +379,7 @@ public sealed partial class EngineChecks : ModSystem
 			companion.Profile.AutonomyEnabled = false;
 			check(!companion.RespondToInitiative(companion.InitiativeId, CompanionInitiativeResponse.Always), "Disabled autonomy accepted an automatic order");
 
-			int energy = companion.Profile.Energy, experience = companion.Profile.Experience;
+			int energy = companion.Profile.Energy; var experience = companion.Profile.Experience;
 			Set("activeJob", CompanionJob.Mine);
 			CompanionConversationResult observation = companion.PerformDirectOrder(CompanionTargetOrder.Look, Point.Zero, 10);
 			check(observation.Accepted && (CompanionJob)Get("activeJob") == CompanionJob.Mine,
@@ -1071,7 +1072,7 @@ public sealed partial class EngineChecks : ModSystem
 				check(((SoulBolt)bolt.ModProjectile).CanHitNPC(Critter(16, NPCID.Zombie)) is null,
 					"Critter protection disabled ordinary hostile combat");
 				Main.npc[16].active = false;
-				int xp = companion.Profile.Experience, defeats = companion.Profile.DefeatedEnemies, mood = companion.Profile.Mood;
+				var xp = companion.Profile.Experience; int defeats = companion.Profile.DefeatedEnemies, mood = companion.Profile.Mood;
 				foreach (CompanionPersonality personality in Enum.GetValues<CompanionPersonality>()) {
 					foreach (bool attacked in new[] { false, true }) {
 						bunny = Critter(19); companion.Profile.Personality = personality;
@@ -1190,7 +1191,7 @@ public sealed partial class EngineChecks : ModSystem
 					(ItemID.Bunny, CompanionItemTopic.Critters), (ItemID.MagicMirror, CompanionItemTopic.Other)
 				}) check(CompanionItemTopics.Classify(new Item(example.Item1)) == example.Item2, "Native item topic: " + example.Item1);
 				mate.Profile.Store(new Item(ItemID.CookedFish, 2)); mate.Profile.Store(new Item(ItemID.CopperOre, 3));
-				int xp = mate.Profile.Experience, bond = mate.Profile.Bond, mood = mate.Profile.Mood, energy = mate.Profile.Energy;
+				var xp = mate.Profile.Experience; int bond = mate.Profile.Bond, mood = mate.Profile.Mood, energy = mate.Profile.Energy;
 				string food = mate.Converse(TalkCategory.Items, 0, 0, CompanionItemTopic.Food).Reply;
 				check(food.Contains(Lang.GetItemNameValue(ItemID.CookedFish)) && !food.Contains(Lang.GetItemNameValue(ItemID.CopperOre)),
 					"Item conversation ignored its selected category");
@@ -1411,7 +1412,7 @@ public sealed partial class EngineChecks : ModSystem
 			void Notice() => EmoteBubble.NewBubble(EmoteID.EmotionLove, new WorldUIAnchor(resident), 120);
 			ResetNotice();
 			int meetings = companion.Profile.Relationships[0].Meetings;
-			int experience = companion.Profile.Experience;
+			var experience = companion.Profile.Experience;
 			Notice();
 			check((int)Get("socialNpcTarget") == 21 && (bool)Get("socialNpcGreeted")
 				&& (int)Get("socialReplyDelay") == 45, "Nearby resident emote did not initiate a short exchange");
@@ -2705,7 +2706,7 @@ public sealed partial class EngineChecks : ModSystem
 			void Set(string field, object value) => type.GetField(field, flags)!.SetValue(companion, value);
 			string Speech() => (string)type.GetField("speechText", flags)!.GetValue(companion)!;
 			void Ready() { Set("rpsCooldown", 0); Set("nativeEmoteReactionCooldown", 0); }
-			int xp = companion.Profile.Experience, bond = companion.Profile.Bond, mood = companion.Profile.Mood,
+			var xp = companion.Profile.Experience; int bond = companion.Profile.Bond, mood = companion.Profile.Mood,
 				energy = companion.Profile.Energy, interactions = companion.Profile.Interactions;
 			Set("activeJob", CompanionJob.Gather); companion.Profile.Routine = CompanionJob.Gather;
 			foreach (int mode in new[] { NetmodeID.SinglePlayer, NetmodeID.Server }) {

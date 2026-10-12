@@ -61,7 +61,7 @@ public sealed partial class EngineChecks
 				foreach (var ability in CompanionAbilityRegistry.All) mate.Profile.SetInitiativePolicy(ability.Kind, CompanionInitiativePolicy.Never);
 				byte[] CargoToken() => (byte[])typeof(CompanionProfile).GetMethod("StorageToken", flags)!.Invoke(mate.Profile, new object[] { CompanionStorage.Resources, 0 })!;
 				byte[] cargoToken = CargoToken();
-				int xp = mate.Profile.Experience, mood = mate.Profile.Mood, energy = mate.Profile.Energy, bond = mate.Profile.Bond;
+				var xp = mate.Profile.Experience; int mood = mate.Profile.Mood, energy = mate.Profile.Energy, bond = mate.Profile.Bond;
 				var wallet = mate.Profile.WalletCopper;
 				for (int i = 0; i < 8; i++) {
 					check(mate.PerformQuickAction(CompanionQuickAction.ToggleEvil).Accepted, "Bound owner cannot toggle persona");

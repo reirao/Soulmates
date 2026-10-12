@@ -1,55 +1,58 @@
 [h1]Soulmates[/h1]
-Der wiederverwendbare Soulcore erstellt persönliche Companions. Ihr Soulbound Sigil bewahrt Aussehen, Persönlichkeit, Fortschritt, Erinnerungen, Fracht und Pets.
+Erschaffe mit dem wiederverwendbaren Soulcore einen persönlichen Companion. Ihr Soulbound Sigil bewahrt Persönlichkeit, Aussehen, Fortschritt, Erinnerungen, Fracht und Pets.
 
-[b]0.26.0 - Little Company | Beta[/b]
-Eigene kleine Vorhaben und eine Gefolgschaft mit geschenkten Stäben ergänzen Erinnerungen, Zuhause und Lernen. Prüfe die Version unter Mods; Upload und Freigabe sind getrennt.
-[url=https://github.com/reirao/Soulmates]Quellcode und Releases[/url]
+[b]0.27.0 - Behind the Curtain | Beta[/b]
+Begeisterter Spieltest des Erstellers. Version unter Mods prüfen; Upload, Freigabe und Auslieferung sind getrennt.
+[url=https://github.com/reirao/Soulmates/releases/tag/v0.27.0]Release und Quellcode[/url]
 
-[h2]Zusammen Anfangen[/h2]
-Charaktere erhalten einmal Soulcore und drei Blank Sigils. Wähle Namen, Talent, Persönlichkeit, Farben, Aura und Erscheinung, dann binde ein Sigil. Beschwöre sie damit und behalte es im Inventar. Ein Companion pro Spieler; Wechsel beendet alte Effekte. Soulcore bleibt nutzbar. AETHER hat alle Talente und erlernten Perks.
+[h1]DEIN COMPANION KANN SELBST ZUM BOSS WERDEN[/h1]
+[b]Ja, sie. Derselbe Companion, mit denselben Erinnerungen und demselben Inventar.[/b]
+EVIL am wütenden Gesicht direkt in ihrem Rad einschalten, dann Games > geheimes Auge. Klicken, Warnung lesen, bestätigen: echtes Besitzer-Duell. Sie wird größer, zeigt HP, kündigt Anstürme an und feuert breitere Muster über drei Lebensphasen. Zwei Sekunden Vorbereitung.
 
-[h2]Ein Ort Zum Dazugehören[/h2]
-Räume, Spawn-Betten und NPC-Wohnungen liefern getrennte Hinweise. Ortsgedächtnis gilt pro Sigil/Welt. Rückkehr macht vertraut, nicht zum Eigentümer.
+[b]Dein Charakter kann echten Schaden nehmen.[/b] Keine Beute/XP, Geländezerstörung oder dauerhafter Companion-Tod. Ihr Pet/ihre Gefolgschaft ruhen; andere Spieler, Bewohner und Critter sind keine Ziele, andere Companions mischen sich nicht ein. Ende durch Games > Stop, Befehle > Abbrechen/Pause, EVIL aus oder Rückruf. Sieg, Besitzerverlust/Tod, Entfernung, fünf Minuten Zeitlimit oder anderer Boss beenden es ebenfalls. Geschosse/Debuffs verschwinden, Inventar/Erinnerungen bleiben; [b]Arbeit pausiert bis Fortsetzen.[/b] Normaler EVIL bleibt freiwilliges Schauspiel, keine Zerstörungserlaubnis.
 
-[b]Zuhause[/b] in ihrem Rad trägt Terrarias Haussymbol. Besprich einen gültigen Unterschlupf direkt oder ordne ihn neu ein: unser Zuhause, ihr kleines Zuhause, nur ein Halt oder Später. Auch bei Stay, ausgeschalteter Autonomie und ruhigen Fragen. Laufende Arbeit, NPC-Wohnungen und offene Fragen werden respektiert. Antworten prüfen Welt und Raum erneut. Heimtruhen werden nicht automatisch als neue Schätze entdeckt; ausdrückliche Schatzsuche bleibt. Sie baut oder renoviert keine Häuser.
+[h2]1. Erschaffen und Wachsen[/h2]
+Einmal Soulcore/drei Blank Sigils, Ersatz herstellbar. Name, Persönlichkeit, Talent, Farben, Aura und Soulkin/Hase/Schleim/Vogel/Eichhörnchen wählen. Binden, beschwören, Sigil im Inventar behalten. Ein Companion pro Spieler; Wechsel beendet alte Effekte. AETHER hat alle Talente/Perks.
 
-[h2]Optionales EVIL[/h2]
-Standardmäßig aus, pro Sigil gespeichert. Umschalten in Befehle oder Details (vierter Aufgabenknopf, lachendes Gesicht). Ruhekommentare und Feiern echter Erfolge werden zu Schurkenplänen. Nur Darstellung: Zustimmung, Aufgaben, Fracht, Schaden, Gelände und Mitgefühl bleiben erhalten. Wichtigere Aufmerksamkeit geht vor.
+[b]Endlose exakte XP/Level[/b] bewahren Fortschritt und ursprüngliche Kurve. Fünf Bindungsränge, Stimmung, Erholung und Einsichten ergänzen Wachstum. Ressourcen/normale Gefolgschaft behalten Level-20-Grenzen, keine endlose Macht.
 
-[h2]Kleine Räder, Klare Aufträge[/h2]
+[h2]2. Räder und Aufträge[/h2]
 [list]
-[*]Rechtsklick auf sie: Companion-Werkzeuge; auf dich: Spielerwerkzeuge und native Emote-Kategorien. Details öffnet Gespräch, Ausrüstung, Fracht, Pets und lesbare Diagnose. Pets öffnet direkt über ihr Rad. Das Sigil zeigt die tatsächliche Details-Taste; V bleibt im echten Spiel unbestätigt.
-[*]Terraria ist Standard: native Interaktionen zuerst. Inventar, Tippen, NPC-Dialog, Cursor-Items und alternative Item-Aktionen behalten Vorrang. Ich/Soulmate aktiviert gezieltes Zeigen; X/Escape beendet es. Veraltete Companion-/Sigil-Ziele und Antworten werden abgelehnt. Antwortsymbole blenden an festen Positionen ein.
-[*]Arbeit bietet Erzsuche, Bereichsabbau, Einstellen und Zuletzt. Zuletzt merkt angenommene Arbeit pro Sigil; Zielaufträge brauchen ein frisches Ziel. Abbau: Adaptiv, Tunnel, Ader, Oberfläche, begrenzter Kompass und Erz-/Materialfilter. Pflanzen, Setzlinge, Dekorationen, Flüssigkeiten, Werkzeuge und Fortschritt bleiben geschützt. Schnelle MP-Kompassklicks bewahren aufeinanderfolgende Entscheidungen.
-[*]Initiativregeln: Fragen/Immer/Nie getrennt für Sammeln, Bergbau, Forst, Schätze, Gesellschaft und Fang. Ja gilt einmal. Direkte Aufträge und Zuletzt erlauben keine Automatismen. Pause behält Arbeit, Fortsetzen setzt fort, Abbrechen löscht sie und hält Automatismen an. Verteidigung bleibt.
+[*]Rechtsklick auf sie/dich: getrennte Räder. Details öffnet Gespräch, Ausrüstung/Diagnose; Pets/Pack direkt. Spieler-Emotes ordnet alle 151 Vanilla-Symbole.
+[*]Terraria schützt Inventar, Tippen, NPC-/Truhen-, Cursor-Item- und Alternativaktionen. Ich/Soulmate aktiviert Zeigen; X/Escape beendet es. Veraltete Ziele/Antworten werden abgelehnt. Werkbank-Rechtsklick öffnet Herstellung.
+[*]Arbeit: Erzsuche, Bereichsabbau, Einstellen/Zuletzt. Zuletzt wiederholt angenommene Absicht; Zielarbeit braucht ein frisches Ziel. Einstellungen/Fehlversuche ersetzen sie nicht.
+[*]Fragen/Immer/Nie kontrolliert sechs Fähigkeiten getrennt. Ja erlaubt einmal; Lernen erteilt keine Erlaubnis. Pause behält, Fortsetzen setzt fort, Abbrechen löscht/hält Automatismen. Verteidigung bleibt außerhalb des Duells.
 [/list]
 
-[h2]Hilfreiche Gesellschaft[/h2]
-Sie verteidigt, heilt nach Talent, sammelt Drops, baut sicher ab und pflegt Wälder. Energie/Stimmung erholen sich; Erschöpfung braucht eine Reserve. Arbeit prüft Ziele und Zeitgrenzen. Echte Gefahren gehen vor Trainingspuppen.
+[h2]3. Hilfreiche Gesellschaft[/h2]
+Folgen, Untersuchen, Ruhen oder Stay am echten Anker. Verteidigung ohne Arbeitsenergie; Wächter schneller/weiter, Heiler energiebegrenzt. Echte Drops/Abbau-Ertrag, Schätze, Licht/Kartenaufdeckung und getragene Waffen, Fackeln, Nahrung/Erholung helfen bestehenden Fähigkeiten. Gelegentliche Rezeptideen nutzen Material.
 
-Vorhandene Fähigkeiten lernen begrenzte Vorlieben aus Beobachtungen, Aufträgen und echten Ergebnissen. Gelegentliche Bewertungen nutzen das Antwortrad; Später, Schweigen und Abbrechen sind neutral. Still schaltet persönliche Fragen ab. Vorlieben erteilen keine Erlaubnis. Bau-Item-Nutzung liefert Kontext, keinen Platzierungsbeweis oder autonomes Bauen. Bewohner, Erinnerungen und Item-Gespräche nutzen native Emotes und persönliche Antworten. Lokale Spiellogik, keine Online-KI.
+Abbau: Adaptiv/Tunnel/Ader/Oberfläche, Erz-/Materialfilter, Kompass und begrenzte kurze Wege/zur nächsten Öffnung. Werkzeuge, Fortschritt, Pflanzen, Setzlinge, Dekoration, Flüssigkeit/instabiles Gelände bleiben geprüft. Forester schüttelt geeignete Bäume, räumt gefallene Stämme, sammelt Samen/pflanzt getragene Eicheln. Astschnitt gilt für geprüfte Vanilla-Seitenzweige, nicht alle Bäume. Ziele/Zeitgrenzen werden geprüft; Stimmung/Energie erholen sich mit Erschöpfungsreserve.
 
-[h2]Welttiere und Item-Pets[/h2]
-Beobachten begrüßt ohne Fang. Gesellschaft lädt unterstützte echte Wildtiere mit begrenzter nativer Bewegung ein; AETHER bis zu drei. Fang enthält eine Basisnetz-Fähigkeit; Lava-Tiere brauchen ein geeignetes lavafestes Netz. Goldene, statuenbeschworene und freigelassene Tiere bleiben geschützt. Entfernung, Sicht, Erlaubnis, Arbeit und Erholung gelten weiter. Fang und Tod lösen getrennte Reaktionen aus. Aus/Rückruf gibt eingeladene Tiere frei.
+[h2]4. Persönlichkeit, Zuhause und Erinnerung[/h2]
+Gewohnheiten/Aufträge/Ergebnisse prägen Sigil-Vorlieben. Antwortrad bewertet; Später/Schweigen/Abbrechen neutral, Still deaktiviert persönliche Fragen. Sichere Besuche am bestätigten Zuhause, beim Pet oder beobachteten Material werden nach Abschluss/Rückkehr erinnert. Kein autonomes Bauen/Kopieren von Architektur.
 
-Pets: Oben stehen geeignete Items aus deinem Inventar, unten ihre zwölf echten Pet-Plätze. Linksklick beschwört, Rechtsklick gibt zurück. Radsymbole wählen aus, erzeugen keine Kopie; sie muss das Item behalten. Favoriten bleiben bei dir. Nur das erste Geschenk wählt automatisch; weitere respektieren Entlassen. Ein harmloser Begleiter folgt getrennt von deinem Pet. Native Bilder mit eigener Bewegung/Basislicht, keine originale Pet-KI oder beliebige Mod-Grafik. AETHERs mitgetragene Insekten bilden einen kosmetischen Schwarm.
+Haussymbol: unser Zuhause/ihr Zuhause/nur Halt/Später, auch bei Stay/Autonomie aus/Still. Räume, echte Betten und Bewohnerwohnungen sind getrennte Hinweise; Vertrautheit ist kein Besitz. Arbeit, Bewohner/geänderte Räume/Welten werden respektiert; Heimtruhen sind keine neuen automatischen Schätze.
 
-[h2]Ihre Kleine Gefolgschaft[/h2]
-Das Stabsymbol in Pets öffnet Retinue: echte wiederverwendbare Beschwörungsstäbe schenken, per Linksklick Gefolgschaft rufen, per Rechtsklick Items zurücknehmen. Favoriten bleiben bei dir. Nur das erste Geschenk in leeren Speicher wählt automatisch; weitere respektieren Entlassen. Normale Companions wählen 1/2/3 verschiedene Typen auf Level 1/10/20; AETHER alle getragenen Typen, innerhalb von 64 Item-Plätzen. Duplikate erzeugen keine Helfer. Native Bilder mit begrenzter Companion-Kampflogik, keine originale Minion-KI oder beliebige Mod-Grafik. Deine Buffs und Summon-Slots bleiben getrennt. Rückruf, Wechsel, Entlassen und letzte Entnahme räumen Effekte auf.
+NPC-/Emote-Begegnungen bilden Beziehungen. Erinnerst du dich? erzählt echte Ereignisse oder ehrliche Gegenwart. Sprache/Emotes teilen Aufmerksamkeit. Games: unabhängiges Schere, Stein, Papier ohne XP; andere Minispiele sind nicht implementiert.
 
-Sichere Ruhephasen erlauben kurze Besuche am bestätigten nahen Zuhause, Gesellschaft für ihr echtes Pet oder Gedanken zu beobachtetem Baumaterial. Erst Abschluss und Rückkehr werden erinnert. Bestehende Antworten prägen Vorlieben, bestehende Geschichten erzählen davon. Arbeit, Gefahr, Stay, Pause und Erlaubnis gehen vor. Kein autonomes Bauen.
+[h2]5. Critter, Pets und Gefolgschaft[/h2]
+[b]Beobachten[/b] begrüßt; [b]Gesellschaft[/b] lädt echte unterstützte Wildtiere ein (normal eins, AETHER drei). Native Physik/Gesundheit/Fang/Despawn bleiben, keine Kopien/Teleports. [b]Fang[/b]: Basisnetz-Fähigkeit, kein Gratisnetz; Lava-Arten brauchen lavafestes Netz. Goldene/Statuen-/freigelassene Tiere sind geschützt. Erlaubnis, Entfernung, Sicht, Energie/Arbeit gelten. Fang/beobachteter Tod sind verschieden; unbekannte Ursachen beschuldigen niemanden.
 
-[h2]Tragen und Erinnern[/h2]
-20 Level, fünf Bindungsränge. Ausrüstung: 8-12 Plätze, 99 Stück pro Typ. Ressourcen: 60 Plätze, 50 Stück pro Level/Typ, bis 1.000 auf Level 20. Geldtasche ohne Spielwährungslimit. Native Stapelgrenzen gelten. Transfers erhalten echte Items; Überhänge bleiben. Ersparnisse kann sie dir anbieten. MP-Inventarkonflikte lehnen Transfers ab, statt Items zu überschreiben.
+[b]Pets:[/b] obere Geschenkreihe ist deine, zwölf untere Plätze ihre. Nicht favorisierte echte Items geben; eigenes Pet links beschwören, rechts zurücknehmen. Nur erstes Geschenk in leeren Speicher wählt; spätere respektieren Entlassen. Symbole duplizieren nicht; sie muss das Item behalten. Ein harmloses Pet folgt getrennt von deinem: native Animation/Basislicht, eigene Bewegung, keine originale Pet-KI/Mod-Grafik.
 
-[h2]Sprachen, Feedback und Beta-Stand[/h2]
-Neun Terraria-Sprachen. KI-verfasste Übersetzungen brauchen Korrekturen; manche MP-Antworten nutzen die Serversprache.
+[b]Retinue:[/b] Stabsymbol öffnet echte geschenkte Stäbe. Links rufen, rechts zurücknehmen. Normal 1/2/3 Typen auf Level 1/10/20; [b]AETHER alle getragenen Typen gleichzeitig[/b], innerhalb 64 Plätzen. Duplikate erzeugen keine Helfer. Native Grafik, begrenzter eigener Kampf, keine originale Minion-KI; deine Buffs/Summon-Slots bleiben getrennt. Rückruf/Wechsel/Entlassen/letzte Entnahme räumen auf. Kosmetischer Schwarm braucht echte Insekten, keine Gratisarmee.
 
-Der Ersteller meldet einen positiven 0.26.0-Spieltest. Vollständige GUI, physisches V, Zwei-Client-MP, Langzeitspiel und Fortschritt bleiben offen. Alle brauchen 0.26.0. Bilder zeigen ältere Builds.
+[h2]6. Inventar und Charakter[/h2]
+Ausrüstung: 8-12 Plätze, 99 Stück/Typ. Ressourcen: 60 Plätze, 50 Stück/Level/Typ, maximal 1.000 ab Level 20; native Stapelgrenzen. Geldtasche: exakter unbegrenzter Saldo, Hier für dich!-Angebote. Echte Transfers erhalten Besitz/Kapazität; Überhänge bleiben. MP-Konflikte lehnen ab, überschreiben nicht. Werkzeuge sind Fähigkeiten, keine Rüstungsplätze.
 
-AETHER-Briefkasten: Papierflieger oder /soulfeedback. Feldnotizen starten aus und bleiben lokal. Kein automatischer Upload. Automatische Notizen enthalten keine Namen, Chats oder Koordinaten; Orte bleiben im Spielstand. Getippte Notizen behalten deinen Text. Teile nur, was du auswählst. Bitte Version, Aktion, Soll/Ist und Solo/MP melden. Der Ersteller hat wenig Spielzeit; danke für eure Beobachtungen.
+[h2]Technik und Ehrlicher Beta-Stand[/h2]
+Lokale Aktivitätswahl, Zustimmungsregeln und Sigil-Profile verbinden Verhalten, keine Online-KI. Native APIs bearbeiten echte Zustände; Besitzer/Sitzungen binden Effekte. Große exakte XP nutzen ganzzahlige Wurzel. Bossmodus verwandelt und restauriert denselben Companion. Pets/Gefolgschaft sind itemgebunden, keine Spieler-Buffs.
 
-[h2]Entwicklungshinweis[/h2]
-KI-Unterstützung für Code, Texte, UI und Grafik. Workshop-/Mod-Icons und Soulkin sind KI-generiert; weitere Tier-/Item-/Inventar-/Emote-Grafiken stammen aus Terraria. Kein Online-KI-Dienst im Mod.
+Neun Sprachen; KI-Übersetzungen brauchen Korrekturen, manche MP-Antworten nutzen Serversprache. Engine-/Gegenprüfungen bestehen; Fortschritt, Langzeitspiel, verbundenes MP/alle Grafikfamilien bleiben offen. Alle brauchen 0.27.0. V unbestätigt; Details/Pets nutzen. Alte Bilder sind historisch, kein Bossmaterial.
 
+[h2]Feedback und Transparenz[/h2]
+Papierflieger oder /soulfeedback: lokaler Briefkasten. Feldnotizen starten aus; kein automatischer Upload. Automatische Notizen ohne Namen/Chats/Koordinaten; Orte bleiben im Save. Getippte Notizen behalten deinen Text; nur Gewünschtes teilen. Bitte Version, Aktion, Soll/Ist, Solo/MP melden. Wenig Spielzeit macht eure Hinweise wertvoll; schöne Momente genauso!
+
+KI-Unterstützung: Code, Texte, UI/Grafik. Icons/Soulkin KI-generiert; weitere Tier-/Item-/Inventar-/Emote-Bilder aus Terraria. Keine Online-KI.
 [url=https://github.com/reirao/Soulmates/issues]Bugberichte[/url]

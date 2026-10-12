@@ -1,9 +1,9 @@
-Soulmates 0.26.0 - Little Company | Beta
+Soulmates 0.27.0 - Behind the Curtain | Beta
 
-- Added bounded idle undertakings around classified homes, real equipped familiars and familiar building supplies. Only completed visits become memories; no autonomous construction.
-- Existing evaluations shape per-Sigil preferences; story conversations can recall the last completed personal undertaking. Work, danger, Stay, Pause, consent and inventory safety remain first.
-- Added a real-item Retinue inventory inside Pets and cargo. Give reusable unfavorited summon staves, select company with left-click and return items with right-click. Later gifts respect dismissal.
-- Normal companions select 1/2/3 distinct staff types at levels 1/10/20. AETHER selects every distinct owned type, within 64 item slots. Duplicates do not add helpers.
-- Helpers use native artwork and bounded companion-owned combat, not original player-minion AI. Player pets, buffs, minion and sentry slots remain separate. Recall, switching, dismissal and final withdrawal retire bound effects. Critters remain protected.
+- Open-ended exact XP and levels beyond 20, preserving old Sigil progress and the original quadratic curve. Cargo and ordinary retinue keep their level-20 limits.
+- EVIL has its own angry-face symbol directly on her wheel. Commands and Details remain available.
+- With EVIL on, Games reveals a secret eye. Click once, then confirm to fight your own companion as a real three-phase boss. Two-second warmup, HP, telegraphed dashes and fan attacks. Real character damage; no loot or XP rewards.
+- Victory, Abort, Games stop, EVIL off, recall, owner loss, leash, timeout or another world boss restores her normal state. Inventory and memories survive; challenge shots and debuffs clear. Work stays paused until Resume. Other players, NPCs and critters are not attack targets.
+- Native NPC/projectile checks, real wheel handlers, owner-only server packets, exact growth persistence and separate adversarial tests cover the new routes. Nine catalogs include new text.
 
-All peers need 0.26.0. The creator reports a positive playtest; full GUI, physical keys, connected multiplayer, progression and endurance acceptance remain open. This entry contains only 0.26.0 changes.
+The creator reports a delighted installed playtest. Full balance, connected multiplayer, physical input and long-session acceptance remain open. Upload, Steam approval and subscriber delivery are separate. All peers need 0.27.0. This entry contains only 0.27.0 changes.

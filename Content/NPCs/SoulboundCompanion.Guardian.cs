@@ -162,7 +162,7 @@ public sealed partial class SoulboundCompanion
 		Profile.Remember(CompanionMemoryKind.HealerAid, amount);
 		SoulmatesFeedbackSystem.Record("companion_heal", ("amount", amount),
 			("life_percent_after", Owner.statLifeMax2 <= 0 ? 0 : Owner.statLife * 100 / Owner.statLifeMax2));
-		bool leveledUp = Profile.GainExperience(2, out int newLevel);
+		bool leveledUp = Profile.GainExperience(2, out var newLevel);
 		healingCooldown = Math.Max(360, 660 - Profile.RankIndex * 60);
 		SyncProfileToBoundSigil();
 		NPC.netUpdate = true;
@@ -229,7 +229,7 @@ public sealed partial class SoulboundCompanion
 
 	private static bool IsThreat(NPC candidate)
 	{
-		if (!candidate.active || candidate.friendly || candidate.lifeMax <= 5)
+		if (!candidate.active || candidate.friendly || candidate.lifeMax <= 5 || candidate.ModNPC is SoulboundCompanion)
 			return false;
 		if (candidate.type == NPCID.TargetDummy)
 			return true;

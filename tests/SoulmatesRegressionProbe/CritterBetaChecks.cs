@@ -126,7 +126,7 @@ public sealed partial class EngineChecks
 				check(Get("pendingCritterNotice") is null, $"A displaced NPC object retained a queued greeting: {mode}");
 
 				bunny = replacement; mate.Profile.AutonomyEnabled = false; Set("speechTimer", 1000); Set("critterLossCooldown", 0);
-				int losses = Losses(), experience = mate.Profile.Experience;
+				int losses = Losses(); var experience = mate.Profile.Experience;
 				Call("ObserveCritterLoss", bunny, false);
 				check(Losses() == losses && (int)Get("pendingCritterLossTicks")! == 0, $"Living critter generated a death reaction: {mode}");
 				Set("insectCatchCooldown", 0); int catchType = bunny.catchItem;

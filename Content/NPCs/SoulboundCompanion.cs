@@ -253,7 +253,7 @@ public sealed partial class SoulboundCompanion : ModNPC
 
 	public override bool CheckActive() => !TryGetOwner(out Player owner) || owner.dead;
 
-	public override bool CanChat() => TryGetOwner(out Player owner) && owner.whoAmI == Main.myPlayer;
+	public override bool CanChat() => !IsBossChallenge && TryGetOwner(out Player owner) && owner.whoAmI == Main.myPlayer;
 	public override string GetChat() => SoulmatesText.Get("UI.Talk.Greeting", Profile.Name);
 
 	// The player input router opens the wheel after native interactions have run.
@@ -268,6 +268,12 @@ public sealed partial class SoulboundCompanion : ModNPC
 			return;
 		}
 		if (Main.netMode != NetmodeID.MultiplayerClient) {
+			if (IsBossChallenge) {
+				if (!ClaimActiveSlot(owner)) return;
+				if (!CompanionInventorySync.IsPending(owner) && FindBoundSigil() is null) { Recall(); return; }
+				UpdateBossChallenge(owner);
+				return;
+			}
 			if (CompanionInventorySync.IsPending(owner)) {
 				CancelPersonalPlan("inventory_pending");
 				NPC.velocity *= 0.8f;
@@ -283,6 +289,10 @@ public sealed partial class SoulboundCompanion : ModNPC
 		}
 
 		NPC.GivenName = Profile.Name;
+		if (IsBossChallenge) {
+			UpdateBossChallenge(owner);
+			return;
+		}
 		Lighting.AddLight(NPC.Center, Profile.EssenceColor.ToVector3() * 1.15f);
 		RevealSurroundings();
 		UpdateForestAwareness();

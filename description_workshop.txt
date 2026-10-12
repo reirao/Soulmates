@@ -1,55 +1,58 @@
 [h1]Soulmates[/h1]
-Create a personal companion with the reusable Soulcore. Her Soulbound Sigil keeps appearance, personality, growth, memories, cargo and pets.
+Create a companion with the reusable Soulcore, give her a name and a place in your world, and grow together. Her Soulbound Sigil keeps personality, appearance, progress, memories, cargo and pets.
 
-[b]0.26.0 - Little Company | Beta[/b]
-Small personal undertakings and her own staff-equipped retinue join memories, homes and learning. Check the loaded version under Mods; upload and Steam approval are separate.
-[url=https://github.com/reirao/Soulmates]Source and releases[/url]
+[b]0.27.0 - Behind the Curtain | Beta[/b]
+The creator reports a delighted installed playtest. Check the loaded version under Mods: uploading, Steam approval and subscriber delivery are separate.
+[url=https://github.com/reirao/Soulmates/releases/tag/v0.27.0]Release and source[/url]
 
-[h2]Start Together[/h2]
-Characters receive a Soulcore and three Blank Sigils once. Choose name, talent, personality, colors, aura and Soulkin, Bunny, Slime, Bird or Squirrel appearance, then bind a Sigil. Use it to summon her and keep it in your inventory. One companion per player; switching retires old effects. Soulcore stays reusable. AETHER has all talents and learned perks.
+[h1]YOUR COMPANION CAN BECOME THE BOSS[/h1]
+[b]Yes, her. The same companion, with the same memories and inventory.[/b]
+Turn on EVIL with the angry face directly on her wheel, then Games > secret eye. First click shows the warning; a second confirms a real owner-only duel. She grows, displays HP, telegraphs dashes and fires wider patterns across three health phases. Two seconds of preparation.
 
-[h2]A Place to Belong[/h2]
-Enclosed furnished rooms, your actual valid selected bed and assigned resident housing provide different evidence. Bounded place memory is per Sigil and world. Separated returns can make a shelter familiar; standing still does not add visits. Familiar does not mean owned.
+[b]Your character can take real damage.[/b] No loot/XP rewards, terrain destruction or permanent companion death. Her familiar/retinue rest; other players, residents and critters are not targets and other companions do not join. Stop via Games > Stop, Commands > Abort/Pause, EVIL off or recall. Victory, owner loss/death, leash, five-minute timeout or another boss also ends it. Shots/debuffs clear, inventory/memories survive; [b]work stays paused until Resume.[/b] Normal EVIL is optional theatrical banter, not destruction permission.
 
-[b]Home[/b] on her wheel uses Terraria's house symbol. Discuss a valid shelter immediately or reclassify a remembered home: our home, her little home, just a stop or Later. Works at Stay, with autonomy off or Quiet questions. Ongoing work, resident housing and unanswered questions are respected. Replies recheck the captured world and room. Recognized home chests are not automatically rediscovered as treasure; explicit treasure search still works. She does not construct or remodel houses.
+[h2]1. Create and Grow[/h2]
+One-time Soulcore and three Blank Sigils; replacements are craftable. Choose name, personality, talent, colors, aura and Soulkin/Bunny/Slime/Bird/Squirrel form. Bind, summon and keep the Sigil in inventory. One companion per player; switching retires old effects. AETHER has all talents/perks.
 
-[h2]Optional EVIL[/h2]
-Off by default, saved per Sigil. Toggle in Commands or the fourth task button in Details (laughing face). Safe idle banter, celebrations of actual work and theatrical Rock, paper, scissors turn little successes into tiny grand schemes. Presentation only: consent, tasks, rewards, cargo, damage, terrain and critter empathy stay intact. Higher-priority attention comes first.
+[b]Open-ended exact XP/levels[/b] preserve old progress and the original curve. Five bond ranks, mood, recovering energy and learned insights add growth. Resources and ordinary retinue retain level-20 limits, not endless power.
 
-[h2]Small Wheels, Clear Intentions[/h2]
+[h2]2. Wheels and Commands[/h2]
 [list]
-[*]Right-click her for companion tools; yourself for player tools and categorized native Emotes. Details opens conversation, equipment, cargo, pets and read-only diagnostics. Pets opens directly from her wheel too. The Sigil shows the actual Details binding; V remains unverified in real play.
-[*]Terraria is the default mouse mode: native interactions first. Inventory, typing, NPC dialogue, cursor-held items and alternate item actions retain priority. Me/Soulmate arms explicit world pointing; X/Escape exits. Stale companion/Sigil targets and replies are rejected. Answer symbols fade at fixed positions.
-[*]Work offers nearby ore search, area mining, Config and Last. Last remembers accepted work per Sigil; pointed work needs a fresh target. Mining offers Adaptive, Tunnel, Vein and Surface, a bounded compass and ore/material filters. Plants, saplings, decorations, liquids, tools and progression remain protected. Rapid MP compass edits preserve consecutive choices.
-[*]Initiative Rules sets Ask/Always/Never separately for gathering, mining, forestry, treasure, Company and Collect. Yes permits one opportunity. Direct orders and Last grant no automatic permission. Pause retains work, Resume continues and Abort cancels it and holds automatic work. Defense remains available.
+[*]Right-click her/yourself for separate wheels. Details opens conversation, equipment and diagnostics; Pets/Pack open directly. Player Emotes categorizes all 151 vanilla symbols.
+[*]Terraria mode protects native inventory, typing, NPC/chest, cursor-item and alternate actions. Me/Soulmate arms contextual pointing; X/Escape exits. Captured targets/replies reject stale identities. Workbench right-click opens crafting.
+[*]Work: nearby ore, Mine area, Config and Last. Last repeats accepted intent; pointed jobs need a fresh target. Settings/failed orders do not replace it.
+[*]Ask/Always/Never independently controls six abilities. Yes permits one opportunity; learning grants no permission. Pause retains, Resume continues, Abort cancels/holds automatic work. Defense remains outside the duel.
 [/list]
 
-[h2]Useful Company[/h2]
-She defends, heals by talent, retrieves real drops, mines safely and tends forests. Low energy and mood recover naturally; exhaustion needs a reserve. Jobs recheck live targets and bounded timeouts. Real threats take priority over training dummies.
+[h2]3. A Useful Companion[/h2]
+Follow, inspect, idle or Stay at a true anchor. Defense costs no work energy; Guardians react faster/farther, Healers spend energy. Real drops/mining output, treasure, light/map reveal and useful carried weapons, torches, food/recovery items support existing abilities. Occasional recipe ideas use materials.
 
-Existing abilities learn modest contextual preferences from observations, accepted requests and actual outcomes. Occasional evaluations use the answer wheel; Later, silence and cancellation are neutral. Quiet disables automatic personal questions. Preferences never grant permission. Construction-item use gives context, not proof of placement or autonomous building. Residents, shared memories and item conversations use native emotes and personal replies. Local game logic, no online AI.
+Mining: Adaptive/Tunnel/Vein/Surface, ore/material filters, compass and bounded Short/next-opening routes. Tools, progression, plants, saplings, decorations, liquids and unstable terrain retain checks. Forester shakes eligible trees, clears fallen logs, gathers seeds/replants carried acorns. Pruning covers verified vanilla side twigs, not all trees. Targets/timeouts are rechecked; mood/energy recover with an exhaustion reserve.
 
-[h2]Critters and Item Pets[/h2]
-Watch greets without catching. Company invites supported real wild critters with bounded native movement; AETHER up to three. Collect includes ordinary net capability; lava critters need an eligible lava-proof net. Gold, statue-spawned and released creatures remain protected. Distance, visibility, permissions, tasks and recovery still matter. Catching and death have separate reactions. Off/recall releases invited creatures.
+[h2]4. Personality, Home and Memory[/h2]
+Habits, requests and actual outcomes shape bounded Sigil preferences. Evaluations use the answer wheel; Later/silence/cancellation are neutral. Quiet disables personal questions. Safe idle visits to a classified home, her familiar or observed supplies become memories after completion/return. No autonomous building or copied architecture.
 
-Pets: the upper row shows eligible items still in your inventory; the lower twelve slots hold her real pet items. Left-click summons, right-click returns the item. Wheel symbols select, not duplicate; she must keep the item. Favorites stay with you. First gift selects only if empty; later gifts respect dismissal. One harmless familiar follows separately from your pet. Native art uses custom movement/basic light, not original pet AI or arbitrary modded drawing. AETHER's carried insects can form a cosmetic swarm.
+Home's house symbol offers our home/her home/just a stop/Later, including Stay/autonomy off/Quiet. Rooms, actual beds and resident housing are distinct evidence; familiarity is not ownership. Work/residents and changed rooms/worlds are respected; home chests are not new automatic treasure.
 
-[h2]Her Little Company[/h2]
-Pets now switches to Retinue with a staff symbol. Gift real unfavorited reusable summon staves; left-click an owned staff calls company, right-click returns it. First explicit gift selects only if empty; later gifts respect dismissal. Normal companions select 1/2/3 distinct types at levels 1/10/20; AETHER selects every owned type, within 64 item slots. Duplicates do not add helpers. Native art with bounded companion combat, not original minion AI or arbitrary modded drawing. Your buffs and summon slots stay separate. Recall, switching, dismissal and final withdrawal clean up effects.
+NPC/native-emote encounters build relationships. Do you remember? recalls real events or truthful current observations. Speech/emotes share attention. Games: independent Rock, paper, scissors, no XP; other minigames are not implemented.
 
-Safe idle visits to a classified nearby home, company for her actual familiar and reflections on observed building supplies become memories only after completion and return. Existing answers shape preferences; existing stories recall them. Work, danger, Stay, Pause and consent retain priority. No building is added.
+[h2]5. Critters, Pets and Retinue[/h2]
+[b]Watch[/b] greets; [b]Company[/b] invites supported real wild critters (one normally, AETHER three), preserving native physics/health/catching/despawning, not copies or teleports. [b]Collect[/b] has basic-net capability, not a free net item; lava species need a lava-proof net. Gold/statue/released creatures are protected. Consent, distance, visibility, energy/tasks apply. Catching and witnessed death differ; unknown causes accuse nobody.
 
-[h2]Carry and Remember[/h2]
-20 levels, five bond ranks. Equipment: 8-12 slots, 99 units per type. Resources: 60 slots, 50 units per level/type, up to 1,000 at level 20. Wallet: no gameplay currency cap. Native stack limits apply; transfers preserve real items and leave anything that does not fit. Savings can be offered to you. MP inventory conflicts reject transfers instead of overwriting items.
+[b]Pets:[/b] upper gift row is yours; twelve lower slots are hers. Give unfavorited reusable items, left-click an owned pet to summon, right-click to return. Only first gift into empty storage selects; later gifts respect dismissal. Icons select, not duplicate; keep the item with her. One harmless familiar is separate from your pet: native animation/basic light, custom movement, not original pet AI/modded drawing.
 
-[h2]Languages, Feedback and Beta Scope[/h2]
-Nine Terraria languages. AI-authored translations need corrections; some MP replies use server language.
+[b]Retinue:[/b] staff symbol opens real gifted-staff storage. Left-click calls, right-click returns. Normal companions select 1/2/3 distinct types at levels 1/10/20; [b]AETHER all owned distinct types simultaneously[/b], within 64 slots. Duplicates add no helpers. Native art, bounded custom combat, not original minion AI; your buffs/summon slots stay separate. Recall/switch/dismiss/final withdrawal clean up effects. Cosmetic insect flock requires real carried insects, not a free army.
 
-The creator reports a positive 0.26.0 playtest. Full GUI, physical V, two-client MP, endurance and progression acceptance remain open. All peers need 0.26.0. Gallery images show older builds.
+[h2]6. Cargo and Character[/h2]
+Equipment: 8-12 slots, 99 units/type. Resources: 60 slots, 50 units/level/type, max 1,000 from level 20; native stack limits apply. Wallet: exact uncapped balance, Here for you! offers. Real transfers preserve ownership/capacity; leftovers stay. MP conflicts reject, not overwrite. Tools are capabilities, not generic armor slots.
 
-AETHER Mailbox: paper-plane icon or /soulfeedback. Optional Field Notes start off and stay local. Nothing uploads or automatically reaches the developer. Automatic notes omit names, chat and coordinates; place coordinates stay in the game save. Typed notes retain your text. Share only what you choose. Please report version, action, expected/actual result and solo/MP. Thank you for helping this companion grow; the creator has limited playtime, so your observations matter.
+[h2]How It Works / Honest Beta[/h2]
+Local activity selection, consent policies and persistent Sigils connect behavior. Bounded preferences are not online AI. Native NPC/projectile/item APIs handle real state; owner/session checks bind effects. Exact big-integer XP uses an integer square root. Boss mode temporarily transforms/restores the same NPC; pets/retinue stay item-backed, separate from player buffs.
 
-[h2]Development Disclosure[/h2]
-Extensive AI assistance in code, writing, UI and visuals. Workshop/mod icons and original Soulkin art are AI-generated; other creature/item/inventory/emote graphics reuse Terraria assets. No online AI service runs in the mod.
+Nine languages; AI-authored translations need corrections, some MP replies use server language. Engine/adversarial checks pass; full progression, endurance, connected MP and all visual families remain open. All peers need 0.27.0. V is unverified; use Details/Pets. Older media is historical, not boss footage.
 
+[h2]Feedback and Transparency[/h2]
+Paper-plane or /soulfeedback: local Mailbox. Field Notes start off; nothing uploads automatically. Automatic notes omit names/chat/coordinates; places stay in saves. Typed notes keep your text; share only chosen reports. Please give version, action, expected/actual and solo/MP. Limited playtime makes your feedback valuable; happy moments welcome too!
+
+AI assistance: code, writing, UI/visuals. Icons/Soulkin are AI-generated; other creature/item/inventory/emote art reuses Terraria. No online AI service.
 [url=https://github.com/reirao/Soulmates/issues]Bug reports[/url]

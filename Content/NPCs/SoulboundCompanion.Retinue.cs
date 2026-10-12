@@ -17,7 +17,7 @@ public sealed partial class SoulboundCompanion
 	internal NPC? RetinueTarget => TryGetOwner(out Player owner) && !owner.dead
 		&& !CompanionInventorySync.IsPending(owner)
 		? GetSynchronizedDefenseTarget(Command == StayCommand ? idleTarget : owner.Center) : null;
-	internal bool CanMaintainRetinue => NPC.active && TryGetOwner(out Player owner) && !owner.dead
+	internal bool CanMaintainRetinue => !IsBossChallenge && NPC.active && TryGetOwner(out Player owner) && !owner.dead
 		&& FindBoundSigil() is not null;
 
 	internal bool ConfigureRetinue(int slot, int expectedType, byte[] token)

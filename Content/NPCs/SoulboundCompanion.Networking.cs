@@ -64,6 +64,9 @@ public sealed partial class SoulboundCompanion
 		writer.Write((byte)ReflectionKind);
 		writer.Write((byte)ReflectionContext);
 		WritePersonalPlanState(writer);
+		writer.Write(bossChallengeSession);
+		writer.Write(bossChallengeTicks);
+		writer.Write(IsBossChallenge ? NPC.lifeMax : 250);
 	}
 
 	public override void ReceiveExtraAI(BinaryReader reader)
@@ -133,6 +136,14 @@ public sealed partial class SoulboundCompanion
 		if (!CompanionIntentLearning.Valid(reflected)) throw new InvalidDataException("Invalid reflected intention.");
 		reflectionIntent = pendingQuestion == CompanionQuestion.Reflection ? reflected : null;
 		ReadPersonalPlanState(reader);
+		bossChallengeSession = reader.ReadInt32();
+		bossChallengeTicks = reader.ReadInt32();
+		int challengeLifeMax = reader.ReadInt32();
+		if (bossChallengeSession is < 0 or > 8000000 || bossChallengeTicks is < 0 or > 18000
+			|| challengeLifeMax is < 250 or > 20000 || !IsBossChallenge && (bossChallengeTicks != 0 || challengeLifeMax != 250))
+			throw new InvalidDataException("Invalid boss challenge state.");
+		NPC.lifeMax = challengeLifeMax;
+		ApplyBossChallengeFlags();
 		if (Main.netMode != NetmodeID.MultiplayerClient || !TryGetOwner(out Player owner) || owner.whoAmI != Main.myPlayer)
 			return;
 		foreach (Item item in owner.inventory) {

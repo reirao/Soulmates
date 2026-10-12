@@ -56,6 +56,7 @@ public sealed partial class EngineChecks
 				profile.IntentLearning.Write(writer); writer.Write(profile.EvilMode); profile.Places.Write(writer);
 				writer.Write((byte)0); writer.Write(profile.RetinueEnabled); writer.Write(profile.RetinueItemType);
 				profile.PersonalPlans.Write(writer);
+				writer.Write(profile.Experience.ToString(System.Globalization.CultureInfo.InvariantCulture));
 			}
 			stream.Position = stream.Length - tail.Length - sizeof(int);
 			using (var selection = new BinaryReader(stream, Encoding.UTF8, true))

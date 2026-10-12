@@ -21,6 +21,7 @@ public sealed partial class SoulboundCompanion
 		if (!NPC.active || !TryGetOwner(out Player owner) || owner.dead || FindBoundSigil() is null
 			|| CompanionInventorySync.IsPending(owner)) return new(SoulmatesText.Get("TargetOrders.Invalid"), false);
 		Profile.EvilMode = !Profile.EvilMode;
+		if (!Profile.EvilMode && IsBossChallenge) EndBossChallenge("Cancelled");
 		ClearEvilCelebration();
 		if (!HasPendingQuestion && !HasPendingInitiative) {
 			ClearNativeExpression();

@@ -130,7 +130,8 @@ public sealed partial class EngineChecks
 				using (var stream = new MemoryStream()) {
 					using (var writer = new BinaryWriter(stream, Encoding.UTF8, true)) mate.SendExtraAI(writer);
 					stream.Position = 0; using var reader = new BinaryReader(stream);
-					var copy = new SoulboundCompanion(); copy.ReceiveExtraAI(reader);
+					var copyNpc = new NPC(); copyNpc.SetDefaults(ModContent.NPCType<SoulboundCompanion>());
+					var copy = (SoulboundCompanion)copyNpc.ModNPC; copy.ReceiveExtraAI(reader);
 					check(stream.Position == stream.Length && !copy.Profile.AllowsAutomaticMining(TileID.Copper)
 						&& copy.Profile.AllowsAutomaticMining(TileID.Dirt), "Mining rule network roundtrip failed");
 				}
@@ -139,7 +140,8 @@ public sealed partial class EngineChecks
 				using (var stream = new MemoryStream()) {
 					using (var writer = new BinaryWriter(stream, Encoding.UTF8, true)) mate.SendExtraAI(writer);
 					stream.Position = 0; using var reader = new BinaryReader(stream);
-					var copy = new SoulboundCompanion(); copy.ReceiveExtraAI(reader);
+					var copyNpc = new NPC(); copyNpc.SetDefaults(ModContent.NPCType<SoulboundCompanion>());
+					var copy = (SoulboundCompanion)copyNpc.ModNPC; copy.ReceiveExtraAI(reader);
 					check((bool)typeof(SoulboundCompanion).GetField("autonomyRecoveryPaused", flags)!.GetValue(copy)!
 						&& stream.Position == stream.Length, "Active recovery status was not synchronized");
 				}

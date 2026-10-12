@@ -273,7 +273,7 @@ public sealed class SoulmatesFeedbackSystem : ModSystem
 			LatestSnapshot["energy"] = companion.Profile.Energy;
 			LatestSnapshot["mood"] = companion.Profile.Mood;
 			LatestSnapshot["bond"] = companion.Profile.Bond;
-			LatestSnapshot["level"] = companion.Profile.Level;
+			LatestSnapshot["level"] = companion.Profile.Level.ToString(System.Globalization.CultureInfo.InvariantCulture);
 			LatestSnapshot["pack_load"] = companion.Profile.PackLoad;
 			LatestSnapshot["pack_capacity"] = companion.Profile.PackCapacity;
 			LatestSnapshot["resource_slots"] = companion.Profile.ResourceLoad;

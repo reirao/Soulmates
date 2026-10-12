@@ -150,7 +150,7 @@ public sealed partial class EngineChecks
 				witness.UpdateNPC(19);
 				check(!witness.friendly && CompanionCritters.IsNatural(witness), $"Aged native death fixture rejected, mode {mode}");
 				mate.ShowSpeech("I was just thinking about our walk.");
-				int beforeExperience = mate.Profile.Experience;
+				var beforeExperience = mate.Profile.Experience;
 				witness.StrikeNPC(new NPC.HitInfo { Damage = 1000, HitDirection = 1, HideCombatText = true }, noPlayerInteraction: true);
 				check(!witness.active && (int)Field("pendingCritterLossTicks")! > 0
 					&& mate.Profile.Memories.Any(memory => memory.Kind == CompanionMemoryKind.CritterLost),

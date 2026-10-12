@@ -45,7 +45,7 @@ public sealed partial class AuditChecks
         Expect(mate.PendingQuestion == CompanionQuestion.Reflection && mate.ReflectionContext == CompanionIntentContext.Building,
             "Native AI offers evaluation for the completed context", "Existing question channel");
         Guid question = mate.QuestionId;
-        int mood = mate.Profile.Mood, xp = mate.Profile.Experience;
+        int mood = mate.Profile.Mood; var xp = mate.Profile.Experience;
         byte[] response = Packet(mod, "ChoiceResponseRequest", writer => {
             writer.Write(mate.Profile.Id.ToByteArray()); writer.Write(question.ToByteArray()); writer.Write((byte)CompanionAnswer.Third);
         });

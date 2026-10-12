@@ -1,5 +1,18 @@
 Mods: {
 	Soulmates: {
+		UI.CompanionWheel.Categories.Evil: "EVIL: theatrical mischief"
+		Enums.CompanionQuickAction.BossChallenge: "Boss challenge"
+		UI.CompanionWheel.Actions.BossChallenge: "Boss challenge"
+		Projectiles.CompanionBossSpark.DisplayName: "Challenge Spark"
+		BossChallenge.Title: "{0} // BOSS"
+		BossChallenge.Secret: "Secret: challenge me?"
+		BossChallenge.Confirm: "Start a real fight? Click again. No loot; Abort ends it."
+		BossChallenge.Stop: "End the boss challenge"
+		BossChallenge.Unavailable: "EVIL must be on, and another boss cannot be active."
+		BossChallenge.Busy: "Our challenge comes first. Abort it to return to normal."
+		BossChallenge.Started: "You wanted a boss? Here I am! Two seconds to get ready."
+		BossChallenge.Cancelled: "Curtain down. Still your companion. Resume when you are ready."
+		BossChallenge.Defeated: "You win! Same soul, slightly bruised pride. Shall we be friends again?"
 		Conversation.Home.Heading: "A place to belong"
 		UI.CompanionWheel.Categories.Home: "Home: discuss this place"
 		Enums.CompanionQuickAction.DiscussHome: "Discuss this place"

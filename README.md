@@ -1,238 +1,150 @@
 # Soulmates
+## 0.27.0 - Behind the Curtain | Beta
 
-**0.26.0 - Little Company | Beta.** Small idle undertakings reuse known homes, her real familiar and observed building supplies. Only completed visits become personal memories; existing evaluations shape bounded preferences. Explicit work, danger, Stay, Pause, consent and inventory safety keep priority. No autonomous construction is added.
+Create a companion, give her a name and a place in your world, and grow together. Soulmates combines a reusable creator, persistent personalities, useful work, native-symbol Soulwheels, memories, pets and her own summoned company.
 
-**Gifted summon staves** have a separate Retinue inventory within the existing Pets panel. Use its staff symbol to switch inventories, give an unfavorited staff, left-click an owned staff to call company and right-click to take it back. The first explicit gift selects only when the inventory is empty; later gifts respect dismissal. Ordinary companions select 1/2/3 distinct staff types at levels 1/10/20. AETHER selects every distinct owned type at once, within 64 actual storage slots. Duplicate staves do not duplicate helpers. Native projectile artwork uses bounded companion combat, not original player-minion AI or arbitrary modded rendering. Player pets, buffs, minion and sentry slots remain separate. All peers need 0.26.0.
+[Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3807130821) | [GitHub release](https://github.com/reirao/Soulmates/releases/tag/v0.27.0) | [Terraria forum](https://forums.terraria.org/index.php?threads/152194/) | [Bug reports](https://github.com/reirao/Soulmates/issues)
 
-[0.26.0 verification and playtest checklist](tests/LITTLE-COMPANY-0.26.0-2026-10-11.md) separates engine evidence from graphical acceptance.
+# YOUR COMPANION CAN BECOME THE BOSS
 
-The exact checked candidate was [installed in the normal client](tests/CLIENT-INSTALL-0.26.0-2026-10-11.md), with backups and unchanged saves. The creator reports a positive playtest and requests publication. [Release notes](releases/0.26.0.md) describe current scope; upload, Steam approval and subscriber delivery are separate checks. Older gallery footage is not a new 0.26.0 playtest.
+**Yes, her. The same companion, with the same memories and inventory.**
 
-[0.26.0 publication verified](tests/PUBLICATION-0.26.0-2026-10-11.md): GitHub distributes the exact independently retested Steam-managed package. Both Workshop descriptions and the single current changelog are updated, along with the existing Terraria forum post/title. Steam moderation remains pending; subscriber delivery is separate. No duplicate upload or new gameplay footage was created.
+Turn on **EVIL** using the native angry-face symbol directly on her wheel. Then open **Games > secret eye**. One click shows the warning; a second confirms a real owner-only boss duel. She grows, displays HP, pauses before dashing and fires increasingly broad patterns across three health phases. There is a two-second opening before her attacks.
 
-## Previous Publication
+**Your character can take real damage.** There is no loot or XP reward, terrain destruction or permanent companion death. Her familiar and retinue rest during the duel. Other players, residents, critters and other companions are excluded from the challenge.
 
-**0.25.1 - Home Within Reach | Beta.** Her wheel now has a permanent Home entry using Terraria's native house symbol. Discuss or reclassify the current shelter without waiting for automatic questions, including at Stay, with autonomy off or Quiet. Remembered homes, optional EVIL and focused behavior/input repairs join the existing learning, cargo and pets. Rapid multiplayer compass edits preserve consecutive choices. The creator reports a successful latest test of the [installed candidate](tests/CLIENT-INSTALL-0.25.1-2026-10-11.md) and requests publication. [Release/download](https://github.com/reirao/Soulmates/releases/tag/v0.25.1), [changes](releases/0.25.1.md) and [wiring checks](tests/HOME-WIRING-0.25.1-2026-10-11.md) distinguish automated evidence from real play. Upload, Steam moderation and subscriber delivery remain separate checks.
+**Stop safely:** Games > Stop, Commands > Abort/Pause, EVIL off or recall. Victory, owner loss/death, distance, a five-minute timeout or another world boss also ends it. Her inventory and memories survive; challenge shots and debuffs clear. **Work stays paused until Resume.** EVIL by itself remains theatrical expression, not permission to attack or destroy things.
 
-Pets opens directly from her wheel; Details opens her character window. Twelve real pet slots, ore-search shortcuts and Config/Last remain included. The [0.24.0 publication record](tests/PUBLICATION-0.24.0-2026-10-09.md) is historical evidence for that version, not delivery evidence for this candidate.
+The creator reports a delighted installed 0.27.0 playtest. The existing Workshop upload is verified and its exact Steam-managed package retested. This is encouraging real-player feedback, not complete progression, endurance or connected-multiplayer certification. Check the actual loaded version under Mods; upload, Steam approval and subscriber delivery remain separate. [Release notes](releases/0.27.0.md) and [beta gates](BETA.md) describe the current scope.
 
-[0.25.1 publication status](tests/PUBLICATION-0.25.1-2026-10-11.md): the creator has uploaded to the existing Workshop item; Steam update metadata and the current Steam-managed package are verified. GitHub's downloaded asset matches that package exactly and passes repeated native checks. English and German Workshop descriptions are saved and verified; the existing 0.25.1 changelog is corrected without adding an entry. Steam moderation is still pending; subscriber delivery remains separate.
-
-Soulmates is a tModLoader mod about creating companions that feel personal. The reusable **Soulcore** opens a small companion creator. Each finished companion is stored in its own **Soulbound Sigil** with a persistent name, appearance, personality, talent, bond, mood, and energy.
-
-## AI-assisted development disclosure
-
-Soulmates is an experimental project created with extensive AI assistance across programming, writing, interface work, and visual development. The Workshop icon, mod icon, and custom Soulkin sprite were AI-generated and then integrated into the mod. Bunny, Blue Slime, Bird, Squirrel, item, inventory, and emote visuals reuse Terraria assets. The creator playtests the mod; automated checks and their remaining scope are documented separately for each version.
-
-## Getting Started
-
-1. Check the loaded version under Mods: **0.26.0 - Little Company**. Use the [existing Workshop item](https://steamcommunity.com/sharedfiles/filedetails/?id=3807130821) or [GitHub beta](https://github.com/reirao/Soulmates/releases/tag/v0.26.0). Upload, approval and subscriber delivery are separate checks; a changed description is not proof of the installed version. Avoid duplicate mod copies. All multiplayer peers need 0.26.0.
-2. Enter a world. The one-time starter kit provides a Soulcore and three Blank Sigils; the recipes below also let you craft replacements.
-3. Use the Soulcore or right-click it in the inventory. Choose the companion and bind a Sigil. The Soulcore is reusable; use the new Sigil to summon her and keep it in your inventory.
-4. Right-click her for companion tools; right-click yourself for player tools. Work opens Config and Last. Games contains Rock, paper, scissors. Critters contains Watch, Company, Catch Critters, Off and Companion pet. Ordinary catching already has the built-in basic net capability.
-5. Commands controls autonomy, Pause/Resume/Abort and separate Ask/Always/Never rules. Yes permits one opportunity; Always remembers permission for that ability. EVIL is optional and off by default: toggle it in Commands or with the fourth task button (laughing face) in Details. Pack separates equipment, resources and the uncapped wallet. Pets opens from her wheel or character panel: give an eligible item from your real inventory, then left-click its owned slot to summon. Right-click returns it. Favorites are protected.
-
-If she is waiting, check the active assignment, Stay/Pause, autonomy, the ability's permission and energy. Recovery needs a reserve before work resumes. Watch does not catch; Company and Collect have different permissions. If a native NPC/chest/item handles a right-click, Terraria mode deliberately leaves that interaction alone. Select Me/Soulmate for explicit world context, and use X/Escape to leave it.
-
-Use the [0.25.1 wiring report](tests/HOME-WIRING-0.25.1-2026-10-11.md), [0.25.0 depth checks](tests/BETA-DEPTH-0.25.0-2026-10-11.md) and [beta gates](BETA.md) for scope. Full beta acceptance is open; report version, action, expected/actual result and solo/MP. Mailbox notes stay local unless you share them. The creator has limited playtime, so observations from different worlds and progression stages are welcome. Thank you for helping this companion grow.
-
-## The V Key Lesson
-
-V was advertised as working without a real end-to-end keyboard test. The player reported otherwise. Injecting a software trigger proved only the handler, not that a physical key reached it. That mistaken claim stays documented here rather than being quietly erased. The optional shortcut now reports its actual binding; **V is not promised fixed**. Use the companion wheel's **Details** or **Pets** instead. Future input claims must distinguish handler tests, engine key mapping and a real client keypress.
-
-## A Place to Belong
-
-Place memory is bounded, separate per Sigil and scoped to the world's identity. Room enclosure, manufactured walls, floor and furniture provide shelter evidence. A chosen spawn counts as bed evidence only while the actual valid bed is present; assigned resident housing uses the resident's home anchor in the sampled room. These checks do not establish ownership of arbitrary builds, and resident housing is not offered as the companion's home.
-
-Separated returns can make a shelter familiar; standing there does not accumulate visits. The existing answer wheel can then ask for **our home (SharedHome)**, **her little home (CompanionHome)**, **just a stop (NotHome)** or **Later**. Familiarity never grants ownership. Later leaves the role unchanged; replies recheck the captured world and room, including changed shelter. Recognized home chests are excluded from automatic treasure rediscovery; an explicit treasure search still works. She does not construct or remodel houses.
-
-Use **Home** on her wheel to open the place choices yourself, or to reclassify an existing home. No repeated visits are required for an explicit request. Stay, autonomy off and Quiet do not block this configuration conversation, but ongoing work and resident housing are respected. Home is a place-memory action, not teleportation or a building command.
-
-## Optional EVIL
-
-EVIL is off by default and saved per Sigil. Toggle it in her **Commands** wheel or the **fourth task button in Details**, marked with a laughing face. Safe idle remarks and celebrations of actual completed work turn small successes into tiny grand schemes. Theatrical Rock, paper, scissors quips follow the existing fair result. This changes expression only: consent, task selection, rewards, cargo, damage, terrain and empathy for hurt critters remain intact. Celebration waits for free attention behind threats, work, questions and critter reactions.
-
-## Features (0.26.0)
-
-- Small completed idle undertakings become personal memories and use the existing evaluation answers. Work, danger, Stay, Pause and consent retain priority; no autonomous building is added.
-- Pets also contains Retinue: real gifted summon staves power companion-owned helpers. Ordinary companions select 1/2/3 distinct types at levels 1/10/20; AETHER selects all owned types within 64 slots. Native art does not imply original minion AI or arbitrary modded rendering.
-- The upper gift row shows eligible items still in your inventory; the lower inventory holds her actual items. Wheel symbols are selection shortcuts, not extra copies. She must retain the item to use it. One vanity/light familiar can accompany her alongside the separate combat retinue.
-
-- Native-first input protects inventory, typing, NPC dialogue, cursor-held items and alternate item actions. Captured targets and pending answers reject stale companion/Sigil identities instead of redirecting an old selection.
-- Answer-wheel nodes fade into fixed positions, matching their hit targets while opening.
-- Recovery considers low mood as well as energy. Work validates live targets and bounded timeouts; real threats take priority over training dummies.
-- Critter visits and companion familiars recheck live identity and state. Familiar artwork waits for a valid binding; rendered pet-family behavior still needs client acceptance.
-
-- Bounded contextual preferences connect observations, accepted requests and actual completed actions to the existing shared attention selector.
-- Occasional "Was that helpful?" questions use the existing four-symbol answer wheel. Feedback affects the captured action/context, not a later unrelated action. Later, silence and cancellation are neutral.
-- Quiet disables personal evaluations. Ask/Always/Never, pause, defense, explicit work, tools, capacity and progression retain priority. Positive preference never grants permission.
-- Per-Sigil learning survives save/load and is visible in Diagnostics. Construction-item use and familiar supplies provide hints, not successful placement proof or autonomous building.
-
-- Craft a reusable Soulcore and Blank Sigils.
-- Receive one Soulcore and three Blank Sigils once per character as a starter kit.
-- Create multiple unique companions from fully localized presets.
-- Shape a companion through an animated live preview with an original eight-frame Soulkin sprite, including compatibility for existing Sigils.
-- Choose a name, form, essence color, aura, personality, and one of five visible starting-talent classes.
-- Choose a visual Bestiary Muse: Soulkin, Bunny, Blue Slime, Bird, or Squirrel.
-- Summon exactly one active companion at a time; switching Sigils cleanly retires the previous companion, assignment, and projectiles.
-- Right-click the summoned companion or your own character to open the compact Soulwheel.
-- Hold Up and right-click the Sigil to recall it.
-- Companion identity and progression data are saved on the Sigil. Keep the active Sigil in the player's inventory; moving it out recalls the companion. In single-player, holding it on the cursor while rearranging inventory preserves the binding.
-- Personality-driven idle, wander, inspect, follow, and catch-up behavior.
-- Persistent per-companion autonomy, switchable from the action wheel.
-- Talent-driven initiative: every companion retrieves nearby usable drops, Gatherers do so faster and farther, Miners help in short bursts and collect what they mine, Treasure Seekers investigate nearby chests, Guardians intercept danger, and Healers react to injuries.
-- Persistent learning insights adapt to the owner's gathering, mining, forestry, combat, and exploration habits.
-- All vanilla and modded ore families are recognized; companions remember safe natural materials they watch the owner mine and reuse discovered pickaxes for later mining assignments.
-- Terraria is the default mouse mode: native interactions run first. If they do not handle a right-click on a nearby NPC, loose drop or natural resource, its context wheel opens directly with the target name and applicable actions. Empty air and furniture do not open a fallback wheel. Right-click your character or companion for their wheel, then choose Terraria, Me or Soulmate with native-symbol selectors. Selecting Me or Soulmate closes the wheel and arms the next world right-click. Me points or opens player emotes; Soulmate offers Look, Gather, Mine and Forest tasks, plus Company for eligible critters. The original target stays selected while moving onto the wheel. Right-click inside an open wheel cycles modes; X or Escape restores normal use. Inventory, typing, NPC dialogue, alternate item actions and cursor-held items retain priority.
-- Showing a nearby drop or tile invites a shared observation shaped by personality and chosen voice. Soft and Playful have distinct character replies; Direct stays factual. Tired or low-mood companions can look with you quietly. Inspection adds no XP, consumes nothing and changes no assignment or work permission.
-- Choose Look, Gather, Mine, or Forest to point at nearby targets repeatedly. Right-click an active tool opens the Area wheel; Escape exits targeting. Look reports an opportunity without changing the assignment, cargo, or terrain.
-- Opening the mining target reveals nearby ore families as their real Terraria item icons; choose one immediately or keep the pickaxe node for a manual world target.
-- Choose a persistent mining approach per companion: Adaptive priorities, a narrow Tunnel to ore or the next opening, ore-only Vein work, or exposed-only Surface work. Unstable sand-like materials are skimmed only from open edges.
-- Work > Config unfolds area work, pointed work and Mining Mode. Last stores the last accepted work intent on each Sigil; changing settings, failed orders and Look do not replace it. Area mining repeats its remembered approach, direction and stop mode. Pointed mining, gathering and forestry re-arm a fresh world target, never a saved location or item slot. Repeating does not grant automatic permission.
-- Config > Mining Mode > Tunnel opens a compass: Up, Right, Down, Left or the existing automatic ore route. Cardinal tunnels are three tiles tall or two tiles wide, bounded to eight steps for Short or up to 24 toward a player-sized opening. The existing work radius may reduce that bound. Liquid, unstable material, protected tiles and decorations stop the cardinal route, including changes after planning. Configuration creates no work by itself; changing it during area mining replans that assignment.
-- Work > Config > Mining Mode > Automatic mining selects individual ore and observed-block permissions with paged Terraria item icons. Ores start allowed; observed terrain requires opt-in. Rules persist per Sigil and govern autonomous mining, not direct orders. Every mining route preserves blocks touching plants, saplings, trees or placed decorations, including targets that change after planning.
-- Useful pack contents matter in the world: weapons strengthen companion attacks, torches add light, and food or recovery items can be used at an appropriate moment.
-- Near a crafting opportunity, a companion may occasionally suggest a recipe inspired by carried materials.
-- Contextual initiative prompts let you answer opportunities with Terraria emotes: Yes, No, Always, or Never. Commands > Initiative Rules cycles Ask, Always and Never independently for gathering, mining, forestry, treasure hunting, critter company and critter collecting. New critter rules default to Ask on existing Sigils. Yes authorizes one target; Always never grants another ability. Reset stops automatic work and restores Ask. Direct target orders are explicit consent for that visit, not permission for future visits. Registration checks cover every autonomous ability so new ones cannot inherit an unrelated rule silently.
-- Occasional personal questions use four native-symbol answers: approve ongoing nearby collection, choose a playful tone, choose gentle company, or talk later. Answers affect mood, bond and saved voice without approving unrelated terrain changes.
-- Approved automatic work continues during personal questions; acknowledged inventory transfers reject conflicts, and deferred critter-care questions retain their place. See the [historical repair verification](tests/COMPLETE-REPAIRS-2026-10-04.md), not a live multiplayer certification.
-- An uncapped wallet can offer newly accumulated savings with personality-specific "Here for you!" lines. Accept the coins, keep saving together, respond playfully, or defer; anything that does not fit stays in the wallet.
-- Nearby opportunities share an attention scheduler weighted by proximity, talent, recent observed habits, and waiting time. Repeated drops cannot indefinitely starve other actionable tasks; work-kind cooldowns are independent. Only one permission prompt is presented at a time; combat, explicit work, Stay and low-energy recovery retain priority.
-- The learned Forester perk lets a companion shake trees, clear natural fallen logs, collect seeds, and carefully replant carried acorns.
-- Initiative answer wheels open at the player; the companion shows the task symbol, then a question mark. Their positions stay still while choosing.
-- A companion named **AETHER** is an Omni Soul with every starting talent instinct and learned perk available.
-- The Critters branch offers Watch, Company, Catch Critters and Off. Hover and selection feedback distinguish watching, real follower count, pause, busy work, autonomy off and consent. Watch greets nearby natural critters with a creature > greeting expression and a native reply, without moving toward or catching it. Queued observations wait behind speech and questions; departed creatures receive no stale replies. Catch Critters includes a built-in basic net, not a withdrawable item. A carried lava-proof net upgrades it; cargo limits apply. Gold, statue-spawned and player-released creatures remain protected.
-- Company gently guides existing natural bunnies, squirrels, birds, butterflies, fireflies and lightning bugs. An ordinary companion invites one; AETHER invites up to three. These are temporary real world NPCs, not spawned copies or permanent saved pets: native collisions, damage, catching and despawning still apply. Stragglers are not teleported through terrain. Off and recall release them.
-- NPC context offers Look, Company and Collect for the clicked eligible critter. Direct visits replace current work even when autonomy is off, without changing automatic consent. Collect requires cargo space and the appropriate native net. Automatic visits still need autonomy, consent and stamina. Defense and open prompts retain priority; visits are bounded to six seconds and recheck the original NPC type. Existing followers remain invited when autonomy is disabled, stop guided movement on Pause and can hop at small ground obstacles without noclip or teleporting.
-- Tree context uses Terraria's trunk classifications, including mushroom trees, for its native tree symbol. Forestry remains reachable during a shake cooldown or on a non-shakeable tree and reports when no supported action is available. Automatic shake planning rejects unsupported tree/soil combinations instead of repeatedly selecting them; native tree-shake loot remains authoritative. Bare-branch pruning is limited to verified vanilla side-twig frames, not palm fronds or other unverified families.
-- Nearby witnessed critter deaths can prompt personality-specific sorrow or an apology, and stronger disapproval when Terraria records player attack credit. Unknown causes do not accuse a particular player. Native catches are not deaths; reactions are rate-limited, wait behind ongoing speech and grant no XP or penalties. Soul Bolts cannot accidentally hit harmless critters. 0.22.2 fixes the expired-spawn classification that excluded ordinary animals; individual live reaction timing still needs focused checks.
-- AETHER's existing cosmetic native-sprite flock still represents up to six real carried insects and disappears when withdrawn. No free critters or combat swarm are created.
-- Pets opens directly from her wheel and character panel. Twelve dedicated slots hold real eligible reusable pet-summoning items; inventory paging lets you give an item without selecting a hotbar slot. Favorites stay with the player. The first gift to empty pet storage selects automatically; later gifts do not replace the selection or override dismissal. Left-click an owned pet to summon; right-click returns its item. The selected pet persists on the Sigil. Dismiss, final withdrawal, recall, owner death and switching companions clean up its familiar without losing cargo. Existing pet items in equipment remain discoverable.
-- Pet support follows registered item/buff/projectile metadata, not a fixed two-item whitelist. The harmless familiar uses native animated frames with custom floating movement and basic light where appropriate. It neither consumes the item nor adds player buffs or replaces your pet. Original player-pet AI, special utility abilities and arbitrary modded drawing are not copied; individual visual families still need playtests. Appearance Muse, real Critter Company and AETHER's insect flock remain separate.
-- Personality-driven autonomous moments add small surprises without overriding combat, Stay, explicit assignments, or low-energy recovery.
-- Persistent companion experience with 20 levels earned from combat, healing, work, and shared moments.
-- Use the compact Companion Soulwheel for commands, work, bonding, direct pack access, and details.
-- Right-click your own character for a separate Player wheel with Emotes, Point, and Mailbox buttons. Emotes unfolds all 151 vanilla Terraria emotes in crescent categories: Feelings, Gestures, Activities, Items, World, People & creatures and Notifications. Larger groups have small subcategories; signals, hunger, ailments and bosses no longer share the feelings list. The configurable **Player Emote Wheel** key (`G` by default) opens Emotes directly.
-- Player Emotes > Items first offers Food, Recovery, Tools, Weapons, Materials, Valuables and Party groups, then their native symbols. All vanilla emotes remain reachable with stepwise Back. Ore conversations are separate under Companion > Items > Ores.
-- Companion > Bond groups its six direct interactions into Feelings (Heart, Laugh), Gestures (Wave, Cheer) and Care (Comfort, Rest). Games remains a separate companion branch. The current emote path is shown between hover labels; page arrows never leave the selected leaf.
-- Native Terraria emote bubbles for shared gestures, with occasional context-aware speech instead of constant text.
-- Companion Soulwheel > Games > Rock, paper, scissors unfolds three native move symbols. Bond keeps its gestures separate. Rock, paper, scissors is the implemented minigame. Ordinary player RPS emotes also start a real round. A nearby bound companion chooses independently, shows her move and reacts to the result. Games grant no XP and do not interrupt assignments or change work permissions.
-- Social encounters include a greeting, a native NPC emote, and a personality-aware reply. Resident relationships remember world, NPC type, and name, with wary, new, familiar, and friend states. Combat and explicit work interrupt the visit.
-- Talk Mode > Bond > "Who have you made friends with here?" cycles local resident relationships. Meeting someone and making a friend add chronicle memories; NPC conversation does not generate experience.
-- Personality-specific reactions to normal victories, bosses, and nearby critter deaths.
-- Companion Soulwheel > Items opens the categorized conversation directly. Selecting Food, Ores, Tools or another native-symbol topic immediately gives a matching cargo reply. Talk Mode also has Care, Commands, Work, Bond, Voice and Pack; inspection does not consume or invent cargo.
-- "Do you remember?" tells short personality-aware chapters from actual saved events, with truthful present observations when no matching memory exists. Confirmed pickups, critter greetings and losses can enter the bounded chronicle. Long replies scroll in Talk Mode; ambient remarks wait behind speech and prompts.
-- Commands > Pause retains current work, Resume continues it, and Abort clears it and holds automatic work until resumed or replaced. Defense remains available. The hold persists on the Sigil; exact live directed targets do not persist across recall or reloading.
-- Mood-, energy-, bond-, and personality-aware replies, including clearly explained refusals.
-- Five visible bond ranks with growing work radius, role strength, and pack capacity.
-- Every companion continuously defends against nearby threats without spending work energy, while staying leashed to its owner or Stay anchor; Guardians react faster, reach farther, and hit harder, while Healers provide energy-limited support.
-- Energy returns during following and work, with faster recovery while waiting; combat pauses recovery. Work effort costs one energy per eight retrieved stacks, four mined blocks or two forestry actions. After exhaustion, automatic or retained work rebuilds a 30-energy reserve before resuming; automatic recovery also waits for mood to recover. Care > Rest is an optional boost.
-- Area assignments: locate nearby chests, clear every reachable ore vein and learned material in range, and retrieve every loose item in range.
-- Right-clicking a workbench opens Terraria's inventory and refreshed crafting list as a small quality-of-life interaction.
-- A persistent memory chronicle covering creation, work, protection, healing, equipment, and bond milestones.
-- Craftable Starfinder Bell, Delver Charm, and Hearth Ribbon companion trinkets.
-- Resting companions recover mood and energy over time.
-- Cargo has three persistent compartments: Equipment, Resources, and Wallet, selected using Terraria item icons in the Pack view.
-- Equipment retains the 8-slot pack, bond upgrades, Hearth Ribbon expansion to 12 slots, and 99-unit reserve per item type.
-- Resources have 60 stack slots, displayed in pages of 12. Their reserve grows by 50 units per companion level and item type: level 1 holds 50, level 10 holds 500, and level 20 holds 1,000. Native item stack limits still apply.
-- The separate wallet stores collected copper, silver, gold, and platinum as one exact balance with no amount or level cap. Money does not occupy cargo slots or generate free currency.
-- The Pack conversation can inspect cargo, store the selected hotbar item in its appropriate compartment, or return cargo and wallet coins to the owner.
-- Cargo slots show tooltips; left-click returns a stack and right-click one item. Wallet coin icons withdraw that denomination, converting from the shared balance when needed. A withdrawal is bounded by Terraria's coin stack size, and anything the player's inventory cannot accept stays with the companion.
-- Existing Sigils migrate materials and coins into their new compartments. Resources exceeding the companion's level reserve are returned on summon, rather than silently deleted.
-- Companions illuminate dark spaces and reveal the nearby world map as they explore.
-- Work refusals are deterministic and explain whether mood or energy is too low.
-- The selected work routine survives recalls and summons; exact live targets do not survive recall or reloading. Area work ends when no eligible target remains and reports when a new assignment is needed.
-- The optional **Talk to Companion** shortcut is configurable under Controls. The Sigil reports its actual assignment; no fixed key is guaranteed.
-- Choose **Details** on the companion action wheel to open the resizable Talk Mode with a real level bar, mining approach, bond, mood, energy, pack, memories, and conversations.
-- Stay is a true world anchor: companions defend that location without drifting back to the player.
-- Play in all nine languages supported by Terraria 1.4.4: English, German, Italian, French, Spanish, Russian, Brazilian Portuguese, Polish, and Simplified Chinese. Soulmates follows the game's selected language; no separate language setting is needed.
-- Optional local **AETHER Field Notes** record anonymized gameplay events and compact behavior signals for playtesting; nothing is uploaded. Use `/soulfeedback on` to opt in, `/soulfeedback note <text>` for an observation, and `/soulfeedback bug <what happened>` to save a bug with its recent gameplay context.
-- Open the in-game **AETHER Mailbox** from the paper-plane icon on the Companion Soulwheel, or with `/soulfeedback`, to save ordinary feedback or a contextual bug report locally without leaving Terraria.
+## Start Together
 
-The implementation supports single-player and server-authoritative multiplayer companions. Summoning, recalling, conversations, jobs, pack actions, and trinkets are validated by the server and synchronized back to the owning player. All peers need 0.26.0; connected multiplayer acceptance remains open.
+1. Enable Soulmates in tModLoader 1.4.4 and reload. All multiplayer peers need **0.27.0**. Avoid duplicate local packages.
+2. Characters receive a Soulcore and three Blank Sigils once. Replacements are craftable.
+3. Use the reusable Soulcore or right-click it in inventory. Choose a companion and bind a Sigil.
+4. Summon her with that Sigil and keep it in your inventory. One active companion per player; switching retires the old effects. Up + right-click the Sigil recalls her.
+5. Right-click her for companion tools; yourself for the player wheel. **Details** opens conversation, equipment and diagnostics; **Pets** and **Pack** also open directly.
 
-## Verification And History
+If she waits, check Stay/Pause, current assignment, autonomy, the ability's permission, mood and energy. Watch does not catch. Recovery rebuilds a reserve after exhaustion. The optional Details shortcut reports its actual binding; no fixed key is guaranteed.
 
-**0.26.0 beta:** the creator reports a positive playtest of the installed candidate. Native regression has 100,745 assertions and no failures; independent audit has 490 passes and no failures; static/localization checks cover 1,023 keys in nine catalogs. Production compilation has zero warnings/errors. See the [exact candidate report](tests/LITTLE-COMPANY-0.26.0-2026-10-11.md). Full graphical, physical-key, two-client MP, progression and endurance acceptance remain open. Publication metadata is rebuilt and rechecked separately.
+## Create And Grow
 
-**0.25.1 beta:** production builds have zero warnings/errors; native regression, independent audit and static/localization checks pass. All nine catalogs have 997 complete keys. The [wiring report](tests/HOME-WIRING-0.25.1-2026-10-11.md) preserves the installed candidate's exact identity; publication metadata is rebuilt separately. The creator reports a successful current test. Automated checks and that encouraging report do not close full GUI, physical V, two-client multiplayer, endurance or progression acceptance.
+- Choose name, personality, talent, essence colors, aura and Soulkin, Bunny, Blue Slime, Bird or Squirrel appearance. The creator has an animated preview; the original Soulkin uses eight frames.
+- Identity, learned preferences, memories, equipment, pets and progression live on the persistent Soulbound Sigil. Existing Sigils migrate; keep the active one with you.
+- **Open-ended levels and exact XP** continue beyond level 20 on the original quadratic curve. Five bond ranks, mood, naturally recovering energy and talent insights give growth different meanings.
+- Growth is not unlimited power. Resources cap at 1,000 per type from level 20; ordinary retinue remains capped at three distinct staff types.
+- A companion named **AETHER** is an Omni Soul with all starting talents and learned perks.
 
-**Historical 0.24.0:** the creator reported a positive first playtest after local installation and approved publication. The October 9, 14:43 CEST Workshop upload was downloaded and independently retested; GitHub distributed that exact public package. Its assembly/catalog formatting differed from the earlier installed candidate while production sources and catalog values matched. [Release notes](releases/0.24.0.md), [checks](tests/INTENT-LEARNING-0.24.0-2026-10-09.md), [installation receipt](tests/CLIENT-INSTALL-0.24.0-2026-10-09.md) and [publication verification](tests/PUBLICATION-0.24.0-2026-10-09.md) preserve that evidence and the distinct hashes. Steam moderation was pending at that historical check; upload did not prove subscriber delivery. None of these records certify 0.25.0.
+## Wheels And Control
 
-### Earlier Published History
+- Compact companion and player Soulwheels use Terraria's own symbols. Player Emotes exposes all 151 vanilla emotes in crescent categories: Feelings, Gestures, Activities, Items, World, People & creatures and Notifications, with subcategories and paging.
+- Companion Bond separates Feelings, Gestures and Care. Items opens categorized cargo conversations; Games contains Rock, paper, scissors and the optional confirmed boss challenge.
+- **Terraria** is the default mouse mode: native inventory, NPC, chest, cursor-item and alternate-item actions retain priority. A workbench right-click opens inventory/crafting.
+- **Me/Soulmate** explicitly arms contextual world pointing. Look observes without rewards or changes; Gather, Mine, Forest and eligible critter actions capture the original live target. Right-click inside the wheel cycles modes; X/Escape exits.
+- **Config** changes work settings; **Last** repeats the last accepted intent per Sigil. Pointed repeats ask for a fresh target. Settings, failed orders and Look do not replace Last or grant automatic permission.
+- **Pause** keeps work; **Resume** continues; **Abort** cancels and holds automatic work. Defense remains available outside the boss duel.
 
-**0.22.2 - Living Critters | Beta Candidate.** Installed in the normal client on October 8, 2026. The creator confirms it works in play and has uploaded it to the existing Workshop item; Steam records **October 9 at 08:05 CEST**, with review pending at the publication check. Upload, approval and each subscriber's installed version are separate checks. See [release notes](releases/0.22.2.md) and [installation verification](tests/CLIENT-INSTALL-0.22.2-2026-10-08.md).
+## Useful Work
 
-The root critter failure was Terraria's temporary spawn-protection flag: after it expires, harmless catchable animals need not remain `friendly`. 0.22.2 uses their permanent native classification, keeps ground-level visibility valid, aligns approach/reach and improves real follower catch-up without bypassing walls or native physics. Critter/drop context works over cuttable foliage; missing pet items give a visible explanation. The [repair report](tests/LIVING-CRITTERS-0.22.2-2026-10-08.md) preserves the cause, failed baseline and counterchecks. Earlier cargo, speech, Soulcore animation and minimap repairs remain included.
+- Follow, idle, inspect, catch up or Stay at a true world anchor. Defense handles nearby threats without spending work energy; Guardians reach farther and react faster. Healer support uses energy.
+- Retrieve real usable drops, auto-collect mining output, locate nearby treasure and finish eligible area work before reporting completion. Useful carried weapons, torches, food and recovery items influence existing abilities. Occasional recipe suggestions use carried materials.
+- Mining recognizes vanilla/modded ore metadata, tools and progression. Observed safe natural materials can be learned. **Adaptive, Tunnel, Vein and Surface** offer distinct approaches.
+- Mining Config includes paged per-material automatic permissions, compass Up/Right/Down/Left/automatic route and bounded Short or next-opening tunnels. Cardinal tunnels are bounded to 8/24 steps, further limited by work radius. Plants, saplings, decorations, liquids and unstable/protected terrain retain safety checks.
+- The **Forester** perk shakes eligible trees, clears natural fallen logs, gathers seeds and replants real carried acorns. Bare-branch pruning is limited to verified vanilla side-twig frames, not every tree family.
+- Energy/mood recover naturally. Work effort costs one energy per eight retrieved stacks, four mined blocks or two forestry actions. Exhaustion rebuilds a 30-energy reserve before retained/automatic work resumes; combat pauses recovery.
+- Companions illuminate nearby darkness and reveal the world map around themselves. Craftable Starfinder Bell, Delver Charm and Hearth Ribbon alter existing capabilities.
 
-Details separates Conversation, Equipment and Diagnostics, with portrait/vitals and an independent reply strip. Tool displays, item-backed pets, cargo and Pause/Resume/Abort retain existing actions; tools are capabilities, not generic armor slots. Explicit wrench export writes `SoulmatesFeedback/diagnostic-latest.txt` locally without enabling recording or uploading. MP labels client state, not server history; technical details remain English.
+## Personality And Memory
 
-That historical release also included semantic emote categories, per-Sigil Work **Config/Last**, the bounded tunnel compass, shared critter scheduling and two item-backed flying pets. At that version only Zephyr Fish/Nectar were supported. Current pet support instead follows registered item/buff/projectile metadata and has twelve real-item slots, as described above. The harmless follower uses native animation, not original player-pet AI. Ordinary critter catching has a built-in basic net capability. Existing Sigils remain compatible; mixed-version multiplayer is unsupported.
+- A shared attention selector weighs proximity, talent, observed habits and waiting time. Combat, explicit work, Stay and recovery take priority; repeated drops cannot indefinitely starve other eligible tasks.
+- **Ask/Always/Never** is independent for gathering, mining, forestry, treasure, Company and Collect. Yes allows one opportunity. Learning preferences never silently grant permission.
+- Observations, accepted requests and actual outcomes shape bounded per-Sigil preferences. Occasional evaluations use the native-symbol answer wheel; Later, silence and cancellation are neutral. Quiet disables personal evaluations.
+- In safe idle moments she can visit a classified nearby home, keep her real familiar company or reflect on observed building supplies. Only completed undertakings become memories after return. This is not autonomous construction or copied architecture.
+- **Home** uses Terraria's house symbol to classify a valid shelter: our home, her little home, just a stop or Later. Room, actual bed and resident housing are different evidence. Familiarity is not ownership; changed rooms/worlds are rechecked. Recognized home chests are not automatically rediscovered as treasure.
+- NPC greetings, observed native emotes and personality-aware replies build bounded world-scoped resident relationships. "Do you remember?" tells short chapters from actual saved events, with truthful present observations if no story matches.
+- Speech, native emotes and small combinations share attention rather than talking over questions. Mood, energy, bond, personality and chosen voice affect replies and explained refusals.
+- Rock, paper, scissors uses independently chosen moves and native symbols, including normal player RPS emotes. It grants no XP and does not replace assignments. Other minigames are not implemented.
 
-The [historical repair report](tests/LIVING-CRITTERS-0.22.2-2026-10-08.md) and installation receipt retain that package's exact hashes and automated results. Native runtime cases include normal NPC/projectile updates and physics, not a played world.
+## Critters And Company
 
-These are bounded automated checks, not completed beta acceptance. The creator's positive 0.22.2 playtest is separate evidence and does not certify every feature. Individual critter-loss timing, pet combinations, full progression, endurance, common UI scales and connected multiplayer need focused sessions. See [BETA.md](BETA.md). Activity modules still share NPC state; this is not a fully pluggable behavior engine.
+These are separate systems, not interchangeable pet slots:
 
-Some multiplayer conversation/work replies retain the server language; menus, local interactions, key-based speech and minigame results use the client's language. AI-authored translations need native-speaker feedback. Documentation describes implemented scope, not an unagreed future roadmap.
+- **Watch** greets nearby natural critters without catching. **Company** temporarily invites supported real bunnies, squirrels, birds, butterflies, fireflies and lightning bugs: one for ordinary companions, up to three for AETHER. Native physics, catching, damage and despawning still apply. No spawned copies or teleporting stragglers.
+- **Collect** includes ordinary basic-net capability, not a free withdrawable net item. Lava species need an eligible carried lava-proof net. Gold, statue-spawned and player-released critters are protected. Distance, visibility, tasks, stamina and separate consent still matter.
+- Nearby witnessed deaths can provoke sorrow/apology and stronger disapproval when native player attack credit exists. Unknown causes do not accuse a player; catching is not death. Reactions are bounded and may wait behind speech. Individual live timing still needs feedback.
+- **Pets** has twelve real owned-item slots. The upper gift row is still your inventory; the lower row is hers. Give an unfavorited reusable pet item, left-click an owned slot to summon, right-click to return. The first gift selects only into empty storage; later gifts respect dismissal. Wheel icons select, not duplicate.
+- One harmless familiar follows separately from your own pet. Registered item/buff/projectile metadata supplies native animation and basic light with custom movement, not original player-pet AI, special utility or arbitrary modded drawing.
+- **Retinue**, opened with the staff symbol in Pets, stores real gifted reusable summon staves. Ordinary companions select 1/2/3 distinct types at levels 1/10/20; **AETHER selects every owned distinct type simultaneously**, within 64 item slots. Duplicates do not multiply helpers. Native art uses bounded companion combat, not original minion AI. Your buffs and summon slots remain separate.
+- AETHER's cosmetic insect flock represents up to six actual carried insects; returning them removes their representation. No free critters or combat army are created. Recall, switching, dismissal and final withdrawal clean up bound effects.
 
-The maturity gates for Alpha, Beta, release candidate, and 1.0 are defined in [VERSIONING.md](VERSIONING.md). The former `9.9.x` values were experimental build counters and remain in the changelog only as project history.
+## Cargo And Character
 
-Workshop update text comes from [changelog.txt](changelog.txt), which contains only the current update. [CHANGELOG.md](CHANGELOG.md) preserves the complete development history separately so it cannot be accidentally republished in every Workshop entry.
+- **Equipment:** 8-12 slots through bond/trinkets, 99-unit reserve per item type. Tools shown in Details are capabilities, not a generic armor system.
+- **Resources:** 60 stack slots, pages of 12; 50 units per level/type, 500 at level 10 and a maximum of 1,000 from level 20. Native item stack limits still apply.
+- **Wallet:** one exact copper-equivalent balance with no gameplay currency cap. Money occupies no cargo slots. Personality-specific "Here for you!" offers can share accumulated savings; anything that does not fit stays with her.
+- Real-item transfers share capacity, identity and ownership rules. Cargo left-click returns a stack, right-click one item. Wallet icons withdraw bounded native denominations. Existing excess is returned safely, not silently deleted.
+- **Details** separates Conversation, Equipment and read-only Diagnostics with portrait/vitals and a reply strip. Diagnoses distinguish busy, permission, recovery, targets and client/server state. Explicit wrench export stays local.
 
-## Actual Gameplay
+## Under The Hood
 
-The [October 5 Classic showcase](media/current/showcase-0.22.0/README.md) contains **20 genuine unaltered 0.22.0 captures**, not generated mockups or relabeled current-version images. It shows creation, wheels, character views, an actual wallet transfer, games and work configuration, including the bugs that prompted follow-up repairs. No new 0.25.1 screenshot set is claimed. An open menu is not proof that its full behavior completed.
+No online AI service runs in Soulmates. "Learning" means bounded local game systems, not a remotely thinking or sentient agent.
 
-![Soul Creator in the 0.22.0 Classic playtest](media/current/showcase-0.22.0/03-soul-creator.jpg)
+- Partial NPC modules cover work, combat, social behavior, places, pets and retinue. A shared activity/attention coordinator and registered ability policies connect them; they still share NPC state and are not a fully pluggable engine.
+- Sigils own persistent profiles. Live targets, questions and effects bind to owner/companion identity; servers validate requests and reject foreign, stale, conflicting or replayed actions.
+- XP uses arbitrary-precision integers and an exact integer square root. Growth remains separate from balance caps. Legacy int saves migrate; current transport validates the extended XP payload.
+- The boss challenge transforms the same NPC temporarily. A session token binds each hostile spark; engine-native hostile ownership is separate from its allowed target. Returning restores friendly/invulnerable state, clears attacks and debuffs, and awards no loot or XP.
+- Pets and retinue retain real item ownership while drawing native sprites with bounded custom behavior. They are not extra player buff slots or promises of every vanilla/modded minion ability.
+- Engine probes exercise native NPC/projectile updates, inventory transactions, UI handlers and server packets. A separate audit tries adversarial paths. These are valuable counterchecks, not a substitute for rendered gameplay or two connected clients.
 
-![Character conversation and vitals in the 0.22.0 Classic playtest](media/current/showcase-0.22.0/10-character-care.jpg)
+## Verification And Honesty
 
-![Read-only diagnostics in the 0.22.0 Classic playtest](media/current/showcase-0.22.0/12-live-diagnostics.jpg)
+0.27.0 passes **116,213 native assertions**, **501 independent audit expectations** and **60,730 static/localization assertions**, with **1,036 keys in nine catalogs**. Production compilation has zero warnings/errors. The test probe retains 33 existing nullable/Hjson warnings. [Exact candidate checks](tests/ENDLESS-BOSS-0.27.0-2026-10-12.md) and [installation receipt](tests/CLIENT-INSTALL-0.27.0-2026-10-12.md) keep identities and initial failed cases visible.
 
-The [earlier creator gallery](media/current/README.md) preserves the October 1 screenshots and video frames in their original framing. Those images document project history, not the current interface. Gallery assets are excluded from the mod package.
+The creator's successful 0.27.0 playtest is separate evidence. Full GUI families, physical inputs, later progression, long sessions, other-mod interactions and connected multiplayer remain open. [BETA.md](BETA.md) and [VERSIONING.md](VERSIONING.md) define acceptance, not an unagreed future roadmap.
 
-## How Soulmates got here
+### The V Key Lesson
 
-Soulmates began as a reusable item for shaping a personal pet. Repeated in-game passes added persistent Sigils, personalities, combat support, work, cargo, learned behavior, forestry, initiative choices, native emotes, and the Soulwheel. Several systems were rebuilt when real play exposed awkward controls, disappearing cargo, duplicate drops, or stale abilities. The full sequence is preserved in [CHANGELOG.md](CHANGELOG.md); this page describes the current beta-candidate scope without promising future features.
+We advertised V without a real end-to-end keypress test. A software trigger proved the handler, not the physical key. **That claim is withdrawn, not promised fixed.** The Sigil reports its actual assignment; use **Details/Pets on her wheel**. This stays as a small monument to an assumption we did not fully test.
 
-## Playtesting and feedback
+### Development Diary
 
-Every report helps. The creator has limited time to play and Terraria progression takes time, so some combinations and long-session behavior are necessarily discovered slowly. If something behaves strangely, feels unclear, or breaks later in a playthrough, please describe what happened and whether it was single-player or multiplayer. And if a companion simply made you smile, we are just as happy to hear that.
+We sometimes grew features faster than we checked their complete interaction. Cargo bugs produced acorn/Gel piles; unlike stacks could merge incorrectly. Critter logic mistakenly used temporary spawn protection as permanent species classification. Visible buttons were not proof of finished behavior. Versions, repeated logs and old footage confused publication. Those failures prompted shared transfer rules, live identity checks, consent registration, repeated independent audits and exact package comparisons. A recent boss test also caught native ownership resetting hostile-projectile AI fields before the real-engine countercheck passed.
 
-Please share findings through the [Steam Workshop page](https://steamcommunity.com/sharedfiles/filedetails/?id=3807130821) or [GitHub issues](https://github.com/reirao/Soulmates/issues).
+The [complete changelog](CHANGELOG.md) and version-specific reports preserve that history. [changelog.txt](changelog.txt) contains **only this update**, so older logs are not republished. [0.26.0 publication](tests/PUBLICATION-0.26.0-2026-10-11.md) remains historical evidence, not proof of 0.27.0 subscriber delivery.
 
-For local playtests, open the paper-plane icon on the Companion Soulwheel or enter `/soulfeedback` for the in-game **AETHER Mailbox**. It can enable the opt-in Field Notes, save a normal note, or preserve a bug report with recent context. Files are stored under tModLoader's save folder in `SoulmatesFeedback`: a bounded JSONL session journal, `latest-summary.json`, `bug-inbox.jsonl`, and separate typed `notes-inbox.jsonl`. Failed automatic writes retain at most 64 events with a 30-second retry backoff and loss accounting, rather than an unlimited queue. Failed manual saving does not clear the mailbox text. New automatic records exclude account, player, character, and world names, chat text, and exact coordinates. Place coordinates stay in the local game save, not Field Notes. Manually typed notes retain their text, up to 360 characters, so avoid including anything you do not want stored. Nothing is uploaded. Older logs are not rewritten. Use `/soulfeedback off` to stop future recording; existing notes remain yours until you remove them. Local notes do not automatically reach the developer; share only the specific note you want reviewed.
+## Feedback And Privacy
 
-## Languages
+I have limited time to play and progress slowly through Terraria. Please report version, action, expected/actual result and solo/MP. Language corrections, balance observations and stories of a companion making you smile are welcome.
 
-- English (`en-US`)
-- German / Deutsch (`de-DE`)
-- Italian / Italiano (`it-IT`)
-- French / Français (`fr-FR`)
-- Spanish / Español (`es-ES`)
-- Russian (`ru-RU`)
-- Brazilian Portuguese / Português do Brasil (`pt-BR`)
-- Polish / Polski (`pl-PL`)
-- Simplified Chinese (`zh-Hans`)
+The paper-plane icon or `/soulfeedback` opens the local **AETHER Mailbox**. Optional Field Notes start off. Automatic notes omit account/player/character/world names, chat and exact coordinates; place coordinates remain in the game save. Typed notes keep your own text, up to 360 characters. Nothing uploads or automatically reaches the developer. Share only the specific report you choose.
 
-All nine Terraria 1.4.4 languages have complete 997-key catalogs in 0.25.1. Soulmates follows Terraria's language selection, with English as fallback. Seven translations are AI-authored; native-speaker corrections are welcome. Some MP replies retain the server language; technical diagnostics remain English. See [localization maintenance](tests/localization/README.md).
+Local notes live in `SoulmatesFeedback`: a bounded session journal, summary, bug inbox and typed-note inbox. Failed writes retain bounded context and do not clear an unsaved manual note. `/soulfeedback off` stops future recording; existing files remain yours.
 
-## Install for development
+## Languages And Assets
 
-1. Install Terraria and tModLoader through Steam.
-2. Copy or clone this folder into `Documents/My Games/Terraria/tModLoader/ModSources/Soulmates`.
-3. Open tModLoader and choose **Workshop > Develop Mods > Build + Reload**.
+English, German, Italian, French, Spanish, Russian, Brazilian Portuguese, Polish and Simplified Chinese follow Terraria's language selection, with English fallback. Catalogs are complete; AI-authored translations need native-speaker corrections. Some MP replies use the server language; technical diagnostics remain English. [Localization maintenance](tests/localization/README.md).
 
-The project targets the current tModLoader 1.4.4 stable release. In the normal ModSources folder the project automatically uses `tModLoader.targets`. For development elsewhere, set `TML_PATH` to a tModLoader installation containing `tMLMod.targets`.
+Extensive AI assistance was used for programming, writing, UI and visuals. Mod/Workshop icons and original Soulkin art are AI-generated; other creature, item, inventory and emote graphics reuse Terraria assets. The project is about companion systems, not an online generative service.
 
-## Recipes
+## Genuine Gameplay
 
-- **Soulcore:** 8 Fallen Stars, 5 Amethyst, and 10 Stone Blocks at a Work Bench.
-- **Blank Sigil:** 3 Fallen Stars, 1 Amethyst, and 5 Silk at a Work Bench.
-- **Starfinder Bell:** 5 Fallen Stars, 3 Iron or Lead Bars, and 1 Lens at an Anvil.
-- **Delver Charm:** 5 Iron or Lead Bars, 2 Amethyst, and 20 Stone Blocks at an Anvil. Expands mining radius and speed.
-- **Hearth Ribbon:** 5 Silk, 2 Daybloom, and 2 Fallen Stars at a Work Bench.
+The [October 5 Classic showcase](media/current/showcase-0.22.0/README.md) contains 20 genuine unaltered **0.22.0** captures, including the bugs that prompted repairs. **They are historical images, not current boss footage.** New screenshots/video will be updated gradually as spare time allows.
+
+![Soul Creator, genuine 0.22.0 playtest](media/current/showcase-0.22.0/03-soul-creator.jpg)
+![Conversation and vitals, genuine 0.22.0 playtest](media/current/showcase-0.22.0/10-character-care.jpg)
+![Diagnostics, genuine 0.22.0 playtest](media/current/showcase-0.22.0/12-live-diagnostics.jpg)
+
+The [earlier creator gallery](media/current/README.md) preserves October 1 screenshots/video frames. Gallery assets are excluded from the mod.
+
+## Development And Recipes
+
+Install Terraria/tModLoader through Steam, clone into `Documents/My Games/Terraria/tModLoader/ModSources/Soulmates`, then use **Workshop > Develop Mods > Build + Reload**. Elsewhere set `TML_PATH` to the tModLoader 1.4.4 stable installation and use the documented [test/build routes](tests/README.md).
+
+- **Soulcore:** 8 Fallen Stars, 5 Amethyst, 10 Stone Blocks at a Work Bench.
+- **Blank Sigil:** 3 Fallen Stars, 1 Amethyst, 5 Silk at a Work Bench.
+- **Starfinder Bell:** 5 Fallen Stars, 3 Iron/Lead Bars, 1 Lens at an Anvil.
+- **Delver Charm:** 5 Iron/Lead Bars, 2 Amethyst, 20 Stone Blocks at an Anvil.
+- **Hearth Ribbon:** 5 Silk, 2 Daybloom, 2 Fallen Stars at a Work Bench.
 
 ## License
-
 MIT

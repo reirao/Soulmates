@@ -69,7 +69,7 @@ public sealed class SoulBolt : ModProjectile
 	public override Color? GetAlpha(Color lightColor) => GetCompanionColor() * 0.92f;
 
 	public override bool? CanHitNPC(NPC target) => target.type == NPCID.TargetDummy ? null
-		: target.friendly || target.townNPC || CompanionCritters.IsCritter(target) ? false : null;
+		: target.friendly || target.townNPC || target.ModNPC is SoulboundCompanion || CompanionCritters.IsCritter(target) ? false : null;
 
 	public override bool PreDraw(ref Color lightColor)
 	{

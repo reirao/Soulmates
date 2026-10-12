@@ -88,6 +88,7 @@ public sealed partial class SoulboundCompanion
 		text.AppendLine($"EVIL persona: {Profile.EvilMode}; queued celebration: {evilCelebration?.ToString() ?? "none"}; expression only, no permission override");
 		text.AppendLine($"Places: {Profile.Places.Records.Count}/8 remembered; current evidence: {PlaceSpeechKey() ?? "none"}; candidate ownership requires an answer");
 		text.AppendLine($"Energy {Profile.Energy}/100; mood {Profile.Mood}/100; level {Profile.Level}; autonomy {Profile.AutonomyEnabled}; paused {Profile.WorkPaused}");
+		text.AppendLine($"Boss challenge: {IsBossChallenge}; phase {BossChallengePhase}; ticks {bossChallengeTicks}; owner-only; no drops or progression rewards");
 		text.AppendLine($"Job: {activeJob}; routine: {Profile.Routine}; progress {jobCount}/{jobPlannedTotal}; recovery {jobRecoveryPaused}/{autonomyRecoveryPaused}");
 		text.AppendLine($"Question: {PendingQuestion} ({QuestionTicks}); initiative: {(HasPendingInitiative ? PendingInitiativeKind.ToString() : "none")} ({PendingInitiativeTicks})");
 		text.AppendLine($"Learning context: {CurrentIntentContext()}; intent: {learningIntent?.ToString() ?? "none"}; reflection: {reflectionIntent?.ToString() ?? "none"}; cooldown {reflectionCooldown}");

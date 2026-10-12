@@ -355,7 +355,7 @@ public sealed partial class EngineChecks
 	{
 		using var stream = new MemoryStream();
 		using var writer = new BinaryWriter(stream);
-		writer.Write(profile.Experience); writer.Write(profile.Bond); writer.Write(profile.Mood); writer.Write(profile.Energy);
+		writer.Write(profile.Experience.ToString()); writer.Write(profile.Bond); writer.Write(profile.Mood); writer.Write(profile.Energy);
 		writer.Write(profile.JobsCompleted); writer.Write(profile.Interactions);
 		writer.Write(profile.WalletCopper.ToString(System.Globalization.CultureInfo.InvariantCulture));
 		foreach (CompanionStorage storage in new[] { CompanionStorage.Pack, CompanionStorage.Resources, CompanionStorage.Pets }) {

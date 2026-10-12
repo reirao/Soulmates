@@ -1,5 +1,13 @@
 # Soulmates Development History
 
+## Soulmates 0.27.0 - Behind the Curtain (Beta)
+
+- Remove the gameplay level cap. Exact BigInteger XP and levels preserve the original quadratic curve, legacy save XP and stable historical wire prefix. Append current XP; matching peers are required. Resource limits and ordinary retinue size remain at their existing level-20 balance.
+- Put EVIL directly on the companion wheel with native artwork; retain Commands and Details routes.
+- Reveal a secret boss eye under Games while EVIL is on. Require a second click to start the real fight. The same companion becomes a three-phase, owner-only boss with a warmup, visible HP, telegraphed dashes and fan projectiles. Character damage is real; no loot, XP or permanent companion death.
+- Preserve identity, inventory, memories and permissions. Retire pets/retinue during the duel; gate competing work/conversation/emote routes. Abort, stop, EVIL off, recall, owner loss, another world boss, leash and timeout restore normal state and retire challenge projectiles. Work stays paused for explicit Resume; clear combat debuffs on return.
+- Cover exact growth, native NPC/projectile behavior, actual wheel input, owner-authorized packets, conservation and interruption with new fixtures. Installed October 12; the creator reports a delighted playtest. The existing Workshop update is verified separately from moderation and subscriber delivery. No new agent-controlled graphical session, connected multiplayer or endurance acceptance is claimed.
+
 ## Soulmates 0.26.0 - Little Company (Local Beta Candidate)
 
 - Embed bounded personal idle undertakings in existing attention and movement: revisit a classified nearby home, keep a real equipped familiar company, or reflect on a carried supply observed during building. Revalidate live targets; return before recording completion. No terrain edits or invented achievements.

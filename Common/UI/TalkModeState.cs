@@ -658,18 +658,11 @@ internal sealed class CompanionVitalsElement(
 			: SoulmatesText.EnumName(profile.Talent);
 		string identity = $"{talent.ToUpperInvariant()} | {SoulmatesText.EnumName(profile.Rank).ToUpperInvariant()}";
 		DrawLine(identity, 0f, Color.LightGray, 0.42f);
-		int experience = profile.Level >= CompanionProfile.MaximumLevel
-			? 1
-			: profile.ExperienceIntoLevel;
-		int experienceMaximum = profile.Level >= CompanionProfile.MaximumLevel
-			? 1
-			: Math.Max(1, profile.ExperienceNeededForNextLevel);
-		string experienceValue = profile.Level >= CompanionProfile.MaximumLevel
-			? SoulmatesText.Get("UI.Talk.LevelMax", profile.Level)
-			: SoulmatesText.Get("UI.Talk.LevelProgress", profile.Level, experience, experienceMaximum);
+		string experienceValue = SoulmatesText.Get("UI.Talk.LevelProgress", profile.Level,
+			profile.ExperienceIntoLevel, profile.ExperienceNeededForNextLevel);
 		DrawLine(experienceValue, 18f, Color.White, 0.52f);
 		DrawBar(spriteBatch, topLeft + new Vector2(0f, 34f * rowScale), width,
-			experience, experienceMaximum, profile.EssenceColor, rowScale);
+			(int)(profile.LevelProgress * 10000), 10000, profile.EssenceColor, rowScale);
 		DrawMeter(SoulmatesText.Get("UI.Talk.MoodShort"), profile.Mood, 48f, new Color(225, 117, 156));
 		DrawMeter(SoulmatesText.Get("UI.Talk.EnergyShort"), profile.Energy, 68f,
 			profile.Energy < 20 ? new Color(225, 101, 92) : new Color(94, 196, 225));

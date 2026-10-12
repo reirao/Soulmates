@@ -1,5 +1,12 @@
 # Soulmates Regression Checks
 
+The [0.27.0 Behind the Curtain beta](ENDLESS-BOSS-0.27.0-2026-10-12.md) adds
+open-ended exact growth, a direct EVIL root and an explicitly confirmed
+owner-only companion boss duel. Native NPC/projectile and wheel-handler checks
+are separate from rendered balance, physical input and connected multiplayer
+acceptance. The candidate is [installed locally](CLIENT-INSTALL-0.27.0-2026-10-12.md), with delighted creator feedback. The existing Workshop upload is verified; its Steam-managed package separately passes **116,213 native assertions** and **501 independent audit expectations**, with zero failures. Static/localization checks pass **60,730 assertions**, 1,036 keys in nine languages and 587 source references. Public moderation and subscriber delivery remain separate. Older records below
+retain their own package and delivery evidence.
+
 The [0.25.1 Home wiring correction](HOME-WIRING-0.25.1-2026-10-11.md) adds
 production Home-root-to-answer checks and rapid multiplayer compass packet
 counterchecks. The native run passes 97,809 assertions; static/localization

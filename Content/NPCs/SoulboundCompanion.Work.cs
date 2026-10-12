@@ -102,6 +102,7 @@ public sealed partial class SoulboundCompanion
 
 	public CompanionConversationResult PerformDirectOrder(CompanionTargetOrder order, Point tileTarget, int itemTarget)
 	{
+		if (IsBossChallenge) return new(SoulmatesText.Get("BossChallenge.Busy"), false);
 		if (Main.netMode == NetmodeID.MultiplayerClient)
 			return new CompanionConversationResult(SoulmatesText.Get("TargetOrders.Invalid"), false);
 		if (order == CompanionTargetOrder.Look)
@@ -1043,7 +1044,7 @@ public sealed partial class SoulboundCompanion
 			("pack_load", Profile.PackLoad));
 		Profile.LastMemory = memory;
 		bool leveledUp = false;
-		int newLevel = Profile.Level;
+		var newLevel = Profile.Level;
 		if (success) {
 			Profile.JobsCompleted++;
 			Profile.ChangeBond(2);

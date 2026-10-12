@@ -117,7 +117,7 @@ public sealed class SoulboundSigil : ModItem
 		tooltips.Add(new TooltipLine(Mod, "Bond", SoulmatesText.Get("Tooltips.Sigil.Stats", SoulmatesText.EnumName(Profile.Rank),
 			Profile.Bond, Profile.Mood, Profile.Energy)));
 		tooltips.Add(new TooltipLine(Mod, "Growth", SoulmatesText.Get("Tooltips.Sigil.Growth", Profile.Level,
-			Profile.Experience, CompanionProfile.ExperienceForLevel(Math.Min(CompanionProfile.MaximumLevel, Profile.Level + 1)),
+			Profile.Experience, CompanionProfile.ExperienceForLevel(Profile.Level + 1),
 			Profile.DefeatedEnemies, Profile.Interactions)));
 		tooltips.Add(new TooltipLine(Mod, "Voice", SoulmatesText.Get("Tooltips.Sigil.Voice", SoulmatesText.EnumName(Profile.Voice))));
 		tooltips.Add(new TooltipLine(Mod, "Trinket", SoulmatesText.Get("Tooltips.Sigil.Trinket", SoulmatesText.EnumName(Profile.Trinket),

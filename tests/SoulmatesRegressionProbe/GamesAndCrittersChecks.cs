@@ -118,7 +118,7 @@ public sealed partial class EngineChecks
 					SettleServerInventory(ModLoader.GetMod("Soulmates"));
 					Set("critterCareCooldown", 20000);
 					check(CompanionCritters.IsNatural(lost), "Native critter-death fixture was excluded: " + type);
-					int experience = mate.Profile.Experience;
+					var experience = mate.Profile.Experience;
 					lost.StrikeNPC(new NPC.HitInfo { Damage = 1000, HitDirection = 1, HideCombatText = true }, noPlayerInteraction: true);
 					SettleServerInventory(ModLoader.GetMod("Soulmates"));
 					check(!lost.active && (string)Get("speechText")! == SoulmatesText.Get($"Social.Critters.Loss.{mate.Profile.Personality}", lost.TypeName)

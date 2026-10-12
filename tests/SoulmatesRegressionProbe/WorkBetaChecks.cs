@@ -97,7 +97,7 @@ public sealed partial class EngineChecks
 				check(coordinator.Tick() == CompanionActivityLane.Stay && mate.CurrentJob == CompanionJob.None, "Stay restarted aborted work: " + mode);
 				mate.SetCommand(false); drop.active = false;
 
-				int jobs = mate.Profile.JobsCompleted, xp = mate.Profile.Experience;
+				int jobs = mate.Profile.JobsCompleted; var xp = mate.Profile.Experience;
 				foreach (bool forest in new[] { true, false }) {
 					mate.StartJob(CompanionJob.Gather); Set("jobTimer", 7200); Set("gatherPause", 45);
 					if (forest) { Set("gatherForestAction", Forest("PlantAcorn")); Set("jobTarget", new Point(75, 50)); }

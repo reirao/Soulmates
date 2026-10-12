@@ -77,6 +77,7 @@ public sealed partial class SoulboundCompanion
 
 	private void StopOwnedEffects()
 	{
+		if (IsBossChallenge) EndBossChallenge("Cancelled", announce: false);
 		ClearPersonalPlansRuntime();
 		ClearEvilCelebration();
 		activityCoordinator?.Reset();

@@ -24,6 +24,7 @@ public sealed partial class SoulboundCompanion
 {
 	public void ToggleCommand()
 	{
+		if (IsBossChallenge) return;
 		Profile.WorkPaused = false;
 		CancelAssignment();
 		Command = Command == StayCommand ? FollowCommand : StayCommand;
@@ -36,6 +37,7 @@ public sealed partial class SoulboundCompanion
 
 	public void SetCommand(bool stay)
 	{
+		if (IsBossChallenge) return;
 		Profile.WorkPaused = false;
 		CancelAssignment();
 		Command = stay ? StayCommand : FollowCommand;
@@ -49,6 +51,7 @@ public sealed partial class SoulboundCompanion
 
 	public void AskToExplore()
 	{
+		if (IsBossChallenge) return;
 		Profile.WorkPaused = false;
 		CancelAssignment();
 		Command = FollowCommand;
@@ -60,6 +63,7 @@ public sealed partial class SoulboundCompanion
 
 	public void StartJob(CompanionJob job)
 	{
+		if (IsBossChallenge) return;
 		SoulmatesFeedbackSystem.Record("job_started", ("job", job.ToString()),
 			("energy", Profile.Energy), ("pack_load", Profile.PackLoad));
 		Profile.Routine = job;
@@ -79,8 +83,15 @@ public sealed partial class SoulboundCompanion
 		if (Main.netMode == NetmodeID.MultiplayerClient || !Enum.IsDefined(action)
 			|| action is CompanionQuickAction.Details or CompanionQuickAction.QuestionSettings)
 			return new(SoulmatesText.Get("TargetOrders.Invalid"), false);
-		if (action == CompanionQuickAction.RepeatLastWork) return RepeatLastWork();
 		if (action == CompanionQuickAction.ToggleEvil) return ToggleEvilMode();
+		if (action == CompanionQuickAction.BossChallenge) return ToggleBossChallenge();
+		if (IsBossChallenge) {
+			if (action is not (CompanionQuickAction.Abort or CompanionQuickAction.Pause))
+				return new(SoulmatesText.Get("BossChallenge.Busy"), false);
+			EndBossChallenge("Cancelled");
+			return new(SoulmatesText.Get("BossChallenge.Cancelled"), true);
+		}
+		if (action == CompanionQuickAction.RepeatLastWork) return RepeatLastWork();
 		if (action == CompanionQuickAction.DiscussHome) return DiscussHome();
 		if (QuestionCadenceFor(action) is CompanionQuestionCadence cadence) {
 			Profile.QuestionCadence = cadence;
@@ -222,6 +233,7 @@ public sealed partial class SoulboundCompanion
 	public CompanionConversationResult Converse(TalkCategory category, int option, int memoryCursor,
 		CompanionItemTopic itemTopic = CompanionItemTopic.All)
 	{
+		if (IsBossChallenge) return new(SoulmatesText.Get("BossChallenge.Busy"), false);
 		if (Main.netMode == NetmodeID.MultiplayerClient || !NPC.active || !Enum.IsDefined(category)
 			|| option is < 0 or > 2 || !TryGetOwner(out Player owner) || owner.dead
 			|| FindBoundSigil() is null || CompanionInventorySync.IsPending(owner))
@@ -377,6 +389,7 @@ public sealed partial class SoulboundCompanion
 
 	public void ReactToNativeEmote(int emoteId)
 	{
+		if (IsBossChallenge) return;
 		if (TryGetOwner(out Player pendingOwner) && CompanionInventorySync.IsPending(pendingOwner)) return;
 		if (Main.netMode == NetmodeID.MultiplayerClient || emoteId < 0
 			|| emoteId >= EmoteBubbleLoader.EmoteBubbleCount)
@@ -421,13 +434,14 @@ public sealed partial class SoulboundCompanion
 
 	private void PerformEmote(CompanionEmote emote, int nativeEmoteId, bool applyRestCommand)
 	{
+		if (IsBossChallenge) return;
 		if (Main.netMode == NetmodeID.MultiplayerClient || !Enum.IsDefined(emote))
 			return;
 		ClearNativeExpression();
 
 		bool rewarded = interactionRewardCooldown <= 0;
 		bool leveledUp = false;
-		int newLevel = Profile.Level;
+		var newLevel = Profile.Level;
 		if (rewarded) {
 			(int bond, int mood, int energy, int experience) = emote switch {
 				CompanionEmote.Wave => (1, 1, 0, 1),
@@ -483,7 +497,7 @@ public sealed partial class SoulboundCompanion
 	{
 		int experience = boss ? 12 : Math.Clamp(1 + life / 120, 1, 7);
 		Profile.DefeatedEnemies++;
-		bool leveledUp = Profile.GainExperience(experience, out int newLevel);
+		bool leveledUp = Profile.GainExperience(experience, out var newLevel);
 
 		if (Profile.HasTalent(CompanionTalent.Guardian))
 			Profile.Remember(CompanionMemoryKind.GuardianVictory, detail: name);

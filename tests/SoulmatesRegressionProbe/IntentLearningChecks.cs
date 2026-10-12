@@ -131,7 +131,7 @@ public sealed partial class EngineChecks
 				check((CompanionIntent?)Get("reflectionIntent") == actual, "A new observation rewrote the completed experiment");
 				check((bool)Call("BeginChoiceQuestion", CompanionQuestion.Reflection)!, "Completed action could not ask for evaluation");
 				Guid token = mate.QuestionId;
-				int xp = mate.Profile.Experience;
+				var xp = mate.Profile.Experience;
 				check(mate.RespondToQuestion(token, CompanionAnswer.First) && !mate.RespondToQuestion(token, CompanionAnswer.First),
 					"Evaluation token was rejected or replayed");
 				check(mate.Profile.IntentLearning.Feedback(actual) == 8 && sigil.Profile.IntentLearning.Feedback(actual) == 8

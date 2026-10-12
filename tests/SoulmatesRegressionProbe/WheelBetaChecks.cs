@@ -122,6 +122,27 @@ public sealed partial class EngineChecks
 						"EVIL wheel click failed to dispatch the existing ToggleEvil quick action");
 				}
 
+				int evilRoot = Array.FindIndex(roots, value => value.Equals(Branch("Evil")));
+				int gamesRoot = Array.FindIndex(roots, value => value.Equals(Branch("Games")));
+				check(evilRoot >= 0 && gamesRoot >= 0, "Direct EVIL/Games roots are missing");
+				mate.Profile.EvilMode = false; wheel.Open(mate);
+				Click((Vector2)Call("RootPosition", evilRoot)!);
+				check(!wheel.IsOpen && mate.Profile.EvilMode, "Direct EVIL icon does not dispatch through real wheel input");
+				wheel.Open(mate); Click((Vector2)Call("RootPosition", gamesRoot)!);
+				check((int)Call("BranchNodeCount", Branch("Games"))! == 2, "Secret boss symbol did not unlock with EVIL");
+				Vector2 challengePoint = (Vector2)Call("BranchPosition", Branch("Games"), 1, 2)!;
+				Click(challengePoint);
+				check(wheel.IsOpen && !mate.IsBossChallenge && (bool)Get("bossConfirmation")!, "First boss click skipped explicit confirmation");
+				wheel.Close(); wheel.Open(mate); Click((Vector2)Call("RootPosition", gamesRoot)!);
+				check(!(bool)Get("bossConfirmation")!, "Reopening wheel retained a stale boss confirmation");
+				challengePoint = (Vector2)Call("BranchPosition", Branch("Games"), 1, 2)!;
+				Click(challengePoint); Click(challengePoint);
+				check(!wheel.IsOpen && mate.IsBossChallenge, "Confirmed Games symbol did not transform the companion");
+				wheel.Open(mate); Click((Vector2)Call("RootPosition", gamesRoot)!);
+				Click((Vector2)Call("BranchPosition", Branch("Games"), 1, 2)!);
+				check(!mate.IsBossChallenge && !wheel.IsOpen, "Games stop symbol failed to end the duel");
+				mate.Profile.WorkPaused = false;
+
 				Type mateType = typeof(SoulboundCompanion);
 				object? MateGet(string name) => mateType.GetField(name, flags)!.GetValue(mate);
 				void MateSet(string name, object? value) => mateType.GetField(name, flags)!.SetValue(mate, value);

@@ -1,5 +1,18 @@
 Mods: {
 	Soulmates: {
+		UI.CompanionWheel.Categories.Evil: "EVIL: theatralischer Unfug"
+		Enums.CompanionQuickAction.BossChallenge: "Bossduell"
+		UI.CompanionWheel.Actions.BossChallenge: "Bossduell"
+		Projectiles.CompanionBossSpark.DisplayName: "Duellfunke"
+		BossChallenge.Title: "{0} // BOSS"
+		BossChallenge.Secret: "Geheimnis: Fordere mich heraus?"
+		BossChallenge.Confirm: "Echter Kampf? Nochmals klicken. Keine Beute; Abbrechen beendet ihn."
+		BossChallenge.Stop: "Bossduell beenden"
+		BossChallenge.Unavailable: "EVIL muss an sein und kein anderer Boss darf aktiv sein."
+		BossChallenge.Busy: "Erst unser Duell. Brich es ab, um normal weiterzumachen."
+		BossChallenge.Started: "Du wolltest einen Boss? Hier bin ich! Zwei Sekunden zum Bereitmachen."
+		BossChallenge.Cancelled: "Vorhang zu. Immer noch deine Companion. Weiter, wenn du bereit bist."
+		BossChallenge.Defeated: "Du gewinnst! Dieselbe Seele, etwas verletzter Stolz. Wieder Freunde?"
 		Enums.CompanionStorage.Summons: "Gefolge"
 		Retinue.Memory: "Ich erinnere mich noch daran, wie du mir {0} gegeben hast."
 		Retinue.InventoryCount: "Stäbe {0}/{1}"

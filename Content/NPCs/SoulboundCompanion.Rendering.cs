@@ -63,10 +63,11 @@ public sealed partial class SoulboundCompanion
 			CompanionForm.Wisp => new Vector2(0.88f, 1.14f),
 			_ => Vector2.One
 		};
-		Vector2 scale = formScale * (64f / Math.Max(source.Width, source.Height)) * breath * emoteScale;
+		Vector2 scale = formScale * (64f / Math.Max(source.Width, source.Height)) * breath * emoteScale * NPC.scale;
 		bool flipHorizontally = muse == CompanionMuse.Squirrel ? facing > 0 : facing < 0;
 		SpriteEffects effects = flipHorizontally ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 		Color tint = Color.Lerp(Color.White, Profile.EssenceColor, 0.34f);
+		if (IsBossChallenge) tint = Color.Lerp(tint, Color.HotPink, 0.45f);
 		float drawRotation = NPC.rotation + EmoteRotationOffset();
 		DrawJobOrbit(spriteBatch, center);
 		DrawInsectCompanions(spriteBatch, center);
@@ -76,6 +77,17 @@ public sealed partial class SoulboundCompanion
 			spriteBatch.Draw(texture, center + glowOffset, source, Profile.EssenceColor * 0.18f, drawRotation, origin, scale, effects, 0f);
 		}
 		spriteBatch.Draw(texture, center, source, tint, drawRotation, origin, scale, effects, 0f);
+		if (IsBossChallenge) {
+			Texture2D pixel = TextureAssets.MagicPixel.Value;
+			bool warning = bossChallengeTicks % 240 is >= 90 and < 120;
+			Color accent = warning ? Color.Gold : Color.HotPink;
+			Rectangle bar = new((int)center.X - 60, (int)center.Y - 80, 120, 6);
+			spriteBatch.Draw(pixel, bar, Color.Black * 0.85f);
+			spriteBatch.Draw(pixel, new Rectangle(bar.X + 1, bar.Y + 1,
+				(int)(118f * Math.Clamp(NPC.life / (float)NPC.lifeMax, 0f, 1f)), 4), accent);
+			Utils.DrawBorderString(spriteBatch, SoulmatesText.Get("BossChallenge.Title", Profile.Name),
+				new Vector2(center.X, bar.Y - 18f), accent, 0.6f, 0.5f);
+		}
 		return false;
 	}
 

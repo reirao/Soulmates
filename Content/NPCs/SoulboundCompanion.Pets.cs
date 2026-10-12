@@ -13,7 +13,7 @@ public sealed partial class SoulboundCompanion
 {
 	internal bool ConfigurePet(int slot, int expectedType, byte[] token)
 	{
-		if (Main.netMode == NetmodeID.MultiplayerClient || !NPC.active || !TryGetOwner(out Player owner) || owner.dead
+		if (IsBossChallenge || Main.netMode == NetmodeID.MultiplayerClient || !NPC.active || !TryGetOwner(out Player owner) || owner.dead
 			|| FindBoundSigil() is null || CompanionInventorySync.IsPending(owner) || token.Length != 32) return false;
 		if (slot == -1 && expectedType == 0) Profile.PetItemType = 0;
 		else {
@@ -43,7 +43,7 @@ public sealed partial class SoulboundCompanion
 	{
 		if (Main.netMode == NetmodeID.MultiplayerClient) return;
 		bool hasOwner = TryGetOwner(out Player owner);
-		bool available = NPC.active && hasOwner && !owner.dead;
+		bool available = !IsBossChallenge && NPC.active && hasOwner && !owner.dead;
 		if (available && Profile.PetItemType != 0 && !CompanionPets.IsCarried(Profile, Profile.PetItemType)) {
 			Profile.PetItemType = 0;
 			SyncProfileToBoundSigil();

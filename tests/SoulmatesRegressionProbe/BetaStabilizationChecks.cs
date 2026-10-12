@@ -94,6 +94,8 @@ public sealed partial class EngineChecks
 			extension.Write((byte)1);
 			for (int i = 0; i < 3; i++) { extension.Write((sbyte)0); extension.Write(0); }
 			extension.Write((byte)CompanionPersonalPlanKind.None);
+			// 0.27 appends open-ended experience while retaining the historical int prefix.
+			extension.Write("24");
 		}
 		check(current.ToArray().SequenceEqual(legacy.ToArray()), "Profile write has an unexpected work extension");
 		legacy.Position = 0;

@@ -1,6 +1,9 @@
-Soulmates 0.26.0 - Little Company | Beta
+Soulmates 0.27.0 - Behind the Curtain | Beta
 
 Create personal companions with the reusable Soulcore. Each Soulbound Sigil carries one companion's appearance, personality, talent, mood, energy, bond, level, learned preferences, cargo, pets and memories. Keep the active Sigil in your inventory. A companion named AETHER has all talents and learned perks. One companion per player; switching retires old effects.
+
+YOUR COMPANION CAN BECOME THE BOSS
+The same companion, with the same memories and inventory. EVIL's angry face is directly on her wheel. Turn it on, open Games and click the secret eye, then confirm a real three-phase duel. Your character can take real damage. Stop/Abort, EVIL off or recall ends it; work stays paused until Resume. Details below explain the safeguards.
 
 SMALL WHEELS, CLEAR INTENTIONS
 Right-click her for companion tools; yourself for player tools and categorized native Emotes. Terraria is the default mouse mode and retains priority over ordinary interactions. Me and Soulmate offer explicit contextual pointing and orders. Work includes ore search, area mining, Config and Last. Mining offers Adaptive, Tunnel, Vein and Surface, automatic ore/material filters, compass directions and bounded passage digging. Tool progression, plants, saplings, decorations and liquid protection still apply. Pause keeps a task, Resume continues and Abort cancels it.
@@ -20,7 +23,7 @@ Shelter and interesting loot have different meanings. A chosen bed, assigned NPC
 Home on her wheel opens those four choices directly, even at Stay, with autonomy off or Quiet questions. Explicit requests need no repeated visits and can reclassify an existing home. Ongoing work and resident housing are respected.
 
 EVIL™
-Optional in her Commands wheel and the laughing-face character-panel button. Genuine successes become tiny grand schemes; contextual villainous banter, native emote sequences and theatrical Rock, paper, scissors replies add character. Off by default. Expression changes; consent, tasks, rewards, cargo, damage and terrain do not. She still cares when someone is hurt.
+Off by default; toggle the angry face directly on her wheel, Commands or the character panel. Normal EVIL is theatrical expression, not destructive permission. With EVIL on, Games reveals a secret eye: click once, then confirm to challenge her as a real three-phase boss. Two-second warmup, visible HP, telegraphed dashes and fan attacks. Your character can take real damage. No loot/XP, terrain edits or permanent companion death. Abort, Games stop, EVIL off or recall ends it; work stays paused until Resume. Inventory and memories survive. Other players and critters are not targets.
 
 USEFUL COMPANY
 Defense, talent-based healing, real drop collection, safe mining, forest tending and treasure awareness. Low energy and mood recover naturally. Real threats take priority over training dummies. Jobs validate current targets and bounded timeouts. Stale selections and replies cannot silently command another companion.
@@ -31,14 +34,14 @@ Watch notices and greets; Company invites supported wild species using bounded n
 Give her real reusable vanity/light summon items through Pets in her wheel or Details. Twelve owned-item slots. First gift selects only if empty. Left-click summons a harmless familiar using native pet artwork; right-click returns its real item. One companion-owned familiar, separate from the player's pet. No clone of arbitrary player-pet AI, buffs or modded drawing.
 
 CARGO AND CHARACTER
-Equipment: 8-12 slots, 99 units per item type. Resources: 60 slots, 50 units per level/type, up to 1,000 at level 20, respecting native stack limits. Wallet: no gameplay currency cap. Transfers preserve actual items. Details opens conversation, equipment, cargo, pets and read-only diagnostics. The Sigil displays its actual Details binding; V remains unverified in real play.
+Open-ended exact XP and levels; no gameplay level cap. Equipment: 8-12 slots, 99 units per item type. Resources: 60 slots, 50 units per level/type, up to 1,000 at level 20, respecting native stack limits. Further levels preserve that capacity and ordinary retinue balance. Wallet: no gameplay currency cap. Transfers preserve actual items. Details opens conversation, equipment, cargo, pets and read-only diagnostics. The Sigil displays its actual Details binding; V remains unverified in real play.
 
 Nine languages follow Terraria: EN, DE, IT, FR, ES, RU, PT-BR, PL and Simplified Chinese. New translations are AI-authored; corrections welcome. Some multiplayer replies use the server language.
 
 Optional local Mailbox and Field Notes are off by default. No automatic uploads or online AI. Typed reports stay on this computer. Automatic notes omit account/character/world names, chat and coordinates. Place coordinates remain in the local game save, not the notes.
 
 HONEST BETA
-The creator reports a positive playtest of 0.26.0. Automated engine checks do not certify every rendered interaction, physical key, long campaign or connected multiplayer session. All peers need 0.26.0. Upload, Steam approval and subscriber delivery are separate checks. Please report version, action, expected result and observed result. Thank you for helping this little companion grow.
+The creator reports a delighted installed 0.27.0 playtest and requests publication. Automated engine checks and that positive feedback do not certify every visual family, physical input, long campaigns or connected multiplayer. Upload, Steam approval and subscriber delivery are separate. All peers need 0.27.0. Please report version, action, expected result and observed result. Thank you for helping this little companion grow.
 
 AI-assisted development: code, writing, interfaces and visual work used extensive AI assistance. Icons and original Soulkin art are AI-generated; other creature/item/inventory/emote graphics reuse Terraria assets.
 Source, history and checks: https://github.com/reirao/Soulmates

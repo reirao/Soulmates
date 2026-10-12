@@ -193,7 +193,7 @@ public static class PersonalPlanChecks
 				Verify(mate.CurrentPersonalPlan == CompanionPersonalPlanKind.None && mate.Profile.PersonalPlans.LastCompleted is null,
 					"A destroyed home still completed a personal visit");
 
-				Supply(); int xp = mate.Profile.Experience, jobs = mate.Profile.JobsCompleted, energy = mate.Profile.Energy;
+				Supply(); var xp = mate.Profile.Experience; int jobs = mate.Profile.JobsCompleted, energy = mate.Profile.Energy;
 				Ticks(298);
 				Verify(mate.Profile.PersonalPlans.LastCompleted is null, "Personal undertaking completed before five seconds");
 				Ticks(1);

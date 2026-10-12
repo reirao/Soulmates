@@ -63,7 +63,7 @@ public sealed partial class AuditChecks
             && CompanionProfile.StorageFor(new Item(types[3])) == CompanionStorage.Pack,
             "Beta cargo fixtures exercise native resource and pack classification", "Three resource types and one consumable");
 
-        foreach (int level in new[] { 1, 2, 10, CompanionProfile.MaximumLevel }) {
+        foreach (int level in new[] { 1, 2, 10, CompanionProfile.BalanceLevel }) {
             var profile = new CompanionProfile { Experience = CompanionProfile.ExperienceForLevel(level) };
             var ledger = types.ToDictionary(type => type, _ => 0L);
             var random = new Random(0x5A17 + level);
