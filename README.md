@@ -1,7 +1,7 @@
 # Soulmates
 ## 0.28.1 - A Little Flock | Beta
 
-**New: stack gifted pet items and call a little flock.** Matching vanilla pet items share her existing Pet bag; each owned unit can call one separated harmless familiar, up to 64 pets across twelve stacks. Modded items keep native stacking rules. [Installed locally October 12](tests/CLIENT-INSTALL-0.28.1-2026-10-12.md). Workshop upload, approval and subscriber delivery are separate: check the loaded version under Mods. [Release notes](releases/0.28.1.md).
+**New: stack gifted pet items and call a little flock.** Matching vanilla pet items share her existing Pet bag; each owned unit can call one separated harmless familiar, up to 64 pets across twelve stacks. Modded items keep native stacking rules. [Installed locally October 12](tests/CLIENT-INSTALL-0.28.1-2026-10-12.md); Workshop records the upload at 16:59 CEST. Approval and subscriber delivery are separate: check the loaded version under Mods. [Release notes](releases/0.28.1.md).
 
 Create a companion, give her a name and a place in your world, and grow together. Soulmates combines a reusable creator, persistent personalities, useful work, native-symbol Soulwheels, memories, pets and her own summoned company.
 

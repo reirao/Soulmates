@@ -46,7 +46,7 @@ NPC-/Emote-Begegnungen bilden Beziehungen. Do you remember? nutzt echte Ereignis
 
 Basisnetz-Fähigkeit eingebaut, kein Netz-Item; Lavaarten brauchen ein geeignetes Netz. Gold-/Statuen-/freigelassene Tiere sind geschützt. Zustimmung, Sicht, Aufgaben/Energie gelten. [b]Fang = echtes Pack-Item, kein folgendes Pet.[/b] Meldungen nennen Item/Ziel; nicht lagerbare Drops bleiben in der Welt, ohne erfundenen Ersatz. Fang ist nicht Tod; unbekannte Ursachen beschuldigen niemanden.
 
-[b]Pets:[/b] Oben deine Items; ihre Tasche hält zwölf Stapel/64 echte Pet-Items. Gleiche Vanilla-Items stapeln nur hier; Mod-Items behalten native Grenzen/Hooks. Drei Eucalyptus Saps = drei getrennte Sugar Gliders. Ein harmloser Familiar je Item, mit Abstand und ruhiger Bewegung, getrennt von deinem Pet. Linksklick ruft alle mit diesem Typ vorne; Rechtsklick gibt ein Item zurück/entfernt einen Familiar. Abwahl ruht alle; weitere Geschenke respektieren sie. Erstes Geschenk wählt nur bei leerem Lager. Symbole sind keine Kopien; Items behalten. Alte Fracht bleibt erhalten, Überschuss bei der Quelle. Native Grafik/Licht, eigene Bewegung, keine originale Pet-KI/Mod-Zeichnung.
+[b]Pets:[/b] Oben deine Items; ihre Tasche: zwölf Stapel/64 Pet-Items. Vanilla stapelt nur hier; Mod-Items behalten Grenzen/Hooks. Drei Eucalyptus Saps = drei getrennte Sugar Gliders: ein harmloser Familiar je Item mit Abstand, unabhängig von deinem Pet. Linksklick ruft alle; gewählter Typ vorne. Rechtsklick gibt ein Item zurück/entfernt einen Familiar. Abwahl ruht alle, weitere Geschenke respektieren sie; erstes Geschenk wählt bei leerem Lager. Symbole sind keine Kopien; Items behalten. Alte Fracht erhalten, Überschuss bei Quelle. Native Grafik/Licht, eigene Bewegung, keine originale Pet-KI/Mod-Zeichnung.
 
 [b]Retinue:[/b] Echte Summon-Stäbe über Stab-Symbol schenken. Linksklick ruft, Rechtsklick gibt zurück. Normal 1/2/3 Typen ab Level 1/10/20; [b]AETHER alle besessenen Typen[/b], max. 64 Slots. Keine Duplikat-Helfer. Native Grafik/eigener Kampf, keine originale Minion-KI/Spieler-Slots. Rückruf/Wechsel/Abwahl/letzte Entnahme beenden Effekte. Schwarm braucht echte Insekten.
 
@@ -61,5 +61,5 @@ Neun Sprachen; Korrekturen willkommen. Manche MP-Antworten nutzen Serversprache.
 [h2]Feedback und Transparenz[/h2]
 Papierflieger oder /soulfeedback: lokaler Briefkasten. Field Notes anfangs aus; keine Uploads. Automatische Notizen ohne Namen/Chat/Koordinaten; Orte bleiben im Save, getippter Text in Notizen. Berichte teilen: Version, Aktion, Soll/Ist, Solo/MP. Meine Spielzeit ist begrenzt; Feedback willkommen!
 
-Umfangreiche KI-Hilfe: Code, Texte, UI/Grafik. Icons/Soulkin sind KI-generiert; andere Kreaturen-/Item-/Inventar-/Emote-Grafik stammt aus Terraria. Kein Online-KI-Dienst.
+KI-Hilfe: Code, Texte, UI/Grafik. Icons/Soulkin KI-generiert; andere Kreaturen-/Item-/Inventar-/Emote-Grafik aus Terraria.
 [url=https://github.com/reirao/Soulmates/issues]Fehler melden[/url]
