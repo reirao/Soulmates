@@ -108,6 +108,7 @@ public sealed partial class SoulboundCompanion
 		text.AppendLine($"Cargo: equipment {Profile.PackLoad}/{Profile.PackCapacity}; resources {Profile.ResourceLoad}; per-type limit {Profile.ResourceCarryLimit}; wallet {Profile.WalletCopper}");
 		text.AppendLine($"Pet item: {Profile.PetItemType}; supported {CompanionPets.VisualFor(Profile.PetItemType) > 0}; carried {CompanionPets.IsCarried(Profile, Profile.PetItemType)}");
 		text.AppendLine($"Pet inventory: {Profile.PetItems.Count}/{CompanionProfile.MaximumPetSlots}; {string.Join(", ", Profile.PetItems.Select(item => item.type))}");
+		text.AppendLine($"Pet units: {CompanionPets.OwnedCount(Profile)}/{CompanionPets.MaximumFollowers}; active {EquippedPetCount}; {string.Join(", ", Profile.PetItems.Select(item => $"{item.type}x{item.stack}"))}");
 		text.AppendLine($"Retinue: enabled {Profile.RetinueEnabled}; owned {Profile.SummonItems.Count}/{CompanionProfile.MaximumSummonSlots}; selected types {string.Join(", ", CompanionRetinue.ActiveItems(Profile).Select(item => item.type))}");
 		int retainers = 0;
 		foreach (Projectile projectile in Main.ActiveProjectiles)
@@ -117,7 +118,7 @@ public sealed partial class SoulboundCompanion
 		foreach (Projectile projectile in Main.ActiveProjectiles)
 			if (projectile.ModProjectile is CompanionFamiliar familiar && familiar.BelongsTo(this)) {
 				pets++;
-				text.AppendLine($"Familiar {projectile.whoAmI}: item {(int)projectile.ai[1]}, frame {projectile.frame}, life {projectile.timeLeft}, distance {Microsoft.Xna.Framework.Vector2.Distance(projectile.Center, NPC.Center):0}px");
+				text.AppendLine($"Familiar {projectile.whoAmI}: item {(int)projectile.ai[1]}, copy {(int)projectile.ai[2]}, frame {projectile.frame}, life {projectile.timeLeft}, distance {Microsoft.Xna.Framework.Vector2.Distance(projectile.Center, NPC.Center):0}px");
 			}
 		text.AppendLine($"Own familiar count: {pets}. Supported items: {string.Join(", ", CompanionPets.SupportedItems)}");
 		if (!Main.dedServ) {

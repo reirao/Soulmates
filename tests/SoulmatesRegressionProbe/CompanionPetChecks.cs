@@ -131,7 +131,7 @@ public sealed partial class EngineChecks
 				check(mate.Profile.PetItems.Count == 0 && owner.inventory.Count(item => item.type == ItemID.Carrot) == 1, "Gift withdrawal fails conservation");
 				mate.Profile.Store(new Item(ItemID.ZephyrFish)); mate.Profile.Store(new Item(ItemID.Nectar)); mate.Profile.Store(new Item(ItemID.Carrot));
 				check(!Equip(2, ItemID.CopperOre, Token(2)) && Pets().Length == 0, "A non-pet item was spawned");
-				check(Equip(2, ItemID.Carrot, Token(2)) && Pets().Length == 1, "Real Bunny summon item was not detected");
+				check(Equip(2, ItemID.Carrot, Token(2)) && Pets().Length == 3, "Calling pets did not summon every owned pet item");
 				Equip(-1, 0, new byte[32]);
 				owner.selectedItem = 1; owner.inventory[1] = new Item(ItemID.CompanionCube);
 				mate.StoreSelectedItem(); SettleServerInventory(mod);
@@ -143,31 +143,33 @@ public sealed partial class EngineChecks
 				owner.inventory = inventory.Select(item => item.Clone()).ToArray();
 				for (int i = 1; i < owner.inventory.Length; i++) owner.inventory[i] = new Item(ItemID.CopperShortsword);
 				mate.WithdrawStorageSlot(CompanionStorage.Pets, 3, false); SettleServerInventory(mod);
-				check(mate.Profile.ItemCount(ItemID.CompanionCube) == 1 && Pets().Length == 1, "Full player inventory erased an equipped pet item");
+				check(mate.Profile.ItemCount(ItemID.CompanionCube) == 1 && Pets().Length == 4, "Full player inventory erased an equipped pet item");
 				owner.inventory = inventory;
 				mate.WithdrawStorageSlot(CompanionStorage.Pets, 3, false); SettleServerInventory(mod);
-				check(mate.Profile.ItemCount(ItemID.CompanionCube) == 0 && Pets().Length == 0 && mate.Profile.PetItemType == 0
+				check(mate.Profile.ItemCount(ItemID.CompanionCube) == 0 && Pets().Length == 3 && mate.Profile.PetItemType == ItemID.ZephyrFish
 					&& owner.inventory.Count(item => item.type == ItemID.CompanionCube) == 1,
 					"Pet withdrawal failed conservation or immediate summon cleanup");
 				sigil = (SoulboundSigil)owner.inventory[0].ModItem; // Server receipts replace inventory Item instances.
 				check(!Equip(0, ItemID.ZephyrFish, new byte[32]), "Stale pet item token was accepted");
-				check(Equip(0, ItemID.ZephyrFish, Token(0)) && Pets().Length == 1 && sigil.Profile.PetItemType == ItemID.ZephyrFish,
+				check(Equip(0, ItemID.ZephyrFish, Token(0)) && Pets().Length == 3 && sigil.Profile.PetItemType == ItemID.ZephyrFish,
 					"Owned pet did not spawn or sync to its Sigil");
 				for (int i = 0; i < 80; i++) Call("UpdateEquippedPet");
-				check(Pets().Length == 1 && mate.Profile.ItemCount(ItemID.ZephyrFish) == 1 && owner.buffType.SequenceEqual(oldBuffs),
+				check(Pets().Length == 3 && mate.Profile.ItemCount(ItemID.ZephyrFish) == 1 && owner.buffType.SequenceEqual(oldBuffs),
 					"Pet duplicates, consumes an item or modifies player buffs: " + State());
-				Projectile pet = Pets()[0]; pet.Center = npc.Center - new Vector2(200, 0); pet.ModProjectile.AI();
+				Projectile pet = Pets().Single(p => (int)p.ai[1] == ItemID.ZephyrFish); pet.Center = npc.Center - new Vector2(200, 0); pet.ModProjectile.AI();
 				check(pet.velocity.X > 0 && pet.damage == 0 && !pet.friendly && pet.ModProjectile.CanDamage() == false,
 					"Pet does not follow the companion or can damage critters");
 				for (int i = 0; i < 40; i++) pet.ModProjectile.AI();
 				check(pet.frame > 0 && pet.frame < Main.projFrames[ProjectileID.ZephyrFish], "Pet did not advance its native sprite frames");
 				mate.Profile.WorkPaused = true; pet.ModProjectile.AI(); check(pet.active, "Pause deleted the cosmetic pet");
-				check(Equip(1, ItemID.Nectar, Token(1)) && Pets().Length == 1 && (int)Pets()[0].ai[1] == ItemID.Nectar,
-					"Switching pets left the previous familiar active");
+				check(Equip(1, ItemID.Nectar, Token(1)) && Pets().Length == 3 && Pets().Count(p => (int)p.ai[1] == ItemID.Nectar) == 1,
+					"Changing the leading pet duplicated or removed owned familiars");
 				mate.Profile.PetItems.RemoveAt(1); Call("UpdateEquippedPet");
-				check(Pets().Length == 0 && mate.Profile.PetItemType == 0 && sigil.Profile.PetItemType == 0,
-					"Withdrawn item left an active or persistent pet");
+				check(Pets().Length == 2 && Pets().All(p => (int)p.ai[1] != ItemID.Nectar)
+					&& mate.Profile.PetItemType == ItemID.ZephyrFish && sigil.Profile.PetItemType == ItemID.ZephyrFish,
+					"Withdrawn item left an active pet or dismissed other owned pets");
 				if (mode == NetmodeID.Server) {
+					Equip(-1, 0, new byte[32]);
 					Type messages = mod.GetType().GetNestedType("MessageType", BindingFlags.NonPublic)!;
 					byte message = Convert.ToByte(Enum.Parse(messages, "PetConfigRequest"));
 					void Request(Guid id, int slot, int type, byte[] token, int trim = 0) {
@@ -180,7 +182,7 @@ public sealed partial class EngineChecks
 					Request(Guid.NewGuid(), 0, ItemID.ZephyrFish, Token(0)); Request(mate.Profile.Id, 0, ItemID.ZephyrFish, new byte[32]);
 					Request(mate.Profile.Id, 0, ItemID.ZephyrFish, Token(0), 1); Request(mate.Profile.Id, int.MaxValue, ItemID.ZephyrFish, new byte[32]);
 					check(Pets().Length == 0, "Stale, truncated or invalid pet request spawned an unowned pet");
-					Request(mate.Profile.Id, 0, ItemID.ZephyrFish, Token(0)); check(Pets().Length == 1, "Valid owned pet packet was not wired");
+					Request(mate.Profile.Id, 0, ItemID.ZephyrFish, Token(0)); check(Pets().Length == 2, "Valid owned pet packet was not wired");
 					Request(mate.Profile.Id, -1, 0, new byte[32]); check(Pets().Length == 0, "Dismiss packet failed");
 				}
 				check(Equip(0, ItemID.ZephyrFish, Token(0)), "Cannot equip before lifecycle check");
@@ -189,7 +191,7 @@ public sealed partial class EngineChecks
 				Call("UpdateEquippedPet"); pet = Pets()[0]; owner.dead = true; pet.ModProjectile.AI();
 				check(!pet.active, "Pet survived owner death"); owner.dead = false;
 				Call("UpdateEquippedPet"); Main.netMode = NetmodeID.MultiplayerClient;
-				check(!Equip(-1, 0, new byte[32]) && Pets().Length == 1, "Client directly mutated pet configuration"); Main.netMode = mode;
+				check(!Equip(-1, 0, new byte[32]) && Pets().Length == 2, "Client directly mutated pet configuration"); Main.netMode = mode;
 				mate.Recall(); check(Pets().Length == 0 && sigil.Profile.PetItemType == ItemID.ZephyrFish
 					&& sigil.Profile.ItemCount(ItemID.ZephyrFish) == 1, "Recall lost pet ownership or left a familiar active");
 			}

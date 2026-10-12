@@ -88,6 +88,28 @@ public sealed partial class AuditChecks
         Expect(owner.inventory[25].IsAir && mate.Profile.PetItems.Count == 1 && ((MetadataPetItem)mate.Profile.PetItems[0].ModItem).Marker == 113,
             "A valid pet gift preserves custom data and cannot replay", "One owned item from non-hotbar slot 25");
         mate.Profile.ClearCargo(); mate.SyncProfileToBoundSigil(); owner.inventory[25] = oldSource;
+        for (int giftIndex = 0; giftIndex < 3; giftIndex++) {
+            owner.inventory[25] = new Item(ItemID.EucaluptusSap);
+            byte[] sapGift = Gift(mate.Profile.Id, GiftToken());
+            Deliver(mod, sapGift); Deliver(mod, sapGift);
+        }
+        Expect(mate.Profile.PetItems.Count == 1 && mate.Profile.PetItems[0].stack == 3 && owner.inventory[25].IsAir
+            && Main.projectile.Count(p => p.active && p.ModProjectile is CompanionFamiliar) == 3,
+            "Repeated real Sap gifts stack and summon exactly their owned count", "Three gifts, three receipts; replay creates nothing");
+        Expect(mate.Profile.PetItems[0].maxStack == new Item(ItemID.EucaluptusSap).maxStack,
+            "Companion stacks do not change vanilla item definitions", "Native player limits remain unchanged");
+        owner.inventory[25] = new Item(ItemID.EucaluptusSap);
+        client.inventory = owner.inventory.Select(item => item.Clone()).ToArray();
+        using (var data = new MemoryStream(Gift(mate.Profile.Id, GiftToken()))) using (var packetReader = new BinaryReader(data))
+            mod.HandlePacket(packetReader, 0);
+        Proposal(PendingInventory(owner), out receiptId, out _);
+        client.inventory[25] = new Item(ItemID.Wood, 9);
+        Receipt(mod, owner, client, receiptId, accepted: false);
+        Call(mate, "UpdateEquippedPet");
+        Expect(mate.Profile.PetItems.Single().stack == 3 && owner.inventory[25].type == ItemID.Wood
+            && Main.projectile.Count(p => p.active && p.ModProjectile is CompanionFamiliar) == 3,
+            "Rejected stacked gift rolls back cargo and its extra familiar", "Newer client inventory is not overwritten");
+        mate.Profile.ClearCargo(); Call(mate, "UpdateEquippedPet"); mate.SyncProfileToBoundSigil(); owner.inventory[25] = oldSource;
         mate.Profile.Store(new Item(ItemID.Nectar));
         mate.Profile.Store(new Item(ItemID.ZephyrFish));
         byte[] PetPacket(int slot, int type, byte[] token) => Packet(mod, "PetConfigRequest", w => {
@@ -102,7 +124,7 @@ public sealed partial class AuditChecks
         Projectile nativePet = Main.projectile[nativeSlot];
         int pets() => Main.projectile.Count(p => p.active && p.ModProjectile is CompanionFamiliar);
         Deliver(mod, PetPacket(0, ItemID.ZephyrFish, StorageToken(mate.Profile, CompanionStorage.Pets, 0)));
-        Expect(pets() == 1 && mate.Profile.ItemCount(ItemID.ZephyrFish) == 1 && nativePet.active,
+        Expect(pets() == 2 && mate.Profile.ItemCount(ItemID.ZephyrFish) == 1 && nativePet.active,
             "Companion familiar coexists with the player's native pet", "Real item remains in cargo");
         Projectile familiar = Main.projectile.First(p => p.active && p.ModProjectile is CompanionFamiliar);
         using var stream = new MemoryStream();

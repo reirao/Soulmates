@@ -1,9 +1,6 @@
-Soulmates 0.28.0 - Careful Finds | Beta
+Soulmates 0.28.1 - A Little Flock | Beta
 
 Create personal companions with the reusable Soulcore. Each Soulbound Sigil carries one companion's appearance, personality, talent, mood, energy, bond, level, learned preferences, cargo, pets and memories. Keep the active Sigil in your inventory. A companion named AETHER has all talents and learned perks. One companion per player; switching retires old effects.
-
-YOUR COMPANION CAN BECOME THE BOSS
-The same companion, with the same memories and inventory. EVIL's angry face is on her wheel; Games reveals the confirmed boss duel. Real character damage. Safeguards below.
 
 SMALL WHEELS, CLEAR INTENTIONS
 Right-click her for companion tools; yourself for player tools and categorized native Emotes. Terraria is the default mouse mode and retains priority over ordinary interactions. Me and Soulmate offer explicit contextual pointing and orders. Work includes ore search, area mining, Config and Last. Mining offers Adaptive, Tunnel, Vein and Surface, automatic ore/material filters, compass directions and bounded passage digging. Tool progression, plants, saplings, decorations and liquid protection still apply. Pause keeps a task, Resume continues and Abort cancels it.
@@ -15,6 +12,8 @@ SMALL PERSONAL UNDERTAKINGS
 During safe idle time she may revisit a classified home, keep her familiar company or reflect on an observed building supply. Return precedes a completed memory; existing answers shape preferences and stories. Work, danger, Stay, Pause and consent retain priority. No construction or remodeling.
 
 HER OWN LITTLE COMPANY
+Pets in her wheel or Details stacks matching vanilla pet items, including Eucalyptus Sap: twelve stack slots, 64 total pet items. Each unit calls one harmless familiar in a separated formation. Select an owned item to call all with that type leading; Dismiss rests all. Right-click returns one item. First explicit gift selects only if empty; later gifts respect dismissal. Gifts and pickup share capacity; overflow stays with its source. Player inventory limits stay native; modded pets keep their stack limits. Native artwork and animation use companion movement, not original player-pet AI or arbitrary modded drawing.
+
 Pets has a staff-symbol toggle for a separate Retinue inventory. Give real unfavorited reusable summon staves; left-click an owned staff to call company and right-click to return it. First explicit gift selects only when storage is empty; later gifts respect dismissal. Normal companions select 1/2/3 distinct staff types at levels 1/10/20; AETHER selects all distinct owned types, within 64 item slots. Duplicates do not multiply helpers. Native projectile artwork uses bounded companion melee/ranged/sentry combat, not original player-minion AI or arbitrary modded drawing. Your buffs, pet, minion and sentry slots stay separate. Recall, switching, dismissal and final withdrawal retire bound effects.
 
 A PLACE TO BELONG
@@ -34,8 +33,6 @@ Salvage in a find's context wheel asks for only this object or captured matching
 CRITTERS AND PETS
 Meet and nearby encounters offer try making friends, catch this one, watch or leave. Collect Always may find an encounter but still asks before catching. Company invites supported wild species, including both scorpions, using bounded native movement. Collect has built-in ordinary net capability; lava species need a carried eligible net. Gold, statue-spawned and released critters are protected. A catch becomes a real Pack item, not a follower; queued receipts name it and its destination. Temporary Company and existing species memory are not persistent individual-animal relationships. Catching and death remain distinct. Permissions, visibility, tasks and recovery still matter.
 
-Give her real reusable vanity/light summon items through Pets in her wheel or Details. Twelve owned-item slots. First gift selects only if empty. Left-click summons a harmless familiar using native pet artwork; right-click returns its real item. One companion-owned familiar, separate from the player's pet. No clone of arbitrary player-pet AI, buffs or modded drawing.
-
 CARGO AND CHARACTER
 Open-ended exact XP and levels; no gameplay level cap. Equipment: 8-12 slots, 99 units per item type. Resources: 60 slots, 50 units per level/type, up to 1,000 at level 20, respecting native stack limits. Further levels preserve that capacity and ordinary retinue balance. Wallet: no gameplay currency cap. Transfers preserve actual items. Details opens conversation, equipment, cargo, pets and read-only diagnostics. The Sigil displays its actual Details binding; V remains unverified in real play.
 
@@ -44,7 +41,7 @@ Nine languages follow Terraria: EN, DE, IT, FR, ES, RU, PT-BR, PL and Simplified
 Optional local Mailbox and Field Notes are off by default. No automatic uploads or online AI. Typed reports stay on this computer. Automatic notes omit account/character/world names, chat and coordinates. Place coordinates remain in the local game save, not the notes.
 
 HONEST BETA
-0.28.0 was installed and uploaded October 12. Automated native engine and packet checks do not certify physical input, rendered gameplay, long campaigns or connected multiplayer. Upload, Steam approval and subscriber delivery are separate. All peers need 0.28.0. Please report version, action, expected result and observed result. Thank you for helping this little companion grow.
+0.28.1 is installed locally October 12. Development pauses for playtime and feedback, without a promised next update. Native checks do not certify physical input, rendered gameplay, long campaigns or connected multiplayer. Upload, approval and delivery are separate. All peers need matching versions. Report version, action and expected/actual result. Thank you for helping this little companion grow.
 
 AI-assisted development: code, writing, interfaces and visual work used extensive AI assistance. Icons and original Soulkin art are AI-generated; other creature/item/inventory/emote graphics reuse Terraria assets.
 Source, history and checks: https://github.com/reirao/Soulmates

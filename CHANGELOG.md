@@ -1,5 +1,13 @@
 # Soulmates Development History
 
+## Soulmates 0.28.1 - A Little Flock (Beta)
+
+- Stack matching vanilla pet summon items, including Eucalyptus Sap, inside the companion's existing Pet inventory. Twelve stack slots and 64 total pet items are shared by gifts and pickup. Excess stays with its source; native player inventory limits are unchanged. Modded items keep their declared stack limit and stacking hooks.
+- Call one harmless familiar for every carried pet-item unit, including duplicate types. Selecting an owned item calls the group with that type first; Dismiss rests the whole group. First gifts into empty storage still select automatically, while later gifts respect explicit dismissal.
+- Give each familiar a companion-bound item/copy identity and separated, gently animated formation position. Withdrawal removes only the corresponding number; loss of the leading type selects another carried type. Recall, switching, owner loss and boss mode retire the group without consuming items. A full projectile pool waits rather than replacing unrelated projectiles.
+- Compact compatible legacy duplicates without deleting cargo, preserve stacks through saves and transport, and return companion-only stacks in native-sized player transfers. Pet UI and diagnostics show stack quantities and actual following/owned counts. Update all nine catalogs.
+- Installed October 12; publication of 0.28.0 was completed first. Development now pauses for playtime and feedback, without a promised next release. New graphical, physical-input, connected multiplayer and endurance acceptance remain open. Upload, approval and subscriber delivery are separate.
+
 ## Soulmates 0.28.0 - Careful Finds (Beta)
 
 - Add a context-wheel Salvage action for whitelisted gems, pots, cobwebs and selected dungeon/underwater decorations. Ask for one object or captured matching finds, with a second unknown-origin confirmation for the bounded area. Recheck world, object frames, surroundings, tools, owner and question token before native destruction.

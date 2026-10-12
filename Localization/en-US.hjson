@@ -129,20 +129,20 @@ Mods: {
 		UI.Character.Slots.Trinket: "Active trinket"
 		Pets.Title: Companion pet
 		Pets.Inventory: "Pet inventory"
-		Pets.InventoryCount: "Pets {0}/{1}"
-		Pets.Controls: "Left-click: summon. Right-click: take back."
+		Pets.InventoryCount: "Pet stacks {0}/{1} | up to 64 pets"
+		Pets.Controls: "Left-click: call all pets; this pet leads. Right-click: take one item back."
 		Pets.StoredOnly: "No pet summoned."
-		Pets.Active: "Summoned: {0}"
+		Pets.Active: "Pets following: {0}/{1}"
 		Pets.Waiting: "Waiting for pet: {0}"
 		UI.Character.Unbound: "Not assigned (Controls)"
 		UI.Character.Shortcut: "Details shortcut: {0}"
 		Pets.Full: "My pet inventory is full. Take a pet item back first."
 		Enums.CompanionStorage.Pets: "Pets"
 		UI.CompanionWheel.WorkMenu.FindOre: "Find nearby ore"
-		Pets.Choose: "Summon from pet inventory: {0}"
-		Pets.Selected: "Following me: {0}"
+		Pets.Choose: "Call all pets; {0} leads"
+		Pets.Selected: "Leading my pets: {0}"
 		Pets.Missing: "Not in my pack: {0}"
-		Pets.Dismiss: Dismiss my pet
+		Pets.Dismiss: Dismiss all my pets
 		Projectiles.CompanionFamiliar.DisplayName: Companion Pet
 		Enums.CompanionQuickAction.RepeatLastWork: Repeat last work
 		Enums.CompanionInitiativeKind.CritterCompany: critter company

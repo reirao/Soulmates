@@ -192,17 +192,32 @@ public sealed partial class EngineChecks
 					byte[] token = (byte[])typeof(CompanionProfile).GetMethod("StorageToken", flags)!.Invoke(mate.Profile,
 						new object[] { CompanionStorage.Pets, slot })!;
 					check((bool)Call("ConfigurePet", slot, itemType, token)!, $"Runtime pet configuration failed {itemType}, mode {mode}");
-					Projectile pet = Pets().Single(); int petIndex = pet.whoAmI; bool animated = false;
+					Projectile pet = Pets().Single(p => (int)p.ai[1] == itemType); int petIndex = pet.whoAmI; bool animated = false;
 					for (int tick = 0; tick < 600; tick++) {
 						if (tick >= 200 && tick < 320) owner.position.X += 1;
 						Tick(1); animated |= pet.frame > 0;
 					}
-					check(pet.active && Pets().Length == 1 && Pets()[0].whoAmI == petIndex
+					check(pet.active && Pets().Length == CompanionPets.OwnedCount(mate.Profile) && pet.whoAmI == petIndex
 						&& (animated || Main.projFrames[CompanionPets.VisualFor(itemType)] == 1),
 						$"Native pet updates lose lifetime, identity or animation {itemType}, mode {mode}");
-					check(Vector2.Distance(pet.Center, npc.Center) < 90 && pet.damage == 0 && mate.Profile.ItemCount(itemType) == 1,
+					check(Vector2.Distance(pet.Center, npc.Center) < 150 && pet.damage == 0 && mate.Profile.ItemCount(itemType) == 1,
 						$"Native pet failed companion follow/ownership {itemType}, mode {mode}");
 				}
+				mate.Profile.Store(new Item(ItemID.EucaluptusSap, CompanionPets.MaximumFollowers - CompanionPets.OwnedCount(mate.Profile)));
+				Tick(1);
+				int[] flock = Pets().Select(p => p.whoAmI).OrderBy(i => i).ToArray();
+				owner.position.X += 120; Tick(600);
+				check(Pets().Length == CompanionPets.MaximumFollowers
+					&& Pets().Select(p => p.whoAmI).OrderBy(i => i).SequenceEqual(flock),
+					$"Full flock lost lifetime or identity during native NPC/projectile updates, mode {mode}");
+				Projectile[] settled = Pets();
+				for (int i = 0; i < settled.Length; i++) {
+					check(Vector2.Distance(settled[i].Center, npc.Center) < 550f && settled[i].damage == 0,
+						$"Full native flock escaped the companion leash or gained damage, mode {mode}");
+					for (int j = 0; j < i; j++) check(Vector2.Distance(settled[i].Center, settled[j].Center) > 72f,
+						$"Full native flock overlaps settled pet frames, mode {mode}");
+				}
+				trace.Add($"full flock {mode}: {Pets().Length} active, {CompanionPets.OwnedCount(mate.Profile)} real pet units, 600 native ticks");
 				mate.Recall(); Tick(3);
 				check(!npc.active && Pets().Length == 0, $"Native recall left a pet behind, mode {mode}");
 			}

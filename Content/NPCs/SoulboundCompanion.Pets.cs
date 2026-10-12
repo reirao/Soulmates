@@ -1,5 +1,7 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Soulmates.Common;
 using Soulmates.Content.Projectiles;
 using Terraria;
@@ -28,14 +30,18 @@ public sealed partial class SoulboundCompanion
 		return true;
 	}
 
-	internal bool HasEquippedPet {
+	internal bool HasEquippedPet => EquippedPetCount > 0;
+	internal int EquippedPetCount {
 		get {
-			if (!NPC.active || !TryGetOwner(out Player owner) || owner.dead
-				|| !CompanionPets.IsCarried(Profile, Profile.PetItemType)) return false;
+			if (!NPC.active || !TryGetOwner(out Player owner) || owner.dead || IsBossChallenge) return 0;
+			var expected = CompanionPets.Followers(Profile).ToHashSet();
+			var present = new HashSet<(int ItemType, int Copy)>();
 			foreach (Projectile projectile in Main.ActiveProjectiles)
 				if (projectile.ModProjectile is CompanionFamiliar pet && pet.BelongsTo(this)
-					&& (int)projectile.ai[1] == Profile.PetItemType) return true;
-			return false;
+					&& projectile.ai[1] == (int)projectile.ai[1] && projectile.ai[2] == (int)projectile.ai[2]
+					&& expected.Contains(((int)projectile.ai[1], (int)projectile.ai[2])))
+					present.Add(((int)projectile.ai[1], (int)projectile.ai[2]));
+			return present.Count;
 		}
 	}
 
@@ -45,28 +51,36 @@ public sealed partial class SoulboundCompanion
 		bool hasOwner = TryGetOwner(out Player owner);
 		bool available = !IsBossChallenge && NPC.active && hasOwner && !owner.dead;
 		if (available && Profile.PetItemType != 0 && !CompanionPets.IsCarried(Profile, Profile.PetItemType)) {
-			Profile.PetItemType = 0;
+			Profile.PetItemType = Profile.PetItems.FirstOrDefault(item => CompanionPets.IsPetItem(item))?.type ?? 0;
 			SyncProfileToBoundSigil();
 			NPC.netUpdate = true;
 		}
-		bool present = false;
+		var expected = available ? CompanionPets.Followers(Profile).ToArray() : [];
+		var missing = expected.ToHashSet();
 		foreach (Projectile projectile in Main.ActiveProjectiles) {
 			if (projectile.ModProjectile is not CompanionFamiliar pet || projectile.ai[0] != NPC.whoAmI) continue;
-			if (!available || !pet.BelongsTo(this) || present || Profile.PetItemType == 0
-				|| projectile.ai[1] != Profile.PetItemType) projectile.Kill();
-			else present = true;
+			if (!pet.BelongsTo(this) || projectile.ai[1] != (int)projectile.ai[1] || projectile.ai[2] != (int)projectile.ai[2]
+				|| !missing.Remove(((int)projectile.ai[1], (int)projectile.ai[2]))) projectile.Kill();
 		}
-		if (!available || present || Profile.PetItemType == 0) return;
-		int index = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Microsoft.Xna.Framework.Vector2.Zero,
-			ModContent.ProjectileType<CompanionFamiliar>(), 0, 0f,
-			Main.netMode == NetmodeID.Server ? Main.maxPlayers : owner.whoAmI,
-			NPC.whoAmI, Profile.PetItemType);
-		if (index >= 0 && index < Main.maxProjectiles && Main.projectile[index].ModProjectile is CompanionFamiliar created) {
-			Main.projectile[index].ai[0] = NPC.whoAmI;
-			Main.projectile[index].ai[1] = Profile.PetItemType;
-			created.Bind(Profile.Id);
-			TraceDiagnostic($"familiar spawned: item {Profile.PetItemType}, projectile {index}");
-			Main.projectile[index].netUpdate = true;
+		for (int formation = 0; formation < expected.Length; formation++) {
+			var follower = expected[formation];
+			if (!missing.Contains(follower)) continue;
+			// Do not replace unrelated projectiles if the world's projectile pool is full.
+			if (!Main.projectile.Take(Main.maxProjectiles).Any(projectile => !projectile.active)) break;
+			var position = NPC.Center + CompanionPets.FollowerOffset(formation, expected.Length, NPC.direction, 0f);
+			int index = Projectile.NewProjectile(NPC.GetSource_FromAI(), position, Microsoft.Xna.Framework.Vector2.Zero,
+				ModContent.ProjectileType<CompanionFamiliar>(), 0, 0f,
+				Main.netMode == NetmodeID.Server ? Main.maxPlayers : owner.whoAmI,
+				NPC.whoAmI, follower.ItemType, follower.Copy);
+			if (index >= 0 && index < Main.maxProjectiles && Main.projectile[index].ModProjectile is CompanionFamiliar created) {
+				Main.projectile[index].ai[0] = NPC.whoAmI;
+				Main.projectile[index].ai[1] = follower.ItemType;
+				Main.projectile[index].ai[2] = follower.Copy;
+				Main.projectile[index].frameCounter = formation * 3 % 14;
+				created.Bind(Profile.Id);
+				TraceDiagnostic($"familiar spawned: item {follower.ItemType}, copy {follower.Copy}, projectile {index}");
+				Main.projectile[index].netUpdate = true;
+			}
 		}
 	}
 }

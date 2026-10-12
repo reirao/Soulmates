@@ -106,8 +106,8 @@ public sealed partial class TalkModeState
 	{
 		if (petStatusLabel is not null && companion is not null) {
 			string status = companion.Profile.PetItemType == 0 ? SoulmatesText.Get("Pets.StoredOnly")
-				: SoulmatesText.Get(companion.HasEquippedPet ? "Pets.Active" : "Pets.Waiting",
-					Lang.GetItemNameValue(companion.Profile.PetItemType));
+				: SoulmatesText.Get("Pets.Active", companion.EquippedPetCount,
+					Math.Min(CompanionPets.MaximumFollowers, CompanionPets.OwnedCount(companion.Profile)));
 			if (retinueView) status = SoulmatesText.Get(companion.Profile.RetinueEnabled ? "Retinue.Active" : "Retinue.StoredOnly",
 				CompanionRetinue.ActiveItems(companion.Profile).Count(), companion.Profile.SummonItems.Count);
 			petStatusLabel.SetText(status, resetScroll: false);
@@ -124,6 +124,8 @@ public sealed partial class TalkModeState
 			TalkItemButton button = petSourceButtons[i];
 			bool present = index < petSourceItems.Count;
 			button.ItemType = present ? Main.LocalPlayer.inventory[petSourceItems[index].Slot].type : 0;
+			button.BadgeText = present && Main.LocalPlayer.inventory[petSourceItems[index].Slot].stack > 1
+				? Main.LocalPlayer.inventory[petSourceItems[index].Slot].stack.ToString() : "";
 			button.HoverText = present ? SoulmatesText.Get(retinueView ? "Retinue.Give" : "Pets.Give", Lang.GetItemNameValue(button.ItemType)) : "";
 			button.IgnoresMouseInteraction = !present || awaitingResponse;
 			if (present && button.Parent is null) petContents!.Append(button);

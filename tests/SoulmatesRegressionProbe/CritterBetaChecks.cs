@@ -157,10 +157,10 @@ public sealed partial class EngineChecks
 				int type = mate.Profile.PetItems[slot].type; byte[] staleToken = Token(slot); owned.Marker = 18;
 				check(!Equip(slot, type, staleToken) && mate.Profile.PetItemType == 0 && Pets().Length == 0,
 					$"Changed pet item metadata inherited an old selection token: {mode}");
-				check(Equip(slot, type, Token(slot)) && Pets().Length == 1 && owned.Marker == 18,
+				check(Equip(slot, type, Token(slot)) && Pets().Length == 2 && owned.Marker == 18,
 					$"Valid pet metadata selection was refused or mutated: {mode}");
 				mate.Profile.PetItems.Add(new Item(type) { stack = 0 }); int emptySlot = mate.Profile.PetItems.Count - 1;
-				check(!Equip(emptySlot, type, Token(emptySlot)) && Pets().Length == 1 && mate.Profile.PetItemType == type,
+				check(!Equip(emptySlot, type, Token(emptySlot)) && Pets().Length == 2 && mate.Profile.PetItemType == type,
 					$"Empty pet slot borrowed authorization from another owned item of its type: {mode}");
 				mate.Profile.PetItems.RemoveAt(emptySlot);
 				using (var stream = new MemoryStream()) {
@@ -177,20 +177,20 @@ public sealed partial class EngineChecks
 				int otherIndex = Projectile.NewProjectile(npc.GetSource_FromAI(), npc.Center, Vector2.Zero,
 					ModContent.ProjectileType<CompanionFamiliar>(), 0, 0f, owner.whoAmI);
 				Projectile otherPet = Main.projectile[otherIndex]; otherPet.ai[0] = 21;
-				Projectile pet = Pets().Single(p => p.ai[0] == npc.whoAmI);
+				Projectile pet = Pets().Single(p => p.ai[0] == npc.whoAmI && p.ai[1] == type);
 				owner.dead = true; Call("UpdateEquippedPet");
 				check(!pet.active && nativePet.active && otherPet.active && mate.Profile.PetItemType == type && owned.Marker == 18,
 					$"Pet update retained a dead owner's familiar, culled an unrelated pet or lost its item: {mode}");
-				owner.dead = false; Call("UpdateEquippedPet"); pet = Pets().Single(p => p.ai[0] == npc.whoAmI);
+				owner.dead = false; Call("UpdateEquippedPet"); pet = Pets().Single(p => p.ai[0] == npc.whoAmI && p.ai[1] == type);
 				npc.active = false;
 				check(!Equip(slot, type, Token(slot)), $"Inactive companion accepted a pet configuration: {mode}");
 				Call("UpdateEquippedPet");
 				check(!pet.active && nativePet.active && otherPet.active, $"Inactive companion retained its familiar or culled other pets: {mode}");
-				npc.active = true; Call("UpdateEquippedPet"); pet = Pets().Single(p => p.ai[0] == npc.whoAmI);
+				npc.active = true; Call("UpdateEquippedPet"); pet = Pets().Single(p => p.ai[0] == npc.whoAmI && p.ai[1] == type);
 				Guid originalId = mate.Profile.Id; mate.Profile.Id = Guid.NewGuid(); Call("UpdateEquippedPet");
-				check(Pets().Count(p => p.ai[0] == npc.whoAmI) == 1 && nativePet.active && otherPet.active,
+				check(Pets().Count(p => p.ai[0] == npc.whoAmI) == 2 && nativePet.active && otherPet.active,
 					$"Pet update retained a stale companion identity in the reused slot: {mode}");
-				mate.Profile.Id = originalId; Call("UpdateEquippedPet"); pet = Pets().Single(p => p.ai[0] == npc.whoAmI);
+				mate.Profile.Id = originalId; Call("UpdateEquippedPet"); pet = Pets().Single(p => p.ai[0] == npc.whoAmI && p.ai[1] == type);
 				Main.netMode = NetmodeID.MultiplayerClient; mate.Profile.PetItemType = 0; pet.ModProjectile.AI();
 				check(pet.active && !(bool)typeof(CompanionFamiliar).GetField("readyToDraw", flags)!.GetValue(pet.ModProjectile)!,
 					$"Client drew a familiar while waiting for a matching selected-pet profile: {mode}");
@@ -199,8 +199,8 @@ public sealed partial class EngineChecks
 					$"Client did not restore its familiar after delayed metadata arrived: {mode}");
 				Main.netMode = mode;
 				int fishSlot = mate.Profile.PetItems.FindIndex(item => item.type == ItemID.ZephyrFish);
-				check(Equip(fishSlot, ItemID.ZephyrFish, Token(fishSlot)) && Pets().Count(p => p.ai[0] == npc.whoAmI) == 1
-					&& Pets().Single(p => p.ai[0] == npc.whoAmI).ai[1] == ItemID.ZephyrFish
+				check(Equip(fishSlot, ItemID.ZephyrFish, Token(fishSlot)) && Pets().Count(p => p.ai[0] == npc.whoAmI) == 2
+					&& Pets().Count(p => p.ai[0] == npc.whoAmI && p.ai[1] == ItemID.ZephyrFish) == 1
 					&& nativePet.active && otherPet.active && owned.Marker == 18 && mate.Profile.ItemCount(type) == 1,
 					$"Pet switching duplicated familiars, lost metadata or culled another pet: {mode}");
 				check(Equip(-1, 0, new byte[32]) && Pets().All(p => p.ai[0] != npc.whoAmI)

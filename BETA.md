@@ -2,9 +2,13 @@
 
 ## Current decision
 
-**0.28.0 - Careful Finds is the current beta.** Installed locally October 12; the existing Workshop item records the upload at 14:18 CEST. It adds consent-first bounded salvage, persisted conservative construction protection, individual critter choices, temporary scorpion company and queued native catch receipts. Unknown old objects are not proven natural; Company is not a persistent named-animal relationship simulation. The Steam-managed package independently passes 117,074 native assertions and 516 audit expectations. Static/catalog checks pass 62,632 assertions with 1,070 keys in nine languages. No new graphical, physical-input, connected-multiplayer or endurance acceptance is claimed. Upload, moderation and subscriber delivery remain separate. [Release notes](releases/0.28.0.md).
+**0.28.1 - A Little Flock is the current beta.** [Installed locally October 12](tests/CLIENT-INSTALL-0.28.1-2026-10-12.md). Matching vanilla pet items stack in her existing Pet bag; one separated harmless familiar per owned unit, twelve stack slots and 64 total pet items. Modded items keep native stacking rules. The exact installed package passes 167,156 native assertions, 519 independent audit expectations and 62,631 static/catalog assertions, with 1,070 keys in nine languages. [Release notes](releases/0.28.1.md) and [checks](tests/STACKED-PETS-0.28.1-2026-10-12.md). No new graphical, physical-input, connected-multiplayer or endurance acceptance is claimed. Upload, moderation and subscriber delivery remain separate.
+
+**Development pause:** no new feature work or promised next release while the creator plays and gathers feedback. This is not full-release certification. Reports and translation corrections remain welcome; no automatic monitoring or uploads are enabled. Historical publication and installation reports retain their original dates and scope.
 
 ## Previous Publication
+
+**0.28.0 - Careful Finds:** consent-first bounded salvage, conservative persistent construction protection, individual critter choices, temporary scorpion company and queued catch receipts. Unknown old objects are not proven natural; Company is not a persistent named-animal relationship simulation. Its Steam-managed package passed 117,074 native assertions and 516 audit expectations. See the [publication receipt](tests/PUBLICATION-0.28.0-2026-10-12.md).
 
 The creator reports a positive playtest of the [installed 0.26.0 candidate](tests/CLIENT-INSTALL-0.26.0-2026-10-11.md) and requests publication. Its installation receipt verifies the file and preserved saves; the playtest is encouraging, not exhaustive graphical or public-delivery acceptance.
 
@@ -28,7 +32,7 @@ The creator reports a positive playtest of the [installed 0.26.0 candidate](test
 - Open-ended exact XP and levels preserve the original curve; resource/ordinary retinue balance remains bounded at level 20. Old saves migrate without losing earned XP.
 - EVIL is optional, off by default and saved per Sigil. The direct angry-face root, Commands or Details toggles normal theatrical presentation. Games separately offers a confirmed owner-only boss duel with real character damage, three phases, no loot/XP or permanent companion death. Abort/Stop, EVIL off, recall, owner loss, leash, timeout or another boss ends it; shots and debuffs clear, inventory survives and work stays paused until Resume.
 - Watch, Company and native Collect retain net, protected-creature, distance, visibility, recovery and consent gates. Catching and death stay distinct; live visits and queued reactions reject stale creatures.
-- Separate equipment/resources/wallet, conserved real-item transfers and twelve item-backed pet slots. The harmless familiar validates its current binding before drawing; it uses native art with custom movement, not arbitrary player-pet AI or modded drawing.
+- Separate equipment/resources/wallet, conserved real-item transfers and twelve pet-stack slots for 64 owned units. One harmless familiar per unit validates its item/copy binding before drawing, with separated formation and native art/custom movement, not arbitrary player-pet AI or modded drawing. Native player inventory limits remain unchanged.
 - Bounded learning, memories and resident relationships; nine complete language catalogs. Some multiplayer replies still use the server language; AI-authored translations need native-speaker feedback.
 - Optional local Mailbox/Field Notes start off. Automatic notes omit names, chat and coordinates; typed notes retain their text. Place coordinates stay in the local game save. Nothing uploads automatically or reaches the developer without sharing. AI-generated original visuals and reused Terraria assets remain disclosed in [README](README.md#ai-assisted-development-disclosure).
 
@@ -36,7 +40,7 @@ The creator reports a positive playtest of the [installed 0.26.0 candidate](test
 
 | Gate | Evidence required | Current status |
 | --- | --- | --- |
-| Production build | Warning-free production build and exact package identity | Candidate build has zero warnings/errors; Steam-managed package passes 117,074 native assertions and 516 independent expectations. Static/catalog: 62,632 assertions. See [0.28.0 checks](tests/CAREFUL-FINDS-0.28.0-2026-10-12.md). |
+| Production build | Warning-free production build and exact package identity | Exact installed 0.28.1 has zero production warnings/errors; 167,156 native assertions, 519 independent expectations and 62,631 static/catalog assertions pass. See [0.28.1 checks](tests/STACKED-PETS-0.28.1-2026-10-12.md). Rebuilt Workshop binaries require separate verification. |
 | Data safety | Mixed cargo/wallet, legacy saves, clone/transport, rejected/duplicate transfers, separate world/Sigil place roles | Native regression passes; independent audit passes. Coverage belongs in the beta-depth report. Real upgrade/reload acceptance remains open. |
 | Behavior control | Consent, priority, recovery, timeout, stale targets/replies, pause/resume/abort and recall | Native regression passes; independent audit passes. Coverage belongs in the beta-depth report. Live timing and perceived usefulness remain open. |
 | Places and EVIL | Room/actual-bed/resident distinctions, separated returns, all four home answers, changed room/world, automatic versus explicit treasure; persona off/on and fair RPS | Native regression passes; independent audit passes. Rendered answers, natural pacing and presentation remain open. |

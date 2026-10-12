@@ -143,7 +143,7 @@ internal sealed class CompanionPackElement(
 			Texture2D background = TextureAssets.InventoryBack.Value;
 			spriteBatch.Draw(background, bounds, enabled ? Color.White : Color.White * 0.35f);
 			Item? item = items is not null && index < items.Count ? items[index] : null;
-			if (selectedStorage == CompanionStorage.Pets && item?.type == profile.PetItemType)
+			if (selectedStorage == CompanionStorage.Pets && item is { IsAir: false } && profile.PetItemType != 0)
 				spriteBatch.Draw(background, bounds, Color.LightGreen * 0.45f);
 			if (selectedStorage == CompanionStorage.Summons && item is not null && CompanionRetinue.IsActive(profile, item.type))
 				spriteBatch.Draw(background, bounds, Color.LightGreen * 0.45f);

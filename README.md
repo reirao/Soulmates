@@ -1,11 +1,13 @@
 # Soulmates
-## 0.28.0 - Careful Finds | Beta
+## 0.28.1 - A Little Flock | Beta
 
-**New: consent-first salvage and individual critter encounters.** Installed locally on October 12; the existing Workshop item records its 0.28.0 upload at 14:18 CEST. Steam approval and subscriber delivery are separate. [Release notes](releases/0.28.0.md) explain the implemented scope and remaining beta checks.
+**New: stack gifted pet items and call a little flock.** Matching vanilla pet items share her existing Pet bag; each owned unit can call one separated harmless familiar, up to 64 pets across twelve stacks. Modded items keep native stacking rules. [Installed locally October 12](tests/CLIENT-INSTALL-0.28.1-2026-10-12.md). Workshop upload, approval and subscriber delivery are separate: check the loaded version under Mods. [Release notes](releases/0.28.1.md).
 
 Create a companion, give her a name and a place in your world, and grow together. Soulmates combines a reusable creator, persistent personalities, useful work, native-symbol Soulwheels, memories, pets and her own summoned company.
 
-[Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3807130821) | [Current release: 0.28.0](https://github.com/reirao/Soulmates/releases/tag/v0.28.0) | [Terraria forum](https://forums.terraria.org/index.php?threads/152194/) | [Bug reports](https://github.com/reirao/Soulmates/issues)
+[Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3807130821) | [Current release: 0.28.1](https://github.com/reirao/Soulmates/releases/tag/v0.28.1) | [Terraria forum](https://forums.terraria.org/index.php?threads/152194/) | [Bug reports](https://github.com/reirao/Soulmates/issues)
+
+**Development pause, not abandonment.** We are pausing new features to play, progress and listen. There is no promised next update or roadmap. Bug reports, translation corrections and stories from your world remain welcome; nothing is monitored or uploaded automatically. Thank you if this little companion made you smile.
 
 # YOUR COMPANION CAN BECOME THE BOSS
 
@@ -17,11 +19,11 @@ Turn on **EVIL** using the native angry-face symbol directly on her wheel. Then 
 
 **Stop safely:** Games > Stop, Commands > Abort/Pause, EVIL off or recall. Victory, owner loss/death, distance, a five-minute timeout or another world boss also ends it. Her inventory and memories survive; challenge shots and debuffs clear. **Work stays paused until Resume.** EVIL by itself remains theatrical expression, not permission to attack or destroy things.
 
-The creator's delighted 0.27.0 playtest remains encouraging historical feedback, not complete progression, endurance or connected-multiplayer certification for 0.28.0. Check the actual loaded version under Mods; Steam moderation and subscriber delivery remain separate. [Release notes](releases/0.28.0.md) and [beta gates](BETA.md) describe the current scope.
+The creator's delighted 0.27.0 playtest remains encouraging historical feedback, not complete progression, endurance or connected-multiplayer certification for 0.28.1. Check the actual loaded version under Mods; Steam moderation and subscriber delivery remain separate. [Release notes](releases/0.28.1.md) and [beta gates](BETA.md) describe the current scope.
 
 ## Start Together
 
-1. Enable Soulmates in tModLoader 1.4.4 and reload. Use **0.28.0 on all multiplayer peers**. Avoid duplicate local packages.
+1. Enable Soulmates in tModLoader 1.4.4 and reload. Use **0.28.1 on all multiplayer peers**. Avoid duplicate local packages.
 2. Characters receive a Soulcore and three Blank Sigils once. Replacements are craftable.
 3. Use the reusable Soulcore or right-click it in inventory. Choose a companion and bind a Sigil.
 4. Summon her with that Sigil and keep it in your inventory. One active companion per player; switching retires the old effects. Up + right-click the Sigil recalls her.
@@ -84,8 +86,9 @@ These are separate systems, not interchangeable pet slots:
 - **Collect** includes ordinary basic-net capability, not a free withdrawable net item. Lava species need an eligible carried lava-proof net. Gold, statue-spawned and player-released critters are protected. Distance, visibility, tasks, stamina and separate consent still matter.
 - Catching turns a native critter into its real item in the ordinary **Pack**, not a following pet. A queued receipt names the caught item and where to find it; multiple receipts do not overwrite one another. If a native drop could not be stored, it remains a real world item. No replacement critter item is invented.
 - Nearby witnessed deaths can provoke sorrow/apology and stronger disapproval when native player attack credit exists. Unknown causes do not accuse a player; catching is not death. Reactions are bounded and may wait behind speech. Individual live timing still needs feedback.
-- **Pets** has twelve real owned-item slots. The upper gift row is still your inventory; the lower row is hers. Give an unfavorited reusable pet item, left-click an owned slot to summon, right-click to return. The first gift selects only into empty storage; later gifts respect dismissal. Wheel icons select, not duplicate.
-- One harmless familiar follows separately from your own pet. Registered item/buff/projectile metadata supplies native animation and basic light with custom movement, not original player-pet AI, special utility or arbitrary modded drawing.
+- **Pets** has twelve stack slots and accepts 64 total real pet items. The upper gift row is yours; the lower row is hers. Matching vanilla reusable pet items stack here only, not in your player inventory. Modded items keep native stack limits and hooks. Gifts and pickup share the same capacity; excess stays at its source. Three Eucalyptus Saps mean one stack of three and three Sugar Gliders.
+- Left-click an owned stack to call the whole group with that type leading. Right-click returns one real item and retires one familiar; returning the last leading type chooses another carried type. Dismiss rests all; later gifts respect dismissal. Only the first gift into empty storage selects automatically. Wheel icons are shortcuts, not copies. She must retain the items. Compatible old duplicates compact without deletion; oversized legacy cargo stays recoverable, with activation bounded at 64.
+- One harmless familiar per carried unit follows separately from your own pet, with item/copy identities, spaced formation and gentle movement. Registered metadata supplies native animation/basic light with custom movement, not original player-pet AI, special utility or arbitrary modded drawing. A full projectile pool waits for a free slot rather than replacing unrelated projectiles.
 - **Retinue**, opened with the staff symbol in Pets, stores real gifted reusable summon staves. Ordinary companions select 1/2/3 distinct types at levels 1/10/20; **AETHER selects every owned distinct type simultaneously**, within 64 item slots. Duplicates do not multiply helpers. Native art uses bounded companion combat, not original minion AI. Your buffs and summon slots remain separate.
 - AETHER's cosmetic insect flock represents up to six actual carried insects; returning them removes their representation. No free critters or combat army are created. Recall, switching, dismissal and final withdrawal clean up bound effects.
 
@@ -110,7 +113,7 @@ No online AI service runs in Soulmates. "Learning" means bounded local game syst
 
 ## Verification And Honesty
 
-0.28.0 passes **117,074 native assertions**, **516 independent audit expectations** and **62,632 static/localization assertions**, with **1,070 keys in nine catalogs**. Production compilation has zero warnings/errors. The test probe retains 33 existing nullable/Hjson warnings. [Candidate checks and installation](tests/CAREFUL-FINDS-0.28.0-2026-10-12.md) keep package identities and limits visible. The Steam-managed package is independently retested before distribution; matching sources/catalog values do not imply binary identity.
+The exact installed 0.28.1 package passes **167,156 native assertions**, **519 independent audit expectations** and **62,631 static/localization assertions**, with **1,070 keys in nine catalogs**. Production compilation has zero warnings/errors; the test probe retains 33 existing nullable/Hjson warnings. [Checks](tests/STACKED-PETS-0.28.1-2026-10-12.md) and [installation receipt](tests/CLIENT-INSTALL-0.28.1-2026-10-12.md) record its exact hash. Native fixtures run 64 familiars for 600 update ticks in single-player and server mode; this is not a rendered playtest or universal performance claim. Any rebuilt Workshop binary needs separate identity verification.
 
 The creator's successful 0.27.0 playtest is separate evidence. Full GUI families, physical inputs, later progression, long sessions, other-mod interactions and connected multiplayer remain open. [BETA.md](BETA.md) and [VERSIONING.md](VERSIONING.md) define acceptance, not an unagreed future roadmap.
 
@@ -122,7 +125,7 @@ We advertised V without a real end-to-end keypress test. A software trigger prov
 
 We sometimes grew features faster than we checked their complete interaction. Cargo bugs produced acorn/Gel piles; unlike stacks could merge incorrectly. Critter logic mistakenly used temporary spawn protection as permanent species classification. Visible buttons were not proof of finished behavior. Versions, repeated logs and old footage confused publication. Those failures prompted shared transfer rules, live identity checks, consent registration, repeated independent audits and exact package comparisons. A recent boss test also caught native ownership resetting hostile-projectile AI fields before the real-engine countercheck passed.
 
-The [complete changelog](CHANGELOG.md) and version-specific reports preserve that history. [changelog.txt](changelog.txt) contains **only this update**, so older logs are not republished. [0.27.0 publication](tests/PUBLICATION-0.27.0-2026-10-12.md) remains historical evidence, not proof of 0.28.0 subscriber delivery.
+The [complete changelog](CHANGELOG.md) and version-specific reports preserve that history. [changelog.txt](changelog.txt) contains **only this update**, so older logs are not republished. [0.28.0 publication](tests/PUBLICATION-0.28.0-2026-10-12.md) remains historical evidence, not proof of 0.28.1 subscriber delivery. Repeated pet symbols were also mistaken for duplication during one playtest: the creator clarified that they had found multiple real items. We keep that correction separate from the real cargo bugs.
 
 ## Feedback And Privacy
 

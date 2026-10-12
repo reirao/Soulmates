@@ -897,17 +897,20 @@ public sealed partial class CompanionProfile
 		List<Item> storage = StorageItems(StorageFor(source));
 		int slotCapacity = StorageCapacity(StorageFor(source));
 		foreach (Item stored in storage) {
-			if (stored.type != transfer.type || stored.stack >= stored.maxStack
+			if (stored.type != transfer.type || stored.stack >= CompanionPets.StackLimit(stored)
 				|| !ItemLoader.CanStack(stored, transfer))
 				continue;
-			ItemLoader.TryStackItems(stored, transfer, out _, infiniteSource: false);
+			if (CompanionPets.IsPetItem(stored))
+				ItemLoader.StackItems(stored, transfer, out _, infiniteSource: false,
+					numToTransfer: Math.Min(transfer.stack, CompanionPets.StackLimit(stored) - stored.stack));
+			else ItemLoader.TryStackItems(stored, transfer, out _, infiniteSource: false);
 			if (transfer.IsAir || transfer.stack <= 0)
 				break;
 		}
 
 		while (!transfer.IsAir && transfer.stack > 0 && storage.Count < slotCapacity) {
 			Item stored = transfer.Clone();
-			stored.stack = Math.Min(transfer.stack, transfer.maxStack);
+			stored.stack = Math.Min(transfer.stack, CompanionPets.StackLimit(transfer));
 			stored.favorited = false;
 			storage.Add(stored);
 			transfer.stack -= stored.stack;
@@ -931,6 +934,8 @@ public sealed partial class CompanionProfile
 
 		int permitted = Math.Min(source.stack,
 			Math.Max(0, CarryLimitFor(source) - ItemCount(source.type)));
+		if (CompanionPets.IsPetItem(source))
+			permitted = Math.Min(permitted, Math.Max(0, CompanionPets.MaximumFollowers - CompanionPets.OwnedCount(this)));
 		if (permitted <= 0)
 			return 0;
 
@@ -940,22 +945,23 @@ public sealed partial class CompanionProfile
 			if (stored is null || stored.IsAir)
 				continue;
 			occupiedSlots++;
-			if (stored.type == source.type && stored.stack < stored.maxStack
+			if (stored.type == source.type && stored.stack < CompanionPets.StackLimit(stored)
 				&& ItemLoader.CanStack(stored, source)) {
-				available += stored.maxStack - stored.stack;
+				available += CompanionPets.StackLimit(stored) - stored.stack;
 				if (available >= permitted)
 					return permitted;
 			}
 		}
 
 		int freeSlots = Math.Max(0, StorageCapacity(StorageFor(source)) - occupiedSlots);
-		long totalCapacity = (long)available + (long)freeSlots * Math.Max(1, source.maxStack);
+		long totalCapacity = (long)available + (long)freeSlots * CompanionPets.StackLimit(source);
 		return (int)Math.Min(permitted, Math.Min(int.MaxValue, totalCapacity));
 	}
 
 	public bool CanStore(Item source) => GetStorableAmount(source) > 0;
 
-	public int CarryLimitFor(Item item) => IsResource(item) ? ResourceCarryLimit : ItemCarryLimit;
+	public int CarryLimitFor(Item item) => CompanionPets.IsPetItem(item) ? CompanionPets.MaximumFollowers
+		: IsResource(item) ? ResourceCarryLimit : ItemCarryLimit;
 
 	public int ItemCount(int itemType)
 	{
@@ -1063,6 +1069,7 @@ public sealed partial class CompanionProfile
 		}
 		SplitLegacyStacks(Pack, MaximumPackSlots);
 		SplitLegacyStacks(Resources, MaximumResourceSlots);
+		CompanionPets.CompactStacks(PetItems);
 		SplitLegacyStacks(PetItems, MaximumPetSlots);
 		SplitLegacyStacks(SummonItems, MaximumSummonSlots);
 	}
@@ -1072,7 +1079,7 @@ public sealed partial class CompanionProfile
 		int originalCount = storage.Count;
 		for (int i = 0; i < originalCount; i++) {
 			Item item = storage[i];
-			int maximum = Math.Max(1, item.maxStack);
+			int maximum = CompanionPets.StackLimit(item);
 			// If cargo is full, retain the old remainder until it can be withdrawn. Never erase it.
 			while (item.stack > maximum && storage.Count < capacity) {
 				Item split = item.Clone();

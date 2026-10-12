@@ -141,6 +141,7 @@ public sealed partial class EngineChecks : ModSystem
 			CheckGamesAndCritters(Check);
 			CheckWorkRecipes(Check, ModLoader.GetMod("Soulmates"));
 			CheckCompanionPets(Check, ModLoader.GetMod("Soulmates"));
+			CheckStackedPets(Check, ModLoader.GetMod("Soulmates"));
 			CheckRetinue(Check, soulmates);
 			CheckCritterScheduling(Check);
 			CheckAbilityRegistry(Check);

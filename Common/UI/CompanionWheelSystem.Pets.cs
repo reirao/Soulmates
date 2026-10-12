@@ -26,7 +26,9 @@ public sealed partial class CompanionWheelSystem
 		if (index == PetEntries + 1) return SoulmatesText.Get("Pets.Dismiss");
 		if (index > PetEntries + 1) return SoulmatesText.Get(index == PetEntries + 2 ? "UI.CompanionWheel.Previous" : "UI.CompanionWheel.Next");
 		int itemType = companion!.Profile.PetItems[CurrentPetPage * PetPageSize + index].type;
-		return SoulmatesText.Get(companion.Profile.PetItemType == itemType ? "Pets.Selected" : "Pets.Choose", Lang.GetItemNameValue(itemType));
+		Item item = companion!.Profile.PetItems[CurrentPetPage * PetPageSize + index];
+		return SoulmatesText.Get(companion.Profile.PetItemType == itemType ? "Pets.Selected" : "Pets.Choose", Lang.GetItemNameValue(itemType))
+			+ (item.stack > 1 ? $" (x{item.stack})" : "");
 	}
 	private void ActivatePet(int index)
 	{
@@ -58,7 +60,7 @@ public sealed partial class CompanionWheelSystem
 				: i == PetEntries ? new WheelIcon(IconKind.Item, ItemID.PiggyBank)
 				: new WheelIcon(i == PetEntries + 1 ? IconKind.Close : i == PetEntries + 2 ? IconKind.Back : IconKind.Forward, 0);
 			DrawNode(spriteBatch, PetPosition(i), 40f, accent,
-				hoverLayer == HoverLayer.Pet && hoverIndex == i, type != 0 && companion!.Profile.PetItemType == type,
+				hoverLayer == HoverLayer.Pet && hoverIndex == i, type != 0 && companion!.Profile.PetItemType != 0,
 				icon);
 		}
 	}

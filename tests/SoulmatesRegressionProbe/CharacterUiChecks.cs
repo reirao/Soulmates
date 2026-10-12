@@ -101,15 +101,15 @@ public sealed partial class EngineChecks
 				if (right) actual?.RightClick(new UIMouseEvent(actual, position)); else actual?.LeftClick(new UIMouseEvent(actual, position));
 			}
 			PetClick(0, false);
-			check(mate.Profile.PetItemType == ItemID.ZephyrFish && Main.projectile.Count(p => p.active && p.ModProjectile is CompanionFamiliar) == 1, "Character pet slot failed to summon exactly one owned pet");
+			check(mate.Profile.PetItemType == ItemID.ZephyrFish && Main.projectile.Count(p => p.active && p.ModProjectile is CompanionFamiliar) == 2, "Character pet slot failed to summon both owned pets");
 			PetClick(1, false);
-			check(mate.Profile.PetItemType == ItemID.Nectar && Main.projectile.Count(p => p.active && p.ModProjectile is CompanionFamiliar) == 1, "Character pet switch left a duplicate");
+			check(mate.Profile.PetItemType == ItemID.Nectar && Main.projectile.Count(p => p.active && p.ModProjectile is CompanionFamiliar) == 2, "Character pet switch duplicated an owned familiar");
 			Call("RefreshPetSources");
 			string PetStatus() => (string)Get("petStatusLabel")!.GetType().GetField("text", flags)!.GetValue(Get("petStatusLabel"))!;
-			check(PetStatus().Contains(Lang.GetItemNameValue(ItemID.Nectar)) && PetStatus().StartsWith("Summoned:"), "Pet status does not show the actual summoned item");
+			check(PetStatus() == SoulmatesText.Get("Pets.Active", 2, 2), "Pet status does not count the actual summoned pets");
 			foreach (Projectile pet in Main.projectile.Where(p => p.active && p.ModProjectile is CompanionFamiliar)) pet.Kill();
 			Call("RefreshPetSources");
-			check(PetStatus().StartsWith("Waiting for pet:"), "Selected item without a familiar falsely appears summoned");
+			check(PetStatus() == SoulmatesText.Get("Pets.Active", 0, 2), "Selected items without familiars falsely appear summoned");
 			PetClick(1, false);
 			Click((UIElement)Get("petDismissButton")!, "dismiss slot");
 			check(mate.Profile.PetItemType == 0 && mate.Profile.ItemCount(ItemID.Nectar) == 1 && mate.Profile.ItemCount(ItemID.ZephyrFish) == 1, "Character dismiss consumed or lost actual items");

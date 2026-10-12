@@ -39,7 +39,6 @@ public sealed class CompanionFamiliar : ModProjectile
 		if (source is EntitySource_Parent { Entity: NPC { ModNPC: SoulboundCompanion companion } }) {
 			companionId = companion.Profile.Id;
 			Projectile.ai[0] = companion.NPC.whoAmI;
-			Projectile.ai[1] = companion.Profile.PetItemType;
 		}
 	}
 	public override void AI()
@@ -57,7 +56,8 @@ public sealed class CompanionFamiliar : ModProjectile
 		if (owner < 0 || owner >= Main.maxPlayers || !Main.player[owner].active || Main.player[owner].dead) {
 			Projectile.Kill(); return;
 		}
-		if (companion.Profile.PetItemType != itemType || !CompanionPets.IsCarried(companion.Profile, itemType)) {
+		if (!CompanionPets.TryGetFormation(companion.Profile, itemType, (int)Projectile.ai[2], out int formation, out int total)
+			|| Projectile.ai[1] != itemType || Projectile.ai[2] != (int)Projectile.ai[2]) {
 			if (Main.netMode == NetmodeID.MultiplayerClient && ++bindingWait < 60) { Projectile.timeLeft = 2; return; }
 			Projectile.Kill(); return;
 		}
@@ -67,8 +67,8 @@ public sealed class CompanionFamiliar : ModProjectile
 		if (visual <= 0) { Projectile.Kill(); return; }
 		readyToDraw = true;
 		if (ProjectileID.Sets.LightPet[visual]) Lighting.AddLight(Projectile.Center, 0.45f, 0.45f, 0.45f);
-		Vector2 goal = companion.NPC.Center + new Vector2(-companion.NPC.direction * 52f,
-			-12f + MathF.Sin(Projectile.localAI[0]++ / 45f) * 5f);
+		Vector2 goal = companion.NPC.Center + CompanionPets.FollowerOffset(formation, total,
+			companion.NPC.direction, Projectile.localAI[0]++);
 		Vector2 offset = goal - Projectile.Center;
 		if (offset.LengthSquared() > 800f * 800f) { Projectile.Center = goal; Projectile.velocity = Vector2.Zero; Projectile.netUpdate = true; }
 		else Projectile.velocity = Vector2.Lerp(Projectile.velocity, offset.SafeNormalize(Vector2.Zero)

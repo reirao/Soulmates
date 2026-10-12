@@ -1,10 +1,9 @@
-Soulmates 0.28.0 - Careful Finds | Beta
+Soulmates 0.28.1 - A Little Flock | Beta
 
-- Context-wheel Salvage for gems, pots, cobwebs and selected dungeon/underwater decorations. Choose one object or matching nearby finds; the latter needs a second unknown-origin confirmation. At most 16 captured matching finds within 12 tiles. No future-object or automatic demolition permission.
-- Recheck entire multi-tiles, surroundings, tools, world and owner before native removal. Protect observed construction, recognized homes, beds, resident housing, wiring, painted/coated objects, tile entities and unsafe supports. Old unrecorded objects remain unknown, not proven natural.
-- Native destruction and shared pickup preserve real drops. Pause, Resume and Abort use existing controls. Fix legacy multi-tile bottom-row capture.
-- Individual critter encounters offer friendship, catch this one, watch or leave. Collect Always still asks about the specific animal. Meet is available in the critter context wheel; both scorpion species support temporary native company.
-- Queued catch receipts name the actual item and Pack/world-drop destination. Multiple catches do not overwrite their messages. A caught critter is an item, not a following pet; no substitute items are invented.
-- Native engine and adversarial packet checks cover the new paths. All nine language catalogs include new text.
+- Matching vanilla pet items, including Eucalyptus Sap, stack in the existing companion Pet inventory. Twelve stack slots, 64 total pet items. Gifts and pickup share the limit; excess stays with the source. Modded items retain native stack limits and hooks.
+- One harmless familiar per carried pet-item unit, including duplicate types. Select an owned item to call the whole group with that type first. Dismiss rests all; later gifts respect dismissal.
+- Separate item/copy identities and spaced, gently animated formation positions. Single-item return retires one familiar; a new carried type leads if the last leading item is returned.
+- Compatible legacy duplicates compact without deleting cargo. Saves and transport preserve counts; player transfers remain within native stack limits. Recall, switching, boss mode and owner loss retire bound familiars. Full projectile pools wait without replacing other projectiles.
+- Pet UI and diagnostics show stack quantities and actual follower counts; all nine catalogs are updated. Summon-weapon Retinue remains separate and still uses distinct types, not duplicate staff counts.
 
-Installed and uploaded October 12. Steam approval and subscriber delivery are separate; check the loaded version under Mods. Physical input, rendered gameplay, connected multiplayer and long-session acceptance remain open. All peers need 0.28.0. This entry contains only 0.28.0 changes.
+Installed locally October 12. Development pauses for playtime and feedback, with no promised next release. Physical input, rendered gameplay, connected multiplayer and long-session acceptance remain open. Multiplayer peers need matching versions. Upload, approval and subscriber delivery are separate. This entry contains only 0.28.1 changes.

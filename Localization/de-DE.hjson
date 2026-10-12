@@ -155,20 +155,20 @@ Mods: {
 		UI.Character.Slots.Trinket: "Aktiver Talisman"
 		Pets.Title: Pet des Gefährten
 		Pets.Inventory: "Pet-Inventar"
-		Pets.InventoryCount: "Pets {0}/{1}"
-		Pets.Controls: "Linksklick: beschwören. Rechtsklick: zurücknehmen."
+		Pets.InventoryCount: "Pet-Stapel {0}/{1} | bis zu 64 Pets"
+		Pets.Controls: "Linksklick: alle Pets rufen; dieses führt. Rechtsklick: ein Item zurücknehmen."
 		Pets.StoredOnly: "Kein Pet beschworen."
-		Pets.Active: "Beschworen: {0}"
+		Pets.Active: "Folgende Pets: {0}/{1}"
 		Pets.Waiting: "Warte auf Pet: {0}"
 		UI.Character.Unbound: "Nicht belegt (Steuerung)"
 		UI.Character.Shortcut: "Details-Taste: {0}"
 		Pets.Full: "Mein Pet-Inventar ist voll. Nimm zuerst ein Pet-Item zurück."
 		Enums.CompanionStorage.Pets: "Pets"
 		UI.CompanionWheel.WorkMenu.FindOre: "Erze in der Nähe suchen"
-		Pets.Choose: "Aus dem Pet-Inventar beschwören: {0}"
-		Pets.Selected: "Folgt mir: {0}"
+		Pets.Choose: "Alle Pets rufen; {0} führt"
+		Pets.Selected: "Führt meine Pets: {0}"
 		Pets.Missing: "Nicht in meinem Pack: {0}"
-		Pets.Dismiss: Mein Pet entlassen
+		Pets.Dismiss: Alle meine Pets entlassen
 		Projectiles.CompanionFamiliar.DisplayName: Gefährten-Pet
 		Enums.CompanionQuickAction.RepeatLastWork: Letzten Auftrag wiederholen
 		Enums.CompanionInitiativeKind.CritterCompany: Tiergesellschaft
